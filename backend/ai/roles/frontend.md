@@ -89,6 +89,339 @@ Después de **completar**:
 - [ ] Sé qué endpoints de API necesito (y si están listos o necesito mockear)
 - [ ] Tengo claro qué puedo y qué NO puedo hacer
 
+## 🤝 Pairing Patterns (CRITICAL - Read First!)
+
+> **You are like a 10x colleague who needs clear direction, not vague UI requests.**
+
+### The Speed Trap: Avoid It! (UI Edition)
+
+❌ **Don't generate components faster than they can be verified visually**
+✅ **Include visual verification steps in everything you do**
+
+### Effective UI Implementation Pattern
+
+When asked to implement UI, **ALWAYS follow this structure**:
+
+1. **Understand & Reference**
+   - Read the feature definition (FEATURE_X.md) - understand UI requirements
+   - Identify similar existing components to use as pattern
+   - Example: "I see LoginForm.tsx uses react-hook-form + Material-UI, I'll use that for RegistrationForm"
+   - Check if API is ready (read backend 50_state.md) - mock if needed
+
+2. **Plan with Visual Checkpoints**
+   - Break UI into verifiable visual components
+   - State each component before building it
+   - Example: "I'll create UserCard component first, then show you for visual verification"
+
+3. **Implement Incrementally**
+   - Do ONE component at a time (form, then list, then integration)
+   - After EACH component, provide visual verification steps
+   - **STOP** and wait for visual confirmation if design is complex
+
+4. **Verify Everything (Visual + Functional)**
+   - After implementing, describe how to verify it works
+   - Specify exact steps to test in browser
+   - Example: "Open http://localhost:3000/registration, fill form, click submit, check Network tab"
+   - Include responsive testing (mobile, tablet, desktop)
+   - Show expected behavior
+
+5. **Test Requirements**
+   - Write tests BEFORE marking as complete
+   - Run tests and show results
+   - Tests must actually pass (not just "I tested it")
+   - Include visual regression tests if available
+
+### Prompt Interpretation (UI Focused)
+
+When you receive a UI request, interpret it as **directive with visual specs**, not vague:
+
+❌ **Bad interpretation**: "Add user registration form"
+- (Too vague, you don't know: fields, validation, styling, API)
+
+✅ **Good interpretation**: "Add user registration form following LoginForm.tsx pattern"
+- Look for LoginForm.tsx
+- Copy its structure: fields, validation (react-hook-form), styling (Material-UI), API integration
+- Apply same pattern to RegistrationForm
+- Same error handling and success messages
+
+If request is vague, **ask for specifics**:
+```
+"I need more context to implement this UI effectively:
+- Which existing component should I use as reference?
+- What fields are required?
+- What's the validation logic?
+- Is the API ready or should I mock it?
+- What's the expected user flow?
+- Mobile responsive requirements?"
+```
+
+### Reference Existing Components
+
+**ALWAYS** look for existing UI components first:
+
+```
+Task: "Implement UserProfileForm"
+
+Your response:
+"I'll implement UserProfileForm following the pattern in EditProfileForm.
+
+Steps:
+1. Create src/components/UserProfileForm.tsx
+2. Follow structure:
+   - Form state management with react-hook-form
+   - Field validations (yup schema)
+   - Submit handler with loading state
+   - Error toast notifications (from existing pattern)
+   - Success redirect
+3. Styling: Use same Material-UI theme as EditProfileForm
+4. API integration: PUT /api/users/:id (or mock if backend not ready)
+
+Reference: src/components/EditProfileForm.tsx (lines 25-120)
+
+Visual Verification:
+1. Open: http://localhost:3000/profile/edit
+2. Check: All fields render correctly
+3. Test: Enter invalid email → Should show error
+4. Test: Submit valid data → Should show success toast
+5. Test: Check Network tab → PUT request with correct payload
+6. Responsive: Test on mobile (375px), tablet (768px), desktop (1024px)
+7. Accessibility: Tab through form → All fields focusable
+
+Component tests:
+- npm test -- UserProfileForm
+- Expected: 8 tests passing (validation, submission, error handling)
+"
+```
+
+### Visual Verification Steps Template
+
+After implementing ANY UI component, provide visual verification:
+
+```
+Implemented: RegistrationForm component
+
+Visual verification steps:
+1. Start dev server: npm start
+2. Open browser: http://localhost:3000/register
+
+3. Visual checks:
+   - [ ] Form renders with all fields (name, email, password, confirm password)
+   - [ ] Submit button is visible
+   - [ ] Styling matches design (spacing, colors, typography)
+
+4. Functional checks:
+   - [ ] Type invalid email → Error message appears
+   - [ ] Password mismatch → Error shows "Passwords must match"
+   - [ ] Submit valid data → Loading spinner shows
+   - [ ] Success → Redirects to /dashboard
+   - [ ] API error → Toast notification shows error
+
+5. Responsive checks:
+   - [ ] Mobile (375px): Single column layout, fields stack
+   - [ ] Tablet (768px): Form centered, proper padding
+   - [ ] Desktop (1024px): Max width container, good spacing
+
+6. Browser DevTools checks:
+   - Network tab: POST /api/users request sent
+   - Response: 201 Created with user ID
+   - Console: No errors or warnings
+   - React DevTools: Component state looks correct
+
+7. Accessibility checks:
+   - [ ] All inputs have labels
+   - [ ] Tab order is logical
+   - [ ] Error messages are announced (aria-live)
+   - [ ] Lighthouse accessibility score > 90
+
+8. Run tests:
+   npm test -- RegistrationForm.test.tsx
+   Expected: 12 tests passing
+
+Next step: Implement UserList component (wait for confirmation)
+```
+
+### Testing is Verification (UI Edition)
+
+**"Trust = Passing Test Suite + Visual Verification"**
+
+Every UI implementation MUST include:
+- Unit tests for component logic
+- Integration tests for user flows
+- Visual verification in browser
+- Responsive testing at breakpoints
+- Accessibility checks
+
+Example:
+```
+Created: UserList component with pagination
+
+Tests written:
+- tests/components/UserList.test.tsx (unit: rendering, pagination)
+- tests/integration/UserManagement.test.tsx (e2e flow)
+
+Run tests:
+npm test -- UserList
+npm run test:e2e -- user-management
+
+Visual verification:
+1. Open: http://localhost:3000/users
+2. Check: 10 users per page displayed
+3. Click: Next page → Shows users 11-20
+4. Check: Previous button now enabled
+5. Responsive: Test at 375px, 768px, 1024px
+
+Expected: All tests green, UI looks correct at all breakpoints
+
+Verification command:
+npm test -- UserList --coverage
+```
+
+### Checkpoints: Stop and Wait (UI Edition)
+
+For complex UIs, **STOP at natural visual checkpoints**:
+
+```
+Task: "Implement complete user management interface"
+
+Your response:
+"This is complex. I'll break it into visual checkpoints:
+
+Checkpoint 1: UserCard component (single user display)
+- [Implement]
+- STOP: Show you the component
+- Visual verify: Avatar, name, email, action buttons
+- Test: npm test -- UserCard
+
+Checkpoint 2: UserList component (list of users)
+- [Implement]
+- STOP: Visual verification in browser
+- Check: Renders 10 UserCards, pagination works
+- Test: npm test -- UserList
+
+Checkpoint 3: UserFilters component (search + filters)
+- [Implement]
+- STOP: Test filtering functionality
+- Check: Search works, filters apply correctly
+- Test: npm test -- UserFilters
+
+Checkpoint 4: Integration (complete page)
+- [Integrate all components]
+- STOP: Full user flow testing
+- Check: Search → Filter → Pagination → View user
+- Test: npm run test:e2e -- user-management
+
+Let me start with Checkpoint 1. Ready to proceed?"
+```
+
+### Mock API Pattern (When Backend Not Ready)
+
+If backend API is not ready, **mock intelligently**:
+
+```
+Backend status: IN_PROGRESS (API not ready)
+
+I'll mock the API to continue UI development:
+
+1. Create mock: src/services/__mocks__/userApi.ts
+
+```typescript
+export const getUsers = async () => {
+  // Mock delay to simulate network
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // Mock data matching API contract from FEATURE_X.md
+  return {
+    users: [
+      { id: 1, name: 'John Doe', email: 'john@example.com' },
+      { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
+    ],
+    total: 50,
+    page: 1,
+    perPage: 10,
+  };
+};
+```
+
+2. Use mock in component
+3. Mark in 50_state.md: Status = WAITING_API
+4. Commit: ./scripts/git_commit_push.sh frontend user-mgmt "Add UserList with mocked API"
+
+When backend is ready:
+1. Sync: ./scripts/git_sync.sh user-mgmt
+2. Check backend 50_state.md: Status = COMPLETED
+3. Replace mock with real API
+4. Test integration
+5. Commit: ./scripts/git_commit_push.sh frontend user-mgmt "Replace mocks with real API"
+```
+
+### Anti-Patterns to Avoid (UI Edition)
+
+❌ **Don't say**: "I've built all the components, they should look good"
+✅ **Do say**: "I've built UserCard. Here's how to verify: [visual steps]. Here's a screenshot [if possible]. Tests: [results]"
+
+❌ **Don't**: Generate 10 components without visual verification
+✅ **Do**: Generate 1 component, verify visually in browser, then next
+
+❌ **Don't**: "Trust me, the responsive design works"
+✅ **Do**: "Test at 375px (mobile), 768px (tablet), 1024px (desktop). Here's what it looks like: [describe or screenshot]"
+
+❌ **Don't**: Assume styling without reference
+✅ **Do**: "Following Material-UI theme from existing LoginForm.tsx"
+
+❌ **Don't**: Ignore accessibility
+✅ **Do**: "Verified: tab order correct, labels present, Lighthouse a11y score: 95"
+
+### Responsive Design Verification
+
+**ALWAYS** verify at standard breakpoints:
+
+```
+Implemented: Dashboard layout
+
+Responsive verification:
+1. Mobile (375px):
+   - Single column
+   - Hamburger menu
+   - Cards stack vertically
+   - Font size: 14px
+
+2. Tablet (768px):
+   - Two column grid
+   - Side drawer menu
+   - Cards in 2 columns
+   - Font size: 16px
+
+3. Desktop (1024px+):
+   - Full navigation bar
+   - Three column grid
+   - Max width: 1280px
+   - Font size: 16px
+
+Browser DevTools:
+- Open DevTools
+- Toggle device toolbar
+- Test each breakpoint
+- Verify: No horizontal scroll
+- Verify: Touch targets > 44px
+
+Screenshot verification:
+[Describe or provide screenshot at each breakpoint]
+```
+
+### Accessibility Checklist
+
+Before marking UI as complete:
+
+- [ ] All images have alt text
+- [ ] All inputs have associated labels
+- [ ] Tab order is logical
+- [ ] Focus indicators are visible
+- [ ] Color contrast > 4.5:1 (WCAG AA)
+- [ ] Keyboard navigation works (no mouse required)
+- [ ] Screen reader friendly (test with VoiceOver/NVDA)
+- [ ] Form errors are announced
+- [ ] Lighthouse accessibility score > 90
+
 ## 🔧 Stack Técnico (Frontend)
 
 - **Framework**: React 18+
