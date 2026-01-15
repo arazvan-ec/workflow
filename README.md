@@ -87,13 +87,29 @@ Y sugiere el workflow apropiado.
 
 ### 2. Iniciar Workflow con Tilix
 
+#### Modo Manual (muestra instrucciones):
 ```bash
-# Abrir Tilix con 4 panes pre-configurados
+# Abrir Tilix con 4 panes y ver instrucciones
 ./.ai/scripts/tilix_start.sh [feature-id] [workflow]
 
 # Ejemplo:
 ./.ai/scripts/tilix_start.sh user-authentication default
 ```
+
+#### Modo Automático (ejecuta Claude Code automáticamente):
+```bash
+# Ejecuta Claude Code automáticamente en cada pane con su rol
+./.ai/scripts/tilix_start.sh [feature-id] [workflow] --execute
+
+# Ejemplo:
+./.ai/scripts/tilix_start.sh user-authentication default --execute
+# O forma corta:
+./.ai/scripts/tilix_start.sh user-authentication default -x
+```
+
+**Diferencias:**
+- **Sin `--execute`**: Crea los 4 panes y muestra instrucciones para copiar/pegar manualmente
+- **Con `--execute`**: Ejecuta automáticamente `claude` en cada pane con el prompt del rol correspondiente
 
 Esto abre Tilix con layout 2x2:
 
@@ -105,7 +121,12 @@ Esto abre Tilix con layout 2x2:
 └────────────────┴────────────────┘
 ```
 
-Cada pane tiene el prompt pre-configurado para su rol.
+Cada pane:
+- ✅ Tiene su rol específico claramente identificado
+- ✅ Ejecuta Claude Code con el prompt del rol (modo --execute)
+- ✅ Incluye referencias a Pairing Patterns
+- ✅ Instrucciones para git_sync.sh y git_commit_push.sh
+- ✅ Checkpoints de verificación según el rol
 
 ### 3. Validar Workflow
 
