@@ -49,17 +49,37 @@ workflow/
 
 ### Instalación
 
+Instala el workflow system en tu proyecto existente:
+
+#### Método 1: Instalador Auto-Contenido (⭐ Recomendado)
+
 ```bash
-# 1. Clonar o inicializar el repo
-git clone <your-repo> workflow
-cd workflow
+# Genera el instalador (desde este repo)
+cd /path/to/workflow
+./scripts/generate-installer
 
-# 2. Verificar que tienes Python 3 y PyYAML
-pip install pyyaml
-
-# 3. (Opcional) Agregar scripts al PATH
-export PATH="$PWD/scripts:$PATH"
+# Copia e instala en tu proyecto
+cp install-workflow.sh /path/to/tu-proyecto/
+cd /path/to/tu-proyecto
+bash install-workflow.sh
 ```
+
+#### Método 2: Desde Repositorio Local
+
+```bash
+cd /path/to/tu-proyecto
+bash /path/to/workflow/install.sh
+```
+
+El instalador:
+- ✅ Copia toda la estructura `/ai/`, scripts y documentación
+- ✅ Crea directorios del proyecto (`src/`, `frontend/`, `tests/`)
+- ✅ Instala dependencias (PyYAML)
+- ✅ Inicializa Git si es necesario
+
+**Requisitos**: Bash, Git, Python 3.6+, pip3
+
+Ver [INSTALLATION.md](INSTALLATION.md) para más opciones de instalación.
 
 ### Crear tu primer workflow
 
