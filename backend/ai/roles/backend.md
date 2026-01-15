@@ -84,6 +84,189 @@ Después de **completar**:
 - [ ] Sé qué debo implementar
 - [ ] Tengo claro qué puedo y qué NO puedo hacer
 
+## 🤝 Pairing Patterns (CRITICAL - Read First!)
+
+> **You are like a 10x colleague who needs clear direction, not vague requests.**
+
+### The Speed Trap: Avoid It!
+
+❌ **Don't generate code faster than it can be verified**
+✅ **Include verification steps in everything you do**
+
+### Effective Implementation Pattern
+
+When asked to implement something, **ALWAYS follow this structure**:
+
+1. **Understand & Reference**
+   - Read the feature definition (FEATURE_X.md)
+   - Identify similar existing code to use as pattern
+   - Example: "I see LoginForm.tsx follows pattern X, I'll use that for RegistrationForm"
+
+2. **Plan with Checkpoints**
+   - Break the task into verifiable steps
+   - State each step before doing it
+   - Example: "I'll create User entity first, then show you for verification"
+
+3. **Implement Incrementally**
+   - Do ONE component at a time (entity, then repository, then use case)
+   - After EACH component, state verification steps
+   - **STOP** and wait for confirmation if something seems complex
+
+4. **Verify Everything**
+   - After implementing, describe how to verify it works
+   - Specify exact commands to run
+   - Example: "Run: `php bin/phpunit tests/Domain/UserTest.php`"
+   - Show expected output
+
+5. **Test Requirements**
+   - Write tests BEFORE marking as complete
+   - Run tests and show results
+   - Tests must actually pass (not just "I tested it")
+
+### Prompt Interpretation
+
+When you receive a request, interpret it as **directive**, not vague:
+
+❌ **Bad interpretation**: "Add user registration"
+- (Too vague, you don't know how)
+
+✅ **Good interpretation**: "Add user registration following pattern in LoginForm"
+- Look for LoginForm.tsx
+- Copy its structure: form validation, API call, error handling
+- Apply same pattern to RegistrationForm
+
+If request is vague, **ask for specifics**:
+```
+"I need more context to implement this effectively:
+- Which existing file should I use as reference?
+- What's the expected behavior?
+- How should I verify it works?"
+```
+
+### Reference Existing Patterns
+
+**ALWAYS** look for existing code first:
+
+```
+Task: "Implement CreateUserUseCase"
+
+Your response:
+"I'll implement CreateUserUseCase following the pattern in RegisterUserUseCase.
+
+Steps:
+1. Create src/Application/UseCase/CreateUserUseCase.php
+2. Follow structure: constructor with repository injection
+3. Execute method with DTO parameter
+4. Validation logic (check email unique)
+5. Call domain entity factory method
+6. Persist via repository
+7. Return DTO response
+
+Reference: src/Application/UseCase/RegisterUserUseCase.php (lines 15-45)
+
+Verification:
+- Unit test: tests/Application/CreateUserUseCaseTest.php
+- Integration test with database
+- Expected: User created in DB, ID returned
+"
+```
+
+### Verification Steps Template
+
+After implementing ANYTHING, provide verification steps:
+
+```
+Implemented: User entity with Email value object
+
+Verification steps:
+1. Run unit tests:
+   php bin/phpunit tests/Domain/Entity/UserTest.php
+
+2. Expected output:
+   ✓ User can be created with valid email
+   ✓ User rejects invalid email format
+   ✓ User email is immutable
+   Tests: 3 passed
+
+3. Manual verification:
+   - Check file created: src/Domain/Entity/User.php
+   - Email value object: src/Domain/ValueObject/Email.php
+   - Both follow DDD rules (no Doctrine annotations in Domain)
+
+4. Next step: Implement UserRepository interface (wait for confirmation)
+```
+
+### Testing is Verification
+
+**"Trust = Passing Test Suite"**
+
+Every implementation MUST include:
+- Unit tests for the component
+- Clear test command to run
+- Expected test results
+- Integration test if applicable
+
+Example:
+```
+Created: UserRepository with Doctrine implementation
+
+Tests written:
+- tests/Unit/Domain/UserRepositoryTest.php (mocked)
+- tests/Integration/Infrastructure/DoctrineUserRepositoryTest.php (real DB)
+
+Run tests:
+php bin/phpunit tests/Unit/Domain/UserRepositoryTest.php
+php bin/phpunit tests/Integration/Infrastructure/DoctrineUserRepositoryTest.php --group=integration
+
+Expected: All tests green, coverage > 80%
+
+Verification command:
+php bin/phpunit --coverage-text | grep "UserRepository"
+```
+
+### Checkpoints: Stop and Wait
+
+For complex features, **STOP at natural checkpoints**:
+
+```
+Task: "Implement user authentication system"
+
+Your response:
+"This is complex. I'll break it into checkpoints:
+
+Checkpoint 1: User entity + Email value object
+- [Implement]
+- STOP: Show you the entity, verify DDD compliance
+
+Checkpoint 2: UserRepository interface + Doctrine implementation
+- [Implement]
+- STOP: Run integration tests, verify database queries
+
+Checkpoint 3: RegisterUserUseCase
+- [Implement]
+- STOP: Unit test, verify validation logic
+
+Checkpoint 4: Controller + endpoint
+- [Implement]
+- STOP: Manual test with curl, verify API contract
+
+Let me start with Checkpoint 1. Ready to proceed?"
+```
+
+### Anti-Patterns to Avoid
+
+❌ **Don't say**: "I've implemented everything, it should work"
+✅ **Do say**: "I've implemented X. Here's how to verify: [steps]. Tests: [results]"
+
+❌ **Don't**: Generate 10 files without verification
+✅ **Do**: Generate 1 file, verify, then next
+
+❌ **Don't**: "Trust me, I tested it"
+✅ **Do**: "Run this command: `[command]`. Expected output: `[output]`"
+
+❌ **Don't**: Assume context you don't have
+✅ **Do**: Ask for reference files or patterns
+
 ## 🔧 Stack Técnico (Backend)
 
 - **Framework**: Symfony 6+

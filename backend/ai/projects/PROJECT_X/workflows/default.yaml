@@ -79,6 +79,27 @@ stages:
       - Write: ./backend/tests/**
       - Write: 50_state.md (backend section only)
 
+    reference_files:
+      - Find similar features in ./backend/src/ to use as patterns
+      - Example DDD structure: Look for existing Domain/Application/Infrastructure layers
+      - API controller examples: Existing controllers in src/Infrastructure/HTTP/Controller/
+      - Repository examples: Existing repos in src/Infrastructure/Persistence/Repository/
+
+    verification_steps:
+      required:
+        - "Run unit tests: `php bin/phpunit tests/Unit/` - Show results"
+        - "Run integration tests: `php bin/phpunit tests/Integration/ --group=integration`"
+        - "Check coverage: `php bin/phpunit --coverage-text` - Must be > 80%"
+        - "Test API endpoint: `curl -X POST localhost:8000/api/[endpoint]` - Show request/response"
+        - "Validate schema: `php bin/console doctrine:schema:validate` - Must pass"
+        - "Run linter: `./vendor/bin/php-cs-fixer fix --dry-run` - Must pass"
+
+      checkpoints:
+        - "After Domain entities: Show code, verify DDD compliance (no Doctrine annotations)"
+        - "After Use Cases: Run unit tests, show passing results"
+        - "After Repository: Test with real database, show query results"
+        - "After Controller: Test endpoint with curl, show HTTP response"
+
     completion_criteria:
       - All backend tasks in 30_tasks.md are completed
       - Tests written and passing (coverage > 80%)
@@ -116,12 +137,36 @@ stages:
       - Write: 50_state.md (frontend section only)
       - Can read backend 50_state.md to check API status
 
+    reference_files:
+      - Find similar components in ./frontend1/src/components/ to use as patterns
+      - Form examples: Look for existing form components (e.g., LoginForm, ProfileForm)
+      - API integration: Check existing API service files in ./frontend1/src/services/
+      - State management: Follow pattern in existing features
+      - Mock examples: Check __mocks__/ directory for API mock patterns
+
+    verification_steps:
+      required:
+        - "Run unit tests: `npm test` - Show results"
+        - "Run linter: `npm run lint` - Must pass"
+        - "Check TypeScript: `npm run type-check` - No errors"
+        - "Test in browser: Open localhost:3000, test user flow - Describe steps taken"
+        - "Test responsive: Check mobile (375px), tablet (768px), desktop (1024px)"
+        - "Check accessibility: Use browser DevTools Lighthouse audit - Score > 90"
+        - "Verify API calls: Open Network tab, verify requests/responses"
+
+      checkpoints:
+        - "After creating component: Show component code, explain props and state"
+        - "After adding form: Test form validation, show error messages"
+        - "After API integration (or mocks): Test API calls in Network tab, show response"
+        - "After styling: Show screenshots at different breakpoints"
+
     completion_criteria:
       - All frontend tasks in 30_tasks.md are completed
       - Tests written and passing (coverage > 70%)
       - UI implements requirements from FEATURE_X.md
+      - All verification steps completed successfully
       - 50_state.md (frontend) status is COMPLETED or WAITING_API
-      - Responsive and accessible
+      - Responsive and accessible (Lighthouse score > 90)
 
     dependencies: [planning]  # Only depends on planning, not backend
     parallel_with: [backend_implementation]  # Can work in parallel
@@ -259,13 +304,20 @@ instructions:
   backend: |
     You are the BACKEND ENGINEER. Your role is defined in: backend/ai/roles/backend.md
 
+    PAIRING MODE (CRITICAL):
+    - You are like a 10x colleague who needs CLEAR DIRECTION
+    - Don't generate code faster than it can be verified
+    - Include verification steps in EVERYTHING you do
+    - Reference existing code patterns
+    - Break work into checkpoints
+
     GIT WORKFLOW (CRITICAL):
     0. BEFORE starting, sync with remote:
        Run: ./scripts/git_sync.sh {FEATURE_ID}
        This will pull planner's changes (FEATURE_X.md, 30_tasks.md, etc.)
 
     MANDATORY READING (in order):
-    1. Read backend/ai/roles/backend.md (your role)
+    1. Read backend/ai/roles/backend.md (your role) - **Includes Pairing Patterns section**
     2. Read backend/ai/projects/PROJECT_X/rules/global_rules.md
     3. Read backend/ai/projects/PROJECT_X/rules/ddd_rules.md
     4. Read backend/ai/projects/PROJECT_X/rules/project_specific.md
@@ -273,24 +325,83 @@ instructions:
     6. Read 30_tasks.md (your tasks)
     7. Read 50_state.md (planner section) to ensure planning is COMPLETED
 
-    TASK:
-    1. Implement backend according to FEATURE_X.md contracts
-    2. Follow DDD architecture (Domain, Application, Infrastructure)
-    3. Write tests (unit + integration, coverage > 80%)
-    4. Update 50_state.md (backend section) with progress
+    FIND REFERENCE CODE (MANDATORY):
+    8. Before implementing, FIND similar existing code to use as pattern:
+       - Look in ./backend/src/ for similar features
+       - Example: If implementing User, look for existing entities
+       - State which file you're using as reference
 
-    GIT COMMIT & PUSH (MANDATORY - DO THIS FREQUENTLY):
-    5. After EACH significant milestone (entity created, use case done, tests pass):
-       Run: ./scripts/git_commit_push.sh backend {FEATURE_ID} "Implement [what you did]"
-       Example: ./scripts/git_commit_push.sh backend user-auth "Implement User entity and repository"
+    IMPLEMENT WITH CHECKPOINTS (MANDATORY):
+    9. Break implementation into verifiable steps:
 
-    6. When ALL tasks done, set 50_state.md status to COMPLETED and push:
-       Run: ./scripts/git_commit_push.sh backend {FEATURE_ID} "Complete backend implementation"
+       Checkpoint 1: Domain Layer
+       - Create entities and value objects
+       - STOP: Show code, verify DDD compliance (no Doctrine annotations)
+       - Run: Unit tests for entities
+       - Verification: php bin/phpunit tests/Unit/Domain/
 
-    IMPORTANT:
-    - Commit and push FREQUENTLY (not just at the end)
-    - Frontend is waiting for your API to be ready
-    - If blocked, update 50_state.md status to BLOCKED and push immediately
+       Checkpoint 2: Application Layer
+       - Create Use Cases with DTOs
+       - STOP: Show use case, verify business logic
+       - Run: Unit tests for use cases
+       - Verification: php bin/phpunit tests/Unit/Application/
+
+       Checkpoint 3: Infrastructure Layer
+       - Create repositories (Doctrine implementation)
+       - Create controllers (API endpoints)
+       - STOP: Show implementations
+       - Run: Integration tests
+       - Verification: php bin/phpunit tests/Integration/ --group=integration
+
+       Checkpoint 4: API Testing
+       - Test endpoints with curl
+       - Show: Request/response examples
+       - Verification: curl -X POST localhost:8000/api/[endpoint] -d '[data]'
+
+    VERIFICATION (MANDATORY):
+    10. After EACH checkpoint, provide verification:
+        - Exact command to run
+        - Expected output
+        - What to check
+        Example: "Run: php bin/phpunit tests/Unit/UserTest.php
+                 Expected: 5 tests, all passing
+                 Shows: User entity validates email correctly"
+
+    TESTING (MANDATORY):
+    11. Write tests BEFORE marking checkpoint as complete
+        - Unit tests for all Domain and Application logic
+        - Integration tests for Infrastructure (database, API)
+        - Coverage must be > 80%
+        - Show: php bin/phpunit --coverage-text
+
+    GIT COMMIT & PUSH (MANDATORY - FREQUENT):
+    12. After EACH checkpoint (NOT at the end):
+        Run: ./scripts/git_commit_push.sh backend {FEATURE_ID} "Implement [what you did]"
+
+        Examples:
+        - "./scripts/git_commit_push.sh backend user-auth 'Add User entity and Email value object'"
+        - "./scripts/git_commit_push.sh backend user-auth 'Add RegisterUserUseCase with validation'"
+        - "./scripts/git_commit_push.sh backend user-auth 'Add UserRepository with Doctrine'"
+        - "./scripts/git_commit_push.sh backend user-auth 'Add POST /api/users endpoint'"
+
+    13. When ALL checkpoints done:
+        - Update 50_state.md (backend section) status to COMPLETED
+        - Run: ./scripts/git_commit_push.sh backend {FEATURE_ID} "Complete backend implementation"
+
+    IMPORTANT REMINDERS:
+    - Reference existing code patterns (state which file)
+    - Stop at each checkpoint for verification
+    - Run tests and show results (don't just say "tests pass")
+    - Commit after each checkpoint (not just at the end)
+    - Frontend is waiting for your API
+    - If blocked, update 50_state.md to BLOCKED and push immediately
+
+    SUCCESS CRITERIA:
+    - All checkpoints completed with passing tests
+    - Code follows DDD architecture
+    - API matches contracts in FEATURE_X.md
+    - Coverage > 80%
+    - All verification steps executed successfully
 
   frontend: |
     You are the FRONTEND ENGINEER. Your role is defined in: backend/ai/roles/frontend.md
