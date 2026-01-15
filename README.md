@@ -68,12 +68,17 @@ Un sistema profesional para trabajar con **múltiples instancias de Claude Code 
 
 ## 🚀 Inicio Rápido
 
-### 1. Consultor Inteligente (⭐ RECOMENDADO)
-
-El consultor te hace preguntas y sugiere el workflow óptimo:
+**NUEVO**: Usa el script maestro `workflow` para todas las operaciones:
 
 ```bash
-./.ai/scripts/suggest_workflow.py
+# Ver ayuda con todos los comandos disponibles
+./workflow help
+```
+
+### 1. Consultoría Interactiva (⭐ RECOMENDADO para empezar)
+
+```bash
+./workflow consult
 ```
 
 Te pregunta:
@@ -85,31 +90,19 @@ Te pregunta:
 
 Y sugiere el workflow apropiado.
 
-### 2. Iniciar Workflow con Tilix
+### 2. Iniciar Workflow Completo (Todos los Roles en Tilix)
 
 #### Modo Manual (muestra instrucciones):
 ```bash
-# Abrir Tilix con 4 panes y ver instrucciones
-./.ai/scripts/tilix_start.sh [feature-id] [workflow]
-
-# Ejemplo:
-./.ai/scripts/tilix_start.sh user-authentication default
+./workflow start user-auth default
 ```
 
-#### Modo Automático (ejecuta Claude Code automáticamente):
+#### Modo Automático (⭐ RECOMENDADO - ejecuta automáticamente):
 ```bash
-# Ejecuta Claude Code automáticamente en cada pane con su rol
-./.ai/scripts/tilix_start.sh [feature-id] [workflow] --execute
-
-# Ejemplo:
-./.ai/scripts/tilix_start.sh user-authentication default --execute
+./workflow start user-auth default --execute
 # O forma corta:
-./.ai/scripts/tilix_start.sh user-authentication default -x
+./workflow start user-auth default -x
 ```
-
-**Diferencias:**
-- **Sin `--execute`**: Crea los 4 panes y muestra instrucciones para copiar/pegar manualmente
-- **Con `--execute`**: Ejecuta automáticamente `claude` en cada pane con el prompt del rol correspondiente
 
 Esto abre Tilix con layout 2x2:
 
@@ -121,21 +114,73 @@ Esto abre Tilix con layout 2x2:
 └────────────────┴────────────────┘
 ```
 
-Cada pane:
-- ✅ Tiene su rol específico claramente identificado
-- ✅ Ejecuta Claude Code con el prompt del rol (modo --execute)
-- ✅ Incluye referencias a Pairing Patterns
-- ✅ Instrucciones para git_sync.sh y git_commit_push.sh
-- ✅ Checkpoints de verificación según el rol
+**Diferencias:**
+- **Sin `--execute`**: Crea los 4 panes y muestra instrucciones para copiar/pegar
+- **Con `--execute`**: Ejecuta automáticamente `claude` en cada pane con su rol
 
-### 3. Validar Workflow
+### 3. Iniciar como Un Rol Específico (⭐ NUEVO)
+
+Si solo quieres trabajar como un rol específico en tu terminal actual:
+
+```bash
+# Como Planner
+./workflow role planner user-auth
+
+# Como Backend Engineer
+./workflow role backend user-auth
+
+# Como Frontend Engineer
+./workflow role frontend user-auth
+
+# Como QA/Reviewer
+./workflow role qa user-auth
+```
+
+Esto:
+- ✅ Inicia Claude Code en la terminal actual
+- ✅ Carga el prompt específico del rol
+- ✅ Incluye referencias a Pairing Patterns
+- ✅ Instrucciones de git_sync.sh y git_commit_push.sh
+- ✅ Checkpoints de verificación
+
+**Perfecto para:**
+- Trabajar en un rol específico sin abrir Tilix
+- Equipos donde cada persona tiene un rol fijo
+- Desarrollo en máquinas separadas (un rol por máquina)
+- Testing de un rol específico
+
+### 4. Comandos de Git
+
+```bash
+# Sincronizar con Git (antes de empezar a trabajar)
+./workflow sync user-auth
+
+# Commit y push cambios
+./workflow commit backend user-auth "Add User entity"
+./workflow commit frontend user-auth "Add LoginForm component"
+./workflow commit qa user-auth "QA review: APPROVED"
+```
+
+### 5. Validar Workflow
 
 ```bash
 # Validar un feature específico
-./.ai/scripts/validate_workflow.py user-authentication
+./workflow validate user-auth
 
 # Validar todos los features
-./.ai/scripts/validate_workflow.py
+./workflow validate
+```
+
+### 6. Resumen de Comandos
+
+```bash
+./workflow consult                              # Consultoría interactiva
+./workflow start <feature> <workflow> [-x]      # Inicia todos los roles en Tilix
+./workflow role <role> <feature>                # Inicia como un rol específico
+./workflow validate [feature]                   # Valida workflow(s)
+./workflow sync <feature>                       # Git pull
+./workflow commit <role> <feature> <msg>        # Git commit + push
+./workflow help                                 # Ayuda completa
 ```
 
 ## 📚 Documentación de Roles
