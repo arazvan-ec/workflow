@@ -1,0 +1,331 @@
+name: "Default Feature Workflow"
+version: "1.0"
+description: "Standard workflow for feature development: Planning → Backend → Frontend → QA"
+
+metadata:
+  project: PROJECT_X
+  created: "2026-01-15"
+  updated: "2026-01-15"
+
+roles:
+  - id: planner
+    name: Planner / Architect
+    role_file: backend/ai/roles/planner.md
+
+  - id: backend
+    name: Backend Engineer
+    role_file: backend/ai/roles/backend.md
+
+  - id: frontend
+    name: Frontend Engineer
+    role_file: backend/ai/roles/frontend.md
+
+  - id: qa
+    name: QA / Reviewer
+    role_file: backend/ai/roles/qa.md
+
+stages:
+  - id: planning
+    name: "Planning & Definition"
+    role: planner
+    description: "Define feature, create contracts, breakdown tasks"
+    workspace: "./backend/ai/projects/PROJECT_X/features/{FEATURE_ID}/"
+
+    inputs:
+      - User requirements
+      - Business context
+
+    outputs:
+      - FEATURE_X.md (feature definition)
+      - 30_tasks.md (task breakdown)
+      - 50_state.md (planner section)
+
+    rules:
+      - Read: backend/ai/roles/planner.md
+      - Read: backend/ai/projects/PROJECT_X/rules/global_rules.md
+      - Read: backend/ai/projects/PROJECT_X/rules/ddd_rules.md
+      - Read: backend/ai/projects/PROJECT_X/rules/project_specific.md
+
+    completion_criteria:
+      - FEATURE_X.md exists with objective, acceptance criteria, API contracts
+      - 30_tasks.md exists with tasks for backend, frontend, qa
+      - 50_state.md (planner) status is COMPLETED
+
+    dependencies: []
+    parallel_with: []
+
+  - id: backend_implementation
+    name: "Backend Implementation"
+    role: backend
+    description: "Implement API according to contracts defined in planning"
+    workspace: "./backend/src/"
+
+    inputs:
+      - FEATURE_X.md (from planning)
+      - 30_tasks.md (backend tasks)
+      - API contracts
+
+    outputs:
+      - Backend code (./backend/src/)
+      - Tests (./backend/tests/)
+      - 50_state.md (backend section)
+
+    rules:
+      - Read: backend/ai/roles/backend.md
+      - Read: backend/ai/projects/PROJECT_X/rules/global_rules.md
+      - Read: backend/ai/projects/PROJECT_X/rules/ddd_rules.md
+      - Read: backend/ai/projects/PROJECT_X/rules/project_specific.md
+      - Write: ./backend/src/**
+      - Write: ./backend/tests/**
+      - Write: 50_state.md (backend section only)
+
+    completion_criteria:
+      - All backend tasks in 30_tasks.md are completed
+      - Tests written and passing (coverage > 80%)
+      - API endpoints implement contracts from FEATURE_X.md
+      - 50_state.md (backend) status is COMPLETED
+      - Code follows DDD architecture
+
+    dependencies: [planning]
+    parallel_with: []  # Can be [frontend_implementation] if mocking is ok
+
+  - id: frontend_implementation
+    name: "Frontend Implementation"
+    role: frontend
+    description: "Implement UI, can mock API if backend not ready"
+    workspace: "./frontend1/src/"  # or frontend2
+
+    inputs:
+      - FEATURE_X.md (from planning)
+      - 30_tasks.md (frontend tasks)
+      - API contracts (to mock or consume)
+      - 50_state.md (backend section) - to check if API is ready
+
+    outputs:
+      - Frontend code (./frontend1/src/ or ./frontend2/src/)
+      - Tests (./frontend1/tests/)
+      - Mocks (if API not ready)
+      - 50_state.md (frontend section)
+
+    rules:
+      - Read: backend/ai/roles/frontend.md
+      - Read: backend/ai/projects/PROJECT_X/rules/global_rules.md
+      - Read: backend/ai/projects/PROJECT_X/rules/project_specific.md
+      - Write: ./frontend1/src/** (or frontend2)
+      - Write: ./frontend1/tests/**
+      - Write: 50_state.md (frontend section only)
+      - Can read backend 50_state.md to check API status
+
+    completion_criteria:
+      - All frontend tasks in 30_tasks.md are completed
+      - Tests written and passing (coverage > 70%)
+      - UI implements requirements from FEATURE_X.md
+      - 50_state.md (frontend) status is COMPLETED or WAITING_API
+      - Responsive and accessible
+
+    dependencies: [planning]  # Only depends on planning, not backend
+    parallel_with: [backend_implementation]  # Can work in parallel
+
+    notes: |
+      Frontend can start immediately after planning by mocking the API.
+      If backend is not ready, set status to WAITING_API and continue with mocks.
+      Once backend is COMPLETED, replace mocks with real API integration.
+
+  - id: integration
+    name: "API Integration"
+    role: frontend
+    description: "Replace mocks with real API (if mocked)"
+    workspace: "./frontend1/src/"
+
+    inputs:
+      - Backend API (from backend_implementation)
+      - Mocked frontend code
+
+    outputs:
+      - Frontend code with real API integration
+      - 50_state.md (frontend section updated)
+
+    rules:
+      - Read: backend/ai/roles/frontend.md
+      - Write: ./frontend1/src/**
+      - Write: 50_state.md (frontend section)
+
+    completion_criteria:
+      - Mocks removed, using real API
+      - Integration tests pass
+      - 50_state.md (frontend) status is COMPLETED
+
+    dependencies: [backend_implementation, frontend_implementation]
+    parallel_with: []
+
+    notes: |
+      This stage only applies if frontend was using mocks.
+      If frontend waited for backend to complete, skip this stage.
+
+  - id: qa_review
+    name: "QA Review & Validation"
+    role: qa
+    description: "Review implementation, run tests, validate against acceptance criteria"
+    workspace: "./"
+
+    inputs:
+      - All code (backend + frontend)
+      - FEATURE_X.md (acceptance criteria)
+      - All tests
+
+    outputs:
+      - qa_report_FEATURE_X.md (QA report)
+      - 50_state.md (qa section)
+      - Issue reports (if any)
+
+    rules:
+      - Read: backend/ai/roles/qa.md
+      - Read: backend/ai/projects/PROJECT_X/rules/global_rules.md
+      - Read: backend/ai/projects/PROJECT_X/rules/ddd_rules.md
+      - Read: backend/ai/projects/PROJECT_X/rules/project_specific.md
+      - Read: All code (backend/src/, frontend*/src/)
+      - Write: qa_report_FEATURE_X.md
+      - Write: 50_state.md (qa section only)
+
+    completion_criteria:
+      - All code reviewed
+      - All tests executed (unit, integration, e2e)
+      - Acceptance criteria validated
+      - QA report created
+      - 50_state.md (qa) status is APPROVED or REJECTED
+
+    dependencies: [integration]  # or [backend_implementation, frontend_implementation] if no integration needed
+    parallel_with: []
+
+    notes: |
+      QA can APPROVE or REJECT.
+      If REJECTED, backend/frontend must fix issues and QA reviews again.
+
+validation:
+  required_files:
+    - FEATURE_X.md
+    - 30_tasks.md
+    - 50_state.md
+
+  required_sections_in_state:
+    - planner
+    - backend
+    - frontend
+    - qa
+
+  required_status_flow:
+    - planner: [PENDING, IN_PROGRESS, COMPLETED]
+    - backend: [PENDING, IN_PROGRESS, BLOCKED, COMPLETED]
+    - frontend: [PENDING, IN_PROGRESS, BLOCKED, WAITING_API, COMPLETED]
+    - qa: [PENDING, IN_PROGRESS, APPROVED, REJECTED]
+
+instructions:
+  planner: |
+    You are the PLANNER. Your role is defined in: backend/ai/roles/planner.md
+
+    MANDATORY READING (in order):
+    1. Read backend/ai/roles/planner.md (your role)
+    2. Read backend/ai/projects/PROJECT_X/rules/global_rules.md
+    3. Read backend/ai/projects/PROJECT_X/rules/ddd_rules.md
+    4. Read backend/ai/projects/PROJECT_X/rules/project_specific.md
+    5. Read this workflow file (default.yaml)
+
+    TASK:
+    1. Create FEATURE_X.md with:
+       - Objective
+       - Acceptance criteria
+       - API contracts (detailed request/response)
+       - Technical considerations
+    2. Create 30_tasks.md with specific tasks for each role
+    3. Update 50_state.md (planner section) to COMPLETED when done
+    4. Commit and push
+
+    DO NOT implement code. Only plan and define.
+
+  backend: |
+    You are the BACKEND ENGINEER. Your role is defined in: backend/ai/roles/backend.md
+
+    MANDATORY READING (in order):
+    1. Read backend/ai/roles/backend.md (your role)
+    2. Read backend/ai/projects/PROJECT_X/rules/global_rules.md
+    3. Read backend/ai/projects/PROJECT_X/rules/ddd_rules.md
+    4. Read backend/ai/projects/PROJECT_X/rules/project_specific.md
+    5. Read FEATURE_X.md (what you need to implement)
+    6. Read 30_tasks.md (your tasks)
+    7. Read 50_state.md (planner section) to ensure planning is COMPLETED
+
+    TASK:
+    1. Implement backend according to FEATURE_X.md contracts
+    2. Follow DDD architecture (Domain, Application, Infrastructure)
+    3. Write tests (unit + integration, coverage > 80%)
+    4. Update 50_state.md (backend section) with progress
+    5. When done, set status to COMPLETED
+    6. Commit and push
+
+    If blocked, set status to BLOCKED and describe the issue in 50_state.md.
+
+  frontend: |
+    You are the FRONTEND ENGINEER. Your role is defined in: backend/ai/roles/frontend.md
+
+    MANDATORY READING (in order):
+    1. Read backend/ai/roles/frontend.md (your role)
+    2. Read backend/ai/projects/PROJECT_X/rules/global_rules.md
+    3. Read backend/ai/projects/PROJECT_X/rules/project_specific.md
+    4. Read FEATURE_X.md (what you need to implement)
+    5. Read 30_tasks.md (your tasks)
+    6. Read 50_state.md (planner section) to ensure planning is COMPLETED
+    7. Read 50_state.md (backend section) to check if API is ready
+
+    TASK:
+    1. Check if backend API is ready (read backend 50_state.md)
+    2. If API NOT ready:
+       - Mock the API endpoints
+       - Set status to WAITING_API in your 50_state.md
+       - Continue with UI implementation
+    3. If API is ready:
+       - Integrate with real API
+       - Set status to IN_PROGRESS
+    4. Implement UI according to FEATURE_X.md
+    5. Write tests (unit + integration, coverage > 70%)
+    6. Update 50_state.md (frontend section) with progress
+    7. When done, set status to COMPLETED
+    8. Commit and push
+
+    If blocked, set status to BLOCKED and describe the issue in 50_state.md.
+
+  qa: |
+    You are the QA/REVIEWER. Your role is defined in: backend/ai/roles/qa.md
+
+    MANDATORY READING (in order):
+    1. Read backend/ai/roles/qa.md (your role)
+    2. Read backend/ai/projects/PROJECT_X/rules/global_rules.md
+    3. Read backend/ai/projects/PROJECT_X/rules/ddd_rules.md
+    4. Read backend/ai/projects/PROJECT_X/rules/project_specific.md
+    5. Read FEATURE_X.md (acceptance criteria to validate)
+    6. Read 50_state.md (all sections) to ensure backend and frontend are COMPLETED
+
+    TASK:
+    1. Verify that backend and frontend status are COMPLETED
+    2. Review backend code (check DDD compliance, tests, API contracts)
+    3. Review frontend code (check UI requirements, tests, integration)
+    4. Execute all tests (unit, integration, e2e)
+    5. Validate acceptance criteria from FEATURE_X.md
+    6. Create qa_report_FEATURE_X.md with findings
+    7. Update 50_state.md (qa section):
+       - APPROVED if everything is ok
+       - REJECTED if there are critical issues
+    8. Commit and push
+
+    If REJECTED, document all issues clearly for backend/frontend to fix.
+
+examples:
+  - name: "User Registration Feature"
+    description: "Example of using this workflow for a user registration feature"
+    stages_executed: [planning, backend_implementation, frontend_implementation, integration, qa_review]
+    parallel_stages: [backend_implementation, frontend_implementation]
+    notes: "Frontend mocked API initially, then integrated after backend was ready"
+
+  - name: "Simple Bug Fix"
+    description: "For simple bugs, you might skip planning and go straight to implementation"
+    stages_executed: [backend_implementation, qa_review]
+    notes: "Planning can be skipped for trivial changes"

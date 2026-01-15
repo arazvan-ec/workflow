@@ -1,359 +1,408 @@
-# Claude Code Parallel Workflow System
+# Claude Code - Sistema Modular y Escalable de Workflow Paralelo
 
-Sistema escalable para usar múltiples instancias de Claude Code en paralelo con roles definidos, contexto compartido explícito y sincronización mediante archivos.
+Sistema completo para uso modular y escalable de Claude Code con **roles detallados**, **reglas específicas**, **workflows configurables** y **ejecución en paralelo**.
 
-## 🎯 Propósito
+## 🎯 ¿Qué es esto?
 
-Permite trabajar con **4+ instancias de Claude Code simultáneamente** en el mismo proyecto o proyectos relacionados, cada una con un rol específico (Planner, Backend, Frontend, QA), compartiendo contexto a través de archivos explícitos en lugar de memoria implícita.
+Un sistema profesional para trabajar con **múltiples instancias de Claude Code en paralelo**, cada una con un rol específico (Planner, Backend, Frontend, QA), compartiendo contexto a través de archivos explícitos y workflows YAML configurables.
 
 ## ✨ Características
 
-- ✅ **Contexto explícito**: Todo el conocimiento compartido en `/ai/`
-- ✅ **Roles definidos**: Cada instancia Claude = un rol fijo
-- ✅ **Workflows declarativos**: YAML define tareas, permisos, dependencias
-- ✅ **Estado sincronizado**: Git para compartir progreso entre roles
-- ✅ **Paralelismo**: Trabajo simultáneo en diferentes capas/módulos
-- ✅ **Validación automática**: Pre-commit hooks garantizan integridad
-- ✅ **Consultor interactivo**: Genera workflow óptimo haciendo preguntas
+- ✅ **Roles detallados en Markdown** con responsabilidades, permisos, prohibiciones
+- ✅ **Reglas por proyecto** (globales, DDD, específicas del proyecto)
+- ✅ **Workflows YAML configurables** (default, DDD parallel, custom)
+- ✅ **Estado centralizado** (`50_state.md`) sincronizado entre roles
+- ✅ **Script Tilix** para abrir múltiples panes automáticamente
+- ✅ **Validador automático** de workflows y features
+- ✅ **Consultor inteligente** que sugiere workflow según la tarea
+- ✅ **Soporte multi-carpeta** (backend, frontend1, frontend2)
 
 ## 📁 Estructura
 
 ```
-workflow/
-├── ai/                          # Contexto compartido (fuente de verdad)
-│   ├── PROJECT.md               # Descripción general del proyecto
-│   ├── CONSTRAINTS.md           # Reglas y restricciones
-│   ├── DECISIONS.md             # Log de decisiones arquitectónicas (ADL)
-│   ├── workflows/               # Templates de workflow YAML
-│   │   ├── README.md
-│   │   ├── feature_template.yaml
-│   │   └── ddd_parallel.yaml
-│   └── features/                # Features activos
-│       └── <feature-id>/
-│           ├── workflow.yaml    # Workflow específico del feature
-│           ├── definition.md    # Definición del feature
-│           ├── tasks.md         # Lista de tareas
-│           ├── planner_state.md # Estado del planner
-│           ├── backend_state.md # Estado del backend dev
-│           └── ...              # Otros archivos de estado por rol
+./
+├── backend/                    # Backend (Symfony + DDD)
+│   ├── ai/
+│   │   ├── roles/             # Roles detallados en Markdown
+│   │   │   ├── backend.md     # Rol Backend Engineer
+│   │   │   ├── frontend.md    # Rol Frontend Engineer
+│   │   │   ├── planner.md     # Rol Planner/Architect
+│   │   │   └── qa.md          # Rol QA/Reviewer
+│   │   └── projects/
+│   │       └── PROJECT_X/
+│   │           ├── rules/     # Reglas del proyecto
+│   │           │   ├── global_rules.md
+│   │           │   ├── ddd_rules.md
+│   │           │   └── project_specific.md
+│   │           ├── features/   # Features activos
+│   │           │   └── FEATURE_X/
+│   │           │       └── 50_state.md  # Estado centralizado
+│   │           └── workflows/  # Workflows YAML
+│   │               ├── default.yaml
+│   │               └── ddd_parallel.yaml
+│   └── src/                   # Código backend
 │
-├── scripts/
-│   ├── workflow                 # CLI principal de gestión
-│   └── workflow-consultant      # Consultor interactivo
+├── frontend1/                  # Frontend Admin
+│   ├── ai/
+│   │   └── features/
+│   │       └── FEATURE_X/
+│   │           └── 50_state.md
+│   └── src/                   # Código frontend
 │
-├── src/                         # Código fuente (backend)
-└── frontend/                    # Código frontend (si aplica)
+├── frontend2/                  # Frontend Public
+│   ├── ai/
+│   │   └── features/
+│   │       └── FEATURE_X/
+│   │           └── 50_state.md
+│   └── src/                   # Código frontend
+│
+└── scripts/                    # Scripts de automatización
+    ├── tilix_start.sh         # Abre Tilix con roles configurados
+    ├── validate_workflow.py   # Validador automático
+    └── suggest_workflow.py    # Consultor inteligente
 ```
 
 ## 🚀 Inicio Rápido
 
-### Instalación
+### 1. Consultor Inteligente (⭐ RECOMENDADO)
 
-Instala el workflow system en tu proyecto existente:
-
-#### Método 1: Instalador Auto-Contenido (⭐ Recomendado)
+El consultor te hace preguntas y sugiere el workflow óptimo:
 
 ```bash
-# Genera el instalador (desde este repo)
-cd /path/to/workflow
-./scripts/generate-installer
-
-# Copia e instala en tu proyecto
-cp install-workflow.sh /path/to/tu-proyecto/
-cd /path/to/tu-proyecto
-bash install-workflow.sh
+./scripts/suggest_workflow.py
 ```
 
-#### Método 2: Desde Repositorio Local
+Te pregunta:
+- ¿Qué tipo de tarea? (feature, bug fix, refactoring)
+- ¿Qué complejidad? (simple, medium, complex)
+- ¿Qué arquitectura? (simple, DDD, clean architecture)
+- ¿Trabajo en paralelo? (backend || frontend)
+- ¿Solo o en equipo?
+
+Y sugiere el workflow apropiado.
+
+### 2. Iniciar Workflow con Tilix
 
 ```bash
-cd /path/to/tu-proyecto
-bash /path/to/workflow/install.sh
+# Abrir Tilix con 4 panes pre-configurados
+./scripts/tilix_start.sh [feature-id] [workflow]
+
+# Ejemplo:
+./scripts/tilix_start.sh user-authentication default
 ```
 
-El instalador:
-- ✅ Copia toda la estructura `/ai/`, scripts y documentación
-- ✅ Crea directorios del proyecto (`src/`, `frontend/`, `tests/`)
-- ✅ Instala dependencias (PyYAML)
-- ✅ Inicializa Git si es necesario
+Esto abre Tilix con layout 2x2:
 
-**Requisitos**: Bash, Git, Python 3.6+, pip3
+```
+┌────────────────┬────────────────┐
+│   PLANNER      │   BACKEND      │
+├────────────────┼────────────────┤
+│   FRONTEND     │   QA           │
+└────────────────┴────────────────┘
+```
 
-Ver [INSTALLATION.md](INSTALLATION.md) para más opciones de instalación.
+Cada pane tiene el prompt pre-configurado para su rol.
 
-### Crear tu primer workflow
-
-#### Opción A: Consultor Interactivo (Recomendado)
+### 3. Validar Workflow
 
 ```bash
-./scripts/workflow consult
+# Validar un feature específico
+./scripts/validate_workflow.py user-authentication
+
+# Validar todos los features
+./scripts/validate_workflow.py
 ```
 
-El consultor te hará preguntas sobre tu tarea y generará el workflow óptimo automáticamente.
+## 📚 Documentación de Roles
 
-#### Opción B: Manual
+Cada rol tiene un archivo Markdown detallado con:
+
+### `backend.md` - Backend Engineer
+
+- **Responsabilidades**: Implementar API según DDD
+- **Lecturas permitidas**: Reglas, workflows, código backend
+- **Escrituras permitidas**: `./backend/src/**`, tests, `50_state.md`
+- **Prohibiciones**: NO modificar frontend, NO cambiar reglas
+- **Stack**: Symfony 6+, PHP 8.1+, DDD, Doctrine
+
+### `frontend.md` - Frontend Engineer
+
+- **Responsabilidades**: Implementar UI, mockear API si necesario
+- **Lecturas permitidas**: Reglas, workflows, código frontend, estado backend
+- **Escrituras permitidas**: `./frontend*/src/**`, tests, `50_state.md`
+- **Prohibiciones**: NO modificar backend, NO cambiar reglas
+- **Stack**: React 18+, TypeScript 5+, Material-UI/Tailwind
+
+### `planner.md` - Planner / Architect
+
+- **Responsabilidades**: Definir features, crear contratos, resolver bloqueos
+- **Lecturas permitidas**: TODO (all roles, rules, code)
+- **Escrituras permitidas**: Contratos, decisiones, reglas (con justificación)
+- **Prohibiciones**: NO implementar código
+- **Funciones**: Arquitectura, decisiones, coordinación
+
+### `qa.md` - QA / Reviewer
+
+- **Responsabilidades**: Revisar implementación, validar calidad
+- **Lecturas permitidas**: TODO (all roles, rules, code)
+- **Escrituras permitidas**: Reports, `50_state.md` (QA section)
+- **Prohibiciones**: NO implementar features (solo validar)
+- **Decisión**: APPROVED o REJECTED
+
+## 📋 Reglas del Proyecto
+
+### `global_rules.md` - Reglas Globales
+
+- Contexto explícito (sin memoria implícita)
+- Roles inmutables
+- Workflow es ley
+- Estado sincronizado via `50_state.md`
+- Git como mecanismo de sincronización
+- Testing requirements
+- Security requirements
+- Code style
+
+### `ddd_rules.md` - Reglas DDD
+
+- Arquitectura de 3 capas (Domain, Application, Infrastructure)
+- Entities, Value Objects, Aggregates
+- Repository interfaces en Domain, implementaciones en Infrastructure
+- Use Cases en Application
+- Controllers delgados
+- Tests por capa
+
+### `project_specific.md` - Reglas Específicas
+
+- Stack técnico concreto
+- API conventions
+- Authentication & Authorization
+- Rate limiting
+- Frontend UI/UX guidelines
+- Deployment process
+- Performance targets
+
+## 🎨 Workflows Disponibles
+
+### `default.yaml` - Workflow Estándar
+
+```
+Planning → Backend → Frontend → Integration → QA
+```
+
+- Backend y Frontend pueden trabajar en **paralelo**
+- Frontend mockea API si backend no está listo
+- Ideal para features estándar full-stack
+
+### `ddd_parallel.yaml` - DDD con Capas Paralelas
+
+```
+Planning → (Domain, Application, Infrastructure in parallel) → Integration → QA
+```
+
+- Roles especializados por capa DDD
+- Máximo paralelismo
+- Ideal para arquitectura DDD compleja
+
+### Custom Workflows
+
+Crea tu propio workflow copiando un template:
 
 ```bash
-# 1. Inicializar feature con template
-./scripts/workflow init mi-feature
-
-# 2. Editar definición
-vim ai/features/mi-feature/definition.md
-
-# 3. Ver estado
-./scripts/workflow status mi-feature
+cp backend/ai/projects/PROJECT_X/workflows/default.yaml \\
+   backend/ai/projects/PROJECT_X/workflows/my_workflow.yaml
 ```
 
-### Trabajar con el workflow
+Edita según tus necesidades.
 
-#### Setup de Tilix (4 instancias paralelas)
+## 🔄 Flujo de Trabajo Típico
 
-1. Abrir Tilix
-2. Crear grid 2x2 (4 panes)
-3. En cada pane, iniciar Claude Code con un rol:
+### Escenario: Feature de Autenticación de Usuarios
 
-```
-┌─────────────────┬─────────────────┐
-│   Planner       │  Backend Dev    │
-│   (Tab 1)       │  (Tab 2)        │
-├─────────────────┼─────────────────┤
-│  Frontend Dev   │  QA/Review      │
-│  (Tab 3)        │  (Tab 4)        │
-└─────────────────┴─────────────────┘
-```
+#### 1. Consultor sugiere workflow
 
-#### Comandos por rol
-
-**Tab 1 - Planner:**
 ```bash
-cd /path/to/workflow
+./scripts/suggest_workflow.py
+
+# Responde preguntas:
+# - Tipo: New feature (full-stack)
+# - Complejidad: Medium
+# - Arquitectura: DDD
+# - Paralelo: Yes
+# - Team: Alone
+
+# Sugiere: ddd_parallel.yaml
+```
+
+#### 2. Inicializar feature
+
+```bash
+mkdir -p backend/ai/projects/PROJECT_X/features/user-auth
+cp backend/ai/projects/PROJECT_X/features/FEATURE_X/50_state.md \\
+   backend/ai/projects/PROJECT_X/features/user-auth/50_state.md
+```
+
+#### 3. Abrir Tilix con roles
+
+```bash
+./scripts/tilix_start.sh user-auth ddd_parallel
+```
+
+#### 4. En cada pane de Tilix
+
+**Pane 1 - Planner:**
+```bash
 claude  # o tu comando de Claude Code
 
-# Dentro de Claude:
-"I am the PLANNER. Read ./ai/features/mi-feature/workflow.yaml
-and follow the planning stage instructions."
+# Paste el prompt de Planner (mostrado por tilix_start.sh)
 ```
 
-**Tab 2 - Backend Developer:**
+Claude lee:
+- `backend/ai/roles/planner.md`
+- Todas las reglas del proyecto
+- Workflow YAML
+
+Claude crea:
+- `user-auth.md` (definición del feature)
+- `30_tasks.md` (breakdown de tareas)
+- Actualiza `50_state.md` (planner) → `COMPLETED`
+
+**Pane 2 - Backend:**
 ```bash
-cd /path/to/workflow
+git pull  # Sincronizar con Planner
 claude
 
-# Dentro de Claude:
-"I am the BACKEND DEVELOPER. Read ./ai/features/mi-feature/workflow.yaml
-and follow the backend implementation stage. First, sync with git pull."
+# Paste el prompt de Backend
 ```
 
-**Tab 3 - Frontend Developer:**
+Claude implementa backend según DDD.
+
+**Pane 3 - Frontend:**
 ```bash
-cd /path/to/workflow
+git pull
 claude
 
-# Dentro de Claude:
-"I am the FRONTEND DEVELOPER. Read ./ai/features/mi-feature/workflow.yaml
-and follow the frontend implementation stage. First, sync with git pull."
+# Paste el prompt de Frontend
 ```
 
-**Tab 4 - QA/Reviewer:**
+Claude implementa UI, mockea API si backend no está listo.
+
+**Pane 4 - QA:**
 ```bash
-cd /path/to/workflow
+git pull
 claude
 
-# Dentro de Claude:
-"I am the QA/REVIEWER. Read ./ai/features/mi-feature/workflow.yaml
-and follow the review stage. First, sync with git pull."
+# Paste el prompt de QA
 ```
 
-### Flujo de trabajo típico
+Claude revisa todo y aprueba/rechaza.
+
+#### 5. Monitorear progreso
 
 ```bash
-# 1. Antes de empezar, todos sincronizan
-./scripts/workflow sync
-
-# 2. Planner define el feature
-#    (En Tab 1 - Claude Planner trabaja)
-#    Actualiza: definition.md, tasks.md, planner_state.md
-#    Hace: git add, git commit, git push
-
-# 3. Backend y Frontend leen definición y trabajan
-#    (En Tab 2 y 3 - ambos Claude trabajan en paralelo)
-#    Actualizan sus respectivos *_state.md
-#    Hacen: git pull (antes), git push (después)
-
-# 4. QA revisa todo
-#    (En Tab 4 - Claude QA revisa)
-#    Crea: review.md
-#    Aprueba o rechaza
-
-# 5. Ver estado consolidado
-./scripts/workflow status mi-feature
+# En terminal separado
+watch -n 5 'cat backend/ai/projects/PROJECT_X/features/user-auth/50_state.md'
 ```
 
-## 📚 Comandos Disponibles
-
-### `workflow` CLI
+#### 6. Validar feature
 
 ```bash
-# Inicializar nuevo feature
-workflow init <feature-id> [template]
-
-# Listar features
-workflow list
-
-# Ver estado de feature(s)
-workflow status [feature-id]
-
-# Sincronizar con remoto
-workflow sync
-
-# Validar workflow(s)
-workflow validate [feature-id]
-
-# Consultor interactivo
-workflow consult
-
-# Ayuda
-workflow help
+./scripts/validate_workflow.py user-auth
 ```
-
-## 🎨 Templates de Workflow
-
-### `feature_template.yaml` - Template Básico
-
-3 roles: Planner → Developer → QA
-
-Ideal para features simples sin arquitectura específica.
-
-```bash
-workflow init mi-feature feature_template
-```
-
-### `ddd_parallel.yaml` - DDD con Paralelismo
-
-5 roles: Planner → (Domain, Application, Infrastructure en paralelo) → QA
-
-Ideal para features complejos con Domain-Driven Design.
-
-```bash
-workflow init mi-feature-ddd ddd_parallel
-```
-
-## 🔒 Principios Fundamentales
-
-### 1. Sin Estado Compartido en Memoria
-
-❌ **NO**: "Claude, recuerda que antes dijimos que..."
-✅ **SÍ**: "Claude, lee el archivo `./ai/features/X/definition.md`"
-
-### 2. Archivos como Fuente de Verdad
-
-Si no está escrito en `/ai/`, **no existe**.
-
-### 3. Roles Inmutables
-
-Una instancia Claude = un rol fijo durante toda la sesión.
-
-No cambiar de Planner a Developer a mitad de camino.
-
-### 4. Comunicación via Archivos
-
-Roles se comunican escribiendo y leyendo archivos en `./ai/features/<feature-id>/`.
-
-No hay comunicación directa entre instancias.
-
-### 5. Sincronización Explícita
-
-Hacer `git pull` antes de trabajar.
-Hacer `git push` después de completar tareas.
 
 ## 🎯 Casos de Uso
 
-### Caso 1: Solo tú, trabajo secuencial
+### Solo tú, trabajo secuencial
 
 ```
-Roles: Planner → Developer → QA (tú cambias entre roles)
-Tabs: 2 (Planner+Dev en 1, QA en 2)
+Planning → Backend → Frontend → QA
+(cambias de rol manualmente)
 ```
 
-### Caso 2: Solo tú, trabajo paralelo
+### Solo tú, trabajo paralelo
 
 ```
-Roles: Planner, Backend, Frontend, QA
-Tabs: 4 (uno por rol, tú cambias entre tabs)
-Paralelismo: Backend + Frontend simultáneamente
+Planning → (Backend || Frontend) → QA
+(Tilix con 4 panes, cambias entre tabs)
 ```
 
-### Caso 3: Equipo (3 personas)
+### Equipo (3 personas)
 
 ```
 Persona 1: Planner + QA
-Persona 2: Backend Developer
-Persona 3: Frontend Developer
+Persona 2: Backend
+Persona 3: Frontend
 
-Cada persona = 1 Claude instance = 1 rol
+(Cada persona = 1 Claude instance = 1 rol)
 ```
 
-### Caso 4: DDD complejo en paralelo
+### DDD complejo en paralelo
 
 ```
-Roles: Planner, Domain Dev, Application Dev, Infrastructure Dev, QA
-Tabs: 5 (todos en paralelo después de planning)
+Planning → (Domain || Application || Infrastructure) → Integration → QA
 ```
 
-## 🛠️ Personalización
+## 🔧 Scripts Disponibles
 
-### Crear tu propio template
+| Script | Descripción |
+|--------|-------------|
+| `suggest_workflow.py` | Consultor inteligente que sugiere workflow |
+| `tilix_start.sh` | Abre Tilix con roles pre-configurados |
+| `validate_workflow.py` | Valida workflows y features |
+| `view_state.sh` | (TODO) Muestra estado consolidado de feature |
 
-1. Copiar template existente:
+## 📦 Instalación en Nuevo Proyecto
+
 ```bash
-cp ai/workflows/feature_template.yaml ai/workflows/mi_template.yaml
+# Opción 1: Copiar todo el sistema
+cp -r /path/to/workflow/* /path/to/mi-proyecto/
+
+# Opción 2: Usar como template
+# (si está en GitHub, usar "Use this template")
+
+# Opción 3: Git submodule
+cd /path/to/mi-proyecto
+git submodule add <repo-url> workflow-system
 ```
 
-2. Editar roles, stages, permisos
+## 🎓 Ejemplos
 
-3. Usar:
-```bash
-workflow init mi-feature mi_template
-```
+Ver carpeta `backend/ai/projects/PROJECT_X/features/FEATURE_X/` para un ejemplo completo de:
+- `50_state.md` - Estado inicial de un feature
+- Workflow YAML aplicado
+- Roles interactuando
 
-### Adaptar workflow existente
+## 💡 Principios Fundamentales
 
-Editar directamente:
-```bash
-vim ai/features/mi-feature/workflow.yaml
-```
+1. **Contexto Explícito** - Todo en archivos, nada en memoria
+2. **Roles Inmutables** - Una instancia = un rol fijo
+3. **Estado Sincronizado** - `50_state.md` como fuente de verdad
+4. **Workflows Declarativos** - YAML define el proceso
+5. **Git como Sincronización** - Pull antes, push después
 
-## 📖 Documentación Detallada
+## 🚫 Anti-patterns (Evitar)
 
-- [Workflows README](ai/workflows/README.md) - Formato YAML de workflows
-- [PROJECT.md](ai/PROJECT.md) - Descripción del proyecto
-- [CONSTRAINTS.md](ai/CONSTRAINTS.md) - Reglas y restricciones
-- [DECISIONS.md](ai/DECISIONS.md) - Log de decisiones arquitectónicas
+❌ "Recuerda que antes dijimos..."
+✅ "Lee el archivo `50_state.md`"
 
-## 🤝 Contribuir
+❌ Cambiar de rol a mitad de camino
+✅ Mantener rol fijo durante toda la sesión
 
-Este es un sistema vivo. Mejoras bienvenidas:
+❌ Implementar sin leer reglas
+✅ Leer TODAS las reglas antes de empezar
 
-1. Nuevos templates de workflow
-2. Validadores adicionales
-3. Integraciones (pre-commit hooks, CI)
-4. Documentación y ejemplos
+❌ Saltarse el workflow
+✅ Seguir el workflow YAML estrictamente
 
 ## 📝 Licencia
 
-MIT License - Úsalo como quieras.
-
-## 🆘 Soporte
-
-Para preguntas o problemas:
-1. Lee la documentación en `/ai/`
-2. Revisa ejemplos en `/ai/workflows/`
-3. Usa `workflow consult` para generar workflows automáticamente
+MIT License
 
 ---
 
-**Hecho con ❤️ para Claude Code**
+**¿Listo para empezar?**
 
+```bash
+./scripts/suggest_workflow.py
 ```
-"No memory, only files. No assumptions, only facts."
-```
+
+🚀 **Disfruta trabajando con múltiples Claude Code en paralelo!**
