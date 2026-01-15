@@ -23,7 +23,7 @@
   - `./frontend1/src/**`
   - `./frontend2/src/**`
 - **Todos los estados** de features:
-  - `./backend/ai/projects/PROJECT_X/features/*/50_state.md`
+  - `./.ai/projects/PROJECT_X/features/*/50_state.md`
   - `./frontend1/ai/features/*/50_state.md`
   - `./frontend2/ai/features/*/50_state.md`
 - **Workflows** YAML

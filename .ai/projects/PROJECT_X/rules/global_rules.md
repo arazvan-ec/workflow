@@ -17,7 +17,7 @@ Este archivo contiene las reglas globales que **todos los roles** deben seguir s
 ### 1. Contexto Explícito - Sin Memoria Implícita
 
 ❌ **NO**: "Recuerda que antes dijimos que..."
-✅ **SÍ**: "Lee el archivo `./backend/ai/projects/PROJECT_X/features/FEATURE_X/50_state.md`"
+✅ **SÍ**: "Lee el archivo `./.ai/projects/PROJECT_X/features/FEATURE_X/50_state.md`"
 
 **Regla**: Todo conocimiento compartido debe estar explícitamente en archivos. No asumas contexto implícito.
 

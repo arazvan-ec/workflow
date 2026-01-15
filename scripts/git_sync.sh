@@ -88,7 +88,7 @@ git status --short
 
 # If feature-id provided, show its state
 if [ -n "$FEATURE_ID" ]; then
-    STATE_FILE="./backend/ai/projects/PROJECT_X/features/$FEATURE_ID/50_state.md"
+    STATE_FILE="./.ai/projects/PROJECT_X/features/$FEATURE_ID/50_state.md"
     if [ -f "$STATE_FILE" ]; then
         echo ""
         info "Feature state: $FEATURE_ID"

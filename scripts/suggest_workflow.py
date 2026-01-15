@@ -130,15 +130,15 @@ def suggest_workflow():
 
     print(f"\n{GREEN}Commands to run:{NC}\n")
     print(f"  # 1. Initialize feature")
-    print(f"  mkdir -p ./backend/ai/projects/PROJECT_X/features/{feature_id}")
-    print(f"  cp ./backend/ai/projects/PROJECT_X/features/FEATURE_X/50_state.md \\")
-    print(f"     ./backend/ai/projects/PROJECT_X/features/{feature_id}/50_state.md")
+    print(f"  mkdir -p ./.ai/projects/PROJECT_X/features/{feature_id}")
+    print(f"  cp ./.ai/projects/PROJECT_X/features/FEATURE_X/50_state.md \\")
+    print(f"     ./.ai/projects/PROJECT_X/features/{feature_id}/50_state.md")
     print(f"")
     print(f"  # 2. Start Tilix with roles")
     print(f"  ./scripts/tilix_start.sh {feature_id} {suggested_workflow}")
     print(f"")
     print(f"  # 3. Monitor progress")
-    print(f"  watch -n 5 'cat ./backend/ai/projects/PROJECT_X/features/{feature_id}/50_state.md'")
+    print(f"  watch -n 5 'cat ./.ai/projects/PROJECT_X/features/{feature_id}/50_state.md'")
 
     print(f"\n{GREEN}Happy coding! 🚀{NC}\n")
 

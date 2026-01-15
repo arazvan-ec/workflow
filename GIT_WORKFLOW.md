@@ -183,7 +183,7 @@ Después de **cada milestone**:
 #### 2. Verificar si Backend está listo
 
 ```bash
-cat backend/ai/projects/PROJECT_X/features/user-auth/50_state.md | grep -A 5 "## 💻 Backend"
+cat .ai/projects/PROJECT_X/features/user-auth/50_state.md | grep -A 5 "## 💻 Backend"
 ```
 
 Si Backend status es `COMPLETED`, puedes integrar API real.
@@ -232,7 +232,7 @@ Si no, mockea la API y continúa.
 #### 2. Verificar que Backend y Frontend están `COMPLETED`
 
 ```bash
-cat backend/ai/projects/PROJECT_X/features/user-auth/50_state.md
+cat .ai/projects/PROJECT_X/features/user-auth/50_state.md
 ```
 
 Si alguno no está `COMPLETED`, espera a que terminen.
@@ -376,7 +376,7 @@ Si dos roles actualizan `50_state.md` simultáneamente:
 
 ```bash
 # Al hacer git pull
-Auto-merging backend/ai/projects/PROJECT_X/features/user-auth/50_state.md
+Auto-merging .ai/projects/PROJECT_X/features/user-auth/50_state.md
 CONFLICT (content): Merge conflict in 50_state.md
 ```
 
@@ -409,7 +409,7 @@ CONFLICT (content): Merge conflict in 50_state.md
 
 - [ ] Branch de feature existe o lo creo: `git checkout -b feature/[feature-id]`
 - [ ] Sincronizo: `./scripts/git_sync.sh [feature-id]`
-- [ ] Leo mi rol: `backend/ai/roles/[my-role].md`
+- [ ] Leo mi rol: `.ai/roles/[my-role].md`
 - [ ] Leo reglas: `global_rules.md`, `ddd_rules.md`, `project_specific.md`
 - [ ] Leo workflow: `workflows/default.yaml`
 
@@ -506,7 +506,7 @@ cd /path/to/project
 ./scripts/git_sync.sh user-auth  # Trae cambios del Planner
 
 # Verificar si Backend está listo
-cat backend/ai/projects/PROJECT_X/features/user-auth/50_state.md | grep "Backend"
+cat .ai/projects/PROJECT_X/features/user-auth/50_state.md | grep "Backend"
 
 # Backend status: IN_PROGRESS (no listo aún)
 
@@ -537,7 +537,7 @@ cd /path/to/project
 ./scripts/git_sync.sh user-auth  # Trae TODO el código
 
 # Verificar que Backend y Frontend están COMPLETED
-cat backend/ai/projects/PROJECT_X/features/user-auth/50_state.md
+cat .ai/projects/PROJECT_X/features/user-auth/50_state.md
 
 # Backend: COMPLETED ✓
 # Frontend: COMPLETED ✓

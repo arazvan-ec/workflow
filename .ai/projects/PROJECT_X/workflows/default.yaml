@@ -10,26 +10,26 @@ metadata:
 roles:
   - id: planner
     name: Planner / Architect
-    role_file: backend/ai/roles/planner.md
+    role_file: .ai/roles/planner.md
 
   - id: backend
     name: Backend Engineer
-    role_file: backend/ai/roles/backend.md
+    role_file: .ai/roles/backend.md
 
   - id: frontend
     name: Frontend Engineer
-    role_file: backend/ai/roles/frontend.md
+    role_file: .ai/roles/frontend.md
 
   - id: qa
     name: QA / Reviewer
-    role_file: backend/ai/roles/qa.md
+    role_file: .ai/roles/qa.md
 
 stages:
   - id: planning
     name: "Planning & Definition"
     role: planner
     description: "Define feature, create contracts, breakdown tasks"
-    workspace: "./backend/ai/projects/PROJECT_X/features/{FEATURE_ID}/"
+    workspace: "./.ai/projects/PROJECT_X/features/{FEATURE_ID}/"
 
     inputs:
       - User requirements
@@ -41,10 +41,10 @@ stages:
       - 50_state.md (planner section)
 
     rules:
-      - Read: backend/ai/roles/planner.md
-      - Read: backend/ai/projects/PROJECT_X/rules/global_rules.md
-      - Read: backend/ai/projects/PROJECT_X/rules/ddd_rules.md
-      - Read: backend/ai/projects/PROJECT_X/rules/project_specific.md
+      - Read: .ai/roles/planner.md
+      - Read: .ai/projects/PROJECT_X/rules/global_rules.md
+      - Read: .ai/projects/PROJECT_X/rules/ddd_rules.md
+      - Read: .ai/projects/PROJECT_X/rules/project_specific.md
 
     completion_criteria:
       - FEATURE_X.md exists with objective, acceptance criteria, API contracts
@@ -71,10 +71,10 @@ stages:
       - 50_state.md (backend section)
 
     rules:
-      - Read: backend/ai/roles/backend.md
-      - Read: backend/ai/projects/PROJECT_X/rules/global_rules.md
-      - Read: backend/ai/projects/PROJECT_X/rules/ddd_rules.md
-      - Read: backend/ai/projects/PROJECT_X/rules/project_specific.md
+      - Read: .ai/roles/backend.md
+      - Read: .ai/projects/PROJECT_X/rules/global_rules.md
+      - Read: .ai/projects/PROJECT_X/rules/ddd_rules.md
+      - Read: .ai/projects/PROJECT_X/rules/project_specific.md
       - Write: ./backend/src/**
       - Write: ./backend/tests/**
       - Write: 50_state.md (backend section only)
@@ -129,9 +129,9 @@ stages:
       - 50_state.md (frontend section)
 
     rules:
-      - Read: backend/ai/roles/frontend.md
-      - Read: backend/ai/projects/PROJECT_X/rules/global_rules.md
-      - Read: backend/ai/projects/PROJECT_X/rules/project_specific.md
+      - Read: .ai/roles/frontend.md
+      - Read: .ai/projects/PROJECT_X/rules/global_rules.md
+      - Read: .ai/projects/PROJECT_X/rules/project_specific.md
       - Write: ./frontend1/src/** (or frontend2)
       - Write: ./frontend1/tests/**
       - Write: 50_state.md (frontend section only)
@@ -191,7 +191,7 @@ stages:
       - 50_state.md (frontend section updated)
 
     rules:
-      - Read: backend/ai/roles/frontend.md
+      - Read: .ai/roles/frontend.md
       - Write: ./frontend1/src/**
       - Write: 50_state.md (frontend section)
 
@@ -224,10 +224,10 @@ stages:
       - Issue reports (if any)
 
     rules:
-      - Read: backend/ai/roles/qa.md
-      - Read: backend/ai/projects/PROJECT_X/rules/global_rules.md
-      - Read: backend/ai/projects/PROJECT_X/rules/ddd_rules.md
-      - Read: backend/ai/projects/PROJECT_X/rules/project_specific.md
+      - Read: .ai/roles/qa.md
+      - Read: .ai/projects/PROJECT_X/rules/global_rules.md
+      - Read: .ai/projects/PROJECT_X/rules/ddd_rules.md
+      - Read: .ai/projects/PROJECT_X/rules/project_specific.md
       - Read: All code (backend/src/, frontend*/src/)
       - Write: qa_report_FEATURE_X.md
       - Write: 50_state.md (qa section only)
@@ -266,7 +266,7 @@ validation:
 
 instructions:
   planner: |
-    You are the PLANNER. Your role is defined in: backend/ai/roles/planner.md
+    You are the PLANNER. Your role is defined in: .ai/roles/planner.md
 
     PAIRING MODE (CRITICAL):
     - You are like a senior architect who needs COMPLETE CONTEXT
@@ -281,15 +281,15 @@ instructions:
        OR: git pull origin feature/{FEATURE_ID}
 
     MANDATORY READING (in order):
-    1. Read backend/ai/roles/planner.md (your role) - **Includes Pairing Patterns section**
-    2. Read backend/ai/projects/PROJECT_X/rules/global_rules.md
-    3. Read backend/ai/projects/PROJECT_X/rules/ddd_rules.md
-    4. Read backend/ai/projects/PROJECT_X/rules/project_specific.md
+    1. Read .ai/roles/planner.md (your role) - **Includes Pairing Patterns section**
+    2. Read .ai/projects/PROJECT_X/rules/global_rules.md
+    3. Read .ai/projects/PROJECT_X/rules/ddd_rules.md
+    4. Read .ai/projects/PROJECT_X/rules/project_specific.md
     5. Read this workflow file (default.yaml)
 
     FIND REFERENCE FEATURES (MANDATORY):
     6. Before planning, FIND similar existing features:
-       - Look in ./backend/ai/projects/PROJECT_X/features/ for similar features
+       - Look in ./.ai/projects/PROJECT_X/features/ for similar features
        - Check FEATURE_*.md files for similar API patterns
        - State which feature you're using as reference for consistency
 
@@ -344,7 +344,7 @@ instructions:
     DO NOT implement code. Only plan and define.
 
   backend: |
-    You are the BACKEND ENGINEER. Your role is defined in: backend/ai/roles/backend.md
+    You are the BACKEND ENGINEER. Your role is defined in: .ai/roles/backend.md
 
     PAIRING MODE (CRITICAL):
     - You are like a 10x colleague who needs CLEAR DIRECTION
@@ -359,10 +359,10 @@ instructions:
        This will pull planner's changes (FEATURE_X.md, 30_tasks.md, etc.)
 
     MANDATORY READING (in order):
-    1. Read backend/ai/roles/backend.md (your role) - **Includes Pairing Patterns section**
-    2. Read backend/ai/projects/PROJECT_X/rules/global_rules.md
-    3. Read backend/ai/projects/PROJECT_X/rules/ddd_rules.md
-    4. Read backend/ai/projects/PROJECT_X/rules/project_specific.md
+    1. Read .ai/roles/backend.md (your role) - **Includes Pairing Patterns section**
+    2. Read .ai/projects/PROJECT_X/rules/global_rules.md
+    3. Read .ai/projects/PROJECT_X/rules/ddd_rules.md
+    4. Read .ai/projects/PROJECT_X/rules/project_specific.md
     5. Read FEATURE_X.md (what you need to implement)
     6. Read 30_tasks.md (your tasks)
     7. Read 50_state.md (planner section) to ensure planning is COMPLETED
@@ -446,7 +446,7 @@ instructions:
     - All verification steps executed successfully
 
   frontend: |
-    You are the FRONTEND ENGINEER. Your role is defined in: backend/ai/roles/frontend.md
+    You are the FRONTEND ENGINEER. Your role is defined in: .ai/roles/frontend.md
 
     PAIRING MODE (CRITICAL):
     - You are like a 10x UI engineer who needs VISUAL VERIFICATION
@@ -462,9 +462,9 @@ instructions:
        This pulls planner's and backend's changes
 
     MANDATORY READING (in order):
-    1. Read backend/ai/roles/frontend.md (your role) - **Includes Pairing Patterns section**
-    2. Read backend/ai/projects/PROJECT_X/rules/global_rules.md
-    3. Read backend/ai/projects/PROJECT_X/rules/project_specific.md
+    1. Read .ai/roles/frontend.md (your role) - **Includes Pairing Patterns section**
+    2. Read .ai/projects/PROJECT_X/rules/global_rules.md
+    3. Read .ai/projects/PROJECT_X/rules/project_specific.md
     4. Read FEATURE_X.md (what you need to implement)
     5. Read 30_tasks.md (your tasks)
     6. Read 50_state.md (planner section) to ensure planning is COMPLETED
@@ -567,7 +567,7 @@ instructions:
     - All verification steps executed with screenshots/evidence
 
   qa: |
-    You are the QA/REVIEWER. Your role is defined in: backend/ai/roles/qa.md
+    You are the QA/REVIEWER. Your role is defined in: .ai/roles/qa.md
 
     PAIRING MODE (CRITICAL):
     - You are like a senior quality gate who needs EVIDENCE
@@ -583,10 +583,10 @@ instructions:
        This pulls all changes from backend and frontend
 
     MANDATORY READING (in order):
-    1. Read backend/ai/roles/qa.md (your role) - **Includes Pairing Patterns section**
-    2. Read backend/ai/projects/PROJECT_X/rules/global_rules.md
-    3. Read backend/ai/projects/PROJECT_X/rules/ddd_rules.md
-    4. Read backend/ai/projects/PROJECT_X/rules/project_specific.md
+    1. Read .ai/roles/qa.md (your role) - **Includes Pairing Patterns section**
+    2. Read .ai/projects/PROJECT_X/rules/global_rules.md
+    3. Read .ai/projects/PROJECT_X/rules/ddd_rules.md
+    4. Read .ai/projects/PROJECT_X/rules/project_specific.md
     5. Read FEATURE_X.md (acceptance criteria to validate)
     6. Read 30_tasks.md (to understand what was implemented)
     7. Read 50_state.md (all sections) to ensure backend and frontend are COMPLETED

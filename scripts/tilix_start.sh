@@ -53,7 +53,7 @@ info "Starting Tilix workflow setup for feature: $FEATURE_ID"
 info "Using workflow: $WORKFLOW"
 
 # Verify workflow exists
-WORKFLOW_FILE="./backend/ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml"
+WORKFLOW_FILE="./.ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml"
 if [ ! -f "$WORKFLOW_FILE" ]; then
     error "Workflow file not found: $WORKFLOW_FILE"
     exit 1
@@ -87,9 +87,9 @@ success "Panes created (4 total)"
 PLANNER_PROMPT="I am the PLANNER for feature $FEATURE_ID.
 
 Please:
-1. Read backend/ai/roles/planner.md (my role)
+1. Read .ai/roles/planner.md (my role)
 2. Read all rules (global_rules.md, ddd_rules.md, project_specific.md)
-3. Read backend/ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
+3. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
 4. Follow the planning stage instructions
 5. Create FEATURE_X.md and 30_tasks.md
 6. Update 50_state.md when done
@@ -100,10 +100,10 @@ BACKEND_PROMPT="I am the BACKEND ENGINEER for feature $FEATURE_ID.
 
 Please:
 1. Run: git pull
-2. Read backend/ai/roles/backend.md (my role)
+2. Read .ai/roles/backend.md (my role)
 3. Read all rules (global_rules.md, ddd_rules.md, project_specific.md)
 4. Read FEATURE_X.md and 30_tasks.md (from planner)
-5. Read backend/ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
+5. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
 6. Check 50_state.md (planner section) - ensure it's COMPLETED
 7. Implement backend according to DDD
 8. Update 50_state.md (backend section) as you progress
@@ -114,10 +114,10 @@ FRONTEND_PROMPT="I am the FRONTEND ENGINEER for feature $FEATURE_ID.
 
 Please:
 1. Run: git pull
-2. Read backend/ai/roles/frontend.md (my role)
+2. Read .ai/roles/frontend.md (my role)
 3. Read all rules (global_rules.md, project_specific.md)
 4. Read FEATURE_X.md and 30_tasks.md (from planner)
-5. Read backend/ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
+5. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
 6. Check 50_state.md:
    - Planner section - ensure it's COMPLETED
    - Backend section - check if API is ready
@@ -131,10 +131,10 @@ QA_PROMPT="I am the QA/REVIEWER for feature $FEATURE_ID.
 
 Please:
 1. Run: git pull
-2. Read backend/ai/roles/qa.md (my role)
+2. Read .ai/roles/qa.md (my role)
 3. Read all rules (global_rules.md, ddd_rules.md, project_specific.md)
 4. Read FEATURE_X.md (acceptance criteria)
-5. Read backend/ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
+5. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
 6. Check 50_state.md:
    - Backend section - ensure it's COMPLETED
    - Frontend section - ensure it's COMPLETED

@@ -12,14 +12,14 @@
 ## 📖 Lecturas Permitidas
 
 ✅ **Puedes leer**:
-- Workflows YAML (`./backend/ai/projects/PROJECT_X/workflows/*.yaml`)
+- Workflows YAML (`./.ai/projects/PROJECT_X/workflows/*.yaml`)
 - Estado de la feature en **todas las carpetas**:
-  - `./backend/ai/projects/PROJECT_X/features/FEATURE_X/50_state.md`
+  - `./.ai/projects/PROJECT_X/features/FEATURE_X/50_state.md`
   - `./frontend1/ai/features/FEATURE_X/50_state.md`
   - `./frontend2/ai/features/FEATURE_X/50_state.md`
 - Contratos y documentación del feature (`FEATURE_X.md`, `DECISIONS.md`)
-- Reglas globales del proyecto (`./backend/ai/projects/PROJECT_X/rules/global_rules.md`)
-- Reglas específicas de frontend (`./backend/ai/projects/PROJECT_X/rules/project_specific.md`)
+- Reglas globales del proyecto (`./.ai/projects/PROJECT_X/rules/global_rules.md`)
+- Reglas específicas de frontend (`./.ai/projects/PROJECT_X/rules/project_specific.md`)
 - **Este archivo de rol** (`frontend.md`) - ¡Reléelo frecuentemente!
 - Código frontend existente (`./frontend1/src/**`, `./frontend2/src/**`)
 - Contratos de API (para mockear o consumir)

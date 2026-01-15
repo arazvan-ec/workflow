@@ -40,7 +40,7 @@ def validate_feature(feature_id):
     """Validate a feature"""
     info(f"Validating feature: {feature_id}")
 
-    feature_path = Path(f"./backend/ai/projects/PROJECT_X/features/{feature_id}")
+    feature_path = Path(f"./.ai/projects/PROJECT_X/features/{feature_id}")
 
     if not feature_path.exists():
         error(f"Feature directory not found: {feature_path}")
@@ -88,7 +88,7 @@ def validate_feature(feature_id):
             for line in f:
                 if line.startswith("**Workflow**:"):
                     workflow_name = line.split(":")[-1].strip()
-                    workflow_file = Path(f"./backend/ai/projects/PROJECT_X/workflows/{workflow_name}")
+                    workflow_file = Path(f"./.ai/projects/PROJECT_X/workflows/{workflow_name}")
 
                     if workflow_file.exists():
                         with open(workflow_file, 'r') as wf:
@@ -107,7 +107,7 @@ def validate_feature(feature_id):
 
 def validate_all():
     """Validate all features"""
-    features_dir = Path("./backend/ai/projects/PROJECT_X/features")
+    features_dir = Path("./.ai/projects/PROJECT_X/features")
 
     if not features_dir.exists():
         error("Features directory not found")

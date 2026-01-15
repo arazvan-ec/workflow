@@ -18,9 +18,9 @@
   - `global_rules.md`
   - `ddd_rules.md`
   - `project_specific.md`
-- **Todos** los workflows YAML (`./backend/ai/projects/PROJECT_X/workflows/*.yaml`)
+- **Todos** los workflows YAML (`./.ai/projects/PROJECT_X/workflows/*.yaml`)
 - **Todos** los estados de features:
-  - `./backend/ai/projects/PROJECT_X/features/*/50_state.md`
+  - `./.ai/projects/PROJECT_X/features/*/50_state.md`
   - `./frontend1/ai/features/*/50_state.md`
   - `./frontend2/ai/features/*/50_state.md`
 - Código existente para entender arquitectura actual (`./backend/src/**`, `./frontend*/src/**`)

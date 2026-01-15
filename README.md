@@ -208,8 +208,8 @@ Planning → (Domain, Application, Infrastructure in parallel) → Integration �
 Crea tu propio workflow copiando un template:
 
 ```bash
-cp backend/ai/projects/PROJECT_X/workflows/default.yaml \\
-   backend/ai/projects/PROJECT_X/workflows/my_workflow.yaml
+cp .ai/projects/PROJECT_X/workflows/default.yaml \\
+   .ai/projects/PROJECT_X/workflows/my_workflow.yaml
 ```
 
 Edita según tus necesidades.
@@ -236,9 +236,9 @@ Edita según tus necesidades.
 #### 2. Inicializar feature
 
 ```bash
-mkdir -p backend/ai/projects/PROJECT_X/features/user-auth
-cp backend/ai/projects/PROJECT_X/features/FEATURE_X/50_state.md \\
-   backend/ai/projects/PROJECT_X/features/user-auth/50_state.md
+mkdir -p .ai/projects/PROJECT_X/features/user-auth
+cp .ai/projects/PROJECT_X/features/FEATURE_X/50_state.md \\
+   .ai/projects/PROJECT_X/features/user-auth/50_state.md
 ```
 
 #### 3. Abrir Tilix con roles
@@ -257,7 +257,7 @@ claude  # o tu comando de Claude Code
 ```
 
 Claude lee:
-- `backend/ai/roles/planner.md`
+- `.ai/roles/planner.md`
 - Todas las reglas del proyecto
 - Workflow YAML
 
@@ -300,7 +300,7 @@ Claude revisa todo y aprueba/rechaza.
 
 ```bash
 # En terminal separado
-watch -n 5 'cat backend/ai/projects/PROJECT_X/features/user-auth/50_state.md'
+watch -n 5 'cat .ai/projects/PROJECT_X/features/user-auth/50_state.md'
 ```
 
 #### 6. Validar feature
@@ -366,7 +366,7 @@ git submodule add <repo-url> workflow-system
 
 ## 🎓 Ejemplos
 
-Ver carpeta `backend/ai/projects/PROJECT_X/features/FEATURE_X/` para un ejemplo completo de:
+Ver carpeta `.ai/projects/PROJECT_X/features/FEATURE_X/` para un ejemplo completo de:
 - `50_state.md` - Estado inicial de un feature
 - Workflow YAML aplicado
 - Roles interactuando

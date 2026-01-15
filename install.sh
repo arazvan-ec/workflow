@@ -56,8 +56,8 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 # Check if directories already exist
-if [ -d "$TARGET_DIR/backend/ai" ] || [ -d "$TARGET_DIR/scripts" ]; then
-    warn "Some directories already exist (backend/ai or scripts)"
+if [ -d "$TARGET_DIR/.ai" ] || [ -d "$TARGET_DIR/scripts" ]; then
+    warn "Some directories already exist (.ai or scripts)"
     read -p "Do you want to continue and potentially overwrite? (y/N): " -n 1 -r
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -68,10 +68,10 @@ fi
 
 info "Copying workflow system files..."
 
-# Copy backend/ai structure
-mkdir -p "$TARGET_DIR/backend/ai"
-cp -r "$SCRIPT_DIR/backend/ai/"* "$TARGET_DIR/backend/ai/"
-success "Copied backend/ai/"
+# Copy .ai structure
+mkdir -p "$TARGET_DIR/.ai"
+cp -r "$SCRIPT_DIR/.ai/"* "$TARGET_DIR/.ai/"
+success "Copied .ai/"
 
 # Create backend/src if not exists
 mkdir -p "$TARGET_DIR/backend/src"

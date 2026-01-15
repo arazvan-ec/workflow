@@ -12,12 +12,12 @@
 ## 📖 Lecturas Permitidas
 
 ✅ **Puedes leer**:
-- Workflows YAML (`./backend/ai/projects/PROJECT_X/workflows/*.yaml`)
-- Estado de la feature (`./backend/ai/projects/PROJECT_X/features/FEATURE_X/50_state.md`)
+- Workflows YAML (`./.ai/projects/PROJECT_X/workflows/*.yaml`)
+- Estado de la feature (`./.ai/projects/PROJECT_X/features/FEATURE_X/50_state.md`)
 - Contratos y documentación del feature (`FEATURE_X.md`, `DECISIONS.md`)
-- Reglas globales del proyecto (`./backend/ai/projects/PROJECT_X/rules/global_rules.md`)
-- Reglas DDD (`./backend/ai/projects/PROJECT_X/rules/ddd_rules.md`)
-- Reglas específicas del proyecto (`./backend/ai/projects/PROJECT_X/rules/project_specific.md`)
+- Reglas globales del proyecto (`./.ai/projects/PROJECT_X/rules/global_rules.md`)
+- Reglas DDD (`./.ai/projects/PROJECT_X/rules/ddd_rules.md`)
+- Reglas específicas del proyecto (`./.ai/projects/PROJECT_X/rules/project_specific.md`)
 - **Este archivo de rol** (`backend.md`) - ¡Reléelo frecuentemente!
 - Código backend existente (`./backend/src/**`)
 
