@@ -1,0 +1,752 @@
+#!/usr/bin/env python3
+
+"""
+Claude Code Workflow Consultant
+
+Interactive tool that asks questions about your task and generates
+the optimal workflow configuration.
+"""
+
+import os
+import sys
+import yaml
+from datetime import datetime
+from typing import Dict, List, Any
+
+# Colors
+class Colors:
+    BLUE = '\033[0;34m'
+    GREEN = '\033[0;32m'
+    YELLOW = '\033[1;33m'
+    RED = '\033[0;31m'
+    CYAN = '\033[0;36m'
+    BOLD = '\033[1m'
+    NC = '\033[0m'
+
+def info(msg): print(f"{Colors.BLUE}ℹ{Colors.NC} {msg}")
+def success(msg): print(f"{Colors.GREEN}✓{Colors.NC} {msg}")
+def warning(msg): print(f"{Colors.YELLOW}⚠{Colors.NC} {msg}")
+def error(msg): print(f"{Colors.RED}✗{Colors.NC} {msg}", file=sys.stderr)
+def header(msg): print(f"\n{Colors.BOLD}{Colors.CYAN}{msg}{Colors.NC}\n")
+
+def ask(question: str, default: str = "") -> str:
+    """Ask a question and return the answer."""
+    if default:
+        prompt = f"{Colors.CYAN}?{Colors.NC} {question} [{default}]: "
+    else:
+        prompt = f"{Colors.CYAN}?{Colors.NC} {question}: "
+
+    answer = input(prompt).strip()
+    return answer if answer else default
+
+def ask_choice(question: str, choices: List[str], default: str = None) -> str:
+    """Ask a multiple choice question."""
+    print(f"{Colors.CYAN}?{Colors.NC} {question}")
+    for i, choice in enumerate(choices, 1):
+        marker = "*" if choice == default else " "
+        print(f"  {marker} {i}. {choice}")
+
+    while True:
+        answer = input(f"{Colors.CYAN}>{Colors.NC} Select (1-{len(choices)}): ").strip()
+
+        if not answer and default:
+            return default
+
+        try:
+            idx = int(answer) - 1
+            if 0 <= idx < len(choices):
+                return choices[idx]
+        except ValueError:
+            pass
+
+        error("Invalid choice, try again")
+
+def ask_yes_no(question: str, default: bool = True) -> bool:
+    """Ask a yes/no question."""
+    default_str = "Y/n" if default else "y/N"
+    answer = ask(f"{question} ({default_str})", "y" if default else "n")
+    return answer.lower() in ['y', 'yes', '1', 'true'] if answer else default
+
+def ask_multi_choice(question: str, choices: List[str]) -> List[str]:
+    """Ask a question allowing multiple selections."""
+    print(f"{Colors.CYAN}?{Colors.NC} {question} (comma-separated numbers)")
+    for i, choice in enumerate(choices, 1):
+        print(f"    {i}. {choice}")
+
+    while True:
+        answer = input(f"{Colors.CYAN}>{Colors.NC} Select: ").strip()
+
+        if not answer:
+            error("At least one choice required")
+            continue
+
+        try:
+            indices = [int(x.strip()) - 1 for x in answer.split(',')]
+            if all(0 <= idx < len(choices) for idx in indices):
+                return [choices[idx] for idx in indices]
+        except ValueError:
+            pass
+
+        error("Invalid choice, try again")
+
+class WorkflowConsultant:
+    def __init__(self):
+        self.answers = {}
+        self.workflow = {}
+
+    def run(self):
+        """Main consultation flow."""
+        header("🤖 Claude Code Workflow Consultant")
+        info("I'll ask you some questions about your task to generate the optimal workflow.\n")
+
+        # Phase 1: Understanding the task
+        self.phase_task_understanding()
+
+        # Phase 2: Understanding the project structure
+        self.phase_project_structure()
+
+        # Phase 3: Understanding team/parallelism needs
+        self.phase_team_setup()
+
+        # Phase 4: Generate workflow
+        self.phase_generate_workflow()
+
+        # Phase 5: Save and summary
+        self.phase_save_workflow()
+
+    def phase_task_understanding(self):
+        """Understand what the user wants to build."""
+        header("📋 Phase 1: Understanding Your Task")
+
+        self.answers['task_description'] = ask(
+            "Describe your task/feature in one sentence",
+            ""
+        )
+
+        self.answers['task_type'] = ask_choice(
+            "What type of task is this?",
+            [
+                "New feature (frontend + backend)",
+                "Backend-only feature",
+                "Frontend-only feature",
+                "Refactoring existing code",
+                "Bug fix",
+                "Infrastructure/DevOps",
+                "Documentation",
+                "Other"
+            ],
+            default="New feature (frontend + backend)"
+        )
+
+        self.answers['architecture'] = ask_choice(
+            "What architecture/pattern will you use?",
+            [
+                "Simple (no specific pattern)",
+                "Domain-Driven Design (DDD)",
+                "Clean Architecture",
+                "Layered Architecture",
+                "Microservices",
+                "Other"
+            ],
+            default="Simple (no specific pattern)"
+        )
+
+        self.answers['complexity'] = ask_choice(
+            "How complex is this task?",
+            [
+                "Simple (1-2 files, < 1 day)",
+                "Medium (3-10 files, 1-3 days)",
+                "Complex (10+ files, multiple days)",
+                "Very complex (major feature, 1+ week)"
+            ],
+            default="Medium (3-10 files, 1-3 days)"
+        )
+
+    def phase_project_structure(self):
+        """Understand the project structure."""
+        header("📁 Phase 2: Project Structure")
+
+        self.answers['repo_type'] = ask_choice(
+            "What's your repository structure?",
+            [
+                "Monorepo (frontend + backend in same repo)",
+                "Separate repos (frontend and backend separate)",
+                "Backend only",
+                "Frontend only"
+            ],
+            default="Monorepo (frontend + backend in same repo)"
+        )
+
+        # Ask about directories
+        if "Monorepo" in self.answers['repo_type'] or "Backend" in self.answers['repo_type']:
+            self.answers['backend_dir'] = ask(
+                "Backend source directory",
+                "./src"
+            )
+
+        if "Monorepo" in self.answers['repo_type'] or "Frontend" in self.answers['repo_type']:
+            self.answers['frontend_dir'] = ask(
+                "Frontend source directory",
+                "./frontend"
+            )
+
+        self.answers['has_tests'] = ask_yes_no("Do you have tests?", True)
+        if self.answers['has_tests']:
+            self.answers['test_dir'] = ask("Test directory", "./tests")
+
+    def phase_team_setup(self):
+        """Understand if working solo or in team."""
+        header("👥 Phase 3: Team & Parallelism")
+
+        self.answers['working_alone'] = ask_yes_no("Are you working alone?", True)
+
+        if self.answers['working_alone']:
+            info("Since you're working alone, I'll optimize for your workflow.")
+
+            self.answers['want_parallel'] = ask_yes_no(
+                "Do you want to work on multiple parts in parallel? (e.g., backend + frontend simultaneously)",
+                False
+            )
+
+            if self.answers['want_parallel']:
+                self.answers['parallel_parts'] = ask_multi_choice(
+                    "Which parts do you want to work on in parallel?",
+                    ["Backend", "Frontend", "Tests", "Documentation", "Infrastructure"]
+                )
+            else:
+                info("You'll work sequentially: Planning → Implementation → Review")
+
+        else:
+            warning("Team mode: Each team member = one Claude instance with one role")
+
+            num_members = int(ask("How many team members (including you)?", "2"))
+            self.answers['team_size'] = num_members
+
+            info(f"I'll create {num_members} roles, one per team member.")
+
+    def phase_generate_workflow(self):
+        """Generate the workflow based on answers."""
+        header("⚙️  Phase 4: Generating Workflow")
+
+        feature_id = self.generate_feature_id()
+        self.answers['feature_id'] = feature_id
+
+        info(f"Feature ID: {feature_id}")
+
+        # Determine roles
+        roles = self.determine_roles()
+        info(f"Roles: {', '.join([r['name'] for r in roles])}")
+
+        # Determine stages
+        stages = self.determine_stages(roles)
+        info(f"Stages: {len(stages)} stages")
+
+        # Build workflow
+        self.workflow = {
+            'metadata': {
+                'name': self.answers['task_description'][:50],
+                'id': feature_id,
+                'description': self.answers['task_description'],
+                'created': datetime.now().strftime('%Y-%m-%d'),
+                'status': 'active'
+            },
+            'roles': roles,
+            'stages': stages,
+            'validation': {
+                'required_files': ['definition.md', 'planner_state.md'],
+                'state_format': 'markdown',
+                'allow_parallel_writes': self.answers.get('want_parallel', False)
+            },
+            'instructions': self.generate_instructions(stages)
+        }
+
+        success("Workflow generated successfully!")
+
+    def generate_feature_id(self) -> str:
+        """Generate feature ID from task description."""
+        desc = self.answers['task_description'].lower()
+        # Remove special chars, replace spaces with hyphens
+        feature_id = ''.join(c if c.isalnum() or c in ' -' else '' for c in desc)
+        feature_id = '-'.join(feature_id.split())[:50]
+
+        # Allow user to override
+        feature_id = ask("Feature ID", feature_id)
+        return feature_id
+
+    def determine_roles(self) -> List[Dict[str, str]]:
+        """Determine which roles are needed."""
+        roles = [
+            {
+                'id': 'planner',
+                'name': 'Planner',
+                'description': 'Defines feature, creates tasks, makes architectural decisions'
+            }
+        ]
+
+        task_type = self.answers['task_type']
+
+        if 'Backend' in task_type or 'New feature' in task_type:
+            if 'DDD' in self.answers['architecture']:
+                roles.extend([
+                    {'id': 'domain_dev', 'name': 'Domain Developer', 'description': 'Implements domain layer'},
+                    {'id': 'application_dev', 'name': 'Application Developer', 'description': 'Implements application layer'},
+                    {'id': 'infrastructure_dev', 'name': 'Infrastructure Developer', 'description': 'Implements infrastructure layer'}
+                ])
+            else:
+                roles.append({
+                    'id': 'backend',
+                    'name': 'Backend Developer',
+                    'description': 'Implements backend logic'
+                })
+
+        if 'Frontend' in task_type or 'New feature' in task_type:
+            roles.append({
+                'id': 'frontend',
+                'name': 'Frontend Developer',
+                'description': 'Implements frontend UI/UX'
+            })
+
+        if self.answers.get('has_tests'):
+            roles.append({
+                'id': 'qa',
+                'name': 'QA/Reviewer',
+                'description': 'Reviews implementation, runs tests, validates quality'
+            })
+
+        return roles
+
+    def determine_stages(self, roles: List[Dict]) -> List[Dict]:
+        """Determine workflow stages."""
+        stages = []
+        feature_id = self.answers['feature_id']
+
+        # Planning stage
+        stages.append({
+            'id': 'planning',
+            'name': 'Planning & Definition',
+            'owner': 'planner',
+            'workspace': f'./ai/features/{feature_id}/',
+            'permissions': {
+                'read': ['./ai/**', './src/**'],
+                'write': [
+                    f'./ai/features/{feature_id}/definition.md',
+                    f'./ai/features/{feature_id}/tasks.md',
+                    f'./ai/features/{feature_id}/planner_state.md'
+                ]
+            },
+            'dependencies': [],
+            'parallel': False,
+            'state_file': 'planner_state.md',
+            'outputs': ['definition.md', 'tasks.md']
+        })
+
+        # Implementation stages
+        want_parallel = self.answers.get('want_parallel', False)
+        arch = self.answers['architecture']
+
+        if 'DDD' in arch:
+            # DDD: Domain, Application, Infrastructure in parallel
+            domain_stage = {
+                'id': 'domain',
+                'name': 'Domain Layer Implementation',
+                'owner': 'domain_dev',
+                'workspace': f"{self.answers.get('backend_dir', './src')}/Domain/",
+                'permissions': {
+                    'read': [f'./ai/features/{feature_id}/**'],
+                    'write': [
+                        f"{self.answers.get('backend_dir', './src')}/Domain/**",
+                        f'./ai/features/{feature_id}/domain_state.md'
+                    ]
+                },
+                'dependencies': ['planning'],
+                'parallel': False,
+                'state_file': 'domain_state.md',
+                'outputs': ['Domain entities, value objects, interfaces']
+            }
+            stages.append(domain_stage)
+
+            app_stage = {
+                'id': 'application',
+                'name': 'Application Layer Implementation',
+                'owner': 'application_dev',
+                'workspace': f"{self.answers.get('backend_dir', './src')}/Application/",
+                'permissions': {
+                    'read': [f'./ai/features/{feature_id}/**', './src/Domain/**'],
+                    'write': [
+                        f"{self.answers.get('backend_dir', './src')}/Application/**",
+                        f'./ai/features/{feature_id}/application_state.md'
+                    ]
+                },
+                'dependencies': ['domain'],
+                'parallel': want_parallel,
+                'state_file': 'application_state.md',
+                'outputs': ['Use cases, application services']
+            }
+            stages.append(app_stage)
+
+            infra_stage = {
+                'id': 'infrastructure',
+                'name': 'Infrastructure Layer Implementation',
+                'owner': 'infrastructure_dev',
+                'workspace': f"{self.answers.get('backend_dir', './src')}/Infrastructure/",
+                'permissions': {
+                    'read': [f'./ai/features/{feature_id}/**', './src/Domain/**'],
+                    'write': [
+                        f"{self.answers.get('backend_dir', './src')}/Infrastructure/**",
+                        f'./ai/features/{feature_id}/infrastructure_state.md'
+                    ]
+                },
+                'dependencies': ['domain'],
+                'parallel': want_parallel,
+                'state_file': 'infrastructure_state.md',
+                'outputs': ['Repositories, adapters, infrastructure']
+            }
+            stages.append(infra_stage)
+
+        else:
+            # Simple backend
+            if any(r['id'] == 'backend' for r in roles):
+                backend_stage = {
+                    'id': 'backend',
+                    'name': 'Backend Implementation',
+                    'owner': 'backend',
+                    'workspace': self.answers.get('backend_dir', './src'),
+                    'permissions': {
+                        'read': [f'./ai/features/{feature_id}/**', './src/**'],
+                        'write': [
+                            './src/**',
+                            f'./ai/features/{feature_id}/backend_state.md'
+                        ]
+                    },
+                    'dependencies': ['planning'],
+                    'parallel': False,
+                    'state_file': 'backend_state.md',
+                    'outputs': ['Backend implementation']
+                }
+                stages.append(backend_stage)
+
+            # Frontend
+            if any(r['id'] == 'frontend' for r in roles):
+                frontend_deps = ['planning']
+                if any(s['id'] == 'backend' for s in stages):
+                    frontend_deps.append('backend')
+
+                frontend_stage = {
+                    'id': 'frontend',
+                    'name': 'Frontend Implementation',
+                    'owner': 'frontend',
+                    'workspace': self.answers.get('frontend_dir', './frontend'),
+                    'permissions': {
+                        'read': [f'./ai/features/{feature_id}/**', './frontend/**'],
+                        'write': [
+                            './frontend/**',
+                            f'./ai/features/{feature_id}/frontend_state.md'
+                        ]
+                    },
+                    'dependencies': frontend_deps if not want_parallel else ['planning'],
+                    'parallel': want_parallel,
+                    'state_file': 'frontend_state.md',
+                    'outputs': ['Frontend implementation']
+                }
+                stages.append(frontend_stage)
+
+        # QA/Review stage
+        if any(r['id'] == 'qa' for r in roles):
+            qa_deps = [s['id'] for s in stages if s['id'] != 'planning']
+
+            qa_stage = {
+                'id': 'review',
+                'name': 'QA & Review',
+                'owner': 'qa',
+                'workspace': './',
+                'permissions': {
+                    'read': ['./ai/**', './src/**', './frontend/**', './tests/**'],
+                    'write': [
+                        f'./ai/features/{feature_id}/qa_state.md',
+                        f'./ai/features/{feature_id}/review.md'
+                    ]
+                },
+                'dependencies': qa_deps,
+                'parallel': False,
+                'state_file': 'qa_state.md',
+                'outputs': ['review.md']
+            }
+            stages.append(qa_stage)
+
+        return stages
+
+    def generate_instructions(self, stages: List[Dict]) -> Dict[str, Dict]:
+        """Generate role-specific instructions."""
+        instructions = {}
+
+        for stage in stages:
+            stage_id = stage['id']
+            owner = stage['owner']
+
+            if stage_id == 'planning':
+                instructions[stage_id] = {
+                    'prompt': f"""You are the PLANNER for this feature.
+
+Your responsibilities:
+1. Read the feature request from the user
+2. Create detailed `definition.md` with:
+   - Feature overview and objectives
+   - Functional and non-functional requirements
+   - Acceptance criteria (checklist)
+   - Technical considerations and constraints
+3. Create `tasks.md` breaking down implementation into specific tasks
+4. Update `planner_state.md` with status: COMPLETED
+
+DO NOT implement code. Your job is to plan and define clearly.
+
+Output files:
+- definition.md (feature specification)
+- tasks.md (task breakdown)
+- planner_state.md (your status)
+"""
+                }
+            elif 'domain' in stage_id:
+                instructions[stage_id] = {
+                    'prompt': """You are the DOMAIN DEVELOPER (DDD).
+
+Your responsibilities:
+1. Read `definition.md` and architectural guidelines
+2. Implement in ./src/Domain/:
+   - Entities (rich domain models)
+   - Value Objects (immutable)
+   - Domain Services
+   - Repository Interfaces (no implementations!)
+   - Domain Events
+3. Keep domain layer framework-agnostic
+4. Update `domain_state.md` with progress
+
+NO infrastructure code. Pure business logic only.
+"""
+                }
+            elif 'application' in stage_id:
+                instructions[stage_id] = {
+                    'prompt': """You are the APPLICATION DEVELOPER (DDD).
+
+Your responsibilities:
+1. Read Domain layer contracts
+2. Implement in ./src/Application/:
+   - Use Cases (orchestrate domain logic)
+   - DTOs (input/output)
+   - Application Services
+3. Use repository interfaces via dependency injection
+4. Update `application_state.md` with progress
+
+If Domain layer is incomplete, mark yourself as BLOCKED.
+"""
+                }
+            elif 'infrastructure' in stage_id:
+                instructions[stage_id] = {
+                    'prompt': """You are the INFRASTRUCTURE DEVELOPER (DDD).
+
+Your responsibilities:
+1. Read Domain layer repository interfaces
+2. Implement in ./src/Infrastructure/:
+   - Repository implementations (ORM, database)
+   - External service adapters
+   - Framework integrations
+3. Update `infrastructure_state.md` with progress
+
+If Domain layer is incomplete, mark yourself as BLOCKED.
+"""
+                }
+            elif stage_id == 'backend':
+                instructions[stage_id] = {
+                    'prompt': """You are the BACKEND DEVELOPER.
+
+Your responsibilities:
+1. Read `definition.md` and `tasks.md`
+2. Implement backend logic in ./src/
+3. Follow architecture guidelines from planner
+4. Update `backend_state.md` with:
+   - Completed tasks
+   - Files created/modified
+   - Any blockers or questions
+
+If requirements are unclear, mark BLOCKED and specify what you need.
+"""
+                }
+            elif stage_id == 'frontend':
+                instructions[stage_id] = {
+                    'prompt': """You are the FRONTEND DEVELOPER.
+
+Your responsibilities:
+1. Read `definition.md` for UI/UX requirements
+2. Implement frontend in ./frontend/
+3. If backend isn't ready, mock API calls
+4. Update `frontend_state.md` with:
+   - Completed tasks
+   - Components created
+   - Any blockers
+
+Create mockups if backend API is not available yet.
+"""
+                }
+            elif stage_id == 'review':
+                instructions[stage_id] = {
+                    'prompt': """You are the QA/REVIEWER.
+
+Your responsibilities:
+1. Read `definition.md` to understand expectations
+2. Review all implementation (backend, frontend, tests)
+3. Verify acceptance criteria are met
+4. Create `review.md` with:
+   - ✅ What works correctly
+   - ❌ Issues found
+   - 💡 Suggestions for improvement
+5. Update `qa_state.md`: APPROVED or REJECTED
+
+DO NOT fix code yourself. Report issues to respective developers.
+"""
+                }
+
+        return instructions
+
+    def phase_save_workflow(self):
+        """Save the workflow and show summary."""
+        header("💾 Phase 5: Saving Workflow")
+
+        feature_id = self.answers['feature_id']
+
+        # Determine project root (go up from scripts/ dir)
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        project_root = os.path.dirname(script_dir)
+        features_dir = os.path.join(project_root, 'ai', 'features')
+
+        feature_dir = os.path.join(features_dir, feature_id)
+
+        if os.path.exists(feature_dir):
+            if not ask_yes_no(f"Feature '{feature_id}' already exists. Overwrite?", False):
+                warning("Cancelled.")
+                return
+        else:
+            os.makedirs(feature_dir, exist_ok=True)
+
+        # Save workflow.yaml
+        workflow_file = os.path.join(feature_dir, 'workflow.yaml')
+        with open(workflow_file, 'w') as f:
+            yaml.dump(self.workflow, f, default_flow_style=False, sort_keys=False)
+
+        success(f"Workflow saved: {workflow_file}")
+
+        # Create initial state files
+        for stage in self.workflow['stages']:
+            state_file = stage['state_file']
+            state_path = os.path.join(feature_dir, state_file)
+
+            if not os.path.exists(state_path):
+                role_name = stage['name']
+                with open(state_path, 'w') as f:
+                    f.write(f"""# State: {role_name}
+
+**Feature**: {feature_id}
+**Last Updated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}
+**Status**: PENDING
+
+## Current Task
+None
+
+## Completed Tasks
+- (none)
+
+## Blocked By
+- (none)
+
+## Notes
+(Initial state)
+""")
+                info(f"Created {state_file}")
+
+        # Create definition.md template
+        definition_file = os.path.join(feature_dir, 'definition.md')
+        if not os.path.exists(definition_file):
+            with open(definition_file, 'w') as f:
+                f.write(f"""# {self.answers['task_description']}
+
+## Overview
+{self.answers['task_description']}
+
+## Task Type
+{self.answers['task_type']}
+
+## Architecture
+{self.answers['architecture']}
+
+## Complexity
+{self.answers['complexity']}
+
+## Objectives
+- (Define your objectives here)
+
+## Requirements
+### Functional
+- (List functional requirements)
+
+### Non-Functional
+- Performance:
+- Security:
+- Maintainability:
+
+## Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+## Technical Considerations
+(Architecture decisions, dependencies, constraints)
+
+## Out of Scope
+(What this feature explicitly does NOT include)
+""")
+            info(f"Created definition.md")
+
+        # Show summary
+        header("✨ Workflow Ready!")
+
+        print(f"\n{Colors.BOLD}Feature:{Colors.NC} {feature_id}")
+        print(f"{Colors.BOLD}Location:{Colors.NC} {feature_dir}")
+        print(f"\n{Colors.BOLD}Roles:{Colors.NC}")
+        for role in self.workflow['roles']:
+            print(f"  • {role['name']} ({role['id']})")
+
+        print(f"\n{Colors.BOLD}Stages:{Colors.NC}")
+        for i, stage in enumerate(self.workflow['stages'], 1):
+            parallel_mark = " [PARALLEL]" if stage.get('parallel') else ""
+            print(f"  {i}. {stage['name']} (owner: {stage['owner']}){parallel_mark}")
+
+        print(f"\n{Colors.BOLD}Next Steps:{Colors.NC}")
+        print(f"  1. Review and edit: {definition_file}")
+        print(f"  2. Start with Planning role:")
+        print(f"     {Colors.CYAN}cd {project_root}{Colors.NC}")
+        print(f"     {Colors.CYAN}claude{Colors.NC} (or your Claude Code command)")
+        print(f"  3. In Claude, tell it:")
+        print(f"     \"I am the PLANNER. Read ./ai/features/{feature_id}/workflow.yaml")
+        print(f"      and follow the planning stage instructions.\"")
+        print(f"\n  4. For parallel work, open multiple terminal tabs (Tilix):")
+        print(f"     Each tab = one Claude instance = one role")
+        print(f"\n  5. Check status anytime:")
+        print(f"     {Colors.CYAN}./scripts/workflow status {feature_id}{Colors.NC}")
+
+        print(f"\n{Colors.GREEN}Happy coding! 🚀{Colors.NC}\n")
+
+
+def main():
+    try:
+        consultant = WorkflowConsultant()
+        consultant.run()
+    except KeyboardInterrupt:
+        print("\n")
+        warning("Consultation cancelled.")
+        sys.exit(0)
+    except Exception as e:
+        error(f"Error: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

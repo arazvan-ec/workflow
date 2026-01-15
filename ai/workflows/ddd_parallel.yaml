@@ -1,0 +1,222 @@
+metadata:
+  name: "DDD Feature with Parallel Implementation"
+  id: "ddd-parallel"
+  description: "Feature usando Domain-Driven Design con capas implementadas en paralelo"
+  created: "2026-01-15"
+  status: "template"
+
+roles:
+  - id: planner
+    name: "Planner"
+    description: "Define arquitectura DDD del feature"
+
+  - id: domain_dev
+    name: "Domain Developer"
+    description: "Implementa capa de dominio (entidades, value objects, domain services)"
+
+  - id: application_dev
+    name: "Application Developer"
+    description: "Implementa capa de aplicación (use cases, DTOs)"
+
+  - id: infrastructure_dev
+    name: "Infrastructure Developer"
+    description: "Implementa capa de infraestructura (repositories, adapters)"
+
+  - id: qa
+    name: "QA/Integration Tester"
+    description: "Valida integración entre capas"
+
+stages:
+  - id: planning
+    name: "DDD Architecture Planning"
+    owner: planner
+    workspace: "./ai/features/{FEATURE_ID}/"
+    permissions:
+      read:
+        - "./ai/**"
+        - "./src/**"
+      write:
+        - "./ai/features/{FEATURE_ID}/definition.md"
+        - "./ai/features/{FEATURE_ID}/ddd_architecture.md"
+        - "./ai/features/{FEATURE_ID}/planner_state.md"
+    dependencies: []
+    parallel: false
+    state_file: "planner_state.md"
+    outputs:
+      - "definition.md"
+      - "ddd_architecture.md"
+
+  - id: domain
+    name: "Domain Layer Implementation"
+    owner: domain_dev
+    workspace: "./src/Domain/"
+    permissions:
+      read:
+        - "./ai/features/{FEATURE_ID}/**"
+        - "./src/Domain/**"
+      write:
+        - "./src/Domain/**"
+        - "./ai/features/{FEATURE_ID}/domain_state.md"
+    dependencies: ["planning"]
+    parallel: true
+    state_file: "domain_state.md"
+    outputs:
+      - "Domain entities and value objects"
+
+  - id: application
+    name: "Application Layer Implementation"
+    owner: application_dev
+    workspace: "./src/Application/"
+    permissions:
+      read:
+        - "./ai/features/{FEATURE_ID}/**"
+        - "./src/Domain/**"
+        - "./src/Application/**"
+      write:
+        - "./src/Application/**"
+        - "./ai/features/{FEATURE_ID}/application_state.md"
+    dependencies: ["domain"]
+    parallel: true
+    state_file: "application_state.md"
+    outputs:
+      - "Use cases and application services"
+
+  - id: infrastructure
+    name: "Infrastructure Layer Implementation"
+    owner: infrastructure_dev
+    workspace: "./src/Infrastructure/"
+    permissions:
+      read:
+        - "./ai/features/{FEATURE_ID}/**"
+        - "./src/Domain/**"
+        - "./src/Infrastructure/**"
+      write:
+        - "./src/Infrastructure/**"
+        - "./ai/features/{FEATURE_ID}/infrastructure_state.md"
+    dependencies: ["domain"]
+    parallel: true
+    state_file: "infrastructure_state.md"
+    outputs:
+      - "Repositories and infrastructure adapters"
+
+  - id: integration
+    name: "Integration & Testing"
+    owner: qa
+    workspace: "./"
+    permissions:
+      read:
+        - "./ai/**"
+        - "./src/**"
+        - "./tests/**"
+      write:
+        - "./ai/features/{FEATURE_ID}/qa_state.md"
+        - "./ai/features/{FEATURE_ID}/integration_review.md"
+    dependencies: ["application", "infrastructure"]
+    parallel: false
+    state_file: "qa_state.md"
+    outputs:
+      - "integration_review.md"
+
+validation:
+  required_files:
+    - "definition.md"
+    - "ddd_architecture.md"
+  state_format: "markdown"
+  allow_parallel_writes: true
+
+instructions:
+  planning:
+    prompt: |
+      Eres el PLANNER especializado en DDD. Tu trabajo es:
+
+      1. Analizar el feature request
+      2. Diseñar la arquitectura DDD en `ddd_architecture.md`:
+         - **Domain Layer**: Entidades, Value Objects, Domain Events
+         - **Application Layer**: Use Cases, DTOs, Interfaces
+         - **Infrastructure Layer**: Repositories impl, External services
+         - **Dependencias**: Qué capa depende de qué
+      3. Crear `definition.md` con:
+         - Bounded Context
+         - Ubiquitous Language (términos del dominio)
+         - Invariantes del dominio
+      4. Actualizar `planner_state.md`: COMPLETED
+
+      Define contratos claros entre capas para permitir trabajo paralelo.
+
+  domain:
+    prompt: |
+      Eres el DOMAIN DEVELOPER. Tu trabajo es:
+
+      1. Leer `ddd_architecture.md` - sección Domain Layer
+      2. Implementar en `./src/Domain/`:
+         - Entities (lógica de negocio rica)
+         - Value Objects (inmutables)
+         - Domain Services
+         - Domain Events
+         - Interfaces de Repositories (sin implementación)
+      3. Actualizar `domain_state.md`:
+         - Entidades creadas
+         - Value Objects creados
+         - Contratos de repositorio definidos
+
+      NO implementes infraestructura. Solo lógica de dominio pura.
+      NO dependas de frameworks. Dominio debe ser framework-agnostic.
+
+  application:
+    prompt: |
+      Eres el APPLICATION DEVELOPER. Tu trabajo es:
+
+      1. Leer contratos de Domain Layer
+      2. Implementar en `./src/Application/`:
+         - Use Cases (orquestación)
+         - DTOs (input/output)
+         - Application Services
+      3. Usar interfaces de Repository (inyección de dependencias)
+      4. Actualizar `application_state.md`
+
+      Si Domain Layer no está completo, marca estado: BLOCKED
+
+  infrastructure:
+    prompt: |
+      Eres el INFRASTRUCTURE DEVELOPER. Tu trabajo es:
+
+      1. Leer interfaces de Repository de Domain Layer
+      2. Implementar en `./src/Infrastructure/`:
+         - Repository implementations (ORM, DB access)
+         - External service adapters
+         - Framework integrations
+      3. Actualizar `infrastructure_state.md`
+
+      Si Domain Layer no está completo, marca estado: BLOCKED
+
+  integration:
+    prompt: |
+      Eres el QA/INTEGRATION TESTER. Tu trabajo es:
+
+      1. Verificar que las tres capas se integran correctamente
+      2. Validar que se respetan las dependencias DDD:
+         - Application NO depende de Infrastructure
+         - Domain NO depende de nada externo
+         - Infrastructure depende de Domain (implementa interfaces)
+      3. Probar flujo completo: API → Application → Domain → Infrastructure → DB
+      4. Crear `integration_review.md` con:
+         - ✅ Integraciones funcionando
+         - ❌ Dependencias violadas
+         - 💡 Mejoras arquitectónicas
+      5. Actualizar `qa_state.md`: APPROVED o REJECTED
+
+# Ejemplo de paralelización
+#
+# Tilix Layout (4 panes):
+# ┌──────────────┬──────────────┐
+# │   Planner    │  Domain Dev  │
+# ├──────────────┼──────────────┤
+# │ App Dev      │ Infra Dev    │
+# └──────────────┴──────────────┘
+#
+# Flujo:
+# 1. Planner define arquitectura → COMPLETED
+# 2. Domain Dev lee y empieza (sin esperar App/Infra)
+# 3. Cuando Domain tiene contratos básicos → WORKING
+# 4. App Dev + Infra Dev arrancan EN PARALELO (ambos leen contratos)
+# 5. Cuando ambos COMPLETED → QA integra

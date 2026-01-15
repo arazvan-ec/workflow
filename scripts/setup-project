@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+
+# Setup project structure for new workflow project
+# Creates common directories needed for most projects
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# Colors
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+info() { echo -e "${BLUE}ℹ${NC} $*"; }
+success() { echo -e "${GREEN}✓${NC} $*"; }
+
+cd "$PROJECT_ROOT"
+
+info "Setting up project structure..."
+
+# Create common directories
+mkdir -p src
+mkdir -p frontend
+mkdir -p tests
+mkdir -p docs
+
+# Create placeholder README in each
+cat > src/README.md << 'EOF'
+# Source Code
+
+Backend/server source code goes here.
+
+## Structure
+
+Organize as needed:
+- `src/Domain/` - Domain layer (DDD)
+- `src/Application/` - Application layer (DDD)
+- `src/Infrastructure/` - Infrastructure layer (DDD)
+
+Or simpler:
+- `src/models/` - Data models
+- `src/controllers/` - Controllers
+- `src/services/` - Business logic
+- `src/routes/` - API routes
+EOF
+
+cat > frontend/README.md << 'EOF'
+# Frontend
+
+Frontend/UI source code goes here.
+
+## Structure
+
+Example for React:
+- `frontend/src/components/` - React components
+- `frontend/src/pages/` - Page components
+- `frontend/src/hooks/` - Custom hooks
+- `frontend/src/services/` - API clients
+- `frontend/public/` - Static assets
+EOF
+
+cat > tests/README.md << 'EOF'
+# Tests
+
+Test files go here.
+
+## Structure
+
+- `tests/unit/` - Unit tests
+- `tests/integration/` - Integration tests
+- `tests/e2e/` - End-to-end tests
+EOF
+
+cat > docs/README.md << 'EOF'
+# Documentation
+
+Additional project documentation goes here.
+
+## Contents
+
+- Architecture diagrams
+- API documentation
+- Deployment guides
+- User manuals
+EOF
+
+success "Created src/"
+success "Created frontend/"
+success "Created tests/"
+success "Created docs/"
+
+# Install Python dependencies for workflow tools
+if command -v pip3 &> /dev/null; then
+    info "Installing Python dependencies..."
+    pip3 install pyyaml --quiet || {
+        info "Could not install pyyaml globally, trying --user"
+        pip3 install --user pyyaml --quiet || {
+            info "Could not install pyyaml, workflow-consultant may not work"
+        }
+    }
+    success "Python dependencies installed"
+else
+    info "pip3 not found, skipping Python dependencies"
+    info "Install pyyaml manually: pip3 install pyyaml"
+fi
+
+# Make scripts executable
+chmod +x "$SCRIPT_DIR"/workflow*
+
+success "Scripts are executable"
+
+# Initialize git if not already
+if [[ ! -d .git ]]; then
+    info "Initializing git repository..."
+    git init
+    git add .
+    git commit -m "Initial commit: Claude Code Workflow System"
+    success "Git repository initialized"
+fi
+
+echo ""
+success "Project setup complete!"
+echo ""
+info "Next steps:"
+echo "  1. ./scripts/workflow consult    # Generate your first workflow"
+echo "  2. ./scripts/workflow list       # See available features"
+echo "  3. Read QUICKSTART.md for a guided tutorial"
+echo ""
+info "Try the example:"
+echo "  ./scripts/workflow status example-todo-api"
+echo "  See: ai/features/example-todo-api/EXAMPLE_USAGE.md"

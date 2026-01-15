@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# Example pre-commit hook for Claude Code Workflow System
+# Install: cp hooks/pre-commit.example .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+set -e
+
+echo "🔍 Running workflow validation..."
+
+# Validate all workflows
+if ! ./scripts/workflow validate 2>&1 | grep -q "✓"; then
+    echo "❌ Workflow validation failed!"
+    echo ""
+    echo "Fix the issues above before committing."
+    echo "To skip validation (not recommended): git commit --no-verify"
+    exit 1
+fi
+
+echo "✅ Workflow validation passed"
+
+# Check that state files have proper format
+echo "🔍 Checking state file formats..."
+
+for state_file in ai/features/*/*_state.md; do
+    [[ -f "$state_file" ]] || continue
+
+    # Check required fields
+    if ! grep -q "^\*\*Feature\*\*:" "$state_file" || \
+       ! grep -q "^\*\*Status\*\*:" "$state_file"; then
+        echo "❌ Invalid state file format: $state_file"
+        echo "Required fields: **Feature**, **Status**"
+        exit 1
+    fi
+done
+
+echo "✅ State files valid"
+
+# Optional: Check for common issues
+echo "🔍 Checking for common issues..."
+
+# Warn if committing .env files
+if git diff --cached --name-only | grep -q "\.env$"; then
+    echo "⚠️  WARNING: You are committing a .env file!"
+    echo "This may contain secrets. Press Enter to continue or Ctrl+C to abort."
+    read
+fi
+
+# Check for TODO/FIXME in committed code (optional - comment out if annoying)
+# if git diff --cached | grep -q "TODO\|FIXME"; then
+#     echo "⚠️  WARNING: Committing code with TODO/FIXME comments"
+# fi
+
+echo "✅ All checks passed!"
+echo ""

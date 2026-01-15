@@ -1,0 +1,375 @@
+#!/usr/bin/env bash
+
+# Claude Code Workflow Manager
+# Gestiona workflows, features y sincronización entre instancias Claude
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+AI_DIR="$PROJECT_ROOT/ai"
+WORKFLOWS_DIR="$AI_DIR/workflows"
+FEATURES_DIR="$AI_DIR/features"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Helpers
+info() { echo -e "${BLUE}ℹ${NC} $*"; }
+success() { echo -e "${GREEN}✓${NC} $*"; }
+warning() { echo -e "${YELLOW}⚠${NC} $*"; }
+error() { echo -e "${RED}✗${NC} $*" >&2; }
+die() { error "$*"; exit 1; }
+
+# Ensure ai/ directory exists
+ensure_ai_structure() {
+    mkdir -p "$WORKFLOWS_DIR" "$FEATURES_DIR"
+}
+
+# Parse YAML (simple key: value parser)
+parse_yaml() {
+    local yaml_file="$1"
+    local prefix="${2:-}"
+
+    python3 -c "
+import yaml, sys
+try:
+    with open('$yaml_file') as f:
+        data = yaml.safe_load(f)
+    if data:
+        for key, value in data.items():
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    print(f'${prefix}{key}_{k}={v}')
+            else:
+                print(f'${prefix}{key}={value}')
+except Exception as e:
+    print(f'Error parsing YAML: {e}', file=sys.stderr)
+    sys.exit(1)
+"
+}
+
+# Commands
+
+cmd_init() {
+    local feature_id="$1"
+    local workflow_template="${2:-feature_template}"
+
+    info "Initializing feature: $feature_id"
+
+    local template_file="$WORKFLOWS_DIR/${workflow_template}.yaml"
+    [[ -f "$template_file" ]] || die "Template not found: $template_file"
+
+    local feature_dir="$FEATURES_DIR/$feature_id"
+    [[ -d "$feature_dir" ]] && die "Feature already exists: $feature_id"
+
+    # Create feature directory
+    mkdir -p "$feature_dir"
+
+    # Copy and customize workflow
+    local workflow_file="$feature_dir/workflow.yaml"
+    sed "s/{FEATURE_ID}/$feature_id/g" "$template_file" > "$workflow_file"
+
+    # Create initial state files based on workflow
+    info "Creating state files..."
+
+    # Extract roles from workflow and create state files
+    grep "state_file:" "$workflow_file" | sed 's/.*state_file: "\(.*\)"/\1/' | sort -u | while read -r state_file; do
+        local state_path="$feature_dir/$state_file"
+        if [[ ! -f "$state_path" ]]; then
+            cat > "$state_path" << EOF
+# State: $(basename "$state_file" .md | tr '_' ' ' | sed 's/\b\(.\)/\u\1/g')
+
+**Feature**: $feature_id
+**Last Updated**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+**Status**: PENDING
+
+## Current Task
+None
+
+## Completed Tasks
+- (none)
+
+## Blocked By
+- (none)
+
+## Notes
+(Initial state)
+EOF
+            success "Created $state_file"
+        fi
+    done
+
+    # Create definition.md template
+    cat > "$feature_dir/definition.md" << 'EOF'
+# Feature Definition
+
+## Overview
+(Describe what this feature does)
+
+## Objectives
+- Objetivo 1
+- Objetivo 2
+
+## Requirements
+### Functional
+- Req 1
+- Req 2
+
+### Non-Functional
+- Performance: ...
+- Security: ...
+
+## Acceptance Criteria
+- [ ] Criterio 1
+- [ ] Criterio 2
+
+## Technical Considerations
+(Architecture, dependencies, constraints)
+
+## Out of Scope
+(What this feature explicitly does NOT include)
+EOF
+
+    success "Feature initialized: $feature_id"
+    info "Next steps:"
+    echo "  1. Edit $feature_dir/definition.md"
+    echo "  2. Run: ./scripts/workflow sync"
+    echo "  3. Start working on stages defined in workflow.yaml"
+}
+
+cmd_list() {
+    info "Available features:"
+
+    if [[ ! -d "$FEATURES_DIR" ]] || [[ -z "$(ls -A "$FEATURES_DIR" 2>/dev/null)" ]]; then
+        warning "No features found"
+        return
+    fi
+
+    for feature_dir in "$FEATURES_DIR"/*; do
+        [[ -d "$feature_dir" ]] || continue
+
+        local feature_id="$(basename "$feature_dir")"
+        local workflow_file="$feature_dir/workflow.yaml"
+
+        if [[ -f "$workflow_file" ]]; then
+            local status="$(grep -A2 "^metadata:" "$workflow_file" | grep "status:" | sed 's/.*status: "\(.*\)"/\1/' || echo "unknown")"
+            printf "  ${GREEN}%s${NC} [%s]\n" "$feature_id" "$status"
+        else
+            printf "  ${YELLOW}%s${NC} [no workflow]\n" "$feature_id"
+        fi
+    done
+}
+
+cmd_status() {
+    local feature_id="${1:-}"
+
+    if [[ -z "$feature_id" ]]; then
+        # Show status of all features
+        cmd_list
+        return
+    fi
+
+    local feature_dir="$FEATURES_DIR/$feature_id"
+    [[ -d "$feature_dir" ]] || die "Feature not found: $feature_id"
+
+    info "Status of feature: $feature_id"
+    echo ""
+
+    # Show each state file
+    for state_file in "$feature_dir"/*_state.md; do
+        [[ -f "$state_file" ]] || continue
+
+        local role="$(basename "$state_file" .md | sed 's/_state//' | tr '_' ' ')"
+        local status="$(grep "^\*\*Status\*\*:" "$state_file" | sed 's/.*: //' || echo "UNKNOWN")"
+
+        printf "  ${BLUE}%-20s${NC} %s\n" "$role:" "$status"
+    done
+}
+
+cmd_sync() {
+    info "Syncing with remote..."
+
+    cd "$PROJECT_ROOT"
+
+    # Stash local changes if any
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+        warning "Local changes detected, stashing..."
+        git stash push -m "Auto-stash before sync at $(date)"
+    fi
+
+    # Pull latest changes
+    git pull origin "$(git branch --show-current)" || {
+        warning "Pull failed, trying to pop stash..."
+        git stash pop || true
+        die "Sync failed"
+    }
+
+    # Pop stash if we stashed
+    if git stash list | grep -q "Auto-stash before sync"; then
+        info "Restoring local changes..."
+        git stash pop || warning "Could not auto-restore stash, please check 'git stash list'"
+    fi
+
+    success "Synced successfully"
+}
+
+cmd_validate() {
+    local feature_id="${1:-}"
+
+    if [[ -z "$feature_id" ]]; then
+        # Validate all features
+        info "Validating all features..."
+        local has_errors=0
+
+        for feature_dir in "$FEATURES_DIR"/*; do
+            [[ -d "$feature_dir" ]] || continue
+            local fid="$(basename "$feature_dir")"
+
+            if ! cmd_validate "$fid" 2>&1 | grep -q "✓"; then
+                has_errors=1
+            fi
+        done
+
+        [[ $has_errors -eq 0 ]] && success "All features valid"
+        return $has_errors
+    fi
+
+    local feature_dir="$FEATURES_DIR/$feature_id"
+    [[ -d "$feature_dir" ]] || die "Feature not found: $feature_id"
+
+    info "Validating feature: $feature_id"
+
+    local workflow_file="$feature_dir/workflow.yaml"
+
+    # Check workflow exists
+    [[ -f "$workflow_file" ]] || die "workflow.yaml not found"
+
+    # Validate YAML syntax
+    python3 -c "import yaml; yaml.safe_load(open('$workflow_file'))" 2>/dev/null || die "Invalid YAML syntax"
+
+    # Check required files exist (from validation.required_files)
+    local required_files="$(grep -A10 "^validation:" "$workflow_file" | grep "    - " | sed 's/.*- "\(.*\)"/\1/')"
+
+    for req_file in $required_files; do
+        local file_path="$feature_dir/$req_file"
+        if [[ ! -f "$file_path" ]]; then
+            error "Missing required file: $req_file"
+            return 1
+        fi
+    done
+
+    success "Feature valid: $feature_id"
+}
+
+cmd_consult() {
+    info "Starting workflow consultant..."
+    exec "$SCRIPT_DIR/workflow-consultant"
+}
+
+cmd_help() {
+    cat << 'EOF'
+Claude Code Workflow Manager
+
+USAGE:
+    workflow <command> [args]
+
+COMMANDS:
+    init <feature-id> [template]   Initialize a new feature
+                                   Templates: feature_template, ddd_parallel
+
+    list                           List all features
+
+    status [feature-id]            Show status of feature(s)
+
+    sync                           Sync with remote (git pull + stash handling)
+
+    validate [feature-id]          Validate feature workflow(s)
+
+    consult                        Interactive workflow consultant
+                                   Asks questions about your task and generates
+                                   optimal workflow
+
+    help                           Show this help
+
+EXAMPLES:
+    # Initialize new feature with default template
+    workflow init user-authentication
+
+    # Initialize with DDD parallel template
+    workflow init order-processing ddd_parallel
+
+    # Check status of specific feature
+    workflow status user-authentication
+
+    # Sync with team before starting work
+    workflow sync
+
+    # Run workflow consultant
+    workflow consult
+
+WORKFLOW STRUCTURE:
+    ai/
+    ├── workflows/              # Workflow templates
+    └── features/
+        └── <feature-id>/
+            ├── workflow.yaml   # Feature workflow definition
+            ├── definition.md   # Feature definition
+            ├── *_state.md      # State files per role
+            └── ...
+
+ROLES & INSTANCES:
+    Each Claude Code instance = one fixed role
+    Roles communicate via files in ai/features/<feature-id>/
+    No shared memory between instances
+
+    Typical roles: planner, backend, frontend, qa
+
+See: ai/workflows/README.md for workflow format details
+EOF
+}
+
+# Main
+main() {
+    ensure_ai_structure
+
+    local cmd="${1:-help}"
+    shift || true
+
+    case "$cmd" in
+        init)
+            [[ $# -ge 1 ]] || die "Usage: workflow init <feature-id> [template]"
+            cmd_init "$@"
+            ;;
+        list)
+            cmd_list
+            ;;
+        status)
+            cmd_status "$@"
+            ;;
+        sync)
+            cmd_sync
+            ;;
+        validate)
+            cmd_validate "$@"
+            ;;
+        consult)
+            cmd_consult
+            ;;
+        help|--help|-h)
+            cmd_help
+            ;;
+        *)
+            error "Unknown command: $cmd"
+            echo ""
+            cmd_help
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
