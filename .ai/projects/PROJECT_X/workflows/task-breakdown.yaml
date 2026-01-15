@@ -1,0 +1,931 @@
+name: "Planning Detallado con Desglose de Tareas"
+version: "1.0"
+description: |
+  Workflow enfocado en crear un plan exhaustivo y detallado de tareas antes de la implementación.
+  Ideal para proyectos complejos donde necesitas entender qué debe hacer cada rol paso a paso.
+
+metadata:
+  project: PROJECT_X
+  created: "2026-01-15"
+  use_cases:
+    - Proyectos nuevos con requisitos complejos
+    - Cuando necesitas estimar esfuerzo por rol
+    - Cuando trabajas con equipo distribuido
+    - Cuando necesitas documentación detallada de tareas
+
+roles:
+  - id: planner
+    name: Planner / Architect
+    role_file: .ai/roles/planner.md
+
+  - id: backend
+    name: Backend Engineer
+    role_file: .ai/roles/backend.md
+
+  - id: frontend
+    name: Frontend Engineer
+    role_file: .ai/roles/frontend.md
+
+  - id: qa
+    name: QA / Reviewer
+    role_file: .ai/roles/qa.md
+
+stages:
+  - id: requirements_analysis
+    name: "Análisis de Requisitos"
+    role: planner
+    description: "Analizar requisitos y crear documento de entendimiento"
+    workspace: "./.ai/projects/PROJECT_X/features/{FEATURE_ID}/"
+
+    inputs:
+      - User requirements (descripción del proyecto/feature)
+      - Business rules
+      - Constraints y limitaciones
+
+    outputs:
+      - 00_requirements_analysis.md (análisis detallado)
+      - 50_state.md (planner section)
+
+    rules:
+      - Read: .ai/roles/planner.md
+      - Read: .ai/projects/PROJECT_X/rules/global_rules.md
+      - Read: .ai/projects/PROJECT_X/rules/ddd_rules.md
+      - Read: .ai/projects/PROJECT_X/rules/project_specific.md
+      - Write: 00_requirements_analysis.md
+      - Write: 50_state.md (planner section)
+
+    completion_criteria:
+      - 00_requirements_analysis.md existe con análisis completo
+      - Entidades identificadas
+      - Reglas de negocio documentadas
+      - Casos de uso listados
+      - 50_state.md actualizado
+
+    dependencies: []
+    parallel_with: []
+
+  - id: architecture_design
+    name: "Diseño de Arquitectura"
+    role: planner
+    description: "Diseñar arquitectura y estructura de datos"
+    workspace: "./.ai/projects/PROJECT_X/features/{FEATURE_ID}/"
+
+    inputs:
+      - 00_requirements_analysis.md
+
+    outputs:
+      - 10_architecture.md (diagrama de componentes, estructura DDD)
+      - 15_data_model.md (modelo de datos detallado)
+      - 50_state.md (actualizado)
+
+    rules:
+      - Read: 00_requirements_analysis.md
+      - Write: 10_architecture.md
+      - Write: 15_data_model.md
+
+    completion_criteria:
+      - Estructura DDD definida (Domain, Application, Infrastructure)
+      - Entidades y Value Objects especificados
+      - Agregados identificados
+      - Repositorios definidos
+      - Diagrama de dependencias claro
+
+    dependencies: [requirements_analysis]
+    parallel_with: []
+
+  - id: api_contracts
+    name: "Definición de API Contracts"
+    role: planner
+    description: "Crear contratos API completos con todos los casos"
+    workspace: "./.ai/projects/PROJECT_X/features/{FEATURE_ID}/"
+
+    inputs:
+      - 10_architecture.md
+      - 15_data_model.md
+
+    outputs:
+      - 20_api_contracts.md (contratos completos)
+      - 50_state.md (actualizado)
+
+    rules:
+      - Read: 10_architecture.md
+      - Read: 15_data_model.md
+      - Write: 20_api_contracts.md
+
+    completion_criteria:
+      - Todos los endpoints documentados
+      - Request/Response para cada endpoint
+      - Todos los códigos de error (400, 401, 404, 422, 500)
+      - Ejemplos de request/response
+      - Validaciones especificadas
+      - Headers requeridos documentados
+
+    dependencies: [architecture_design]
+    parallel_with: []
+
+  - id: task_breakdown
+    name: "Desglose Detallado de Tareas"
+    role: planner
+    description: "Crear tareas específicas y detalladas para cada rol"
+    workspace: "./.ai/projects/PROJECT_X/features/{FEATURE_ID}/"
+
+    inputs:
+      - 00_requirements_analysis.md
+      - 10_architecture.md
+      - 15_data_model.md
+      - 20_api_contracts.md
+
+    outputs:
+      - 30_tasks_backend.md (tareas backend detalladas)
+      - 31_tasks_frontend.md (tareas frontend detalladas)
+      - 32_tasks_qa.md (tareas QA detalladas)
+      - 35_dependencies.md (mapa de dependencias)
+      - FEATURE_X.md (resumen ejecutivo)
+      - 50_state.md (planner COMPLETED)
+
+    rules:
+      - Read: Todos los documentos anteriores
+      - Write: 30_tasks_backend.md
+      - Write: 31_tasks_frontend.md
+      - Write: 32_tasks_qa.md
+      - Write: 35_dependencies.md
+      - Write: FEATURE_X.md
+
+    task_template: |
+      Cada tarea debe incluir:
+      - ID único (ej: BE-001, FE-001, QA-001)
+      - Título descriptivo
+      - Descripción detallada (qué hacer exactamente)
+      - Archivos a crear/modificar
+      - Acceptance criteria específicos
+      - Comandos para verificar
+      - Estimación de complejidad (S/M/L)
+      - Dependencias de otras tareas
+      - Referencias a código existente (si aplica)
+
+    completion_criteria:
+      - Tareas backend cubren todos los layers (Domain, Application, Infrastructure)
+      - Tareas frontend cubren todos los componentes
+      - Tareas QA cubren todos los acceptance criteria
+      - Dependencias claramente mapeadas
+      - FEATURE_X.md con resumen y checklist
+      - 50_state.md (planner) = COMPLETED
+
+    dependencies: [api_contracts]
+    parallel_with: []
+
+  - id: backend_implementation
+    name: "Backend Implementation (DDD)"
+    role: backend
+    description: "Implementar backend siguiendo tareas detalladas"
+    workspace: "./backend/src/"
+
+    inputs:
+      - 30_tasks_backend.md (tareas a realizar)
+      - 10_architecture.md
+      - 15_data_model.md
+      - 20_api_contracts.md
+
+    outputs:
+      - Backend code (./backend/src/)
+      - Tests (./backend/tests/)
+      - 50_state.md (backend section con progreso)
+
+    rules:
+      - Read: .ai/roles/backend.md
+      - Read: Todos los documentos de planning
+      - Write: ./backend/src/**
+      - Write: ./backend/tests/**
+      - Write: 50_state.md (backend section)
+
+    verification_steps:
+      required:
+        - "Run unit tests: `php bin/phpunit tests/Unit/` - Show results"
+        - "Run integration tests: `php bin/phpunit tests/Integration/`"
+        - "Check coverage: `php bin/phpunit --coverage-text` - Must be > 80%"
+        - "Test API endpoints: Show curl examples with responses"
+        - "Validate schema: `php bin/console doctrine:schema:validate`"
+        - "Run linter: `./vendor/bin/php-cs-fixer fix --dry-run`"
+
+      checkpoints:
+        - "After each task in 30_tasks_backend.md: Mark as DONE in 50_state.md"
+        - "After Domain layer: Verify DDD compliance"
+        - "After Use Cases: Run unit tests"
+        - "After Repositories: Test with database"
+        - "After Controllers: Test endpoints with curl"
+
+    completion_criteria:
+      - Todas las tareas en 30_tasks_backend.md marcadas como DONE
+      - Tests passing (coverage > 80%)
+      - API contracts implementados
+      - 50_state.md (backend) = COMPLETED
+
+    dependencies: [task_breakdown]
+    parallel_with: []
+
+  - id: frontend_implementation
+    name: "Frontend Implementation"
+    role: frontend
+    description: "Implementar frontend siguiendo tareas detalladas"
+    workspace: "./frontend1/src/"
+
+    inputs:
+      - 31_tasks_frontend.md (tareas a realizar)
+      - 20_api_contracts.md
+      - 50_state.md (backend section) - para ver si API está lista
+
+    outputs:
+      - Frontend code (./frontend1/src/)
+      - Tests (./frontend1/tests/)
+      - 50_state.md (frontend section con progreso)
+
+    rules:
+      - Read: .ai/roles/frontend.md
+      - Read: 31_tasks_frontend.md
+      - Read: 20_api_contracts.md
+      - Write: ./frontend1/src/**
+      - Write: ./frontend1/tests/**
+      - Write: 50_state.md (frontend section)
+
+    verification_steps:
+      required:
+        - "After each task: Mark as DONE in 50_state.md"
+        - "Run tests: `npm test` - Show results"
+        - "Run linter: `npm run lint`"
+        - "Check TypeScript: `npm run type-check`"
+        - "Test in browser: Screenshots required"
+        - "Test responsive: 375px, 768px, 1024px"
+        - "Lighthouse audit: Score > 90"
+
+      checkpoints:
+        - "After each component: Show component + test"
+        - "After each API integration: Show Network tab"
+        - "After styling: Show screenshots at breakpoints"
+
+    completion_criteria:
+      - Todas las tareas en 31_tasks_frontend.md marcadas como DONE
+      - Tests passing (coverage > 70%)
+      - UI matches requirements
+      - Responsive and accessible
+      - 50_state.md (frontend) = COMPLETED
+
+    dependencies: [task_breakdown]
+    parallel_with: [backend_implementation]  # Can work in parallel with mocks
+
+  - id: qa_review
+    name: "QA Review & Validation"
+    role: qa
+    description: "Revisar según tareas QA y acceptance criteria"
+    workspace: "./"
+
+    inputs:
+      - 32_tasks_qa.md (tareas QA a realizar)
+      - 00_requirements_analysis.md (acceptance criteria)
+      - All code (backend + frontend)
+
+    outputs:
+      - qa_report_{FEATURE_ID}.md (reporte completo)
+      - 50_state.md (qa section)
+      - Issues list (si hay problemas)
+
+    rules:
+      - Read: .ai/roles/qa.md
+      - Read: 32_tasks_qa.md
+      - Read: Todos los documentos de planning
+      - Read: All code
+      - Write: qa_report_{FEATURE_ID}.md
+      - Write: 50_state.md (qa section)
+
+    completion_criteria:
+      - Todas las tareas en 32_tasks_qa.md ejecutadas
+      - Cada acceptance criterion validado con evidencia
+      - QA report con hallazgos
+      - 50_state.md (qa) = APPROVED o REJECTED
+
+    dependencies: [backend_implementation, frontend_implementation]
+    parallel_with: []
+
+validation:
+  required_files:
+    - 00_requirements_analysis.md
+    - 10_architecture.md
+    - 15_data_model.md
+    - 20_api_contracts.md
+    - 30_tasks_backend.md
+    - 31_tasks_frontend.md
+    - 32_tasks_qa.md
+    - 35_dependencies.md
+    - FEATURE_X.md
+    - 50_state.md
+
+  required_sections_in_state:
+    - planner
+    - backend
+    - frontend
+    - qa
+
+instructions:
+  planner: |
+    Eres el PLANNER/ARCHITECT. Tu trabajo es CRUCIAL en este workflow.
+
+    WORKFLOW: PLANNING DETALLADO
+    Este workflow requiere que crees documentación EXHAUSTIVA antes de que otros roles empiecen.
+
+    FASE 1: ANÁLISIS DE REQUISITOS (00_requirements_analysis.md)
+    ==============================================================
+
+    1. Lee los requisitos del usuario cuidadosamente
+    2. Crea 00_requirements_analysis.md con:
+
+       ## Resumen Ejecutivo
+       - ¿Qué problema resuelve este feature?
+       - ¿Para quién es?
+       - ¿Cuál es el valor de negocio?
+
+       ## Requisitos Funcionales
+       Lista numerada de TODOS los requisitos funcionales
+
+       ## Requisitos No Funcionales
+       - Performance
+       - Seguridad
+       - Escalabilidad
+       - Usabilidad
+
+       ## Entidades Identificadas
+       Lista de todas las entidades del dominio
+
+       ## Reglas de Negocio
+       Lista numerada de TODAS las reglas de negocio
+       Ejemplo:
+       RN-001: El presupuesto del club debe ser >= 0
+       RN-002: La suma de salarios no puede superar el presupuesto
+       RN-003: Un jugador no puede pertenecer a más de un club
+
+       ## Casos de Uso
+       Lista de todos los casos de uso identificados
+
+       ## Acceptance Criteria
+       Criterios de aceptación específicos y testables
+
+    3. Actualiza 50_state.md (planner: requirements_analysis COMPLETED)
+    4. Commit: ./workflow commit planner {FEATURE_ID} "Complete requirements analysis"
+
+    FASE 2: DISEÑO DE ARQUITECTURA (10_architecture.md + 15_data_model.md)
+    ========================================================================
+
+    1. Crea 10_architecture.md con:
+
+       ## Arquitectura DDD
+
+       ### Domain Layer
+       - Entidades (con propiedades y métodos)
+       - Value Objects (con validaciones)
+       - Agregados (con boundaries)
+       - Domain Services
+       - Domain Events
+       - Excepciones del dominio
+
+       ### Application Layer
+       - Use Cases (Commands/Queries)
+       - DTOs (Request/Response)
+       - Application Services
+
+       ### Infrastructure Layer
+       - Repositories (implementations)
+       - Controllers
+       - Mappers
+       - External Services
+
+       ## Diagrama de Componentes
+       Describe relaciones entre componentes
+
+       ## Dependencias
+       Qué depende de qué
+
+    2. Crea 15_data_model.md con:
+
+       ## Modelo de Datos Completo
+
+       Para cada entidad:
+       - Nombre de la tabla
+       - Campos (nombre, tipo, constraints)
+       - Índices
+       - Relaciones (FK)
+       - Ejemplo de datos
+
+       ## Migraciones Necesarias
+       Lista de migraciones a crear
+
+    3. Actualiza 50_state.md (planner: architecture_design COMPLETED)
+    4. Commit: ./workflow commit planner {FEATURE_ID} "Complete architecture design"
+
+    FASE 3: API CONTRACTS (20_api_contracts.md)
+    =============================================
+
+    1. Crea 20_api_contracts.md con TODOS los endpoints:
+
+       ## POST /api/clubs
+
+       ### Description
+       Crea un nuevo club con presupuesto inicial
+
+       ### Request
+       Headers:
+       - Content-Type: application/json
+
+       Body:
+       ```json
+       {
+         "name": "FC Barcelona",
+         "budget": 1000000.00
+       }
+       ```
+
+       ### Response 201 Created
+       ```json
+       {
+         "id": "uuid",
+         "name": "FC Barcelona",
+         "budget": 1000000.00,
+         "createdAt": "2025-01-15T10:00:00Z",
+         "updatedAt": "2025-01-15T10:00:00Z"
+       }
+       ```
+
+       ### Response 400 Bad Request
+       ```json
+       {
+         "error": "validation_error",
+         "message": "Budget must be a positive number",
+         "field": "budget",
+         "code": "INVALID_BUDGET"
+       }
+       ```
+
+       ### Response 422 Unprocessable Entity
+       ```json
+       {
+         "error": "validation_error",
+         "message": "Club name already exists",
+         "field": "name",
+         "code": "DUPLICATE_NAME"
+       }
+       ```
+
+       ### Validations
+       - name: required, string, min:3, max:100, unique
+       - budget: required, decimal, min:0
+
+       [Repetir para TODOS los endpoints]
+
+    2. Actualiza 50_state.md (planner: api_contracts COMPLETED)
+    3. Commit: ./workflow commit planner {FEATURE_ID} "Complete API contracts"
+
+    FASE 4: DESGLOSE DE TAREAS (30_tasks_backend.md, 31_tasks_frontend.md, 32_tasks_qa.md)
+    =======================================================================================
+
+    Esta es la fase MÁS IMPORTANTE. Aquí defines EXACTAMENTE qué debe hacer cada rol.
+
+    1. Crea 30_tasks_backend.md:
+
+       # Tareas Backend - {FEATURE_ID}
+
+       ## Domain Layer Tasks
+
+       ### BE-001: Crear Club Entity
+       **Descripción:** Implementar la entidad Club en el Domain layer sin anotaciones de Doctrine
+
+       **Archivos:**
+       - Crear: src/Domain/Club/Entity/Club.php
+       - Crear: src/Domain/Club/ValueObject/ClubId.php
+       - Crear: src/Domain/Club/ValueObject/ClubName.php
+       - Crear: src/Domain/Club/ValueObject/Budget.php
+
+       **Implementación:**
+       ```php
+       // Budget.php debe validar:
+       - Valor >= 0
+       - Lanzar InvalidBudgetException si < 0
+
+       // Club.php debe:
+       - Tener constructor con ClubId, ClubName, Budget
+       - Métodos: changeBudget(), addPlayer(), removePlayer()
+       - Validar reglas de negocio
+       ```
+
+       **Acceptance Criteria:**
+       - [ ] Club entity creada sin anotaciones Doctrine
+       - [ ] Budget value object valida >= 0
+       - [ ] Tests unitarios para Club y Budget
+       - [ ] Tests cubren casos válidos e inválidos
+
+       **Verificación:**
+       ```bash
+       php bin/phpunit tests/Unit/Domain/Club/
+       # Debe mostrar: 10 tests, 10 passed
+       ```
+
+       **Estimación:** M (Medium)
+       **Dependencias:** Ninguna
+       **Referencias:** Ver src/Domain/User/ como ejemplo
+
+       ---
+
+       ### BE-002: Crear Player Entity
+       [Similar detalle...]
+
+       ---
+
+       ## Application Layer Tasks
+
+       ### BE-010: Crear CreateClubUseCase
+       **Descripción:** Use case para crear un club
+
+       **Archivos:**
+       - Crear: src/Application/Club/CreateClub/CreateClubCommand.php (DTO)
+       - Crear: src/Application/Club/CreateClub/CreateClubHandler.php (Use Case)
+       - Crear: src/Application/Club/CreateClub/CreateClubResponse.php (DTO)
+
+       **Implementación:**
+       - Handler debe validar nombre único usando repository
+       - Handler debe crear Club entity
+       - Handler debe persistir usando repository
+       - Handler debe retornar CreateClubResponse
+
+       **Acceptance Criteria:**
+       - [ ] CreateClubCommand con validación
+       - [ ] Handler implementado
+       - [ ] Tests unitarios del handler
+       - [ ] Mock del repository en tests
+
+       **Verificación:**
+       ```bash
+       php bin/phpunit tests/Unit/Application/Club/CreateClubHandlerTest.php
+       # Debe mostrar: 5 tests, 5 passed
+       ```
+
+       **Estimación:** M
+       **Dependencias:** BE-001
+       **Referencias:** Ver src/Application/User/CreateUser/
+
+       ---
+
+       [Continuar con TODAS las tareas necesarias...]
+
+       ## Infrastructure Layer Tasks
+
+       ### BE-020: Crear DoctrineClubRepository
+       [Detalle...]
+
+       ### BE-030: Crear ClubController
+       [Detalle...]
+
+       ## Testing Tasks
+
+       ### BE-040: Integration Tests para Club API
+       [Detalle...]
+
+    2. Crea 31_tasks_frontend.md:
+
+       # Tareas Frontend - {FEATURE_ID}
+
+       ## Setup Tasks
+
+       ### FE-001: Configurar API Client
+       **Descripción:** Crear cliente HTTP para comunicación con API
+
+       **Archivos:**
+       - Crear: src/services/api/httpClient.ts
+       - Crear: src/services/api/clubs.api.ts
+       - Crear: src/types/Club.ts
+
+       **Implementación:**
+       ```typescript
+       // httpClient.ts
+       - Axios instance configurada
+       - Interceptors para auth
+       - Error handling
+
+       // clubs.api.ts
+       - createClub(data: CreateClubDto): Promise<Club>
+       - listClubs(): Promise<Club[]>
+       - etc.
+       ```
+
+       **Acceptance Criteria:**
+       - [ ] HTTP client configurado
+       - [ ] Type-safe API methods
+       - [ ] Error handling implementado
+       - [ ] Tests con mocks
+
+       **Verificación:**
+       ```bash
+       npm test src/services/api/clubs.api.test.ts
+       # Debe mostrar: 8 tests passed
+       ```
+
+       **Estimación:** S (Small)
+       **Dependencias:** Ninguna
+
+       ---
+
+       ## Component Tasks
+
+       ### FE-010: Crear ClubList Component
+       **Descripción:** Lista de clubes con filtrado y paginación
+
+       **Archivos:**
+       - Crear: src/components/Club/ClubList.tsx
+       - Crear: src/components/Club/ClubList.test.tsx
+       - Crear: src/components/Club/ClubList.module.css
+
+       **Implementación:**
+       - Tabla responsiva con clubes
+       - Filtro por nombre (input de búsqueda)
+       - Paginación (10 items por página)
+       - Loading state
+       - Error state
+       - Empty state
+
+       **Acceptance Criteria:**
+       - [ ] Muestra lista de clubes
+       - [ ] Filtro por nombre funcional
+       - [ ] Paginación funciona
+       - [ ] Responsive (mobile, tablet, desktop)
+       - [ ] Loading spinner mientras carga
+       - [ ] Error message si falla
+       - [ ] "No clubs found" si lista vacía
+       - [ ] Tests con React Testing Library
+
+       **Verificación:**
+       ```bash
+       npm test ClubList.test.tsx
+       # Screenshots en navegador en 375px, 768px, 1024px
+       ```
+
+       **Estimación:** L (Large)
+       **Dependencias:** FE-001
+       **Referencias:** Ver src/components/User/UserList.tsx
+
+       ---
+
+       [Continuar con TODOS los componentes...]
+
+    3. Crea 32_tasks_qa.md:
+
+       # Tareas QA - {FEATURE_ID}
+
+       ## API Testing Tasks
+
+       ### QA-001: Test POST /api/clubs
+       **Descripción:** Validar creación de clubes
+
+       **Test Cases:**
+
+       1. Happy Path - Crear club válido
+          - Request: {"name": "FC Test", "budget": 100000}
+          - Expected: 201 Created con club creado
+          - Verify: Club en base de datos
+
+       2. Validation - Budget negativo
+          - Request: {"name": "FC Test", "budget": -100}
+          - Expected: 400 Bad Request
+          - Verify: Error message "Budget must be >= 0"
+
+       3. Validation - Nombre duplicado
+          - Setup: Crear club "FC Test"
+          - Request: {"name": "FC Test", "budget": 100000}
+          - Expected: 422 Unprocessable Entity
+          - Verify: Error code "DUPLICATE_NAME"
+
+       [... más casos ...]
+
+       **Evidencia Requerida:**
+       - [ ] Screenshot de Postman con cada request/response
+       - [ ] Log de curl commands ejecutados
+       - [ ] Screenshot de base de datos después de cada test
+
+       **Estimación:** M
+
+       ---
+
+       ## UI Testing Tasks
+
+       ### QA-010: Test Club Creation Form
+       [Detalle...]
+
+       ## Automated Testing Tasks
+
+       ### QA-020: Verificar Cobertura de Tests
+       **Descripción:** Validar que cobertura de tests cumple requisitos
+
+       **Verificación:**
+       - Backend: php bin/phpunit --coverage-text
+         - Debe ser > 80%
+       - Frontend: npm test -- --coverage
+         - Debe ser > 70%
+
+       **Evidencia:**
+       - [ ] Screenshot de coverage report backend
+       - [ ] Screenshot de coverage report frontend
+
+       ---
+
+       ## Acceptance Criteria Validation
+
+       ### QA-030: Validar Todas las Reglas de Negocio
+       [Lista de CADA regla de negocio con cómo testearla]
+
+    4. Crea 35_dependencies.md:
+
+       # Mapa de Dependencias - {FEATURE_ID}
+
+       ## Backend Tasks Dependencies
+       ```
+       BE-001 (Club Entity)
+           ↓
+       BE-010 (CreateClub UseCase) ← BE-002 (Player Entity)
+           ↓                              ↓
+       BE-020 (Club Repository)     BE-011 (AssignPlayer UseCase)
+           ↓                              ↓
+       BE-030 (Club Controller)     BE-031 (Player Controller)
+       ```
+
+       ## Frontend Tasks Dependencies
+       [Similar...]
+
+       ## Cross-Role Dependencies
+       - Frontend PUEDE empezar después de BE-001 (con mocks)
+       - Frontend DEBE esperar BE-030 para integración real
+       - QA espera BE-040 + FE-020
+
+    5. Crea FEATURE_X.md (resumen ejecutivo):
+
+       # Feature: {FEATURE_ID}
+
+       ## Resumen
+       [Descripción breve]
+
+       ## Documentos Disponibles
+       - [Análisis de Requisitos](00_requirements_analysis.md)
+       - [Arquitectura](10_architecture.md)
+       - [Modelo de Datos](15_data_model.md)
+       - [API Contracts](20_api_contracts.md)
+       - [Tareas Backend](30_tasks_backend.md)
+       - [Tareas Frontend](31_tasks_frontend.md)
+       - [Tareas QA](32_tasks_qa.md)
+       - [Dependencias](35_dependencies.md)
+
+       ## Checklist General
+
+       ### Planning
+       - [ ] Requisitos analizados
+       - [ ] Arquitectura diseñada
+       - [ ] API contracts definidos
+       - [ ] Tareas desglosadas
+
+       ### Backend
+       - [ ] Domain layer completo
+       - [ ] Application layer completo
+       - [ ] Infrastructure layer completo
+       - [ ] Tests passing (>80%)
+
+       ### Frontend
+       - [ ] Componentes implementados
+       - [ ] API integrado
+       - [ ] Tests passing (>70%)
+       - [ ] Responsive
+
+       ### QA
+       - [ ] API tested
+       - [ ] UI tested
+       - [ ] Reglas de negocio validadas
+       - [ ] Acceptance criteria met
+
+    6. Actualiza 50_state.md (planner: COMPLETED)
+    7. Commit: ./workflow commit planner {FEATURE_ID} "Complete detailed task breakdown"
+
+    IMPORTANTE:
+    - No empieces a implementar código
+    - Tu trabajo es DOCUMENTAR QUÉ hacer, no HACERLO
+    - Sé EXHAUSTIVO en cada tarea
+    - Los otros roles usarán tus tareas como guía paso a paso
+
+  backend: |
+    Eres el BACKEND ENGINEER.
+
+    WORKFLOW: PLANNING DETALLADO
+    En este workflow, el Planner ha creado tareas MUY DETALLADAS para ti.
+
+    ANTES DE EMPEZAR:
+    1. Sincroniza: ./workflow sync {FEATURE_ID}
+    2. Lee TODOS los documentos del planner:
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/00_requirements_analysis.md
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/10_architecture.md
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/15_data_model.md
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/20_api_contracts.md
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/30_tasks_backend.md
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/35_dependencies.md
+
+    TU TRABAJO:
+    Seguir 30_tasks_backend.md PASO A PASO, tarea por tarea.
+
+    PARA CADA TAREA:
+    1. Lee la descripción completa de la tarea
+    2. Revisa archivos a crear/modificar
+    3. Revisa referencias a código existente
+    4. Implementa según especificación
+    5. Ejecuta verificación (comando en la tarea)
+    6. Marca tarea como DONE en 50_state.md:
+
+       ## 💻 Backend Engineer
+       Status: IN_PROGRESS
+
+       ### Tasks Completed
+       - [x] BE-001: Crear Club Entity ✅
+       - [x] BE-002: Crear Player Entity ✅
+       - [ ] BE-010: Crear CreateClubUseCase (IN PROGRESS)
+       - [ ] BE-020: Crear DoctrineClubRepository
+       ...
+
+    7. Commit: ./workflow commit backend {FEATURE_ID} "Complete BE-XXX: [task title]"
+    8. Continúa con siguiente tarea
+
+    CHECKPOINTS:
+    - Después de Domain layer: Verifica arquitectura DDD
+    - Después de Application layer: Tests unitarios deben pasar
+    - Después de Infrastructure: Tests de integración
+    - Después de Controllers: Prueba endpoints con curl
+
+    NO inventes nada. Sigue las especificaciones del planner.
+
+  frontend: |
+    Eres el FRONTEND ENGINEER.
+
+    WORKFLOW: PLANNING DETALLADO
+    El Planner ha creado tareas MUY DETALLADAS para ti.
+
+    ANTES DE EMPEZAR:
+    1. Sincroniza: ./workflow sync {FEATURE_ID}
+    2. Lee TODOS los documentos:
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/20_api_contracts.md
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/31_tasks_frontend.md
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/35_dependencies.md
+    3. Verifica si backend está listo:
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/50_state.md | grep "Backend"
+
+    TU TRABAJO:
+    Seguir 31_tasks_frontend.md PASO A PASO.
+
+    PARA CADA TAREA:
+    1. Lee descripción completa
+    2. Si backend NO está listo y tarea requiere API: USA MOCKS
+    3. Implementa según especificación
+    4. SCREENSHOTS en cada checkpoint
+    5. Test responsive (375px, 768px, 1024px)
+    6. Marca como DONE en 50_state.md
+    7. Commit: ./workflow commit frontend {FEATURE_ID} "Complete FE-XXX: [task title]"
+
+    CUANDO BACKEND ESTÉ LISTO:
+    - Reemplaza mocks con API real
+    - Commit: ./workflow commit frontend {FEATURE_ID} "Replace mocks with real API"
+
+  qa: |
+    Eres el QA/REVIEWER.
+
+    WORKFLOW: PLANNING DETALLADO
+    El Planner ha creado tareas de QA MUY ESPECÍFICAS para ti.
+
+    ANTES DE EMPEZAR:
+    1. Sincroniza: ./workflow sync {FEATURE_ID}
+    2. Lee TODOS los documentos:
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/00_requirements_analysis.md
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/32_tasks_qa.md
+    3. Verifica que backend y frontend están COMPLETED:
+       - cat .ai/projects/PROJECT_X/features/{FEATURE_ID}/50_state.md
+
+    TU TRABAJO:
+    Seguir 32_tasks_qa.md PASO A PASO.
+
+    PARA CADA TAREA QA:
+    1. Ejecuta todos los test cases especificados
+    2. Captura EVIDENCIA (screenshots, logs, outputs)
+    3. Documenta resultados en qa_report_{FEATURE_ID}.md
+    4. Marca como DONE en 50_state.md
+    5. Si encuentras issues: Documenta con pasos para reproducir
+
+    AL FINAL:
+    - Valida TODOS los acceptance criteria
+    - Verifica cobertura de tests
+    - Decide: APPROVED o REJECTED
+    - Commit: ./workflow commit qa {FEATURE_ID} "QA review: [APPROVED/REJECTED]"
+
+examples:
+  - name: "Sistema de Gestión Deportiva (Sportian)"
+    description: "Proyecto complejo con múltiples entidades y reglas de negocio"
+    features:
+      - club-player-entities
+      - budget-validation
+      - notification-system
+    estimated_planning_time: "4-6 horas para planning completo"
+    estimated_implementation_time: "Backend: 3-4 días, Frontend: 2-3 días, QA: 1-2 días"

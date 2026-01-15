@@ -317,6 +317,81 @@ Planning → Backend → Frontend → Integration → QA
 - Backend y Frontend pueden trabajar en **paralelo**
 - Frontend mockea API si backend no está listo
 - Ideal para features estándar full-stack
+- Planning básico (FEATURE_X.md + 30_tasks.md)
+
+**Cuándo usar:**
+- Features bien entendidas
+- Equipo experimentado que no necesita mucho detalle
+- Iteraciones rápidas
+
+### `task-breakdown.yaml` - Planning Detallado con Desglose de Tareas (⭐ NUEVO)
+
+```
+Requirements Analysis → Architecture Design → API Contracts → Task Breakdown →
+Backend Implementation → Frontend Implementation → QA Review
+```
+
+- **Planning exhaustivo** antes de implementación
+- Crea **documentación detallada** para cada rol
+- **Tareas específicas** con acceptance criteria
+- Ideal para proyectos **complejos** o equipos **nuevos**
+
+**Fases de Planning:**
+1. **Requirements Analysis** (00_requirements_analysis.md)
+   - Análisis exhaustivo de requisitos
+   - Identificación de entidades
+   - Reglas de negocio documentadas
+
+2. **Architecture Design** (10_architecture.md + 15_data_model.md)
+   - Diseño DDD completo
+   - Modelo de datos detallado
+   - Diagrama de componentes
+
+3. **API Contracts** (20_api_contracts.md)
+   - TODOS los endpoints documentados
+   - Request/Response con todos los códigos de error
+   - Validaciones especificadas
+
+4. **Task Breakdown** (30_tasks_backend.md, 31_tasks_frontend.md, 32_tasks_qa.md)
+   - Tareas MUY detalladas por rol
+   - Cada tarea incluye:
+     - Descripción exacta
+     - Archivos a crear/modificar
+     - Acceptance criteria
+     - Comandos de verificación
+     - Estimación
+     - Dependencias
+
+**Archivos generados:**
+```
+.ai/projects/PROJECT_X/features/{FEATURE_ID}/
+├── 00_requirements_analysis.md    # Análisis exhaustivo
+├── 10_architecture.md              # Diseño DDD
+├── 15_data_model.md                # Modelo de datos
+├── 20_api_contracts.md             # Todos los endpoints
+├── 30_tasks_backend.md             # Tareas backend detalladas
+├── 31_tasks_frontend.md            # Tareas frontend detalladas
+├── 32_tasks_qa.md                  # Tareas QA detalladas
+├── 35_dependencies.md              # Mapa de dependencias
+├── FEATURE_X.md                    # Resumen ejecutivo
+└── 50_state.md                     # Estado del workflow
+```
+
+**Cuándo usar:**
+- ✅ Proyectos nuevos con requisitos complejos (como Sportian)
+- ✅ Múltiples entidades con relaciones complejas
+- ✅ Reglas de negocio no triviales
+- ✅ Equipo distribuido que necesita documentación detallada
+- ✅ Necesitas estimar esfuerzo por rol
+- ✅ Onboarding de nuevos desarrolladores
+
+**Ejemplo de uso:**
+```bash
+# Para el proyecto Sportian (clubes, jugadores, entrenadores)
+./workflow start club-player-entities task-breakdown --execute
+```
+
+El Planner pasará 4-6 horas creando documentación exhaustiva, pero luego Backend, Frontend y QA tendrán claridad total sobre qué hacer exactamente.
 
 ### `ddd_parallel.yaml` - DDD con Capas Paralelas
 
