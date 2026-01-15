@@ -66,6 +66,33 @@ Un sistema profesional para trabajar con **múltiples instancias de Claude Code 
 └── install.sh                  # Instalador del sistema
 ```
 
+## 📖 Conceptos Clave
+
+### Feature ID
+El **Feature ID** es el identificador único de la funcionalidad que estás desarrollando. Ejemplos:
+- `user-registration` - Sistema de registro de usuarios
+- `payment-integration` - Integración de pagos
+- `product-catalog` - Catálogo de productos
+- `admin-dashboard` - Panel de administración
+
+Este identificador:
+- ✅ Se usa para crear el directorio `.ai/projects/PROJECT_X/features/{FEATURE_ID}/`
+- ✅ Aparece en los commits: `[backend][user-registration] Add User entity`
+- ✅ Se usa para sincronización Git entre roles
+- ✅ Permite trabajar en múltiples features en paralelo
+
+**Convención de nombres:** Usa kebab-case (minúsculas con guiones): `user-registration`, `api-refactor`, etc.
+
+### Workflow
+Define el flujo de trabajo entre roles. Ejemplo: `default`, `ddd_parallel`, `custom`
+
+### Roles
+Los 4 roles disponibles:
+- **planner** - Arquitecto/Planificador: Define specs y API contracts
+- **backend** - Ingeniero Backend: Implementa API con DDD
+- **frontend** - Ingeniero Frontend: Implementa UI
+- **qa** - QA/Reviewer: Valida calidad y acceptance criteria
+
 ## 🚀 Inicio Rápido
 
 **NUEVO**: Usa el script maestro `workflow` para todas las operaciones:
@@ -94,14 +121,14 @@ Y sugiere el workflow apropiado.
 
 #### Modo Manual (muestra instrucciones):
 ```bash
-./workflow start user-auth default
+./workflow start user-registration default
 ```
 
 #### Modo Automático (⭐ RECOMENDADO - ejecuta automáticamente):
 ```bash
-./workflow start user-auth default --execute
+./workflow start user-registration default --execute
 # O forma corta:
-./workflow start user-auth default -x
+./workflow start user-registration default -x
 ```
 
 Esto abre Tilix con layout 2x2:
@@ -124,16 +151,16 @@ Si solo quieres trabajar como un rol específico en tu terminal actual:
 
 ```bash
 # Como Planner
-./workflow role planner user-auth
+./workflow role planner user-registration
 
 # Como Backend Engineer
-./workflow role backend user-auth
+./workflow role backend user-registration
 
 # Como Frontend Engineer
-./workflow role frontend user-auth
+./workflow role frontend user-registration
 
 # Como QA/Reviewer
-./workflow role qa user-auth
+./workflow role qa user-registration
 ```
 
 Esto:
@@ -153,19 +180,19 @@ Esto:
 
 ```bash
 # Sincronizar con Git (antes de empezar a trabajar)
-./workflow sync user-auth
+./workflow sync user-registration
 
 # Commit y push cambios
-./workflow commit backend user-auth "Add User entity"
-./workflow commit frontend user-auth "Add LoginForm component"
-./workflow commit qa user-auth "QA review: APPROVED"
+./workflow commit backend user-registration "Add User entity"
+./workflow commit frontend user-registration "Add LoginForm component"
+./workflow commit qa user-registration "QA review: APPROVED"
 ```
 
 ### 5. Validar Workflow
 
 ```bash
 # Validar un feature específico
-./workflow validate user-auth
+./workflow validate user-registration
 
 # Validar todos los features
 ./workflow validate
@@ -174,13 +201,41 @@ Esto:
 ### 6. Resumen de Comandos
 
 ```bash
-./workflow consult                              # Consultoría interactiva
-./workflow start <feature> <workflow> [-x]      # Inicia todos los roles en Tilix
-./workflow role <role> <feature>                # Inicia como un rol específico
-./workflow validate [feature]                   # Valida workflow(s)
-./workflow sync <feature>                       # Git pull
-./workflow commit <role> <feature> <msg>        # Git commit + push
-./workflow help                                 # Ayuda completa
+./workflow consult                                    # Consultoría interactiva
+./workflow start <feature-id> <workflow> [-x]         # Inicia todos los roles en Tilix
+./workflow role <role> <feature-id>                   # Inicia como un rol específico
+./workflow validate [feature-id]                      # Valida workflow(s)
+./workflow sync <feature-id>                          # Git pull
+./workflow commit <role> <feature-id> <msg>           # Git commit + push
+./workflow help                                       # Ayuda completa
+```
+
+### 7. Ejemplo Completo de Flujo de Trabajo
+
+```bash
+# 1. Consultoría: ¿Qué workflow usar?
+./workflow consult
+
+# 2. Crear feature "user-registration" con todos los roles en Tilix
+./workflow start user-registration default --execute
+
+# --- O trabajar como rol individual ---
+
+# 3a. Trabajar solo como Backend Engineer
+./workflow role backend user-registration
+
+# Antes de empezar, sincronizar cambios de otros roles
+./workflow sync user-registration
+
+# Hacer commits después de cada checkpoint
+./workflow commit backend user-registration "Add User entity and Email value object"
+./workflow commit backend user-registration "Add RegisterUser use case"
+
+# 4. Validar que todo esté correcto
+./workflow validate user-registration
+
+# 5. Ver ayuda cuando necesites
+./workflow help
 ```
 
 ## 📚 Documentación de Roles
