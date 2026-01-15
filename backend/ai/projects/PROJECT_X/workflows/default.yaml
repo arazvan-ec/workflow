@@ -223,6 +223,11 @@ instructions:
   planner: |
     You are the PLANNER. Your role is defined in: backend/ai/roles/planner.md
 
+    GIT WORKFLOW (CRITICAL):
+    0. BEFORE starting, sync with remote:
+       Run: ./scripts/git_sync.sh {FEATURE_ID}
+       OR: git pull origin feature/{FEATURE_ID}
+
     MANDATORY READING (in order):
     1. Read backend/ai/roles/planner.md (your role)
     2. Read backend/ai/projects/PROJECT_X/rules/global_rules.md
@@ -238,12 +243,26 @@ instructions:
        - Technical considerations
     2. Create 30_tasks.md with specific tasks for each role
     3. Update 50_state.md (planner section) to COMPLETED when done
-    4. Commit and push
+
+    GIT COMMIT & PUSH (MANDATORY):
+    4. After completing all tasks above, you MUST commit and push:
+       Run: ./scripts/git_commit_push.sh planner {FEATURE_ID} "Define feature and create task breakdown"
+       OR manually:
+         git add .
+         git commit -m "[planner][{FEATURE_ID}] Define feature and create task breakdown"
+         git push origin feature/{FEATURE_ID}
+
+    IMPORTANT: Other roles are waiting for your changes. Push immediately after completing.
 
     DO NOT implement code. Only plan and define.
 
   backend: |
     You are the BACKEND ENGINEER. Your role is defined in: backend/ai/roles/backend.md
+
+    GIT WORKFLOW (CRITICAL):
+    0. BEFORE starting, sync with remote:
+       Run: ./scripts/git_sync.sh {FEATURE_ID}
+       This will pull planner's changes (FEATURE_X.md, 30_tasks.md, etc.)
 
     MANDATORY READING (in order):
     1. Read backend/ai/roles/backend.md (your role)
@@ -259,13 +278,27 @@ instructions:
     2. Follow DDD architecture (Domain, Application, Infrastructure)
     3. Write tests (unit + integration, coverage > 80%)
     4. Update 50_state.md (backend section) with progress
-    5. When done, set status to COMPLETED
-    6. Commit and push
 
-    If blocked, set status to BLOCKED and describe the issue in 50_state.md.
+    GIT COMMIT & PUSH (MANDATORY - DO THIS FREQUENTLY):
+    5. After EACH significant milestone (entity created, use case done, tests pass):
+       Run: ./scripts/git_commit_push.sh backend {FEATURE_ID} "Implement [what you did]"
+       Example: ./scripts/git_commit_push.sh backend user-auth "Implement User entity and repository"
+
+    6. When ALL tasks done, set 50_state.md status to COMPLETED and push:
+       Run: ./scripts/git_commit_push.sh backend {FEATURE_ID} "Complete backend implementation"
+
+    IMPORTANT:
+    - Commit and push FREQUENTLY (not just at the end)
+    - Frontend is waiting for your API to be ready
+    - If blocked, update 50_state.md status to BLOCKED and push immediately
 
   frontend: |
     You are the FRONTEND ENGINEER. Your role is defined in: backend/ai/roles/frontend.md
+
+    GIT WORKFLOW (CRITICAL):
+    0. BEFORE starting, sync with remote:
+       Run: ./scripts/git_sync.sh {FEATURE_ID}
+       This pulls planner's and backend's changes
 
     MANDATORY READING (in order):
     1. Read backend/ai/roles/frontend.md (your role)
@@ -282,19 +315,37 @@ instructions:
        - Mock the API endpoints
        - Set status to WAITING_API in your 50_state.md
        - Continue with UI implementation
+       - Commit mocks: ./scripts/git_commit_push.sh frontend {FEATURE_ID} "Add API mocks"
     3. If API is ready:
        - Integrate with real API
        - Set status to IN_PROGRESS
     4. Implement UI according to FEATURE_X.md
     5. Write tests (unit + integration, coverage > 70%)
     6. Update 50_state.md (frontend section) with progress
-    7. When done, set status to COMPLETED
-    8. Commit and push
 
-    If blocked, set status to BLOCKED and describe the issue in 50_state.md.
+    GIT COMMIT & PUSH (MANDATORY - DO THIS FREQUENTLY):
+    7. After EACH component or feature:
+       Run: ./scripts/git_commit_push.sh frontend {FEATURE_ID} "Implement [component name]"
+       Example: ./scripts/git_commit_push.sh frontend user-auth "Implement LoginForm component"
+
+    8. When ALL tasks done, set 50_state.md status to COMPLETED and push:
+       Run: ./scripts/git_commit_push.sh frontend {FEATURE_ID} "Complete frontend implementation"
+
+    9. If you were using mocks and backend is now ready, replace mocks:
+       Run: ./scripts/git_commit_push.sh frontend {FEATURE_ID} "Replace mocks with real API integration"
+
+    IMPORTANT:
+    - Commit and push FREQUENTLY
+    - QA is waiting for your implementation
+    - If blocked, update 50_state.md to BLOCKED and push immediately
 
   qa: |
     You are the QA/REVIEWER. Your role is defined in: backend/ai/roles/qa.md
+
+    GIT WORKFLOW (CRITICAL):
+    0. BEFORE starting, sync with remote:
+       Run: ./scripts/git_sync.sh {FEATURE_ID}
+       This pulls all changes from backend and frontend
 
     MANDATORY READING (in order):
     1. Read backend/ai/roles/qa.md (your role)
@@ -306,17 +357,28 @@ instructions:
 
     TASK:
     1. Verify that backend and frontend status are COMPLETED
+       (If not, wait for them to complete and push)
     2. Review backend code (check DDD compliance, tests, API contracts)
     3. Review frontend code (check UI requirements, tests, integration)
     4. Execute all tests (unit, integration, e2e)
     5. Validate acceptance criteria from FEATURE_X.md
-    6. Create qa_report_FEATURE_X.md with findings
-    7. Update 50_state.md (qa section):
+    6. Create qa_report_{FEATURE_ID}.md with findings
+
+    GIT COMMIT & PUSH (MANDATORY):
+    7. After review, update 50_state.md (qa section) with decision:
        - APPROVED if everything is ok
        - REJECTED if there are critical issues
-    8. Commit and push
 
-    If REJECTED, document all issues clearly for backend/frontend to fix.
+    8. Commit and push your review:
+       If APPROVED:
+         Run: ./scripts/git_commit_push.sh qa {FEATURE_ID} "QA review: APPROVED - feature ready for production"
+       If REJECTED:
+         Run: ./scripts/git_commit_push.sh qa {FEATURE_ID} "QA review: REJECTED - [brief reason]"
+
+    IMPORTANT:
+    - If REJECTED, document ALL issues clearly in qa_report_{FEATURE_ID}.md
+    - Backend/Frontend will read your report to fix issues
+    - After they fix and push, you must git_sync.sh and review again
 
 examples:
   - name: "User Registration Feature"
