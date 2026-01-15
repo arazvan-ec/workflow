@@ -3,7 +3,7 @@
 # install_git_hooks.sh - Instala los git hooks de validación
 #
 # Uso:
-#   ./scripts/install_git_hooks.sh
+#   ./.ai/scripts/install_git_hooks.sh
 
 set -e
 
@@ -27,19 +27,25 @@ fi
 # Create hooks directory if not exists
 mkdir -p .git/hooks
 
+# Detect hooks directory (either .ai/hooks/ or ./.ai/hooks/)
+HOOKS_DIR=".ai/hooks"
+if [ ! -d "$HOOKS_DIR" ]; then
+    HOOKS_DIR="./.ai/hooks"
+fi
+
 # Install pre-commit hook
-if [ -f "./hooks/pre-commit" ]; then
-    cp ./hooks/pre-commit .git/hooks/pre-commit
+if [ -f "$HOOKS_DIR/pre-commit" ]; then
+    cp "$HOOKS_DIR/pre-commit" .git/hooks/pre-commit
     chmod +x .git/hooks/pre-commit
     success "Installed: pre-commit hook"
 else
-    echo "Warning: hooks/pre-commit not found"
+    echo "Warning: $HOOKS_DIR/pre-commit not found"
 fi
 
 # Install other hooks if they exist
 for hook in pre-push post-commit; do
-    if [ -f "./hooks/$hook" ]; then
-        cp "./hooks/$hook" ".git/hooks/$hook"
+    if [ -f "$HOOKS_DIR/$hook" ]; then
+        cp "$HOOKS_DIR/$hook" ".git/hooks/$hook"
         chmod +x ".git/hooks/$hook"
         success "Installed: $hook hook"
     fi

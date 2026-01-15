@@ -5,7 +5,7 @@ suggest_workflow.py - Consultor inteligente para sugerir workflow según tarea
 Hace preguntas sobre la tarea y sugiere el workflow más apropiado.
 
 Uso:
-    ./scripts/suggest_workflow.py
+    ./.ai/scripts/suggest_workflow.py
 """
 
 import sys
@@ -135,7 +135,7 @@ def suggest_workflow():
     print(f"     ./.ai/projects/PROJECT_X/features/{feature_id}/50_state.md")
     print(f"")
     print(f"  # 2. Start Tilix with roles")
-    print(f"  ./scripts/tilix_start.sh {feature_id} {suggested_workflow}")
+    print(f"  ./.ai/scripts/tilix_start.sh {feature_id} {suggested_workflow}")
     print(f"")
     print(f"  # 3. Monitor progress")
     print(f"  watch -n 5 'cat ./.ai/projects/PROJECT_X/features/{feature_id}/50_state.md'")

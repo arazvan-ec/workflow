@@ -277,7 +277,7 @@ instructions:
 
     GIT WORKFLOW (CRITICAL):
     0. BEFORE starting, sync with remote:
-       Run: ./scripts/git_sync.sh {FEATURE_ID}
+       Run: ./.ai/scripts/git_sync.sh {FEATURE_ID}
        OR: git pull origin feature/{FEATURE_ID}
 
     MANDATORY READING (in order):
@@ -322,7 +322,7 @@ instructions:
 
     GIT COMMIT & PUSH (MANDATORY):
     11. After completing all tasks above, you MUST commit and push:
-        Run: ./scripts/git_commit_push.sh planner {FEATURE_ID} "Define feature and create task breakdown"
+        Run: ./.ai/scripts/git_commit_push.sh planner {FEATURE_ID} "Define feature and create task breakdown"
         OR manually:
           git add .
           git commit -m "[planner][{FEATURE_ID}] Define feature and create task breakdown"
@@ -355,7 +355,7 @@ instructions:
 
     GIT WORKFLOW (CRITICAL):
     0. BEFORE starting, sync with remote:
-       Run: ./scripts/git_sync.sh {FEATURE_ID}
+       Run: ./.ai/scripts/git_sync.sh {FEATURE_ID}
        This will pull planner's changes (FEATURE_X.md, 30_tasks.md, etc.)
 
     MANDATORY READING (in order):
@@ -418,17 +418,17 @@ instructions:
 
     GIT COMMIT & PUSH (MANDATORY - FREQUENT):
     12. After EACH checkpoint (NOT at the end):
-        Run: ./scripts/git_commit_push.sh backend {FEATURE_ID} "Implement [what you did]"
+        Run: ./.ai/scripts/git_commit_push.sh backend {FEATURE_ID} "Implement [what you did]"
 
         Examples:
-        - "./scripts/git_commit_push.sh backend user-auth 'Add User entity and Email value object'"
-        - "./scripts/git_commit_push.sh backend user-auth 'Add RegisterUserUseCase with validation'"
-        - "./scripts/git_commit_push.sh backend user-auth 'Add UserRepository with Doctrine'"
-        - "./scripts/git_commit_push.sh backend user-auth 'Add POST /api/users endpoint'"
+        - "./.ai/scripts/git_commit_push.sh backend user-auth 'Add User entity and Email value object'"
+        - "./.ai/scripts/git_commit_push.sh backend user-auth 'Add RegisterUserUseCase with validation'"
+        - "./.ai/scripts/git_commit_push.sh backend user-auth 'Add UserRepository with Doctrine'"
+        - "./.ai/scripts/git_commit_push.sh backend user-auth 'Add POST /api/users endpoint'"
 
     13. When ALL checkpoints done:
         - Update 50_state.md (backend section) status to COMPLETED
-        - Run: ./scripts/git_commit_push.sh backend {FEATURE_ID} "Complete backend implementation"
+        - Run: ./.ai/scripts/git_commit_push.sh backend {FEATURE_ID} "Complete backend implementation"
 
     IMPORTANT REMINDERS:
     - Reference existing code patterns (state which file)
@@ -458,7 +458,7 @@ instructions:
 
     GIT WORKFLOW (CRITICAL):
     0. BEFORE starting, sync with remote:
-       Run: ./scripts/git_sync.sh {FEATURE_ID}
+       Run: ./.ai/scripts/git_sync.sh {FEATURE_ID}
        This pulls planner's and backend's changes
 
     MANDATORY READING (in order):
@@ -483,7 +483,7 @@ instructions:
         - Mock the API endpoints (reference existing mocks in __mocks__/)
         - Set status to WAITING_API in your 50_state.md
         - Continue with UI implementation
-        - Commit mocks: ./scripts/git_commit_push.sh frontend {FEATURE_ID} "Add API mocks"
+        - Commit mocks: ./.ai/scripts/git_commit_push.sh frontend {FEATURE_ID} "Add API mocks"
 
     11. If API is ready:
         - Integrate with real API
@@ -533,20 +533,20 @@ instructions:
 
     GIT COMMIT & PUSH (MANDATORY - AFTER EACH CHECKPOINT):
     15. After EACH checkpoint:
-        Run: ./scripts/git_commit_push.sh frontend {FEATURE_ID} "Implement [what you did]"
+        Run: ./.ai/scripts/git_commit_push.sh frontend {FEATURE_ID} "Implement [what you did]"
 
         Examples:
-        - "./scripts/git_commit_push.sh frontend user-auth 'Add LoginForm component structure'"
-        - "./scripts/git_commit_push.sh frontend user-auth 'Add form validation to LoginForm'"
-        - "./scripts/git_commit_push.sh frontend user-auth 'Integrate LoginForm with API'"
-        - "./scripts/git_commit_push.sh frontend user-auth 'Make LoginForm responsive'"
+        - "./.ai/scripts/git_commit_push.sh frontend user-auth 'Add LoginForm component structure'"
+        - "./.ai/scripts/git_commit_push.sh frontend user-auth 'Add form validation to LoginForm'"
+        - "./.ai/scripts/git_commit_push.sh frontend user-auth 'Integrate LoginForm with API'"
+        - "./.ai/scripts/git_commit_push.sh frontend user-auth 'Make LoginForm responsive'"
 
     16. When ALL checkpoints done:
         - Update 50_state.md (frontend section) status to COMPLETED
-        - Run: ./scripts/git_commit_push.sh frontend {FEATURE_ID} "Complete frontend implementation"
+        - Run: ./.ai/scripts/git_commit_push.sh frontend {FEATURE_ID} "Complete frontend implementation"
 
     17. If you were using mocks and backend is now ready, replace mocks:
-        Run: ./scripts/git_commit_push.sh frontend {FEATURE_ID} "Replace mocks with real API integration"
+        Run: ./.ai/scripts/git_commit_push.sh frontend {FEATURE_ID} "Replace mocks with real API integration"
 
     IMPORTANT REMINDERS:
     - Reference existing components for consistency
@@ -579,7 +579,7 @@ instructions:
 
     GIT WORKFLOW (CRITICAL):
     0. BEFORE starting, sync with remote:
-       Run: ./scripts/git_sync.sh {FEATURE_ID}
+       Run: ./.ai/scripts/git_sync.sh {FEATURE_ID}
        This pulls all changes from backend and frontend
 
     MANDATORY READING (in order):
@@ -695,9 +695,9 @@ instructions:
 
     13. Commit and push your review with COMPLETE information:
         If APPROVED:
-          Run: ./scripts/git_commit_push.sh qa {FEATURE_ID} "QA review: APPROVED - all tests passing, all AC met, ready for production"
+          Run: ./.ai/scripts/git_commit_push.sh qa {FEATURE_ID} "QA review: APPROVED - all tests passing, all AC met, ready for production"
         If REJECTED:
-          Run: ./scripts/git_commit_push.sh qa {FEATURE_ID} "QA review: REJECTED - [specific issues: e.g., 'API validation failing, UI not responsive']"
+          Run: ./.ai/scripts/git_commit_push.sh qa {FEATURE_ID} "QA review: REJECTED - [specific issues: e.g., 'API validation failing, UI not responsive']"
 
     IMPORTANT REMINDERS:
     - Provide EVIDENCE for everything (screenshots, logs, test output)

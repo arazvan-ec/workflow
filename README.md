@@ -21,45 +21,49 @@ Un sistema profesional para trabajar con **múltiples instancias de Claude Code 
 
 ```
 ./
+├── .ai/                        # Configuración centralizada de Claude Code
+│   ├── roles/                 # Roles detallados en Markdown
+│   │   ├── backend.md         # Rol Backend Engineer (con pairing patterns)
+│   │   ├── frontend.md        # Rol Frontend Engineer (con pairing patterns)
+│   │   ├── planner.md         # Rol Planner/Architect (con pairing patterns)
+│   │   └── qa.md              # Rol QA/Reviewer (con pairing patterns)
+│   ├── projects/
+│   │   └── PROJECT_X/
+│   │       ├── rules/         # Reglas del proyecto
+│   │       │   ├── global_rules.md
+│   │       │   ├── ddd_rules.md
+│   │       │   └── project_specific.md
+│   │       ├── features/      # Features activos
+│   │       │   └── FEATURE_X/
+│   │       │       └── 50_state.md  # Estado centralizado
+│   │       └── workflows/     # Workflows YAML
+│   │           └── default.yaml
+│   ├── scripts/               # Scripts de automatización
+│   │   ├── tilix_start.sh     # Abre Tilix con roles configurados
+│   │   ├── validate_workflow.py   # Validador automático
+│   │   ├── suggest_workflow.py    # Consultor inteligente
+│   │   ├── git_sync.sh        # Sincronización Git
+│   │   ├── git_commit_push.sh # Commit y push inteligente
+│   │   └── install_git_hooks.sh   # Instalador de hooks
+│   ├── hooks/                 # Git hooks
+│   │   └── pre-commit         # Hook de validación pre-commit
+│   ├── GIT_WORKFLOW.md        # Guía completa de Git workflow
+│   └── PAIRING_PATTERNS.md    # Guía de pairing con AI agents
+│
 ├── backend/                    # Backend (Symfony + DDD)
-│   ├── ai/
-│   │   ├── roles/             # Roles detallados en Markdown
-│   │   │   ├── backend.md     # Rol Backend Engineer
-│   │   │   ├── frontend.md    # Rol Frontend Engineer
-│   │   │   ├── planner.md     # Rol Planner/Architect
-│   │   │   └── qa.md          # Rol QA/Reviewer
-│   │   └── projects/
-│   │       └── PROJECT_X/
-│   │           ├── rules/     # Reglas del proyecto
-│   │           │   ├── global_rules.md
-│   │           │   ├── ddd_rules.md
-│   │           │   └── project_specific.md
-│   │           ├── features/   # Features activos
-│   │           │   └── FEATURE_X/
-│   │           │       └── 50_state.md  # Estado centralizado
-│   │           └── workflows/  # Workflows YAML
-│   │               ├── default.yaml
-│   │               └── ddd_parallel.yaml
-│   └── src/                   # Código backend
+│   ├── src/                   # Código backend
+│   └── tests/                 # Tests backend
 │
 ├── frontend1/                  # Frontend Admin
-│   ├── ai/
-│   │   └── features/
-│   │       └── FEATURE_X/
-│   │           └── 50_state.md
-│   └── src/                   # Código frontend
+│   ├── src/                   # Código frontend
+│   └── tests/                 # Tests frontend
 │
 ├── frontend2/                  # Frontend Public
-│   ├── ai/
-│   │   └── features/
-│   │       └── FEATURE_X/
-│   │           └── 50_state.md
-│   └── src/                   # Código frontend
+│   ├── src/                   # Código frontend
+│   └── tests/                 # Tests frontend
 │
-└── scripts/                    # Scripts de automatización
-    ├── tilix_start.sh         # Abre Tilix con roles configurados
-    ├── validate_workflow.py   # Validador automático
-    └── suggest_workflow.py    # Consultor inteligente
+├── README.md                   # Este archivo
+└── install.sh                  # Instalador del sistema
 ```
 
 ## 🚀 Inicio Rápido
@@ -69,7 +73,7 @@ Un sistema profesional para trabajar con **múltiples instancias de Claude Code 
 El consultor te hace preguntas y sugiere el workflow óptimo:
 
 ```bash
-./scripts/suggest_workflow.py
+./.ai/scripts/suggest_workflow.py
 ```
 
 Te pregunta:
@@ -85,10 +89,10 @@ Y sugiere el workflow apropiado.
 
 ```bash
 # Abrir Tilix con 4 panes pre-configurados
-./scripts/tilix_start.sh [feature-id] [workflow]
+./.ai/scripts/tilix_start.sh [feature-id] [workflow]
 
 # Ejemplo:
-./scripts/tilix_start.sh user-authentication default
+./.ai/scripts/tilix_start.sh user-authentication default
 ```
 
 Esto abre Tilix con layout 2x2:
@@ -107,10 +111,10 @@ Cada pane tiene el prompt pre-configurado para su rol.
 
 ```bash
 # Validar un feature específico
-./scripts/validate_workflow.py user-authentication
+./.ai/scripts/validate_workflow.py user-authentication
 
 # Validar todos los features
-./scripts/validate_workflow.py
+./.ai/scripts/validate_workflow.py
 ```
 
 ## 📚 Documentación de Roles
@@ -221,7 +225,7 @@ Edita según tus necesidades.
 #### 1. Consultor sugiere workflow
 
 ```bash
-./scripts/suggest_workflow.py
+./.ai/scripts/suggest_workflow.py
 
 # Responde preguntas:
 # - Tipo: New feature (full-stack)
@@ -244,7 +248,7 @@ cp .ai/projects/PROJECT_X/features/FEATURE_X/50_state.md \\
 #### 3. Abrir Tilix con roles
 
 ```bash
-./scripts/tilix_start.sh user-auth ddd_parallel
+./.ai/scripts/tilix_start.sh user-auth ddd_parallel
 ```
 
 #### 4. En cada pane de Tilix
@@ -306,7 +310,7 @@ watch -n 5 'cat .ai/projects/PROJECT_X/features/user-auth/50_state.md'
 #### 6. Validar feature
 
 ```bash
-./scripts/validate_workflow.py user-auth
+./.ai/scripts/validate_workflow.py user-auth
 ```
 
 ## 🎯 Casos de Uso
@@ -371,6 +375,25 @@ Ver carpeta `.ai/projects/PROJECT_X/features/FEATURE_X/` para un ejemplo complet
 - Workflow YAML aplicado
 - Roles interactuando
 
+## 📚 Documentación Adicional
+
+Este sistema incluye guías completas:
+
+- **`.ai/GIT_WORKFLOW.md`** (12KB) - Git workflow completo para sincronización multi-instancia
+  - Branching strategy por feature
+  - Commit y push frecuente por rol
+  - Manejo de conflictos en 50_state.md
+  - Scripts de sincronización (git_sync.sh, git_commit_push.sh)
+  - Pre-commit hooks de validación
+
+- **`.ai/PAIRING_PATTERNS.md`** (18KB) - Guía de pairing efectivo con AI agents
+  - Principio: "Sitting Next to Me" test
+  - Evitar el "Speed Trap" (generar más rápido de lo que se puede verificar)
+  - Feedback loops con checkpoints
+  - Pattern matching (referenciar código existente)
+  - "Trust = Passing Test Suite"
+  - Ejemplos Before/After de prompts efectivos
+
 ## 💡 Principios Fundamentales
 
 1. **Contexto Explícito** - Todo en archivos, nada en memoria
@@ -402,7 +425,7 @@ MIT License
 **¿Listo para empezar?**
 
 ```bash
-./scripts/suggest_workflow.py
+./.ai/scripts/suggest_workflow.py
 ```
 
 🚀 **Disfruta trabajando con múltiples Claude Code en paralelo!**

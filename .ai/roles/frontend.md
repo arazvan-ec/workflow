@@ -344,14 +344,14 @@ export const getUsers = async () => {
 
 2. Use mock in component
 3. Mark in 50_state.md: Status = WAITING_API
-4. Commit: ./scripts/git_commit_push.sh frontend user-mgmt "Add UserList with mocked API"
+4. Commit: ./.ai/scripts/git_commit_push.sh frontend user-mgmt "Add UserList with mocked API"
 
 When backend is ready:
-1. Sync: ./scripts/git_sync.sh user-mgmt
+1. Sync: ./.ai/scripts/git_sync.sh user-mgmt
 2. Check backend 50_state.md: Status = COMPLETED
 3. Replace mock with real API
 4. Test integration
-5. Commit: ./scripts/git_commit_push.sh frontend user-mgmt "Replace mocks with real API"
+5. Commit: ./.ai/scripts/git_commit_push.sh frontend user-mgmt "Replace mocks with real API"
 ```
 
 ### Anti-Patterns to Avoid (UI Edition)

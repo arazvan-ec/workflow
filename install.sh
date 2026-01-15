@@ -56,8 +56,8 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 # Check if directories already exist
-if [ -d "$TARGET_DIR/.ai" ] || [ -d "$TARGET_DIR/scripts" ]; then
-    warn "Some directories already exist (.ai or scripts)"
+if [ -d "$TARGET_DIR/.ai" ]; then
+    warn "Directory .ai already exists"
     read -p "Do you want to continue and potentially overwrite? (y/N): " -n 1 -r
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -68,10 +68,10 @@ fi
 
 info "Copying workflow system files..."
 
-# Copy .ai structure
+# Copy .ai structure (includes scripts, hooks, docs, roles, projects)
 mkdir -p "$TARGET_DIR/.ai"
 cp -r "$SCRIPT_DIR/.ai/"* "$TARGET_DIR/.ai/"
-success "Copied .ai/"
+success "Copied .ai/ (includes scripts, hooks, docs, roles, projects)"
 
 # Create backend/src if not exists
 mkdir -p "$TARGET_DIR/backend/src"
@@ -89,11 +89,9 @@ for frontend in frontend1 frontend2; do
     success "Created $frontend/ structure"
 done
 
-# Copy scripts
-mkdir -p "$TARGET_DIR/scripts"
-cp "$SCRIPT_DIR/scripts/"* "$TARGET_DIR/scripts/"
-chmod +x "$TARGET_DIR/scripts/"*.sh "$TARGET_DIR/scripts/"*.py
-success "Copied scripts/"
+# Make scripts executable
+chmod +x "$TARGET_DIR/.ai/scripts/"*.sh "$TARGET_DIR/.ai/scripts/"*.py 2>/dev/null || true
+success "Scripts made executable"
 
 # Copy README
 cp "$SCRIPT_DIR/README.md" "$TARGET_DIR/WORKFLOW_README.md"
@@ -117,14 +115,19 @@ echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 echo "1. Read the documentation:"
 echo "   ${CYAN}cat WORKFLOW_README.md${NC}"
+echo "   ${CYAN}cat .ai/GIT_WORKFLOW.md${NC}"
+echo "   ${CYAN}cat .ai/PAIRING_PATTERNS.md${NC}"
 echo ""
 echo "2. Run the workflow consultant:"
-echo "   ${CYAN}./scripts/suggest_workflow.py${NC}"
+echo "   ${CYAN}./.ai/scripts/suggest_workflow.py${NC}"
 echo ""
 echo "3. Or start directly with Tilix:"
-echo "   ${CYAN}./scripts/tilix_start.sh my-feature default${NC}"
+echo "   ${CYAN}./.ai/scripts/tilix_start.sh my-feature default${NC}"
 echo ""
-echo "4. Validate your workflow:"
-echo "   ${CYAN}./scripts/validate_workflow.py${NC}"
+echo "4. Install git hooks (recommended):"
+echo "   ${CYAN}./.ai/scripts/install_git_hooks.sh${NC}"
+echo ""
+echo "5. Validate your workflow:"
+echo "   ${CYAN}./.ai/scripts/validate_workflow.py${NC}"
 echo ""
 echo -e "${GREEN}Happy coding with Claude Code! 🚀${NC}"

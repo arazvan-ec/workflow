@@ -117,9 +117,9 @@ if echo "$STAGED_FILES" | grep -q "\.env$"; then
 fi
 
 # Validation 5: Run full workflow validation if validator exists
-if [ -f "./scripts/validate_workflow.py" ]; then
+if [ -f "./.ai/scripts/validate_workflow.py" ]; then
     info "Running workflow validator..."
-    if python3 ./scripts/validate_workflow.py 2>&1 | tail -10; then
+    if python3 ./.ai/scripts/validate_workflow.py 2>&1 | tail -10; then
         success "Workflow validation passed"
     else
         error "Workflow validation failed!"

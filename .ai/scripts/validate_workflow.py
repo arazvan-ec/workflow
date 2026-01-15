@@ -9,7 +9,7 @@ Valida:
 - Completitud de features
 
 Uso:
-    ./scripts/validate_workflow.py [feature-id]
+    ./.ai/scripts/validate_workflow.py [feature-id]
 """
 
 import sys

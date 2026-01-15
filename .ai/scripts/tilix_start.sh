@@ -3,11 +3,11 @@
 # tilix_start.sh - Abre Claude Code en múltiples panes de Tilix según roles del workflow
 #
 # Uso:
-#   ./scripts/tilix_start.sh [feature-id] [workflow]
+#   ./.ai/scripts/tilix_start.sh [feature-id] [workflow]
 #
 # Ejemplos:
-#   ./scripts/tilix_start.sh my-feature default
-#   ./scripts/tilix_start.sh user-auth ddd_parallel
+#   ./.ai/scripts/tilix_start.sh my-feature default
+#   ./.ai/scripts/tilix_start.sh user-auth ddd_parallel
 
 set -e
 
@@ -206,6 +206,6 @@ echo ""
 info "Next steps:"
 echo "1. In each pane, start Claude Code: ${GREEN}claude${NC}"
 echo "2. Copy-paste the prompt for each role (shown above)"
-echo "3. Monitor progress by running: ${GREEN}./scripts/view_state.sh $FEATURE_ID${NC}"
+echo "3. Monitor progress by running: ${GREEN}./.ai/scripts/view_state.sh $FEATURE_ID${NC}"
 echo ""
 info "Enjoy working with parallel Claude Code instances! 🚀"

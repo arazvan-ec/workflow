@@ -3,10 +3,10 @@
 # git_commit_push.sh - Script inteligente de commit y push con validación
 #
 # Uso:
-#   ./scripts/git_commit_push.sh [role] [feature-id] [message]
+#   ./.ai/scripts/git_commit_push.sh [role] [feature-id] [message]
 #
 # Ejemplo:
-#   ./scripts/git_commit_push.sh backend user-auth "Implement User entity and repository"
+#   ./.ai/scripts/git_commit_push.sh backend user-auth "Implement User entity and repository"
 
 set -e
 
@@ -28,10 +28,10 @@ FEATURE_ID="${2:-FEATURE_X}"
 MESSAGE="${3}"
 
 if [ -z "$MESSAGE" ]; then
-    error "Usage: ./scripts/git_commit_push.sh [role] [feature-id] [message]"
+    error "Usage: ./.ai/scripts/git_commit_push.sh [role] [feature-id] [message]"
     echo ""
     echo "Example:"
-    echo "  ./scripts/git_commit_push.sh backend user-auth \"Implement User entity\""
+    echo "  ./.ai/scripts/git_commit_push.sh backend user-auth \"Implement User entity\""
     exit 1
 fi
 
@@ -64,8 +64,8 @@ fi
 
 # Validate workflow before committing
 info "Validating workflow..."
-if [ -f "./scripts/validate_workflow.py" ]; then
-    if python3 ./scripts/validate_workflow.py "$FEATURE_ID" 2>/dev/null; then
+if [ -f "./.ai/scripts/validate_workflow.py" ]; then
+    if python3 ./.ai/scripts/validate_workflow.py "$FEATURE_ID" 2>/dev/null; then
         success "Workflow validation passed"
     else
         error "Workflow validation failed!"

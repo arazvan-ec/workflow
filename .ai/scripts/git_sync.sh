@@ -5,7 +5,7 @@
 # Hace git pull con manejo automático de stash y conflictos
 #
 # Uso:
-#   ./scripts/git_sync.sh [feature-id]
+#   ./.ai/scripts/git_sync.sh [feature-id]
 
 set -e
 

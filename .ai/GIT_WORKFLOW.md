@@ -84,7 +84,7 @@ git push origin develop
 **SIEMPRE** sincroniza primero:
 
 ```bash
-./scripts/git_sync.sh [feature-id]
+./.ai/scripts/git_sync.sh [feature-id]
 ```
 
 O manualmente:
@@ -101,7 +101,7 @@ Esto asegura que tienes los últimos cambios de otros roles.
 #### 1. Sincronizar
 
 ```bash
-./scripts/git_sync.sh user-auth
+./.ai/scripts/git_sync.sh user-auth
 ```
 
 #### 2. Trabajar
@@ -113,7 +113,7 @@ Esto asegura que tienes los últimos cambios de otros roles.
 #### 3. Commit y Push (Inmediatamente al terminar)
 
 ```bash
-./scripts/git_commit_push.sh planner user-auth "Define feature and create task breakdown"
+./.ai/scripts/git_commit_push.sh planner user-auth "Define feature and create task breakdown"
 ```
 
 **Commit message format**: `[planner][user-auth] Define feature and create task breakdown`
@@ -129,7 +129,7 @@ Esto asegura que tienes los últimos cambios de otros roles.
 #### 1. Sincronizar
 
 ```bash
-./scripts/git_sync.sh user-auth
+./.ai/scripts/git_sync.sh user-auth
 # Esto trae los cambios del Planner (FEATURE_X.md, 30_tasks.md)
 ```
 
@@ -144,19 +144,19 @@ Después de **cada milestone**:
 
 ```bash
 # Ejemplo 1: Entity creada
-./scripts/git_commit_push.sh backend user-auth "Implement User entity and Email value object"
+./.ai/scripts/git_commit_push.sh backend user-auth "Implement User entity and Email value object"
 
 # Ejemplo 2: Repository implementado
-./scripts/git_commit_push.sh backend user-auth "Implement UserRepository with Doctrine"
+./.ai/scripts/git_commit_push.sh backend user-auth "Implement UserRepository with Doctrine"
 
 # Ejemplo 3: Use Case listo
-./scripts/git_commit_push.sh backend user-auth "Implement RegisterUserUseCase with tests"
+./.ai/scripts/git_commit_push.sh backend user-auth "Implement RegisterUserUseCase with tests"
 
 # Ejemplo 4: Controller y endpoint
-./scripts/git_commit_push.sh backend user-auth "Add POST /api/users endpoint"
+./.ai/scripts/git_commit_push.sh backend user-auth "Add POST /api/users endpoint"
 
 # Final: Todo completo
-./scripts/git_commit_push.sh backend user-auth "Complete backend implementation - all tests passing"
+./.ai/scripts/git_commit_push.sh backend user-auth "Complete backend implementation - all tests passing"
 ```
 
 #### Frecuencia
@@ -176,7 +176,7 @@ Después de **cada milestone**:
 #### 1. Sincronizar
 
 ```bash
-./scripts/git_sync.sh user-auth
+./.ai/scripts/git_sync.sh user-auth
 # Esto trae cambios del Planner y Backend
 ```
 
@@ -199,19 +199,19 @@ Si no, mockea la API y continúa.
 
 ```bash
 # Ejemplo 1: Mocks de API
-./scripts/git_commit_push.sh frontend user-auth "Add API mocks for user endpoints"
+./.ai/scripts/git_commit_push.sh frontend user-auth "Add API mocks for user endpoints"
 
 # Ejemplo 2: Componente
-./scripts/git_commit_push.sh frontend user-auth "Implement LoginForm component"
+./.ai/scripts/git_commit_push.sh frontend user-auth "Implement LoginForm component"
 
 # Ejemplo 3: Otro componente
-./scripts/git_commit_push.sh frontend user-auth "Implement UserList component with pagination"
+./.ai/scripts/git_commit_push.sh frontend user-auth "Implement UserList component with pagination"
 
 # Ejemplo 4: Integración con API real (si backend ya está listo)
-./scripts/git_commit_push.sh frontend user-auth "Replace mocks with real API integration"
+./.ai/scripts/git_commit_push.sh frontend user-auth "Replace mocks with real API integration"
 
 # Final: Todo completo
-./scripts/git_commit_push.sh frontend user-auth "Complete frontend implementation - all tests passing"
+./.ai/scripts/git_commit_push.sh frontend user-auth "Complete frontend implementation - all tests passing"
 ```
 
 #### Frecuencia
@@ -225,7 +225,7 @@ Si no, mockea la API y continúa.
 #### 1. Sincronizar
 
 ```bash
-./scripts/git_sync.sh user-auth
+./.ai/scripts/git_sync.sh user-auth
 # Esto trae TODO el código de Backend y Frontend
 ```
 
@@ -248,12 +248,12 @@ Si alguno no está `COMPLETED`, espera a que terminen.
 
 **Si APRUEBA**:
 ```bash
-./scripts/git_commit_push.sh qa user-auth "QA review: APPROVED - feature ready for production"
+./.ai/scripts/git_commit_push.sh qa user-auth "QA review: APPROVED - feature ready for production"
 ```
 
 **Si RECHAZA**:
 ```bash
-./scripts/git_commit_push.sh qa user-auth "QA review: REJECTED - API validation missing, UI not responsive"
+./.ai/scripts/git_commit_push.sh qa user-auth "QA review: REJECTED - API validation missing, UI not responsive"
 ```
 
 #### Frecuencia
@@ -278,7 +278,7 @@ Si alguno no está `COMPLETED`, espera a que terminen.
 ### `git_sync.sh` - Sincronizar con remoto
 
 ```bash
-./scripts/git_sync.sh [feature-id]
+./.ai/scripts/git_sync.sh [feature-id]
 ```
 
 **Lo que hace**:
@@ -295,12 +295,12 @@ Si alguno no está `COMPLETED`, espera a que terminen.
 ### `git_commit_push.sh` - Commit y push con validación
 
 ```bash
-./scripts/git_commit_push.sh [role] [feature-id] [message]
+./.ai/scripts/git_commit_push.sh [role] [feature-id] [message]
 ```
 
 **Ejemplo**:
 ```bash
-./scripts/git_commit_push.sh backend user-auth "Implement User entity"
+./.ai/scripts/git_commit_push.sh backend user-auth "Implement User entity"
 ```
 
 **Lo que hace**:
@@ -318,7 +318,7 @@ Si alguno no está `COMPLETED`, espera a que terminen.
 ### `install_git_hooks.sh` - Instalar hooks de validación
 
 ```bash
-./scripts/install_git_hooks.sh
+./.ai/scripts/install_git_hooks.sh
 ```
 
 **Lo que hace**:
@@ -340,7 +340,7 @@ El pre-commit hook **valida antes de permitir el commit**. Si falla, el commit e
 ### Instalar
 
 ```bash
-./scripts/install_git_hooks.sh
+./.ai/scripts/install_git_hooks.sh
 ```
 
 ### Qué valida
@@ -408,7 +408,7 @@ CONFLICT (content): Merge conflict in 50_state.md
 ### Antes de Empezar
 
 - [ ] Branch de feature existe o lo creo: `git checkout -b feature/[feature-id]`
-- [ ] Sincronizo: `./scripts/git_sync.sh [feature-id]`
+- [ ] Sincronizo: `./.ai/scripts/git_sync.sh [feature-id]`
 - [ ] Leo mi rol: `.ai/roles/[my-role].md`
 - [ ] Leo reglas: `global_rules.md`, `ddd_rules.md`, `project_specific.md`
 - [ ] Leo workflow: `workflows/default.yaml`
@@ -461,7 +461,7 @@ git checkout -b feature/user-auth
 # (Claude crea FEATURE_X.md, 30_tasks.md, actualiza 50_state.md)
 
 # Cuando Claude termina:
-./scripts/git_commit_push.sh planner user-auth "Define user authentication feature and breakdown tasks"
+./.ai/scripts/git_commit_push.sh planner user-auth "Define user authentication feature and breakdown tasks"
 
 # Output:
 # ✓ Workflow validation passed
@@ -476,25 +476,25 @@ git checkout -b feature/user-auth
 # Backend en Tab 2 de Tilix
 
 cd /path/to/project
-./scripts/git_sync.sh user-auth  # Trae cambios del Planner
+./.ai/scripts/git_sync.sh user-auth  # Trae cambios del Planner
 
 # Claude Code:
 # "I am the BACKEND ENGINEER for feature user-auth..."
 
 # (Claude implementa User entity)
-./scripts/git_commit_push.sh backend user-auth "Implement User entity with Email value object"
+./.ai/scripts/git_commit_push.sh backend user-auth "Implement User entity with Email value object"
 
 # (Claude implementa Repository)
-./scripts/git_commit_push.sh backend user-auth "Implement UserRepository with Doctrine"
+./.ai/scripts/git_commit_push.sh backend user-auth "Implement UserRepository with Doctrine"
 
 # (Claude implementa Use Case)
-./scripts/git_commit_push.sh backend user-auth "Implement RegisterUserUseCase with validation"
+./.ai/scripts/git_commit_push.sh backend user-auth "Implement RegisterUserUseCase with validation"
 
 # (Claude implementa Controller)
-./scripts/git_commit_push.sh backend user-auth "Add POST /api/users endpoint with tests"
+./.ai/scripts/git_commit_push.sh backend user-auth "Add POST /api/users endpoint with tests"
 
 # (Claude termina)
-./scripts/git_commit_push.sh backend user-auth "Complete backend implementation"
+./.ai/scripts/git_commit_push.sh backend user-auth "Complete backend implementation"
 ```
 
 ### Ejemplo 3: Frontend Integra (primero mocks, luego API real)
@@ -503,7 +503,7 @@ cd /path/to/project
 # Frontend en Tab 3 de Tilix
 
 cd /path/to/project
-./scripts/git_sync.sh user-auth  # Trae cambios del Planner
+./.ai/scripts/git_sync.sh user-auth  # Trae cambios del Planner
 
 # Verificar si Backend está listo
 cat .ai/projects/PROJECT_X/features/user-auth/50_state.md | grep "Backend"
@@ -511,21 +511,21 @@ cat .ai/projects/PROJECT_X/features/user-auth/50_state.md | grep "Backend"
 # Backend status: IN_PROGRESS (no listo aún)
 
 # Claude Code mockea API y continúa
-./scripts/git_commit_push.sh frontend user-auth "Add API mocks for user endpoints"
+./.ai/scripts/git_commit_push.sh frontend user-auth "Add API mocks for user endpoints"
 
 # Implementa UI
-./scripts/git_commit_push.sh frontend user-auth "Implement RegistrationForm component"
+./.ai/scripts/git_commit_push.sh frontend user-auth "Implement RegistrationForm component"
 
 # Más tarde, Backend termina. Frontend sincroniza:
-./scripts/git_sync.sh user-auth
+./.ai/scripts/git_sync.sh user-auth
 
 # Verifica Backend status: COMPLETED
 
 # Reemplaza mocks con API real
-./scripts/git_commit_push.sh frontend user-auth "Replace mocks with real API integration"
+./.ai/scripts/git_commit_push.sh frontend user-auth "Replace mocks with real API integration"
 
 # Termina
-./scripts/git_commit_push.sh frontend user-auth "Complete frontend implementation"
+./.ai/scripts/git_commit_push.sh frontend user-auth "Complete frontend implementation"
 ```
 
 ### Ejemplo 4: QA Revisa
@@ -534,7 +534,7 @@ cat .ai/projects/PROJECT_X/features/user-auth/50_state.md | grep "Backend"
 # QA en Tab 4 de Tilix
 
 cd /path/to/project
-./scripts/git_sync.sh user-auth  # Trae TODO el código
+./.ai/scripts/git_sync.sh user-auth  # Trae TODO el código
 
 # Verificar que Backend y Frontend están COMPLETED
 cat .ai/projects/PROJECT_X/features/user-auth/50_state.md
@@ -545,17 +545,17 @@ cat .ai/projects/PROJECT_X/features/user-auth/50_state.md
 # Claude Code revisa todo, ejecuta tests, valida criterios
 
 # Si TODO está bien:
-./scripts/git_commit_push.sh qa user-auth "QA review: APPROVED - all criteria met, tests passing"
+./.ai/scripts/git_commit_push.sh qa user-auth "QA review: APPROVED - all criteria met, tests passing"
 
 # Si hay problemas:
-./scripts/git_commit_push.sh qa user-auth "QA review: REJECTED - missing email validation, UI not responsive on mobile"
+./.ai/scripts/git_commit_push.sh qa user-auth "QA review: REJECTED - missing email validation, UI not responsive on mobile"
 ```
 
 ---
 
 ## ✅ Resumen: Reglas de Oro
 
-1. **Sincroniza SIEMPRE antes de empezar**: `./scripts/git_sync.sh [feature-id]`
+1. **Sincroniza SIEMPRE antes de empezar**: `./.ai/scripts/git_sync.sh [feature-id]`
 2. **Commit y push FRECUENTEMENTE**: Cada 30-60 min o después de cada milestone
 3. **Usa los scripts**: `git_commit_push.sh` valida automáticamente antes de commitear
 4. **No saltees el pre-commit hook**: Es tu red de seguridad
@@ -565,6 +565,6 @@ cat .ai/projects/PROJECT_X/features/user-auth/50_state.md
 
 ---
 
-**¿Tienes dudas sobre el Git workflow?** Consulta esta guía o los scripts en `./scripts/`.
+**¿Tienes dudas sobre el Git workflow?** Consulta esta guía o los scripts en `./.ai/scripts/`.
 
 **Happy coding with synchronized Claude instances! 🚀**
