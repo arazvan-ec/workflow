@@ -1,0 +1,36 @@
+{
+  "name": "workflow-marketplace",
+  "owner": {
+    "name": "arazvan-ec",
+    "url": "https://github.com/arazvan-ec"
+  },
+  "metadata": {
+    "description": "Multi-agent workflow plugins for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "multi-agent-workflow",
+      "description": "Coordinate multiple AI agents (Planner, Backend, Frontend, QA) working in parallel on software development. Features 4 specialized roles, 5 workflow commands, 3 skills, and quality-gated checkpoints.",
+      "version": "1.0.0",
+      "author": {
+        "name": "arazvan-ec",
+        "url": "https://github.com/arazvan-ec"
+      },
+      "homepage": "https://github.com/arazvan-ec/workflow",
+      "tags": [
+        "multi-agent",
+        "workflow-automation",
+        "parallel-development",
+        "ddd",
+        "domain-driven-design",
+        "tdd",
+        "test-driven-development",
+        "code-review",
+        "quality-assurance",
+        "team-coordination"
+      ],
+      "source": "./plugins/multi-agent-workflow"
+    }
+  ]
+}
