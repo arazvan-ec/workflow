@@ -1,7 +1,7 @@
 {
   "name": "multi-agent-workflow",
-  "version": "1.0.0",
-  "description": "Multi-agent coordination system for parallel AI development. 4 specialized roles (Planner, Backend, Frontend, QA), checkpoint-driven workflows, and DDD architecture support.",
+  "version": "2.0.0",
+  "description": "Compound engineering framework for multi-agent AI development. 16 specialized agents in 5 categories, 7 workflow commands, 10 skills, and quality-gated checkpoints with DDD architecture support.",
   "author": {
     "name": "arazvan-ec",
     "url": "https://github.com/arazvan-ec"
@@ -10,14 +10,16 @@
   "repository": "https://github.com/arazvan-ec/workflow",
   "license": "MIT",
   "keywords": [
+    "compound-engineering",
     "multi-agent",
     "workflow-automation",
     "parallel-development",
     "ddd",
     "domain-driven-design",
+    "tdd",
+    "test-driven-development",
     "code-review",
     "quality-assurance",
-    "checkpoint-driven",
     "team-coordination"
   ]
 }
