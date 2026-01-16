@@ -6,12 +6,13 @@
 #   workflow.sh <command> [options]
 #
 # Comandos:
-#   consult                           - Ejecuta consultoría interactiva para sugerir workflow
+#   consult [-i|-b|-n]                - Ejecuta consultoría AI para configurar proyecto
 #   start <feature> <workflow> [-x]   - Inicia todos los roles en Tilix (usa -x para auto-ejecutar)
 #   role <role> <feature> [workflow]  - Inicia Claude Code como un rol específico
 #   validate [feature]                - Valida workflow(s)
 #   sync <feature>                    - Sincroniza con Git (pull)
 #   commit <role> <feature> <msg>     - Commit y push cambios
+#   checkpoint <role> <feature> [msg] - Crea checkpoint para gestión de context window
 #   help                              - Muestra esta ayuda
 
 set -e
@@ -46,9 +47,16 @@ usage() {
     echo ""
     echo "Commands:"
     echo ""
-    echo "  ${GREEN}consult${NC}"
-    echo "    Ejecuta consultoría interactiva para sugerir el workflow óptimo"
-    echo "    Example: workflow.sh consult"
+    echo "  ${GREEN}consult${NC} [-i|--interactive] [-b|--batch] [-n|--new-project]"
+    echo "    Ejecuta consultoría AI para analizar y configurar el proyecto"
+    echo "    Options:"
+    echo "      -i, --interactive   Modo interactivo con preguntas (default)"
+    echo "      -b, --batch         Modo batch sin preguntas (auto-detecta)"
+    echo "      -n, --new-project   Crear un proyecto nuevo desde cero"
+    echo "    Examples:"
+    echo "      workflow.sh consult                    # Interactivo"
+    echo "      workflow.sh consult --batch            # Auto-detectar"
+    echo "      workflow.sh consult --new-project      # Nuevo proyecto"
     echo ""
     echo "  ${GREEN}start${NC} <feature-id> <workflow> [-x|--execute]"
     echo "    Inicia todos los roles en Tilix (2x2 grid: Planner, Backend, Frontend, QA)"
@@ -79,6 +87,11 @@ usage() {
     echo "    Commit y push cambios con formato correcto"
     echo "    Example: workflow.sh commit backend user-registration \"Add User entity\""
     echo ""
+    echo "  ${GREEN}checkpoint${NC} <role> <feature-id> [message]"
+    echo "    Crea checkpoint para gestión de context window"
+    echo "    Usar cuando el contexto se llena o antes de pausar trabajo"
+    echo "    Example: workflow.sh checkpoint backend user-auth \"Completed domain layer\""
+    echo ""
     echo "  ${GREEN}help${NC}"
     echo "    Muestra esta ayuda"
     echo ""
@@ -93,9 +106,36 @@ COMMAND="${1:-help}"
 
 case "$COMMAND" in
     consult)
-        title "📋 CONSULTORÍA INTERACTIVA"
+        title "🤖 AI PROJECT CONSULTANT"
         echo ""
-        python3 "$SCRIPT_DIR/suggest_workflow.py"
+
+        # Parse consult-specific arguments
+        CONSULT_ARGS=""
+        shift  # Remove 'consult' from arguments
+
+        for arg in "$@"; do
+            case $arg in
+                -i|--interactive)
+                    CONSULT_ARGS="$CONSULT_ARGS --interactive"
+                    ;;
+                -b|--batch)
+                    CONSULT_ARGS="$CONSULT_ARGS --batch"
+                    ;;
+                -n|--new-project)
+                    CONSULT_ARGS="$CONSULT_ARGS --new-project"
+                    ;;
+            esac
+        done
+
+        # Default to interactive if no mode specified
+        if [ -z "$CONSULT_ARGS" ]; then
+            CONSULT_ARGS="--interactive"
+        fi
+
+        info "Modo: $CONSULT_ARGS"
+        echo ""
+
+        python3 "$SCRIPT_DIR/ai_consultant.py" $CONSULT_ARGS
         ;;
 
     start)
@@ -179,16 +219,22 @@ case "$COMMAND" in
                 cat > "$TEMP_DIR/prompt.txt" << EOF
 I am the PLANNER for feature $FEATURE_ID.
 
-Please:
+CONTEXT AWARENESS (read first for project understanding):
+0. Read .ai/project/context.md (project overview, patterns, recommendations)
+
+MANDATORY READING:
 1. Read .ai/workflow/roles/planner.md (my role - includes Pairing Patterns!)
 2. Read all rules (.ai/workflow/rules/global_rules.md, .ai/workflow/rules/ddd_rules.md, .ai/project/rules/project_specific.md)
 3. Read .ai/workflow/workflows/${WORKFLOW}.yaml
-4. Follow the planning stage instructions from workflow YAML
-5. Create feature definition in .ai/project/features/${FEATURE_ID}/
-6. Create 30_tasks.md with specific tasks for each role
-7. Update 50_state.md when done
 
-Remember: You are a senior architect. Provide COMPLETE specifications so engineers don't need to guess!
+EXECUTION:
+4. Follow the planning stage instructions from workflow YAML
+5. Reference existing patterns from context.md when designing
+6. Create feature definition in .ai/project/features/${FEATURE_ID}/
+7. Create 30_tasks.md with specific tasks for each role
+8. Update 50_state.md when done
+
+Remember: You are a senior architect. Use existing patterns from context.md. Provide COMPLETE specifications so engineers don't need to guess!
 
 Start now.
 EOF
@@ -198,19 +244,29 @@ EOF
                 cat > "$TEMP_DIR/prompt.txt" << EOF
 I am the BACKEND ENGINEER for feature $FEATURE_ID.
 
-Please:
+CONTEXT AWARENESS (read first for project understanding):
+0. Read .ai/project/context.md (project overview, existing patterns, tech stack)
+
+GIT SYNC:
 1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+
+MANDATORY READING:
 2. Read .ai/workflow/roles/backend.md (my role - includes Auto-Correction Loop!)
 3. Read all rules (.ai/workflow/rules/global_rules.md, .ai/workflow/rules/ddd_rules.md, .ai/project/rules/project_specific.md)
 4. Read .ai/project/features/${FEATURE_ID}/ (from planner)
 5. Read .ai/workflow/workflows/${WORKFLOW}.yaml
-6. Check .ai/project/features/${FEATURE_ID}/50_state.md (planner section) - ensure it's COMPLETED
-7. FIND reference code in ./src/ before starting
-8. Implement backend with CHECKPOINTS (stop and verify at each)
-9. Update 50_state.md (backend section) as you progress
-10. Commit after EACH checkpoint: ./.ai/workflow/scripts/git_commit_push.sh backend $FEATURE_ID "message"
 
-Remember: You are a 10x engineer. Reference existing code, use checkpoints, verify everything!
+PRE-IMPLEMENTATION:
+6. Check .ai/project/features/${FEATURE_ID}/50_state.md (planner section) - ensure it's COMPLETED
+7. Reference existing patterns from context.md (backend patterns section)
+
+IMPLEMENTATION:
+8. Implement backend with CHECKPOINTS (stop and verify at each)
+9. Use AUTO-CORRECTION LOOP (max 10 iterations per checkpoint)
+10. Update 50_state.md (backend section) as you progress
+11. Commit after EACH checkpoint: ./.ai/workflow/scripts/git_commit_push.sh backend $FEATURE_ID "message"
+
+Remember: You are a 10x engineer. Use existing patterns from context.md. Use checkpoints, verify everything!
 
 Start when planner is COMPLETED.
 EOF
@@ -220,24 +276,34 @@ EOF
                 cat > "$TEMP_DIR/prompt.txt" << EOF
 I am the FRONTEND ENGINEER for feature $FEATURE_ID.
 
-Please:
+CONTEXT AWARENESS (read first for project understanding):
+0. Read .ai/project/context.md (project overview, existing patterns, tech stack)
+
+GIT SYNC:
 1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+
+MANDATORY READING:
 2. Read .ai/workflow/roles/frontend.md (my role - includes Auto-Correction Loop!)
 3. Read all rules (.ai/workflow/rules/global_rules.md, .ai/project/rules/project_specific.md)
 4. Read .ai/project/features/${FEATURE_ID}/ (from planner)
 5. Read .ai/workflow/workflows/${WORKFLOW}.yaml
+
+PRE-IMPLEMENTATION:
 6. Check .ai/project/features/${FEATURE_ID}/50_state.md:
    - Planner section - ensure it's COMPLETED
    - Backend section - check if API is ready
-7. FIND reference components in frontend directory before starting
+7. Reference existing patterns from context.md (frontend patterns section)
+
+IMPLEMENTATION:
 8. If backend NOT ready: mock API and set status to WAITING_API
 9. Implement UI with VISUAL VERIFICATION at each checkpoint
-10. Test responsive design (375px, 768px, 1024px)
-11. Run Lighthouse audit (must be > 90)
-12. Update 50_state.md (frontend section) as you progress
-13. Commit after EACH checkpoint: ./.ai/workflow/scripts/git_commit_push.sh frontend $FEATURE_ID "message"
+10. Use AUTO-CORRECTION LOOP (max 10 iterations per checkpoint)
+11. Test responsive design (375px, 768px, 1024px)
+12. Run Lighthouse audit (must be > 90)
+13. Update 50_state.md (frontend section) as you progress
+14. Commit after EACH checkpoint: ./.ai/workflow/scripts/git_commit_push.sh frontend $FEATURE_ID "message"
 
-Remember: You are a 10x UI engineer. Show screenshots, test in browser, verify accessibility!
+Remember: You are a 10x UI engineer. Use existing patterns from context.md. Show screenshots, test in browser, verify accessibility!
 
 Start when planner is COMPLETED. You can work in parallel with backend.
 EOF
@@ -247,26 +313,38 @@ EOF
                 cat > "$TEMP_DIR/prompt.txt" << EOF
 I am the QA/REVIEWER for feature $FEATURE_ID.
 
-Please:
+CONTEXT AWARENESS (read first for project understanding):
+0. Read .ai/project/context.md (project overview, architecture, tech stack)
+
+GIT SYNC:
 1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+
+MANDATORY READING:
 2. Read .ai/workflow/roles/qa.md (my role)
 3. Read all rules (.ai/workflow/rules/global_rules.md, .ai/workflow/rules/ddd_rules.md, .ai/project/rules/project_specific.md)
 4. Read .ai/project/features/${FEATURE_ID}/ (acceptance criteria)
 5. Read .ai/workflow/workflows/${WORKFLOW}.yaml
+
+PRE-REVIEW:
 6. Check .ai/project/features/${FEATURE_ID}/50_state.md:
    - Backend section - ensure it's COMPLETED
    - Frontend section - ensure it's COMPLETED
-7. Execute SYSTEMATIC TESTING (5 phases):
+7. Understand architecture patterns from context.md for validation
+
+SYSTEMATIC TESTING (5 phases):
+8. Execute testing phases:
    Phase 1: API Testing (curl commands with responses)
    Phase 2: UI Testing (screenshots at each step)
    Phase 3: Automated Test Execution (show results)
-   Phase 4: Code Quality Review (DDD compliance)
+   Phase 4: Code Quality Review (DDD compliance per context.md)
    Phase 5: Acceptance Criteria Validation (with evidence)
-8. Create qa_report_${FEATURE_ID}.md with COMPLETE findings
-9. Update 50_state.md (qa section): APPROVED or REJECTED
-10. Commit: ./.ai/workflow/scripts/git_commit_push.sh qa $FEATURE_ID "QA review: APPROVED/REJECTED"
 
-Remember: You are a senior quality gate. Provide EVIDENCE (screenshots, logs, test results) for everything!
+REPORTING:
+9. Create qa_report_${FEATURE_ID}.md with COMPLETE findings
+10. Update 50_state.md (qa section): APPROVED or REJECTED
+11. Commit: ./.ai/workflow/scripts/git_commit_push.sh qa $FEATURE_ID "QA review: APPROVED/REJECTED"
+
+Remember: You are a senior quality gate. Validate against patterns in context.md. Provide EVIDENCE (screenshots, logs, test results) for everything!
 
 Start when backend and frontend are COMPLETED.
 EOF
@@ -339,6 +417,28 @@ EOF
         info "Mensaje: $MESSAGE"
 
         exec "$SCRIPT_DIR/git_commit_push.sh" "$ROLE" "$FEATURE_ID" "$MESSAGE"
+        ;;
+
+    checkpoint)
+        ROLE="${2:-}"
+        FEATURE_ID="${3:-}"
+        MESSAGE="${4:-Session checkpoint}"
+
+        if [ -z "$ROLE" ] || [ -z "$FEATURE_ID" ]; then
+            error "Rol y Feature ID requeridos"
+            echo "Usage: workflow.sh checkpoint <role> <feature> [message]"
+            echo "Example: workflow.sh checkpoint backend user-auth \"Completed domain layer\""
+            exit 1
+        fi
+
+        title "📌 CREANDO CHECKPOINT"
+        echo ""
+        info "Rol: $ROLE"
+        info "Feature: $FEATURE_ID"
+        info "Mensaje: $MESSAGE"
+        echo ""
+
+        exec "$SCRIPT_DIR/create_checkpoint.sh" "$ROLE" "$FEATURE_ID" "$MESSAGE"
         ;;
 
     help|--help|-h)
