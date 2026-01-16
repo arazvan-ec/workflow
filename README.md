@@ -6,7 +6,75 @@ Sistema completo para uso modular y escalable de Claude Code con **consultor AI*
 
 Un sistema profesional para trabajar con **múltiples instancias de Claude Code en paralelo**, cada una con un rol específico (Planner, Backend, Frontend, QA), compartiendo contexto a través de archivos explícitos y workflows YAML configurables.
 
-**Nuevo en v2.0**: Consultor AI que analiza tu proyecto y recomienda el workflow óptimo usando Claude CLI.
+---
+
+## 🔌 NUEVO: Usar como Plugin de Claude Code
+
+Este proyecto ahora puede instalarse como **plugin de Claude Code**, permitiéndote usarlo en cualquier proyecto con un simple comando.
+
+### Instalación como Plugin
+
+```bash
+# 1. Agregar el marketplace
+/plugin marketplace add https://github.com/arazvan-ec/workflow
+
+# 2. Instalar el plugin
+/plugin install multi-agent-workflow
+```
+
+### Comandos del Plugin
+
+Una vez instalado, tienes acceso a estos comandos:
+
+```bash
+# Iniciar un nuevo feature
+/workflows:start user-authentication
+
+# Trabajar como un rol específico
+/workflows:role planner user-authentication
+/workflows:role backend user-authentication
+/workflows:role frontend user-authentication
+/workflows:role qa user-authentication
+
+# Sincronizar cambios de otros roles
+/workflows:sync user-authentication
+
+# Crear checkpoint de progreso
+/workflows:checkpoint backend user-authentication "Domain layer complete"
+
+# Ver estado de todos los roles
+/workflows:status user-authentication
+```
+
+### Estructura del Plugin
+
+```
+plugins/multi-agent-workflow/
+├── .claude-plugin/
+│   └── plugin.json          # Manifest del plugin
+├── agents/
+│   └── roles/               # 4 roles especializados
+├── commands/
+│   └── workflows/           # 5 comandos de workflow
+├── skills/                  # 3 skills (git-sync, checkpoint, consultant)
+├── rules/                   # Reglas (global, DDD, project-specific)
+├── CLAUDE.md               # Documentación para Claude
+└── README.md               # Documentación del plugin
+```
+
+### Plugin vs Standalone
+
+| Característica | Plugin | Standalone |
+|----------------|--------|------------|
+| Instalación | `/plugin install` | Copiar archivos |
+| Comandos | `/workflows:start` | `./workflow start` |
+| Portabilidad | Cualquier proyecto | Este proyecto |
+| Tilix support | Manual | Integrado |
+| Scripts bash | No | Sí |
+
+**Recomendación**: Usa el **plugin** para proyectos nuevos. Usa el **standalone** si necesitas los scripts bash o Tilix.
+
+---
 
 ## ✨ Características
 
