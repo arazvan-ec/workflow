@@ -534,17 +534,115 @@ Todo código backend debe:
 - ✅ Pasar **CI/CD** sin errores
 - ✅ Cumplir **criterios de aceptación** del feature
 
+## 🔄 Auto-Correction Loop (Ralph Wiggum Pattern)
+
+**CRITICAL**: Aplica este patrón de iteración automática para cada checkpoint.
+
+### Concepto
+
+En lugar de avanzar ciegamente, itera hasta que los tests pasen:
+
+```
+while tests_failing:
+    1. Analizar error
+    2. Corregir código
+    3. Re-ejecutar tests
+    4. Si tests pasan → siguiente checkpoint
+    5. Si tests fallan → volver a paso 1
+```
+
+### Flujo de Auto-Corrección por Checkpoint
+
+```
+Checkpoint: Implement User Entity
+
+1. 🔴 Escribir test (TDD)
+2. 🟢 Implementar mínimo código
+3. ⚙️ Ejecutar test
+   └── Si PASA → ✅ Checkpoint completado
+   └── Si FALLA → 🔁 Auto-corrección:
+       ├── Leer mensaje de error
+       ├── Identificar causa raíz
+       ├── Corregir código (NO el test)
+       ├── Re-ejecutar test
+       └── Repetir hasta MAX_ITERATIONS (10)
+
+4. Si después de 10 iteraciones no pasa:
+   └── Documentar en DECISIONS.md:
+       - Qué se intentó
+       - Por qué falla
+       - Posibles alternativas
+   └── Actualizar 50_state.md → BLOCKED
+   └── Esperar ayuda del Planner
+```
+
+### Reglas del Loop
+
+1. **MAX_ITERATIONS = 10**: Después de 10 intentos, detente y documenta
+2. **No modificar tests para que pasen**: Los tests definen el comportamiento esperado
+3. **Solo avanzar con tests verdes**: No pases al siguiente checkpoint con tests fallando
+4. **Documentar cada iteración**: Si llegas a 5+ intentos, documenta qué estás intentando
+
+### Ejemplo Práctico
+
+```bash
+# Iteración 1
+php bin/phpunit tests/Unit/Domain/UserTest.php
+# FAIL: Class User not found
+
+# → Crear User.php
+php bin/phpunit tests/Unit/Domain/UserTest.php
+# FAIL: Method create() not found
+
+# → Añadir método create()
+php bin/phpunit tests/Unit/Domain/UserTest.php
+# FAIL: Expected email validation
+
+# → Añadir validación de email
+php bin/phpunit tests/Unit/Domain/UserTest.php
+# PASS ✅ → Checkpoint completado, avanzar
+```
+
+### Criterios de Escape (Escape Hatch)
+
+Si después de **10 iteraciones** el test sigue fallando:
+
+```markdown
+## Blocker: User Entity Test Failing
+
+**Checkpoint**: Domain Layer - User Entity
+**Iterations attempted**: 10
+**Last error**: "Email validation regex not matching edge case"
+
+**What was tried**:
+1. Standard email regex → Failed on "user+tag@domain.com"
+2. RFC 5322 regex → Failed on unicode domains
+3. filter_var FILTER_VALIDATE_EMAIL → Failed on long TLDs
+...
+
+**Root cause hypothesis**:
+Edge case in email validation for non-standard formats
+
+**Suggested alternatives**:
+1. Use Symfony Validator instead of custom regex
+2. Relax validation rules (accept more formats)
+3. Add specific test cases for edge cases first
+
+**Status**: BLOCKED - Needs Planner decision
+```
+
 ## 🚀 Flujo de Trabajo Típico
 
 1. **Git pull** (sincronizar con remoto)
 2. **Leer** este rol, reglas, workflow, estado
-3. **Implementar** según el stage actual del workflow
+3. **Implementar** según el stage actual del workflow con **auto-correction loop**
 4. **Actualizar** `50_state.md` (IN_PROGRESS)
-5. **Escribir tests**
-6. **Ejecutar tests** localmente
-7. **Actualizar** `50_state.md` (COMPLETED o BLOCKED)
-8. **Commit y push**
-9. **Notificar** a QA si está listo para revisión
+5. **Escribir tests** (TDD - ANTES de implementar)
+6. **Ejecutar tests** → Si fallan, iterar hasta pasar (max 10 intentos)
+7. **Solo cuando tests pasen** → Checkpoint completado
+8. **Actualizar** `50_state.md` (COMPLETED o BLOCKED)
+9. **Commit y push**
+10. **Notificar** a QA si está listo para revisión
 
 ## 📚 Recursos
 
@@ -559,3 +657,4 @@ Todo código backend debe:
 **IMPORTANTE**: Siempre usa TDD (Test-Driven Development). Escribe tests ANTES de implementar código. Red → Green → Refactor.
 
 **Última actualización**: 2026-01-16
+**Cambios recientes**: Añadido Auto-Correction Loop (Ralph Wiggum Pattern)

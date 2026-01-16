@@ -54,6 +54,90 @@ Este archivo contiene las reglas globales que **todos los roles** deben seguir s
 - Commits claros y descriptivos
 - No fuerces push a menos que sea absolutamente necesario
 
+### 6. Context Window Management (Sesiones Limpias)
+
+**Regla**: Gestiona el contexto como recurso limitado. Trata la memoria como una Commodore 64.
+
+#### Principios de Context Management
+
+```
+🧠 Context Window ≈ 100k tokens (aproximadamente)
+   └── Código leído
+   └── Historial de conversación
+   └── Resultados de herramientas
+   └── Errores y outputs
+
+⚠️ Síntomas de contexto lleno:
+   └── Respuestas más lentas
+   └── "Olvidar" información reciente
+   └── Respuestas incompletas o cortadas
+   └── Errores de referencia a código anterior
+```
+
+#### Reglas de Context Management
+
+1. **Cada checkpoint = Oportunidad de contexto limpio**
+   - Después de completar un checkpoint, considera si necesitas reiniciar
+   - Si el contexto se siente "pesado", haz git sync y reinicia sesión
+
+2. **Señales para reiniciar sesión**:
+   - Has leído más de 20 archivos en la sesión
+   - Llevas más de 2 horas en la misma sesión
+   - La conversación tiene más de 50 mensajes
+   - Estás olvidando cosas que se discutieron antes
+   - Las respuestas se vuelven más lentas o incompletas
+
+3. **Protocolo de reinicio de sesión**:
+   ```bash
+   # 1. Guardar estado actual
+   # Actualizar 50_state.md con progreso exacto
+
+   # 2. Commit todo el trabajo
+   ./.ai/scripts/git_commit_push.sh [rol] [feature-id] "Checkpoint: [descripción]"
+
+   # 3. Documentar punto de retoma
+   # En 50_state.md, incluir:
+   # - Último checkpoint completado
+   # - Siguiente tarea a realizar
+   # - Archivos relevantes a leer al retomar
+
+   # 4. Iniciar nueva sesión
+   # Leer: rol.md, 50_state.md, archivos relevantes
+   # Continuar desde el checkpoint documentado
+   ```
+
+4. **Evitar chats interminables**:
+   - Mejor: Múltiples sesiones cortas y enfocadas
+   - Peor: Una sesión larga que acumula contexto innecesario
+   - Ideal: Una sesión por checkpoint o grupo de checkpoints relacionados
+
+5. **Limpieza proactiva de contexto**:
+   - No releas archivos que ya leíste si no han cambiado
+   - Usa resúmenes en lugar de texto completo cuando sea posible
+   - Evita outputs verbosos innecesarios (usa `--quiet` cuando aplique)
+
+#### Ejemplo de Documentación para Retoma
+
+```markdown
+## Estado para Retoma de Sesión
+
+**Último checkpoint completado**: Domain Layer (User entity, Email value object)
+**Tests pasando**: tests/Unit/Domain/UserTest.php (5/5 ✅)
+
+**Siguiente tarea**: Implementar Application Layer (CreateUserUseCase)
+
+**Archivos a leer al retomar**:
+- .ai/roles/backend.md (sección TDD)
+- .ai/projects/PROJECT_X/features/user-auth/30_tasks.md (Task 2)
+- backend/src/Domain/Entity/User.php (referencia)
+- backend/src/Domain/ValueObject/Email.php (referencia)
+
+**Contexto importante**:
+- Email validation usa filter_var con FILTER_VALIDATE_EMAIL
+- User entity tiene factory method create() para construcción
+- Password se hashea en el UseCase, no en el entity
+```
+
 ---
 
 ## 🔒 Permisos y Restricciones
@@ -311,6 +395,7 @@ No es suficiente leerlo una vez. Las reglas pueden actualizarse, y es tu respons
 
 ---
 
-**Última actualización**: 2026-01-15
+**Última actualización**: 2026-01-16
 **Actualizado por**: Planner
+**Cambios recientes**: Añadido Context Window Management (Ralph Wiggum Pattern)
 **Próxima revisión**: Mensual o cuando sea necesario

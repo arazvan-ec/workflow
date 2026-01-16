@@ -5,7 +5,8 @@ description: "Standard workflow for feature development: Planning â†’ Backend â†
 metadata:
   project: PROJECT_X
   created: "2026-01-15"
-  updated: "2026-01-15"
+  updated: "2026-01-16"
+  changes: "Added blocking checkpoints with auto-correction loop (Ralph Wiggum Pattern)"
 
 roles:
   - id: planner
@@ -94,11 +95,80 @@ stages:
         - "Validate schema: `php bin/console doctrine:schema:validate` - Must pass"
         - "Run linter: `./vendor/bin/php-cs-fixer fix --dry-run` - Must pass"
 
+      # BLOCKING CHECKPOINTS (Ralph Wiggum Pattern)
+      # Each checkpoint MUST pass before proceeding to the next
+      # Uses auto-correction loop: iterate until tests pass (max 10 iterations)
       checkpoints:
-        - "After Domain entities: Show code, verify DDD compliance (no Doctrine annotations)"
-        - "After Use Cases: Run unit tests, show passing results"
-        - "After Repository: Test with real database, show query results"
-        - "After Controller: Test endpoint with curl, show HTTP response"
+        - name: domain_layer
+          description: "Domain entities, value objects, and domain services"
+          blocker: true
+          max_iterations: 10
+          verify:
+            - command: "php bin/phpunit tests/Unit/Domain/"
+              expected: "exit_code == 0"
+              description: "All domain unit tests must pass"
+            - command: "grep -r '@ORM' backend/src/Domain/ || true"
+              expected: "no_output"
+              description: "No Doctrine annotations in Domain layer (DDD compliance)"
+          on_failure: |
+            If tests fail after 10 iterations:
+            1. Document in DECISIONS.md what was attempted
+            2. Update 50_state.md to BLOCKED
+            3. Wait for Planner assistance
+
+        - name: application_layer
+          description: "Use cases, application services, and DTOs"
+          blocker: true
+          max_iterations: 10
+          depends_on: [domain_layer]
+          verify:
+            - command: "php bin/phpunit tests/Unit/Application/"
+              expected: "exit_code == 0"
+              description: "All application unit tests must pass"
+            - command: "php bin/phpunit --coverage-text --filter=Application | grep -E 'Lines:.*%'"
+              expected: "coverage >= 80%"
+              description: "Coverage must be >= 80%"
+          on_failure: |
+            If tests fail after 10 iterations:
+            1. Document in DECISIONS.md what was attempted
+            2. Update 50_state.md to BLOCKED
+            3. Wait for Planner assistance
+
+        - name: infrastructure_layer
+          description: "Repositories, controllers, and external services"
+          blocker: true
+          max_iterations: 10
+          depends_on: [application_layer]
+          verify:
+            - command: "php bin/phpunit tests/Integration/"
+              expected: "exit_code == 0"
+              description: "All integration tests must pass"
+            - command: "php bin/console doctrine:schema:validate"
+              expected: "exit_code == 0"
+              description: "Database schema must be valid"
+          on_failure: |
+            If tests fail after 10 iterations:
+            1. Document in DECISIONS.md what was attempted
+            2. Update 50_state.md to BLOCKED
+            3. Wait for Planner assistance
+
+        - name: api_endpoints
+          description: "REST API endpoints and contracts"
+          blocker: true
+          max_iterations: 10
+          depends_on: [infrastructure_layer]
+          verify:
+            - command: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/api/[endpoint]"
+              expected: "http_code in [200, 201, 400, 401, 404]"
+              description: "API endpoint responds correctly"
+            - command: "php bin/phpunit --coverage-text | grep -E 'Lines:.*%'"
+              expected: "total_coverage >= 80%"
+              description: "Total coverage must be >= 80%"
+          on_failure: |
+            If tests fail after 10 iterations:
+            1. Document in DECISIONS.md what was attempted
+            2. Update 50_state.md to BLOCKED
+            3. Wait for Planner assistance
 
     completion_criteria:
       - All backend tasks in 30_tasks.md are completed
@@ -154,11 +224,97 @@ stages:
         - "Check accessibility: Use browser DevTools Lighthouse audit - Score > 90"
         - "Verify API calls: Open Network tab, verify requests/responses"
 
+      # BLOCKING CHECKPOINTS (Ralph Wiggum Pattern)
+      # Each checkpoint MUST pass before proceeding to the next
+      # Uses auto-correction loop: iterate until tests pass (max 10 iterations)
       checkpoints:
-        - "After creating component: Show component code, explain props and state"
-        - "After adding form: Test form validation, show error messages"
-        - "After API integration (or mocks): Test API calls in Network tab, show response"
-        - "After styling: Show screenshots at different breakpoints"
+        - name: component_structure
+          description: "Component with props, state, and TypeScript types"
+          blocker: true
+          max_iterations: 10
+          verify:
+            - command: "npm run type-check"
+              expected: "exit_code == 0"
+              description: "No TypeScript errors"
+            - command: "npm test -- --testPathPattern=[ComponentName] --passWithNoTests"
+              expected: "exit_code == 0"
+              description: "Component tests pass"
+          on_failure: |
+            If tests fail after 10 iterations:
+            1. Document in DECISIONS.md what was attempted
+            2. Update 50_state.md to BLOCKED
+            3. Wait for Planner assistance
+
+        - name: form_logic
+          description: "Form validation, event handlers, and state management"
+          blocker: true
+          max_iterations: 10
+          depends_on: [component_structure]
+          verify:
+            - command: "npm test -- --testPathPattern=[FormName]"
+              expected: "exit_code == 0"
+              description: "Form validation tests pass"
+            - command: "npm run lint"
+              expected: "exit_code == 0"
+              description: "Linting passes"
+          on_failure: |
+            If tests fail after 10 iterations:
+            1. Document in DECISIONS.md what was attempted
+            2. Update 50_state.md to BLOCKED
+            3. Wait for Planner assistance
+
+        - name: api_integration
+          description: "API integration or mocks with error handling"
+          blocker: true
+          max_iterations: 10
+          depends_on: [form_logic]
+          verify:
+            - command: "npm test -- --testPathPattern=integration"
+              expected: "exit_code == 0"
+              description: "Integration tests pass"
+            - command: "npm test -- --coverage --coverageReporters=text | grep -E 'All files.*%'"
+              expected: "coverage >= 70%"
+              description: "Coverage must be >= 70%"
+          on_failure: |
+            If tests fail after 10 iterations:
+            1. Document in DECISIONS.md what was attempted
+            2. Update 50_state.md to BLOCKED
+            3. Wait for Planner assistance
+
+        - name: responsive_design
+          description: "Responsive at mobile (375px), tablet (768px), desktop (1024px)"
+          blocker: true
+          max_iterations: 10
+          depends_on: [api_integration]
+          verify:
+            - manual: "Visual inspection at 375px, 768px, 1024px"
+              expected: "UI renders correctly at all breakpoints"
+              description: "No horizontal scroll, proper layout at each size"
+          on_failure: |
+            If responsive issues persist after 10 iterations:
+            1. Document in DECISIONS.md what was attempted
+            2. Include screenshots of issues
+            3. Update 50_state.md to BLOCKED
+            4. Wait for Planner assistance
+
+        - name: accessibility_audit
+          description: "Lighthouse accessibility score >= 90"
+          blocker: true
+          max_iterations: 10
+          depends_on: [responsive_design]
+          verify:
+            - manual: "Run Lighthouse audit in Chrome DevTools"
+              expected: "accessibility_score >= 90"
+              description: "Accessibility score must be 90 or higher"
+            - manual: "Keyboard navigation test"
+              expected: "all_elements_focusable"
+              description: "All interactive elements reachable via keyboard"
+          on_failure: |
+            If accessibility issues persist after 10 iterations:
+            1. Document in DECISIONS.md what was attempted
+            2. Include Lighthouse report
+            3. Update 50_state.md to BLOCKED
+            4. Wait for Planner assistance
 
     completion_criteria:
       - All frontend tasks in 30_tasks.md are completed

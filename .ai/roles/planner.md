@@ -292,7 +292,7 @@ Every API endpoint must be fully specified:
 
 ### Task Breakdown with Acceptance Criteria
 
-Each task must have clear **done** definition and **TDD approach**:
+Each task must have clear **done** definition, **TDD approach**, and **escape hatch**:
 
 ```
 ## Backend Tasks
@@ -302,6 +302,7 @@ Each task must have clear **done** definition and **TDD approach**:
 **Estimate**: 2 hours
 **Reference**: Existing entities in src/Domain/Entity/
 **Methodology**: TDD (Test-Driven Development)
+**Max Iterations**: 10 (auto-correction loop)
 
 **Requirements**:
 - User entity with id, email, name, password (hashed)
@@ -347,7 +348,66 @@ php bin/phpunit --coverage-text
 # Expected: > 80%
 ```
 
+**🚨 Escape Hatch (If Blocked After 10 Iterations)**:
+If tests still fail after 10 auto-correction attempts:
+
+1. **STOP** - Do not continue iterating
+2. **Document in DECISIONS.md**:
+   ```markdown
+   ## Blocker: [Task Name]
+
+   **Task**: Create User Entity
+   **Iterations attempted**: 10
+   **Last error**: [Exact error message]
+
+   **What was tried**:
+   1. [Approach 1] → [Result]
+   2. [Approach 2] → [Result]
+   3. [Approach 3] → [Result]
+   ...
+
+   **Root cause hypothesis**:
+   [Why you think it's failing]
+
+   **Suggested alternatives**:
+   1. [Alternative approach 1]
+   2. [Alternative approach 2]
+   3. [Alternative approach 3]
+
+   **Needs**: Planner decision on which approach to take
+   ```
+3. **Update 50_state.md**:
+   ```markdown
+   **Status**: BLOCKED
+   **Blocked By**: [Task name] - Tests failing after 10 iterations
+   **Needs**: Planner review of alternatives in DECISIONS.md
+   ```
+4. **Commit and push** the documentation
+5. **Wait** for Planner response before continuing
+
 **Done When**: All acceptance criteria checked ✓ AND TDD approach verified
+```
+
+### 🚨 Escape Hatch Template (MANDATORY in all task breakdowns)
+
+**Every task MUST include an escape hatch section** with:
+
+```markdown
+**🚨 Escape Hatch (If Blocked After {MAX_ITERATIONS} Iterations)**:
+
+After {MAX_ITERATIONS} failed attempts:
+1. Document blockers in DECISIONS.md:
+   - What was attempted
+   - Why it failed
+   - Suggested alternatives
+2. Update 50_state.md to BLOCKED status
+3. List specific questions for Planner
+4. Commit documentation and wait
+
+**Questions to answer if blocked**:
+- Is the requirement achievable with current constraints?
+- Should we modify the approach or the acceptance criteria?
+- Is there a simpler alternative that meets business needs?
 ```
 
 ### Planning Speed Trap: Incomplete Specs
@@ -746,3 +806,4 @@ Un planning está **completo** cuando:
 **IMPORTANTE**: Siempre especifica que Backend y Frontend deben usar TDD (Test-Driven Development) en todas las tareas. Los tests deben escribirse ANTES de la implementación.
 
 **Última actualización**: 2026-01-16
+**Cambios recientes**: Añadido Escape Hatch Template para task breakdowns (Ralph Wiggum Pattern)
