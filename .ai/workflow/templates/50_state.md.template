@@ -1,12 +1,12 @@
-# Feature State: FEATURE_X
+# Feature State: {{FEATURE_ID}}
 
 > This file tracks the state of each role and provides completion signals.
 > Update your section when completing checkpoints or changing status.
 
-**Feature**: FEATURE_X
-**Workflow**: default
-**Created**: 2026-01-15
-**Last Updated**: 2026-01-16
+**Feature**: {{FEATURE_ID}}
+**Workflow**: {{WORKFLOW}}
+**Created**: {{CREATED_DATE}}
+**Last Updated**: {{UPDATED_DATE}}
 
 ---
 
@@ -29,10 +29,10 @@
 <!-- List artifacts created by Planner -->
 
 ### Notes
-Feature initialized, waiting for planning to start.
+<!-- Any important notes or decisions -->
 
 ### Next Action
-Start planning when feature requirements are provided.
+<!-- What needs to happen next, or null if complete -->
 
 ---
 
@@ -70,10 +70,10 @@ Start planning when feature requirements are provided.
 - **Branches**: -%
 
 ### Blockers
-Planning not completed yet.
+<!-- Any blockers encountered -->
 
 ### Next Action
-Wait for Planner.completion_signal == true
+<!-- What needs to happen next, or null if complete -->
 
 ---
 
@@ -121,10 +121,10 @@ Wait for Planner.completion_signal == true
 - [ ] Desktop (1024px)
 
 ### Blockers
-Planning not completed yet.
+<!-- Any blockers encountered -->
 
 ### Next Action
-Wait for Planner.completion_signal == true
+<!-- What needs to happen next, or null if complete -->
 
 ---
 
@@ -162,7 +162,7 @@ Wait for Planner.completion_signal == true
 <!-- APPROVED or REJECTED with reasoning -->
 
 ### Next Action
-Wait for Backend.completion_signal == true AND Frontend.completion_signal == true
+<!-- What needs to happen next, or null if complete -->
 
 ---
 
@@ -198,19 +198,10 @@ Wait for Backend.completion_signal == true AND Frontend.completion_signal == tru
 | **Role** | - |
 | **Date** | - |
 | **Last Checkpoint** | - |
-| **Context Status** | Fresh |
+| **Context Status** | Fresh / Partial / Full |
 
 ### Resume Instructions
-This is a fresh feature. Start with Planner role.
+<!-- What to read and do when resuming -->
 
 ### Important Context
-No context yet - feature not started.
-
----
-
-## Status History
-
-| Date | Role | From | To | Reason |
-|------|------|------|-----|--------|
-| 2026-01-15 | All | - | PENDING | Feature initialized |
-| 2026-01-16 | - | - | - | Updated to new completion signal format |
+<!-- Key decisions or facts to remember -->
