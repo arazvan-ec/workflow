@@ -5,7 +5,7 @@
 # Hace git pull con manejo automático de stash y conflictos
 #
 # Uso:
-#   ./.ai/scripts/git_sync.sh [feature-id]
+#   ./.ai/workflow/scripts/git_sync.sh [feature-id]
 
 set -e
 
@@ -88,7 +88,7 @@ git status --short
 
 # If feature-id provided, show its state
 if [ -n "$FEATURE_ID" ]; then
-    STATE_FILE="./.ai/projects/PROJECT_X/features/$FEATURE_ID/50_state.md"
+    STATE_FILE="./.ai/project/features/$FEATURE_ID/50_state.md"
     if [ -f "$STATE_FILE" ]; then
         echo ""
         info "Feature state: $FEATURE_ID"

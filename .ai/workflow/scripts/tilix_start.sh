@@ -3,12 +3,12 @@
 # tilix_start.sh - Abre Claude Code en múltiples panes de Tilix según roles del workflow
 #
 # Uso:
-#   ./.ai/scripts/tilix_start.sh [feature-id] [workflow] [--execute]
+#   ./.ai/workflow/scripts/tilix_start.sh [feature-id] [workflow] [--execute]
 #
 # Ejemplos:
-#   ./.ai/scripts/tilix_start.sh my-feature default              # Solo crea panes
-#   ./.ai/scripts/tilix_start.sh my-feature default --execute    # Ejecuta automáticamente
-#   ./.ai/scripts/tilix_start.sh my-feature default -x           # Forma corta
+#   ./.ai/workflow/scripts/tilix_start.sh my-feature default              # Solo crea panes
+#   ./.ai/workflow/scripts/tilix_start.sh my-feature default --execute    # Ejecuta automáticamente
+#   ./.ai/workflow/scripts/tilix_start.sh my-feature default -x           # Forma corta
 
 set -e
 
@@ -91,7 +91,7 @@ else
 fi
 
 # Verify workflow exists
-WORKFLOW_FILE="./.ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml"
+WORKFLOW_FILE="./.ai/workflow/workflows/${WORKFLOW}.yaml"
 if [ ! -f "$WORKFLOW_FILE" ]; then
     error "Workflow file not found: $WORKFLOW_FILE"
     exit 1
@@ -106,7 +106,7 @@ if [ "$WORKFLOW" = "implementation-only" ]; then
     info "Implementation-only workflow detected - skipping Planner pane"
 
     # Validate that task-breakdown was executed
-    FEATURE_DIR="./.ai/projects/PROJECT_X/features/$FEATURE_ID"
+    FEATURE_DIR="./.ai/project/features/$FEATURE_ID"
     REQUIRED_FILES=(
         "00_requirements_analysis.md"
         "20_api_contracts.md"
@@ -142,8 +142,8 @@ I am the BACKEND ENGINEER for feature $FEATURE_ID.
 IMPORTANT: Planning was done via task-breakdown workflow. You have DETAILED documentation.
 
 Please:
-1. Run: ./.ai/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
-2. Read .ai/roles/backend.md (your role - includes Auto-Correction Loop!)
+1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+2. Read .ai/workflow/roles/backend.md (your role - includes Auto-Correction Loop!)
 3. Read all rules (global_rules.md, ddd_rules.md, project_specific.md)
 
 READ TASK-BREAKDOWN ARTIFACTS (CRITICAL - detailed specs):
@@ -172,8 +172,8 @@ I am the FRONTEND ENGINEER for feature $FEATURE_ID.
 IMPORTANT: Planning was done via task-breakdown workflow. You have DETAILED documentation.
 
 Please:
-1. Run: ./.ai/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
-2. Read .ai/roles/frontend.md (your role - includes Auto-Correction Loop!)
+1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+2. Read .ai/workflow/roles/frontend.md (your role - includes Auto-Correction Loop!)
 3. Read all rules (global_rules.md, project_specific.md)
 
 READ TASK-BREAKDOWN ARTIFACTS (CRITICAL - detailed specs):
@@ -208,8 +208,8 @@ WAIT CONDITION - Do NOT start until BOTH are true:
 - Frontend 50_state.md status in [COMPLETED, WAITING_API]
 
 Please:
-1. Run: ./.ai/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
-2. Read .ai/roles/qa.md (your role)
+1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+2. Read .ai/workflow/roles/qa.md (your role)
 3. Read all rules (global_rules.md, ddd_rules.md, project_specific.md)
 
 READ TASK-BREAKDOWN ARTIFACTS (CRITICAL):
@@ -226,7 +226,7 @@ Phase 5: Acceptance Criteria - Check EVERY criterion with evidence
 
 7. Create qa_report_$FEATURE_ID.md
 8. Update 50_state.md (qa section): APPROVED or REJECTED
-9. Commit: ./.ai/scripts/git_commit_push.sh qa $FEATURE_ID "QA review: APPROVED/REJECTED"
+9. Commit: ./.ai/workflow/scripts/git_commit_push.sh qa $FEATURE_ID "QA review: APPROVED/REJECTED"
 
 Wait for Backend and Frontend to be COMPLETED before starting.
 EOF
@@ -238,9 +238,9 @@ else
 I am the PLANNER for feature $FEATURE_ID.
 
 Please:
-1. Read .ai/roles/planner.md (my role - includes Pairing Patterns!)
+1. Read .ai/workflow/roles/planner.md (my role - includes Pairing Patterns!)
 2. Read all rules (global_rules.md, ddd_rules.md, project_specific.md)
-3. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
+3. Read .ai/workflow/workflows/${WORKFLOW}.yaml
 4. Follow the planning stage instructions from workflow YAML
 5. Create FEATURE_X.md with COMPLETE API specifications
 6. Create 30_tasks.md with specific tasks for each role
@@ -255,16 +255,16 @@ EOF
 I am the BACKEND ENGINEER for feature $FEATURE_ID.
 
 Please:
-1. Run: ./.ai/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
-2. Read .ai/roles/backend.md (my role - includes Pairing Patterns!)
+1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+2. Read .ai/workflow/roles/backend.md (my role - includes Pairing Patterns!)
 3. Read all rules (global_rules.md, ddd_rules.md, project_specific.md)
 4. Read FEATURE_X.md and 30_tasks.md (from planner)
-5. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
+5. Read .ai/workflow/workflows/${WORKFLOW}.yaml
 6. Check 50_state.md (planner section) - ensure it's COMPLETED
 7. FIND reference code in ./backend/src/ before starting
 8. Implement backend with CHECKPOINTS (stop and verify at each)
 9. Update 50_state.md (backend section) as you progress
-10. Commit after EACH checkpoint: ./.ai/scripts/git_commit_push.sh backend $FEATURE_ID "message"
+10. Commit after EACH checkpoint: ./.ai/workflow/scripts/git_commit_push.sh backend $FEATURE_ID "message"
 
 Remember: You are a 10x engineer. Reference existing code, use checkpoints, verify everything!
 
@@ -275,11 +275,11 @@ EOF
 I am the FRONTEND ENGINEER for feature $FEATURE_ID.
 
 Please:
-1. Run: ./.ai/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
-2. Read .ai/roles/frontend.md (my role - includes Pairing Patterns!)
+1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+2. Read .ai/workflow/roles/frontend.md (my role - includes Pairing Patterns!)
 3. Read all rules (global_rules.md, project_specific.md)
 4. Read FEATURE_X.md and 30_tasks.md (from planner)
-5. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
+5. Read .ai/workflow/workflows/${WORKFLOW}.yaml
 6. Check 50_state.md:
    - Planner section - ensure it's COMPLETED
    - Backend section - check if API is ready
@@ -289,7 +289,7 @@ Please:
 10. Test responsive design (375px, 768px, 1024px)
 11. Run Lighthouse audit (must be > 90)
 12. Update 50_state.md (frontend section) as you progress
-13. Commit after EACH checkpoint: ./.ai/scripts/git_commit_push.sh frontend $FEATURE_ID "message"
+13. Commit after EACH checkpoint: ./.ai/workflow/scripts/git_commit_push.sh frontend $FEATURE_ID "message"
 
 Remember: You are a 10x UI engineer. Show screenshots, test in browser, verify accessibility!
 
@@ -300,11 +300,11 @@ EOF
 I am the QA/REVIEWER for feature $FEATURE_ID.
 
 Please:
-1. Run: ./.ai/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
-2. Read .ai/roles/qa.md (my role - includes Pairing Patterns!)
+1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+2. Read .ai/workflow/roles/qa.md (my role - includes Pairing Patterns!)
 3. Read all rules (global_rules.md, ddd_rules.md, project_specific.md)
 4. Read FEATURE_X.md (acceptance criteria)
-5. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
+5. Read .ai/workflow/workflows/${WORKFLOW}.yaml
 6. Check 50_state.md:
    - Backend section - ensure it's COMPLETED
    - Frontend section - ensure it's COMPLETED
@@ -316,7 +316,7 @@ Please:
    Phase 5: Acceptance Criteria Validation (with evidence)
 8. Create qa_report_{FEATURE_ID}.md with COMPLETE findings
 9. Update 50_state.md (qa section): APPROVED or REJECTED
-10. Commit: ./.ai/scripts/git_commit_push.sh qa $FEATURE_ID "QA review: APPROVED/REJECTED"
+10. Commit: ./.ai/workflow/scripts/git_commit_push.sh qa $FEATURE_ID "QA review: APPROVED/REJECTED"
 
 Remember: You are a senior quality gate. Provide EVIDENCE (screenshots, logs, test results) for everything!
 
@@ -583,15 +583,15 @@ else
     echo "2. Copy-paste the prompt for each role (shown above)"
     echo ""
     warn "TIP: To execute automatically next time, use:"
-    echo "     ${CYAN}./.ai/scripts/tilix_start.sh $FEATURE_ID $WORKFLOW --execute${NC}"
+    echo "     ${CYAN}./.ai/workflow/scripts/tilix_start.sh $FEATURE_ID $WORKFLOW --execute${NC}"
     echo ""
 fi
 
 success "All panes configured! 🚀"
 echo ""
 info "Monitor progress:"
-echo "  ${CYAN}watch -n 5 'cat .ai/projects/PROJECT_X/features/$FEATURE_ID/50_state.md'${NC}"
+echo "  ${CYAN}watch -n 5 'cat .ai/project/features/$FEATURE_ID/50_state.md'${NC}"
 echo ""
 info "Validate workflow:"
-echo "  ${CYAN}./.ai/scripts/validate_workflow.py $FEATURE_ID${NC}"
+echo "  ${CYAN}./.ai/workflow/scripts/validate_workflow.py $FEATURE_ID${NC}"
 echo ""

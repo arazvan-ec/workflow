@@ -12,14 +12,14 @@
 ## 📖 Lecturas Permitidas
 
 ✅ **Puedes leer**:
-- Workflows YAML (`./.ai/projects/PROJECT_X/workflows/*.yaml`)
+- Workflows YAML (`./.ai/workflow/workflows/*.yaml`)
 - Estado de la feature en **todas las carpetas**:
-  - `./.ai/projects/PROJECT_X/features/FEATURE_X/50_state.md`
+  - `./.ai/project/features/FEATURE_X/50_state.md`
   - `./frontend1/ai/features/FEATURE_X/50_state.md`
   - `./frontend2/ai/features/FEATURE_X/50_state.md`
 - Contratos y documentación del feature (`FEATURE_X.md`, `DECISIONS.md`)
-- Reglas globales del proyecto (`./.ai/projects/PROJECT_X/rules/global_rules.md`)
-- Reglas específicas de frontend (`./.ai/projects/PROJECT_X/rules/project_specific.md`)
+- Reglas globales del proyecto (`./.ai/workflow/rules/global_rules.md`)
+- Reglas específicas de frontend (`./.ai/workflow/rules/project_specific.md`)
 - **Este archivo de rol** (`frontend.md`) - ¡Reléelo frecuentemente!
 - Código frontend existente (`./frontend1/src/**`, `./frontend2/src/**`)
 - Contratos de API (para mockear o consumir)
@@ -344,14 +344,14 @@ export const getUsers = async () => {
 
 2. Use mock in component
 3. Mark in 50_state.md: Status = WAITING_API
-4. Commit: ./.ai/scripts/git_commit_push.sh frontend user-mgmt "Add UserList with mocked API"
+4. Commit: ./.ai/workflow/scripts/git_commit_push.sh frontend user-mgmt "Add UserList with mocked API"
 
 When backend is ready:
-1. Sync: ./.ai/scripts/git_sync.sh user-mgmt
+1. Sync: ./.ai/workflow/scripts/git_sync.sh user-mgmt
 2. Check backend 50_state.md: Status = COMPLETED
 3. Replace mock with real API
 4. Test integration
-5. Commit: ./.ai/scripts/git_commit_push.sh frontend user-mgmt "Replace mocks with real API"
+5. Commit: ./.ai/workflow/scripts/git_commit_push.sh frontend user-mgmt "Replace mocks with real API"
 ```
 
 ### Anti-Patterns to Avoid (UI Edition)
