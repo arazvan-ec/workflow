@@ -292,7 +292,7 @@ Every API endpoint must be fully specified:
 
 ### Task Breakdown with Acceptance Criteria
 
-Each task must have clear **done** definition:
+Each task must have clear **done** definition and **TDD approach**:
 
 ```
 ## Backend Tasks
@@ -301,11 +301,27 @@ Each task must have clear **done** definition:
 **Assignee**: Backend Engineer
 **Estimate**: 2 hours
 **Reference**: Existing entities in src/Domain/Entity/
+**Methodology**: TDD (Test-Driven Development)
 
 **Requirements**:
 - User entity with id, email, name, password (hashed)
 - Email value object with validation
 - Follow DDD principles (no infrastructure dependencies)
+
+**TDD Approach** (MUST follow in this order):
+1. 🔴 RED: Write test for User creation with valid data (should fail)
+2. 🟢 GREEN: Implement minimal User entity to pass test
+3. 🔵 REFACTOR: Improve code structure
+4. 🔴 RED: Write test for email validation (should fail)
+5. 🟢 GREEN: Implement email validation to pass test
+6. 🔵 REFACTOR: Extract Email value object
+7. Repeat for other validations
+
+**Tests to Write** (before implementation):
+- [ ] test_user_can_be_created_with_valid_data()
+- [ ] test_user_rejects_invalid_email()
+- [ ] test_user_rejects_empty_name()
+- [ ] test_email_value_object_is_immutable()
 
 **Acceptance Criteria**:
 - [ ] User.php exists in src/Domain/Entity/
@@ -313,16 +329,25 @@ Each task must have clear **done** definition:
 - [ ] Entity validates email format
 - [ ] Entity doesn't allow empty name
 - [ ] No Doctrine annotations in Domain layer (DDD compliance)
+- [ ] **ALL tests written BEFORE implementation** (TDD compliance)
 - [ ] Unit tests exist and pass (UserTest.php)
 - [ ] Test coverage > 80%
 
 **Verification**:
 ```bash
+# Verify TDD was followed
+git log --oneline | grep -i "test" # Should see test commits before implementation
+
+# Run tests
 php bin/phpunit tests/Unit/Domain/Entity/UserTest.php
 # Expected: All tests green
+
+# Check coverage
+php bin/phpunit --coverage-text
+# Expected: > 80%
 ```
 
-**Done When**: All acceptance criteria checked ✓
+**Done When**: All acceptance criteria checked ✓ AND TDD approach verified
 ```
 
 ### Planning Speed Trap: Incomplete Specs
@@ -718,4 +743,6 @@ Un planning está **completo** cuando:
 
 **Recuerda**: Como Planner, eres el **arquitecto y coordinador**. No implementas código, pero defines **qué** y **cómo** debe hacerse. Mantén la coherencia del proyecto, documenta decisiones, y desbloquea a otros roles cuando lo necesiten.
 
-**Última actualización**: 2026-01-15
+**IMPORTANTE**: Siempre especifica que Backend y Frontend deben usar TDD (Test-Driven Development) en todas las tareas. Los tests deben escribirse ANTES de la implementación.
+
+**Última actualización**: 2026-01-16

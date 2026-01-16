@@ -278,6 +278,198 @@ Let me start with Checkpoint 1. Ready to proceed?"
 
 ## 🎨 Patrones y Prácticas
 
+### TDD (Test-Driven Development) - OBLIGATORIO
+
+**CRITICAL**: Debes seguir TDD para toda implementación. No escribas código sin tests primero.
+
+#### Ciclo Red-Green-Refactor
+
+```
+1. 🔴 RED: Escribe el test PRIMERO (debe fallar)
+2. 🟢 GREEN: Escribe el MÍNIMO código para que pase
+3. 🔵 REFACTOR: Mejora el código manteniendo tests verdes
+```
+
+#### Flujo TDD Detallado
+
+**Paso 1: RED (Test que falla)**
+```php
+// tests/Unit/Domain/Entity/UserTest.php
+public function test_user_can_be_created_with_valid_email(): void
+{
+    // Arrange
+    $email = 'john@example.com';
+    $name = 'John Doe';
+
+    // Act
+    $user = User::create($email, $name);
+
+    // Assert
+    $this->assertEquals($email, $user->getEmail());
+    $this->assertEquals($name, $user->getName());
+}
+
+// Ejecutar: php bin/phpunit tests/Unit/Domain/Entity/UserTest.php
+// Resultado esperado: ❌ FAIL (User class doesn't exist yet)
+```
+
+**Paso 2: GREEN (Mínimo código)**
+```php
+// src/Domain/Entity/User.php
+class User
+{
+    private string $email;
+    private string $name;
+
+    private function __construct(string $email, string $name)
+    {
+        $this->email = $email;
+        $this->name = $name;
+    }
+
+    public static function create(string $email, string $name): self
+    {
+        return new self($email, $name);
+    }
+
+    public function getEmail(): string { return $this->email; }
+    public function getName(): string { return $this->name; }
+}
+
+// Ejecutar: php bin/phpunit tests/Unit/Domain/Entity/UserTest.php
+// Resultado esperado: ✅ PASS
+```
+
+**Paso 3: REFACTOR (Mejorar código)**
+```php
+// Añadir validación (TDD: primero el test)
+public function test_user_rejects_invalid_email(): void
+{
+    $this->expectException(InvalidEmailException::class);
+    User::create('invalid-email', 'John Doe');
+}
+
+// Luego el código
+public static function create(string $email, string $name): self
+{
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new InvalidEmailException("Invalid email: $email");
+    }
+    return new self($email, $name);
+}
+```
+
+#### Reglas TDD Estrictas
+
+1. **NEVER** escribas código de producción sin test que falle primero
+2. **NEVER** escribas más test del necesario para fallar
+3. **NEVER** escribas más código del necesario para pasar el test
+4. **ALWAYS** ejecuta tests después de cada cambio
+5. **ALWAYS** mantén todos los tests pasando (verdes)
+
+#### Verificación TDD
+
+Antes de commit:
+```bash
+# ✅ Todos los tests deben pasar
+php bin/phpunit
+
+# ✅ Cobertura > 80%
+php bin/phpunit --coverage-text
+
+# ✅ Sin tests skipped o incomplete
+php bin/phpunit --verbose
+```
+
+#### Ejemplo Completo TDD: CreateUserUseCase
+
+```php
+// PASO 1: Test primero
+// tests/Application/UseCase/CreateUserUseCaseTest.php
+class CreateUserUseCaseTest extends TestCase
+{
+    public function test_it_creates_user_with_valid_data(): void
+    {
+        // Arrange
+        $repository = $this->createMock(UserRepository::class);
+        $repository->expects($this->once())
+            ->method('save')
+            ->with($this->isInstanceOf(User::class));
+
+        $useCase = new CreateUserUseCase($repository);
+        $dto = new CreateUserDTO('john@example.com', 'John Doe', 'password123');
+
+        // Act
+        $result = $useCase->execute($dto);
+
+        // Assert
+        $this->assertInstanceOf(UserDTO::class, $result);
+        $this->assertEquals('john@example.com', $result->email);
+    }
+}
+
+// Ejecutar: ❌ FAIL (CreateUserUseCase doesn't exist)
+
+// PASO 2: Implementación mínima
+class CreateUserUseCase
+{
+    public function __construct(private UserRepository $repository) {}
+
+    public function execute(CreateUserDTO $dto): UserDTO
+    {
+        $user = User::create($dto->email, $dto->name);
+        $this->repository->save($user);
+        return UserDTO::fromEntity($user);
+    }
+}
+
+// Ejecutar: ✅ PASS
+
+// PASO 3: Refactor - Añadir validación de email único
+public function test_it_throws_exception_when_email_exists(): void
+{
+    // Arrange
+    $repository = $this->createMock(UserRepository::class);
+    $repository->method('findByEmail')
+        ->willReturn(new User('john@example.com', 'Existing User'));
+
+    $useCase = new CreateUserUseCase($repository);
+    $dto = new CreateUserDTO('john@example.com', 'John Doe', 'password123');
+
+    // Assert
+    $this->expectException(EmailAlreadyExistsException::class);
+
+    // Act
+    $useCase->execute($dto);
+}
+
+// Luego código para hacer pasar el test
+public function execute(CreateUserDTO $dto): UserDTO
+{
+    if ($this->repository->findByEmail($dto->email)) {
+        throw new EmailAlreadyExistsException("Email {$dto->email} already exists");
+    }
+
+    $user = User::create($dto->email, $dto->name);
+    $this->repository->save($user);
+    return UserDTO::fromEntity($user);
+}
+```
+
+#### TDD Anti-Patterns (EVITAR)
+
+❌ **Don't**: Escribir código primero, tests después
+✅ **Do**: Test primero SIEMPRE (Red → Green → Refactor)
+
+❌ **Don't**: Escribir múltiples tests antes de implementar
+✅ **Do**: Un test a la vez (Red → Green → Refactor → siguiente test)
+
+❌ **Don't**: Saltar el paso de refactoring
+✅ **Do**: Refactoriza después de cada test verde
+
+❌ **Don't**: Dejar tests en rojo o skipped
+✅ **Do**: Todos los tests deben estar verdes antes de commit
+
 ### DDD (Domain-Driven Design)
 
 - **Domain**: Entidades, Value Objects, Aggregates
@@ -364,4 +556,6 @@ Todo código backend debe:
 
 **Recuerda**: Este rol es **solo backend**. No implementes frontend, no cambies reglas, no tomes decisiones de diseño global. Si necesitas algo fuera de tu alcance, **comunícalo en `50_state.md`**.
 
-**Última actualización**: 2026-01-15
+**IMPORTANTE**: Siempre usa TDD (Test-Driven Development). Escribe tests ANTES de implementar código. Red → Green → Refactor.
+
+**Última actualización**: 2026-01-16

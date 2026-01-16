@@ -416,7 +416,34 @@ Review code against project rules:
 ```
 Code Quality Review:
 
-1. Backend DDD Compliance (from ddd_rules.md):
+1. TDD Compliance Verification (CRITICAL):
+   - [✓] Git history shows tests committed before implementation
+   - [✓] Each test was written before its corresponding code
+   - [✓] All tests follow Red-Green-Refactor cycle
+
+   Verification steps:
+   ```bash
+   # Check git log for TDD pattern
+   git log --oneline --all | head -20
+   # Expected pattern: test commits before implementation commits
+
+   # Example of TDD compliance:
+   ✓ "test: add user creation test" (RED)
+   ✓ "feat: implement User entity" (GREEN)
+   ✓ "refactor: extract Email value object" (REFACTOR)
+   ✓ "test: add email validation test" (RED)
+   ✓ "feat: implement email validation" (GREEN)
+
+   # Example of TDD violation:
+   ❌ "feat: implement User entity with all validations"
+   ❌ "test: add tests for User entity" (tests after code)
+   ```
+
+   Files verified for TDD:
+   - src/Domain/Entity/User.php → Git shows test first ✓
+   - src/Application/UseCase/RegisterUserUseCase.php → Git shows test first ✓
+
+2. Backend DDD Compliance (from ddd_rules.md):
    - [✓] Domain layer pure (no Doctrine annotations)
    - [✓] Entities have behavior, not just getters/setters
    - [✓] Value objects are immutable
@@ -427,13 +454,13 @@ Code Quality Review:
    - src/Domain/ValueObject/Email.php ✓
    - src/Application/UseCase/RegisterUserUseCase.php ✓
 
-2. Test Coverage (from global_rules.md):
+3. Test Coverage (from global_rules.md):
    - Backend requirement: >80%
    - Actual: 87% ✓
    - Command: php bin/phpunit --coverage-text
    - Evidence: [coverage report showing 87%]
 
-3. Code Style (from project_specific.md):
+4. Code Style (from project_specific.md):
    - Backend: PSR-12 compliant
    - Command: ./vendor/bin/php-cs-fixer fix --dry-run
    - Result: ✓ No issues
@@ -441,14 +468,14 @@ Code Quality Review:
    - Command: npm run lint
    - Result: ✓ No issues
 
-4. Security Check (from global_rules.md):
+5. Security Check (from global_rules.md):
    - [✓] No secrets committed (.env not in repo)
    - [✓] Passwords hashed (bcrypt used)
    - [✓] SQL injection prevented (using Doctrine ORM)
    - [✓] XSS prevented (React escapes by default)
    - [✓] CSRF protection (JWT in header, not cookie)
 
-RESULT: All quality checks passed
+RESULT: All quality checks passed including TDD compliance
 ```
 
 ### Decision Making: APPROVED vs REJECTED
@@ -513,6 +540,13 @@ Next steps:
 
 Before marking review as complete:
 
+- [ ] **TDD Compliance (CRITICAL)**
+  - [ ] Git history shows tests before implementation
+  - [ ] Tests follow Red-Green-Refactor cycle
+  - [ ] No implementation code committed without tests first
+  - [ ] All tests written before corresponding code
+  - [ ] Commit messages reflect TDD approach
+
 - [ ] **API Testing**
   - [ ] Happy path works
   - [ ] Validation errors handled
@@ -536,6 +570,7 @@ Before marking review as complete:
   - [ ] Code style compliant
   - [ ] DDD rules followed (if backend)
   - [ ] No code smells or anti-patterns
+  - [ ] TDD approach verified in git log
 
 - [ ] **Security**
   - [ ] No secrets in code
@@ -553,6 +588,7 @@ Before marking review as complete:
   - [ ] Issues documented with reproduction steps
   - [ ] Decision (APPROVED/REJECTED) with clear reasoning
   - [ ] 50_state.md updated
+  - [ ] TDD compliance documented
 
 - [ ] **Edge Cases**
   - [ ] Empty inputs tested
@@ -832,4 +868,6 @@ Si **cualquiera** falla → **REJECTED** (con explicación detallada)
 
 **Recuerda**: Como QA, eres el **guardián de la calidad**. No implementas, pero validas exhaustivamente. Un feature solo pasa si cumple **todos** los criterios. No tengas miedo de **rechazar** si algo no está bien. Es mejor detectar problemas ahora que en producción.
 
-**Última actualización**: 2026-01-15
+**IMPORTANTE**: Siempre verifica que Backend y Frontend siguieron TDD (Test-Driven Development). Revisa el historial de git para confirmar que los tests se escribieron ANTES de la implementación.
+
+**Última actualización**: 2026-01-16

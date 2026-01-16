@@ -434,6 +434,278 @@ Before marking UI as complete:
 
 ## 🎨 Patrones y Prácticas
 
+### TDD (Test-Driven Development) - OBLIGATORIO
+
+**CRITICAL**: Debes seguir TDD para toda implementación. No escribas componentes sin tests primero.
+
+#### Ciclo Red-Green-Refactor
+
+```
+1. 🔴 RED: Escribe el test PRIMERO (debe fallar)
+2. 🟢 GREEN: Escribe el MÍNIMO código para que pase
+3. 🔵 REFACTOR: Mejora el código manteniendo tests verdes
+```
+
+#### Flujo TDD Detallado (Frontend)
+
+**Paso 1: RED (Test que falla)**
+```typescript
+// UserCard.test.tsx
+import { render, screen } from '@testing-library/react';
+import { UserCard } from './UserCard';
+
+describe('UserCard', () => {
+  it('should render user name and email', () => {
+    // Arrange
+    const user = { id: 1, name: 'John Doe', email: 'john@example.com' };
+
+    // Act
+    render(<UserCard user={user} />);
+
+    // Assert
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('john@example.com')).toBeInTheDocument();
+  });
+});
+
+// Ejecutar: npm test -- UserCard
+// Resultado esperado: ❌ FAIL (UserCard component doesn't exist yet)
+```
+
+**Paso 2: GREEN (Mínimo código)**
+```typescript
+// UserCard.tsx
+interface UserCardProps {
+  user: {
+    id: number;
+    name: string;
+    email: string;
+  };
+}
+
+export const UserCard: React.FC<UserCardProps> = ({ user }) => {
+  return (
+    <div>
+      <p>{user.name}</p>
+      <p>{user.email}</p>
+    </div>
+  );
+};
+
+// Ejecutar: npm test -- UserCard
+// Resultado esperado: ✅ PASS
+```
+
+**Paso 3: REFACTOR (Mejorar código)**
+```typescript
+// Añadir styling y estructura (TDD: primero el test)
+it('should display user avatar', () => {
+  const user = { id: 1, name: 'John Doe', email: 'john@example.com' };
+  render(<UserCard user={user} />);
+
+  const avatar = screen.getByRole('img', { name: /john doe/i });
+  expect(avatar).toBeInTheDocument();
+});
+
+// Luego el código
+export const UserCard: React.FC<UserCardProps> = ({ user }) => {
+  return (
+    <div className="user-card">
+      <img src={`/avatars/${user.id}.png`} alt={user.name} />
+      <div>
+        <p className="user-name">{user.name}</p>
+        <p className="user-email">{user.email}</p>
+      </div>
+    </div>
+  );
+};
+```
+
+#### Reglas TDD Estrictas (Frontend)
+
+1. **NEVER** escribas componentes sin test que falle primero
+2. **NEVER** escribas más test del necesario para fallar
+3. **NEVER** escribas más código del necesario para pasar el test
+4. **ALWAYS** ejecuta tests después de cada cambio
+5. **ALWAYS** mantén todos los tests pasando (verdes)
+
+#### Verificación TDD
+
+Antes de commit:
+```bash
+# ✅ Todos los tests deben pasar
+npm test
+
+# ✅ Cobertura > 70%
+npm test -- --coverage
+
+# ✅ No hay tests skipped
+npm test -- --verbose
+```
+
+#### Ejemplo Completo TDD: RegistrationForm
+
+```typescript
+// PASO 1: Test primero
+// RegistrationForm.test.tsx
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { RegistrationForm } from './RegistrationForm';
+import * as api from '../services/api';
+
+jest.mock('../services/api');
+
+describe('RegistrationForm', () => {
+  it('should submit form with valid data', async () => {
+    // Arrange
+    const mockRegister = jest.spyOn(api, 'registerUser').mockResolvedValue({
+      id: 1,
+      email: 'john@example.com',
+      name: 'John Doe',
+    });
+
+    render(<RegistrationForm />);
+
+    // Act
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'john@example.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/name/i), {
+      target: { value: 'John Doe' },
+    });
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: 'Password123!' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /register/i }));
+
+    // Assert
+    await waitFor(() => {
+      expect(mockRegister).toHaveBeenCalledWith({
+        email: 'john@example.com',
+        name: 'John Doe',
+        password: 'Password123!',
+      });
+    });
+  });
+});
+
+// Ejecutar: npm test -- RegistrationForm
+// Resultado esperado: ❌ FAIL (RegistrationForm doesn't exist)
+
+// PASO 2: Implementación mínima
+export const RegistrationForm: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await registerUser({ email, name, password });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <label htmlFor="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+
+      <label htmlFor="name">Name</label>
+      <input
+        id="name"
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+
+      <label htmlFor="password">Password</label>
+      <input
+        id="password"
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <button type="submit">Register</button>
+    </form>
+  );
+};
+
+// Ejecutar: npm test -- RegistrationForm
+// Resultado esperado: ✅ PASS
+
+// PASO 3: Refactor - Añadir validación
+it('should show error for invalid email', async () => {
+  render(<RegistrationForm />);
+
+  fireEvent.change(screen.getByLabelText(/email/i), {
+    target: { value: 'invalid-email' },
+  });
+  fireEvent.blur(screen.getByLabelText(/email/i));
+
+  await waitFor(() => {
+    expect(screen.getByText(/invalid email format/i)).toBeInTheDocument();
+  });
+});
+
+// Luego código para hacer pasar el test
+const [errors, setErrors] = useState<{ email?: string }>({});
+
+const validateEmail = (email: string) => {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    setErrors((prev) => ({ ...prev, email: 'Invalid email format' }));
+  } else {
+    setErrors((prev) => ({ ...prev, email: undefined }));
+  }
+};
+
+// En el input
+<input
+  id="email"
+  type="email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  onBlur={() => validateEmail(email)}
+/>
+{errors.email && <span className="error">{errors.email}</span>}
+```
+
+#### TDD con React Testing Library
+
+**Principios**:
+- Test comportamiento, no implementación
+- Usa queries accesibles (getByRole, getByLabelText)
+- Simula interacciones de usuario reales
+- Espera cambios asíncronos con waitFor
+
+**Ejemplo de queries correctas**:
+```typescript
+// ✅ GOOD: Queries accesibles
+screen.getByRole('button', { name: /submit/i })
+screen.getByLabelText(/email/i)
+screen.getByText(/welcome/i)
+
+// ❌ BAD: Queries de implementación
+screen.getByTestId('submit-button')
+screen.getByClassName('email-input')
+```
+
+#### TDD Anti-Patterns (EVITAR)
+
+❌ **Don't**: Escribir componente primero, tests después
+✅ **Do**: Test primero SIEMPRE (Red → Green → Refactor)
+
+❌ **Don't**: Testear detalles de implementación (state interno, métodos privados)
+✅ **Do**: Testear comportamiento visible del usuario
+
+❌ **Don't**: Saltar el paso de refactoring
+✅ **Do**: Refactoriza después de cada test verde
+
+❌ **Don't**: Dejar tests en rojo o skipped
+✅ **Do**: Todos los tests deben estar verdes antes de commit
+
 ### Estructura de Componentes
 
 ```
@@ -458,8 +730,8 @@ src/
 
 ### Testing Strategy
 
-- **Unit**: Componentes individuales
-- **Integration**: Flujos de usuario
+- **Unit**: Componentes individuales (con TDD)
+- **Integration**: Flujos de usuario (con TDD)
 - **E2E**: Casos de uso completos
 
 ## 📞 Comunicación con Otros Roles
@@ -570,4 +842,6 @@ Marca en `50_state.md`:
 
 **Recuerda**: Este rol es **solo frontend**. No implementes backend, no cambies reglas, no tomes decisiones de diseño global. Si necesitas la API y no está lista, **mockea y continúa**. Si te bloqueas, **comunícalo en `50_state.md`**.
 
-**Última actualización**: 2026-01-15
+**IMPORTANTE**: Siempre usa TDD (Test-Driven Development). Escribe tests ANTES de implementar componentes. Red → Green → Refactor.
+
+**Última actualización**: 2026-01-16
