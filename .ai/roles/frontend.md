@@ -783,6 +783,136 @@ Todo código frontend debe:
 - ✅ Pasar **linters** (ESLint, Prettier)
 - ✅ Cumplir **criterios de aceptación** del feature
 
+## 🔄 Auto-Correction Loop (Ralph Wiggum Pattern)
+
+**CRITICAL**: Aplica este patrón de iteración automática para cada checkpoint.
+
+### Concepto
+
+En lugar de avanzar ciegamente, itera hasta que los tests pasen:
+
+```
+while tests_failing:
+    1. Analizar error
+    2. Corregir código
+    3. Re-ejecutar tests
+    4. Si tests pasan → siguiente checkpoint
+    5. Si tests fallan → volver a paso 1
+```
+
+### Flujo de Auto-Corrección por Checkpoint
+
+```
+Checkpoint: Implement UserCard Component
+
+1. 🔴 Escribir test (TDD)
+2. 🟢 Implementar mínimo código
+3. ⚙️ Ejecutar test
+   └── Si PASA → ✅ Checkpoint completado
+   └── Si FALLA → 🔁 Auto-corrección:
+       ├── Leer mensaje de error
+       ├── Identificar causa raíz
+       ├── Corregir código (NO el test)
+       ├── Re-ejecutar test
+       └── Repetir hasta MAX_ITERATIONS (10)
+
+4. Si después de 10 iteraciones no pasa:
+   └── Documentar en DECISIONS.md:
+       - Qué se intentó
+       - Por qué falla
+       - Posibles alternativas
+   └── Actualizar 50_state.md → BLOCKED
+   └── Esperar ayuda del Planner
+```
+
+### Reglas del Loop
+
+1. **MAX_ITERATIONS = 10**: Después de 10 intentos, detente y documenta
+2. **No modificar tests para que pasen**: Los tests definen el comportamiento esperado
+3. **Solo avanzar con tests verdes**: No pases al siguiente checkpoint con tests fallando
+4. **Documentar cada iteración**: Si llegas a 5+ intentos, documenta qué estás intentando
+5. **Verificación visual también aplica**: Si el UI no se ve correcto, iterar
+
+### Ejemplo Práctico
+
+```bash
+# Iteración 1
+npm test -- UserCard
+# FAIL: UserCard is not defined
+
+# → Crear UserCard.tsx
+npm test -- UserCard
+# FAIL: Expected user name to be rendered
+
+# → Añadir props y render de nombre
+npm test -- UserCard
+# FAIL: Expected email format
+
+# → Añadir render de email
+npm test -- UserCard
+# PASS ✅ → Verificar visualmente en browser
+
+# Verificación visual
+# → Abrir localhost:3000, componente no se ve bien en mobile
+# → Ajustar responsive
+# → Re-verificar en browser
+# → Se ve correcto ✅ → Checkpoint completado
+```
+
+### Criterios de Escape (Escape Hatch)
+
+Si después de **10 iteraciones** el test sigue fallando:
+
+```markdown
+## Blocker: UserCard Test Failing
+
+**Checkpoint**: Component - UserCard
+**Iterations attempted**: 10
+**Last error**: "Cannot find element with role 'img'"
+
+**What was tried**:
+1. Added img element → Test still fails
+2. Added role="img" → Still not found
+3. Used getByAltText → Different error
+4. Checked ARIA attributes → Correct
+...
+
+**Root cause hypothesis**:
+React Testing Library not detecting dynamically loaded images
+
+**Suggested alternatives**:
+1. Use data-testid instead of role
+2. Mock Image component
+3. Use waitFor for async image loading
+
+**Status**: BLOCKED - Needs Planner decision
+```
+
+### Loop con Verificación Visual
+
+Para componentes UI, el loop incluye verificación visual:
+
+```
+1. Test pasa ✅
+2. Verificar en browser:
+   └── Desktop (1024px) → OK
+   └── Tablet (768px) → OK
+   └── Mobile (375px) → ❌ Botón cortado
+
+3. Iterar:
+   └── Ajustar CSS
+   └── Re-verificar mobile
+   └── Mobile OK ✅
+
+4. Lighthouse audit:
+   └── Score 85 → ❌ Debajo de 90
+   └── Iterar: Optimizar imágenes
+   └── Re-run Lighthouse
+   └── Score 92 ✅
+
+5. Checkpoint completado
+```
+
 ## 🚀 Flujo de Trabajo Típico
 
 1. **Git pull** (sincronizar con remoto)
@@ -791,13 +921,16 @@ Todo código frontend debe:
 4. Si API no está lista:
    - **Mockear** endpoints necesarios
    - Marcar en `50_state.md`: `WAITING_API`
-5. **Implementar** UI según el stage actual del workflow
+5. **Implementar** UI según el stage actual del workflow con **auto-correction loop**
 6. **Actualizar** `50_state.md` (IN_PROGRESS)
-7. **Escribir tests**
-8. **Ejecutar tests** localmente
-9. **Actualizar** `50_state.md` (COMPLETED, WAITING_API, o BLOCKED)
-10. **Commit y push**
-11. **Notificar** a QA si está listo para revisión
+7. **Escribir tests** (TDD - ANTES de implementar)
+8. **Ejecutar tests** → Si fallan, iterar hasta pasar (max 10 intentos)
+9. **Verificación visual** → Si no se ve bien, iterar
+10. **Lighthouse audit** → Si < 90, iterar
+11. **Solo cuando todo pase** → Checkpoint completado
+12. **Actualizar** `50_state.md` (COMPLETED, WAITING_API, o BLOCKED)
+13. **Commit y push**
+14. **Notificar** a QA si está listo para revisión
 
 ## 🔗 Integración con Backend
 
@@ -845,3 +978,4 @@ Marca en `50_state.md`:
 **IMPORTANTE**: Siempre usa TDD (Test-Driven Development). Escribe tests ANTES de implementar componentes. Red → Green → Refactor.
 
 **Última actualización**: 2026-01-16
+**Cambios recientes**: Añadido Auto-Correction Loop (Ralph Wiggum Pattern)
