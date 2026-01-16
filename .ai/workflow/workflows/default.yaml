@@ -11,26 +11,26 @@ metadata:
 roles:
   - id: planner
     name: Planner / Architect
-    role_file: .ai/roles/planner.md
+    role_file: .ai/workflow/roles/planner.md
 
   - id: backend
     name: Backend Engineer
-    role_file: .ai/roles/backend.md
+    role_file: .ai/workflow/roles/backend.md
 
   - id: frontend
     name: Frontend Engineer
-    role_file: .ai/roles/frontend.md
+    role_file: .ai/workflow/roles/frontend.md
 
   - id: qa
     name: QA / Reviewer
-    role_file: .ai/roles/qa.md
+    role_file: .ai/workflow/roles/qa.md
 
 stages:
   - id: planning
     name: "Planning & Definition"
     role: planner
     description: "Define feature, create contracts, breakdown tasks"
-    workspace: "./.ai/projects/PROJECT_X/features/{FEATURE_ID}/"
+    workspace: "./.ai/project/features/{FEATURE_ID}/"
 
     inputs:
       - User requirements
@@ -42,10 +42,10 @@ stages:
       - 50_state.md (planner section)
 
     rules:
-      - Read: .ai/roles/planner.md
-      - Read: .ai/projects/PROJECT_X/rules/global_rules.md
-      - Read: .ai/projects/PROJECT_X/rules/ddd_rules.md
-      - Read: .ai/projects/PROJECT_X/rules/project_specific.md
+      - Read: .ai/workflow/roles/planner.md
+      - Read: .ai/workflow/rules/global_rules.md
+      - Read: .ai/workflow/rules/ddd_rules.md
+      - Read: .ai/workflow/rules/project_specific.md
 
     completion_criteria:
       - FEATURE_X.md exists with objective, acceptance criteria, API contracts
@@ -72,10 +72,10 @@ stages:
       - 50_state.md (backend section)
 
     rules:
-      - Read: .ai/roles/backend.md
-      - Read: .ai/projects/PROJECT_X/rules/global_rules.md
-      - Read: .ai/projects/PROJECT_X/rules/ddd_rules.md
-      - Read: .ai/projects/PROJECT_X/rules/project_specific.md
+      - Read: .ai/workflow/roles/backend.md
+      - Read: .ai/workflow/rules/global_rules.md
+      - Read: .ai/workflow/rules/ddd_rules.md
+      - Read: .ai/workflow/rules/project_specific.md
       - Write: ./backend/src/**
       - Write: ./backend/tests/**
       - Write: 50_state.md (backend section only)
@@ -199,9 +199,9 @@ stages:
       - 50_state.md (frontend section)
 
     rules:
-      - Read: .ai/roles/frontend.md
-      - Read: .ai/projects/PROJECT_X/rules/global_rules.md
-      - Read: .ai/projects/PROJECT_X/rules/project_specific.md
+      - Read: .ai/workflow/roles/frontend.md
+      - Read: .ai/workflow/rules/global_rules.md
+      - Read: .ai/workflow/rules/project_specific.md
       - Write: ./frontend1/src/** (or frontend2)
       - Write: ./frontend1/tests/**
       - Write: 50_state.md (frontend section only)
@@ -347,7 +347,7 @@ stages:
       - 50_state.md (frontend section updated)
 
     rules:
-      - Read: .ai/roles/frontend.md
+      - Read: .ai/workflow/roles/frontend.md
       - Write: ./frontend1/src/**
       - Write: 50_state.md (frontend section)
 
@@ -380,10 +380,10 @@ stages:
       - Issue reports (if any)
 
     rules:
-      - Read: .ai/roles/qa.md
-      - Read: .ai/projects/PROJECT_X/rules/global_rules.md
-      - Read: .ai/projects/PROJECT_X/rules/ddd_rules.md
-      - Read: .ai/projects/PROJECT_X/rules/project_specific.md
+      - Read: .ai/workflow/roles/qa.md
+      - Read: .ai/workflow/rules/global_rules.md
+      - Read: .ai/workflow/rules/ddd_rules.md
+      - Read: .ai/workflow/rules/project_specific.md
       - Read: All code (backend/src/, frontend*/src/)
       - Write: qa_report_FEATURE_X.md
       - Write: 50_state.md (qa section only)
@@ -422,7 +422,7 @@ validation:
 
 instructions:
   planner: |
-    You are the PLANNER. Your role is defined in: .ai/roles/planner.md
+    You are the PLANNER. Your role is defined in: .ai/workflow/roles/planner.md
 
     PAIRING MODE (CRITICAL):
     - You are like a senior architect who needs COMPLETE CONTEXT
@@ -433,19 +433,19 @@ instructions:
 
     GIT WORKFLOW (CRITICAL):
     0. BEFORE starting, sync with remote:
-       Run: ./.ai/scripts/git_sync.sh {FEATURE_ID}
+       Run: ./.ai/workflow/scripts/git_sync.sh {FEATURE_ID}
        OR: git pull origin feature/{FEATURE_ID}
 
     MANDATORY READING (in order):
-    1. Read .ai/roles/planner.md (your role) - **Includes Pairing Patterns section**
-    2. Read .ai/projects/PROJECT_X/rules/global_rules.md
-    3. Read .ai/projects/PROJECT_X/rules/ddd_rules.md
-    4. Read .ai/projects/PROJECT_X/rules/project_specific.md
+    1. Read .ai/workflow/roles/planner.md (your role) - **Includes Pairing Patterns section**
+    2. Read .ai/workflow/rules/global_rules.md
+    3. Read .ai/workflow/rules/ddd_rules.md
+    4. Read .ai/workflow/rules/project_specific.md
     5. Read this workflow file (default.yaml)
 
     FIND REFERENCE FEATURES (MANDATORY):
     6. Before planning, FIND similar existing features:
-       - Look in ./.ai/projects/PROJECT_X/features/ for similar features
+       - Look in ./.ai/project/features/ for similar features
        - Check FEATURE_*.md files for similar API patterns
        - State which feature you're using as reference for consistency
 
@@ -478,7 +478,7 @@ instructions:
 
     GIT COMMIT & PUSH (MANDATORY):
     11. After completing all tasks above, you MUST commit and push:
-        Run: ./.ai/scripts/git_commit_push.sh planner {FEATURE_ID} "Define feature and create task breakdown"
+        Run: ./.ai/workflow/scripts/git_commit_push.sh planner {FEATURE_ID} "Define feature and create task breakdown"
         OR manually:
           git add .
           git commit -m "[planner][{FEATURE_ID}] Define feature and create task breakdown"
@@ -500,7 +500,7 @@ instructions:
     DO NOT implement code. Only plan and define.
 
   backend: |
-    You are the BACKEND ENGINEER. Your role is defined in: .ai/roles/backend.md
+    You are the BACKEND ENGINEER. Your role is defined in: .ai/workflow/roles/backend.md
 
     PAIRING MODE (CRITICAL):
     - You are like a 10x colleague who needs CLEAR DIRECTION
@@ -511,14 +511,14 @@ instructions:
 
     GIT WORKFLOW (CRITICAL):
     0. BEFORE starting, sync with remote:
-       Run: ./.ai/scripts/git_sync.sh {FEATURE_ID}
+       Run: ./.ai/workflow/scripts/git_sync.sh {FEATURE_ID}
        This will pull planner's changes (FEATURE_X.md, 30_tasks.md, etc.)
 
     MANDATORY READING (in order):
-    1. Read .ai/roles/backend.md (your role) - **Includes Pairing Patterns section**
-    2. Read .ai/projects/PROJECT_X/rules/global_rules.md
-    3. Read .ai/projects/PROJECT_X/rules/ddd_rules.md
-    4. Read .ai/projects/PROJECT_X/rules/project_specific.md
+    1. Read .ai/workflow/roles/backend.md (your role) - **Includes Pairing Patterns section**
+    2. Read .ai/workflow/rules/global_rules.md
+    3. Read .ai/workflow/rules/ddd_rules.md
+    4. Read .ai/workflow/rules/project_specific.md
     5. Read FEATURE_X.md (what you need to implement)
     6. Read 30_tasks.md (your tasks)
     7. Read 50_state.md (planner section) to ensure planning is COMPLETED
@@ -574,17 +574,17 @@ instructions:
 
     GIT COMMIT & PUSH (MANDATORY - FREQUENT):
     12. After EACH checkpoint (NOT at the end):
-        Run: ./.ai/scripts/git_commit_push.sh backend {FEATURE_ID} "Implement [what you did]"
+        Run: ./.ai/workflow/scripts/git_commit_push.sh backend {FEATURE_ID} "Implement [what you did]"
 
         Examples:
-        - "./.ai/scripts/git_commit_push.sh backend user-auth 'Add User entity and Email value object'"
-        - "./.ai/scripts/git_commit_push.sh backend user-auth 'Add RegisterUserUseCase with validation'"
-        - "./.ai/scripts/git_commit_push.sh backend user-auth 'Add UserRepository with Doctrine'"
-        - "./.ai/scripts/git_commit_push.sh backend user-auth 'Add POST /api/users endpoint'"
+        - "./.ai/workflow/scripts/git_commit_push.sh backend user-auth 'Add User entity and Email value object'"
+        - "./.ai/workflow/scripts/git_commit_push.sh backend user-auth 'Add RegisterUserUseCase with validation'"
+        - "./.ai/workflow/scripts/git_commit_push.sh backend user-auth 'Add UserRepository with Doctrine'"
+        - "./.ai/workflow/scripts/git_commit_push.sh backend user-auth 'Add POST /api/users endpoint'"
 
     13. When ALL checkpoints done:
         - Update 50_state.md (backend section) status to COMPLETED
-        - Run: ./.ai/scripts/git_commit_push.sh backend {FEATURE_ID} "Complete backend implementation"
+        - Run: ./.ai/workflow/scripts/git_commit_push.sh backend {FEATURE_ID} "Complete backend implementation"
 
     IMPORTANT REMINDERS:
     - Reference existing code patterns (state which file)
@@ -602,7 +602,7 @@ instructions:
     - All verification steps executed successfully
 
   frontend: |
-    You are the FRONTEND ENGINEER. Your role is defined in: .ai/roles/frontend.md
+    You are the FRONTEND ENGINEER. Your role is defined in: .ai/workflow/roles/frontend.md
 
     PAIRING MODE (CRITICAL):
     - You are like a 10x UI engineer who needs VISUAL VERIFICATION
@@ -614,13 +614,13 @@ instructions:
 
     GIT WORKFLOW (CRITICAL):
     0. BEFORE starting, sync with remote:
-       Run: ./.ai/scripts/git_sync.sh {FEATURE_ID}
+       Run: ./.ai/workflow/scripts/git_sync.sh {FEATURE_ID}
        This pulls planner's and backend's changes
 
     MANDATORY READING (in order):
-    1. Read .ai/roles/frontend.md (your role) - **Includes Pairing Patterns section**
-    2. Read .ai/projects/PROJECT_X/rules/global_rules.md
-    3. Read .ai/projects/PROJECT_X/rules/project_specific.md
+    1. Read .ai/workflow/roles/frontend.md (your role) - **Includes Pairing Patterns section**
+    2. Read .ai/workflow/rules/global_rules.md
+    3. Read .ai/workflow/rules/project_specific.md
     4. Read FEATURE_X.md (what you need to implement)
     5. Read 30_tasks.md (your tasks)
     6. Read 50_state.md (planner section) to ensure planning is COMPLETED
@@ -639,7 +639,7 @@ instructions:
         - Mock the API endpoints (reference existing mocks in __mocks__/)
         - Set status to WAITING_API in your 50_state.md
         - Continue with UI implementation
-        - Commit mocks: ./.ai/scripts/git_commit_push.sh frontend {FEATURE_ID} "Add API mocks"
+        - Commit mocks: ./.ai/workflow/scripts/git_commit_push.sh frontend {FEATURE_ID} "Add API mocks"
 
     11. If API is ready:
         - Integrate with real API
@@ -689,20 +689,20 @@ instructions:
 
     GIT COMMIT & PUSH (MANDATORY - AFTER EACH CHECKPOINT):
     15. After EACH checkpoint:
-        Run: ./.ai/scripts/git_commit_push.sh frontend {FEATURE_ID} "Implement [what you did]"
+        Run: ./.ai/workflow/scripts/git_commit_push.sh frontend {FEATURE_ID} "Implement [what you did]"
 
         Examples:
-        - "./.ai/scripts/git_commit_push.sh frontend user-auth 'Add LoginForm component structure'"
-        - "./.ai/scripts/git_commit_push.sh frontend user-auth 'Add form validation to LoginForm'"
-        - "./.ai/scripts/git_commit_push.sh frontend user-auth 'Integrate LoginForm with API'"
-        - "./.ai/scripts/git_commit_push.sh frontend user-auth 'Make LoginForm responsive'"
+        - "./.ai/workflow/scripts/git_commit_push.sh frontend user-auth 'Add LoginForm component structure'"
+        - "./.ai/workflow/scripts/git_commit_push.sh frontend user-auth 'Add form validation to LoginForm'"
+        - "./.ai/workflow/scripts/git_commit_push.sh frontend user-auth 'Integrate LoginForm with API'"
+        - "./.ai/workflow/scripts/git_commit_push.sh frontend user-auth 'Make LoginForm responsive'"
 
     16. When ALL checkpoints done:
         - Update 50_state.md (frontend section) status to COMPLETED
-        - Run: ./.ai/scripts/git_commit_push.sh frontend {FEATURE_ID} "Complete frontend implementation"
+        - Run: ./.ai/workflow/scripts/git_commit_push.sh frontend {FEATURE_ID} "Complete frontend implementation"
 
     17. If you were using mocks and backend is now ready, replace mocks:
-        Run: ./.ai/scripts/git_commit_push.sh frontend {FEATURE_ID} "Replace mocks with real API integration"
+        Run: ./.ai/workflow/scripts/git_commit_push.sh frontend {FEATURE_ID} "Replace mocks with real API integration"
 
     IMPORTANT REMINDERS:
     - Reference existing components for consistency
@@ -723,7 +723,7 @@ instructions:
     - All verification steps executed with screenshots/evidence
 
   qa: |
-    You are the QA/REVIEWER. Your role is defined in: .ai/roles/qa.md
+    You are the QA/REVIEWER. Your role is defined in: .ai/workflow/roles/qa.md
 
     PAIRING MODE (CRITICAL):
     - You are like a senior quality gate who needs EVIDENCE
@@ -735,14 +735,14 @@ instructions:
 
     GIT WORKFLOW (CRITICAL):
     0. BEFORE starting, sync with remote:
-       Run: ./.ai/scripts/git_sync.sh {FEATURE_ID}
+       Run: ./.ai/workflow/scripts/git_sync.sh {FEATURE_ID}
        This pulls all changes from backend and frontend
 
     MANDATORY READING (in order):
-    1. Read .ai/roles/qa.md (your role) - **Includes Pairing Patterns section**
-    2. Read .ai/projects/PROJECT_X/rules/global_rules.md
-    3. Read .ai/projects/PROJECT_X/rules/ddd_rules.md
-    4. Read .ai/projects/PROJECT_X/rules/project_specific.md
+    1. Read .ai/workflow/roles/qa.md (your role) - **Includes Pairing Patterns section**
+    2. Read .ai/workflow/rules/global_rules.md
+    3. Read .ai/workflow/rules/ddd_rules.md
+    4. Read .ai/workflow/rules/project_specific.md
     5. Read FEATURE_X.md (acceptance criteria to validate)
     6. Read 30_tasks.md (to understand what was implemented)
     7. Read 50_state.md (all sections) to ensure backend and frontend are COMPLETED
@@ -851,9 +851,9 @@ instructions:
 
     13. Commit and push your review with COMPLETE information:
         If APPROVED:
-          Run: ./.ai/scripts/git_commit_push.sh qa {FEATURE_ID} "QA review: APPROVED - all tests passing, all AC met, ready for production"
+          Run: ./.ai/workflow/scripts/git_commit_push.sh qa {FEATURE_ID} "QA review: APPROVED - all tests passing, all AC met, ready for production"
         If REJECTED:
-          Run: ./.ai/scripts/git_commit_push.sh qa {FEATURE_ID} "QA review: REJECTED - [specific issues: e.g., 'API validation failing, UI not responsive']"
+          Run: ./.ai/workflow/scripts/git_commit_push.sh qa {FEATURE_ID} "QA review: REJECTED - [specific issues: e.g., 'API validation failing, UI not responsive']"
 
     IMPORTANT REMINDERS:
     - Provide EVIDENCE for everything (screenshots, logs, test output)

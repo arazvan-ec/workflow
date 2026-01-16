@@ -17,7 +17,7 @@ Este archivo contiene las reglas globales que **todos los roles** deben seguir s
 ### 1. Contexto Explícito - Sin Memoria Implícita
 
 ❌ **NO**: "Recuerda que antes dijimos que..."
-✅ **SÍ**: "Lee el archivo `./.ai/projects/PROJECT_X/features/FEATURE_X/50_state.md`"
+✅ **SÍ**: "Lee el archivo `./.ai/project/features/FEATURE_X/50_state.md`"
 
 **Regla**: Todo conocimiento compartido debe estar explícitamente en archivos. No asumas contexto implícito.
 
@@ -93,7 +93,7 @@ Este archivo contiene las reglas globales que **todos los roles** deben seguir s
    # Actualizar 50_state.md con progreso exacto
 
    # 2. Commit todo el trabajo
-   ./.ai/scripts/git_commit_push.sh [rol] [feature-id] "Checkpoint: [descripción]"
+   ./.ai/workflow/scripts/git_commit_push.sh [rol] [feature-id] "Checkpoint: [descripción]"
 
    # 3. Documentar punto de retoma
    # En 50_state.md, incluir:
@@ -127,8 +127,8 @@ Este archivo contiene las reglas globales que **todos los roles** deben seguir s
 **Siguiente tarea**: Implementar Application Layer (CreateUserUseCase)
 
 **Archivos a leer al retomar**:
-- .ai/roles/backend.md (sección TDD)
-- .ai/projects/PROJECT_X/features/user-auth/30_tasks.md (Task 2)
+- .ai/workflow/roles/backend.md (sección TDD)
+- .ai/project/features/user-auth/30_tasks.md (Task 2)
 - backend/src/Domain/Entity/User.php (referencia)
 - backend/src/Domain/ValueObject/Email.php (referencia)
 

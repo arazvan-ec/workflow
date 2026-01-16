@@ -22,14 +22,14 @@ metadata:
 roles:
   - id: planner
     name: Planner / Architect
-    role_file: .ai/roles/planner.md
+    role_file: .ai/workflow/roles/planner.md
 
 stages:
   - id: requirements_analysis
     name: "Análisis de Requisitos"
     role: planner
     description: "Analizar requisitos y crear documento de entendimiento"
-    workspace: "./.ai/projects/PROJECT_X/features/{FEATURE_ID}/"
+    workspace: "./.ai/project/features/{FEATURE_ID}/"
 
     inputs:
       - User requirements (descripción del proyecto/feature)
@@ -41,10 +41,10 @@ stages:
       - 50_state.md (planner section)
 
     rules:
-      - Read: .ai/roles/planner.md
-      - Read: .ai/projects/PROJECT_X/rules/global_rules.md
-      - Read: .ai/projects/PROJECT_X/rules/ddd_rules.md
-      - Read: .ai/projects/PROJECT_X/rules/project_specific.md
+      - Read: .ai/workflow/roles/planner.md
+      - Read: .ai/workflow/rules/global_rules.md
+      - Read: .ai/workflow/rules/ddd_rules.md
+      - Read: .ai/workflow/rules/project_specific.md
       - Write: 00_requirements_analysis.md
       - Write: 50_state.md (planner section)
 
@@ -62,7 +62,7 @@ stages:
     name: "Diseño de Arquitectura"
     role: planner
     description: "Diseñar arquitectura y estructura de datos"
-    workspace: "./.ai/projects/PROJECT_X/features/{FEATURE_ID}/"
+    workspace: "./.ai/project/features/{FEATURE_ID}/"
 
     inputs:
       - 00_requirements_analysis.md
@@ -91,7 +91,7 @@ stages:
     name: "Definición de API Contracts"
     role: planner
     description: "Crear contratos API completos con todos los casos"
-    workspace: "./.ai/projects/PROJECT_X/features/{FEATURE_ID}/"
+    workspace: "./.ai/project/features/{FEATURE_ID}/"
 
     inputs:
       - 10_architecture.md
@@ -121,7 +121,7 @@ stages:
     name: "Desglose Detallado de Tareas"
     role: planner
     description: "Crear tareas específicas y detalladas para cada rol de implementación"
-    workspace: "./.ai/projects/PROJECT_X/features/{FEATURE_ID}/"
+    workspace: "./.ai/project/features/{FEATURE_ID}/"
 
     inputs:
       - 00_requirements_analysis.md

@@ -25,6 +25,10 @@ CYAN='\033[0;36m'
 MAGENTA='\033[0;35m'
 NC='\033[0m'
 
+# Paths (nueva estructura)
+WORKFLOW_DIR=".ai/workflow"
+PROJECT_DIR=".ai/project"
+
 # Functions
 info() { echo -e "${BLUE}ℹ${NC} $1"; }
 success() { echo -e "${GREEN}✓${NC} $1"; }
@@ -176,11 +180,11 @@ case "$COMMAND" in
 I am the PLANNER for feature $FEATURE_ID.
 
 Please:
-1. Read .ai/roles/planner.md (my role - includes Pairing Patterns!)
-2. Read all rules (.ai/projects/PROJECT_X/rules/global_rules.md, ddd_rules.md, project_specific.md)
-3. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
+1. Read .ai/workflow/roles/planner.md (my role - includes Pairing Patterns!)
+2. Read all rules (.ai/workflow/rules/global_rules.md, .ai/workflow/rules/ddd_rules.md, .ai/project/rules/project_specific.md)
+3. Read .ai/workflow/workflows/${WORKFLOW}.yaml
 4. Follow the planning stage instructions from workflow YAML
-5. Create FEATURE_${FEATURE_ID}.md with COMPLETE API specifications
+5. Create feature definition in .ai/project/features/${FEATURE_ID}/
 6. Create 30_tasks.md with specific tasks for each role
 7. Update 50_state.md when done
 
@@ -195,16 +199,16 @@ EOF
 I am the BACKEND ENGINEER for feature $FEATURE_ID.
 
 Please:
-1. Run: ./.ai/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
-2. Read .ai/roles/backend.md (my role - includes Pairing Patterns!)
-3. Read all rules (.ai/projects/PROJECT_X/rules/global_rules.md, ddd_rules.md, project_specific.md)
-4. Read FEATURE_${FEATURE_ID}.md and 30_tasks.md (from planner)
-5. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
-6. Check .ai/projects/PROJECT_X/features/${FEATURE_ID}/50_state.md (planner section) - ensure it's COMPLETED
-7. FIND reference code in ./backend/src/ before starting
+1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+2. Read .ai/workflow/roles/backend.md (my role - includes Auto-Correction Loop!)
+3. Read all rules (.ai/workflow/rules/global_rules.md, .ai/workflow/rules/ddd_rules.md, .ai/project/rules/project_specific.md)
+4. Read .ai/project/features/${FEATURE_ID}/ (from planner)
+5. Read .ai/workflow/workflows/${WORKFLOW}.yaml
+6. Check .ai/project/features/${FEATURE_ID}/50_state.md (planner section) - ensure it's COMPLETED
+7. FIND reference code in ./src/ before starting
 8. Implement backend with CHECKPOINTS (stop and verify at each)
 9. Update 50_state.md (backend section) as you progress
-10. Commit after EACH checkpoint: ./.ai/scripts/git_commit_push.sh backend $FEATURE_ID "message"
+10. Commit after EACH checkpoint: ./.ai/workflow/scripts/git_commit_push.sh backend $FEATURE_ID "message"
 
 Remember: You are a 10x engineer. Reference existing code, use checkpoints, verify everything!
 
@@ -217,21 +221,21 @@ EOF
 I am the FRONTEND ENGINEER for feature $FEATURE_ID.
 
 Please:
-1. Run: ./.ai/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
-2. Read .ai/roles/frontend.md (my role - includes Pairing Patterns!)
-3. Read all rules (.ai/projects/PROJECT_X/rules/global_rules.md, project_specific.md)
-4. Read FEATURE_${FEATURE_ID}.md and 30_tasks.md (from planner)
-5. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
-6. Check .ai/projects/PROJECT_X/features/${FEATURE_ID}/50_state.md:
+1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+2. Read .ai/workflow/roles/frontend.md (my role - includes Auto-Correction Loop!)
+3. Read all rules (.ai/workflow/rules/global_rules.md, .ai/project/rules/project_specific.md)
+4. Read .ai/project/features/${FEATURE_ID}/ (from planner)
+5. Read .ai/workflow/workflows/${WORKFLOW}.yaml
+6. Check .ai/project/features/${FEATURE_ID}/50_state.md:
    - Planner section - ensure it's COMPLETED
    - Backend section - check if API is ready
-7. FIND reference components in ./frontend1/src/ before starting
+7. FIND reference components in frontend directory before starting
 8. If backend NOT ready: mock API and set status to WAITING_API
 9. Implement UI with VISUAL VERIFICATION at each checkpoint
 10. Test responsive design (375px, 768px, 1024px)
 11. Run Lighthouse audit (must be > 90)
 12. Update 50_state.md (frontend section) as you progress
-13. Commit after EACH checkpoint: ./.ai/scripts/git_commit_push.sh frontend $FEATURE_ID "message"
+13. Commit after EACH checkpoint: ./.ai/workflow/scripts/git_commit_push.sh frontend $FEATURE_ID "message"
 
 Remember: You are a 10x UI engineer. Show screenshots, test in browser, verify accessibility!
 
@@ -244,12 +248,12 @@ EOF
 I am the QA/REVIEWER for feature $FEATURE_ID.
 
 Please:
-1. Run: ./.ai/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
-2. Read .ai/roles/qa.md (my role - includes Pairing Patterns!)
-3. Read all rules (.ai/projects/PROJECT_X/rules/global_rules.md, ddd_rules.md, project_specific.md)
-4. Read FEATURE_${FEATURE_ID}.md (acceptance criteria)
-5. Read .ai/projects/PROJECT_X/workflows/${WORKFLOW}.yaml
-6. Check .ai/projects/PROJECT_X/features/${FEATURE_ID}/50_state.md:
+1. Run: ./.ai/workflow/scripts/git_sync.sh $FEATURE_ID (pull latest changes)
+2. Read .ai/workflow/roles/qa.md (my role)
+3. Read all rules (.ai/workflow/rules/global_rules.md, .ai/workflow/rules/ddd_rules.md, .ai/project/rules/project_specific.md)
+4. Read .ai/project/features/${FEATURE_ID}/ (acceptance criteria)
+5. Read .ai/workflow/workflows/${WORKFLOW}.yaml
+6. Check .ai/project/features/${FEATURE_ID}/50_state.md:
    - Backend section - ensure it's COMPLETED
    - Frontend section - ensure it's COMPLETED
 7. Execute SYSTEMATIC TESTING (5 phases):
@@ -260,7 +264,7 @@ Please:
    Phase 5: Acceptance Criteria Validation (with evidence)
 8. Create qa_report_${FEATURE_ID}.md with COMPLETE findings
 9. Update 50_state.md (qa section): APPROVED or REJECTED
-10. Commit: ./.ai/scripts/git_commit_push.sh qa $FEATURE_ID "QA review: APPROVED/REJECTED"
+10. Commit: ./.ai/workflow/scripts/git_commit_push.sh qa $FEATURE_ID "QA review: APPROVED/REJECTED"
 
 Remember: You are a senior quality gate. Provide EVIDENCE (screenshots, logs, test results) for everything!
 

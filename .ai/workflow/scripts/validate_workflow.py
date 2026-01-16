@@ -9,7 +9,7 @@ Valida:
 - Completitud de features
 
 Uso:
-    ./.ai/scripts/validate_workflow.py [feature-id]
+    ./.ai/workflow/scripts/validate_workflow.py [feature-id]
 """
 
 import sys
@@ -40,7 +40,7 @@ def validate_feature(feature_id):
     """Validate a feature"""
     info(f"Validating feature: {feature_id}")
 
-    feature_path = Path(f"./.ai/projects/PROJECT_X/features/{feature_id}")
+    feature_path = Path(f"./.ai/project/features/{feature_id}")
 
     if not feature_path.exists():
         error(f"Feature directory not found: {feature_path}")
@@ -88,7 +88,7 @@ def validate_feature(feature_id):
             for line in f:
                 if line.startswith("**Workflow**:"):
                     workflow_name = line.split(":")[-1].strip()
-                    workflow_file = Path(f"./.ai/projects/PROJECT_X/workflows/{workflow_name}")
+                    workflow_file = Path(f"./.ai/workflow/workflows/{workflow_name}")
 
                     if workflow_file.exists():
                         with open(workflow_file, 'r') as wf:
