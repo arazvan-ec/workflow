@@ -16,6 +16,33 @@ Capture insights from completed features to make future development easier.
 The `/workflows:compound` command is the key differentiator of compound engineering.
 Without it, you're just doing work. With it, work builds on work.
 
+## The 70% Problem Awareness
+
+> "AI helps you reach 70% quickly, but the remaining 30% is where real complexity lives."
+> — Addy Osmani, Beyond Vibe Coding
+
+When capturing learnings, pay special attention to **where the 70% ended and the 30% began**:
+
+```
+Feature Timeline:
+├── 0-70%: Fast progress (AI excels)
+│   └── Scaffolding, CRUD, happy paths
+│
+└── 70-100%: Slow progress (Human expertise needed)
+    ├── Edge cases
+    ├── Error handling
+    ├── Security hardening
+    └── Integration issues
+```
+
+**Questions to answer in compound capture:**
+- Where did progress slow down? (The 70% boundary)
+- What caused the "two-step-back" pattern? (Fixes introducing bugs)
+- What would have prevented the slowdown if known earlier?
+- What should future specs include to avoid this?
+
+This awareness helps future planning account for the **real complexity**, not just the easy 70%.
+
 ## Usage
 
 ```bash
@@ -63,9 +90,9 @@ Identify what went well:
 **Recommendation**: Always write use case tests first
 ```
 
-### Step 3: Identify Anti-Patterns
+### Step 3: Identify Anti-Patterns & The 70% Boundary
 
-Document what should be avoided:
+Document what should be avoided AND where progress slowed:
 
 ```markdown
 ## Anti-Patterns Found
@@ -81,6 +108,38 @@ Document what should be avoided:
 **What happened**: Frontend had to guess error handling
 **Cost**: 3 back-and-forth messages to clarify
 **Rule**: Always specify all error responses in contracts
+
+## The 70% Boundary Analysis
+
+### Where did the 70% end?
+**Milestone**: Basic CRUD working, happy path tests passing
+**Time spent**: 2 hours (40% of total)
+
+### What made the 30% hard?
+1. **Edge case**: Email already exists scenario
+   - Not in original spec
+   - Required new validation logic
+   - Added 1 hour
+
+2. **Security**: Password hashing integration
+   - bcrypt config not documented
+   - Trial and error with rounds
+   - Added 45 minutes
+
+3. **Integration**: Frontend form validation mismatch
+   - Backend and frontend had different rules
+   - Required sync meeting
+   - Added 30 minutes
+
+### What would have helped?
+- [ ] Spec should include ALL error scenarios upfront
+- [ ] Security requirements should reference existing patterns
+- [ ] Validation rules should be in shared contract
+
+### Prevention for future features
+- Add "Error Scenarios" section to spec template
+- Create validation rules library (shared between BE/FE)
+- Document security patterns in project_specific.md
 ```
 
 ### Step 4: Update Project Rules
@@ -164,6 +223,9 @@ cp .ai/project/features/user-auth/FEATURE_user-auth.md \
 - [ ] Analyzed git history for patterns
 - [ ] Documented successful patterns (2-3)
 - [ ] Documented anti-patterns (1-2)
+- [ ] **Identified the 70% boundary** (where progress slowed)
+- [ ] **Documented what made the 30% hard**
+- [ ] **Listed preventions for future features**
 - [ ] Updated relevant project rules
 - [ ] Added entry to compound_log.md
 - [ ] Created/updated templates if applicable
