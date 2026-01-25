@@ -4,6 +4,21 @@ Sistema completo para uso modular y escalable de Claude Code con **consultor AI*
 
 ---
 
+## Empieza Aquí
+
+| Tu Situación | Lee Esto | Tiempo |
+|--------------|----------|--------|
+| **Soy nuevo, quiero empezar rápido** | [QUICKSTART.md](./QUICKSTART.md) | 5 min |
+| **Quiero un ejemplo práctico** | [TUTORIAL.md](./TUTORIAL.md) | 30-45 min |
+| **No entiendo un término** | [GLOSSARY.md](./GLOSSARY.md) | Consulta |
+| **Busco un archivo específico** | [INDEX.md](./INDEX.md) | Navegación |
+| **Soy un agente Claude** | [CLAUDE.md](./CLAUDE.md) | Técnico |
+| **Quiero toda la teoría** | Este README | 30+ min |
+
+> **Recomendación**: Si es tu primera vez, empieza por [QUICKSTART.md](./QUICKSTART.md) y luego [TUTORIAL.md](./TUTORIAL.md).
+
+---
+
 ## Ideas y Fundamentos del Workflow
 
 Este sistema integra las metodologías más avanzadas en desarrollo de software asistido por IA. A continuación documentamos las ideas fundamentales, sus orígenes y las actualizaciones más recientes (Enero 2026).
