@@ -138,6 +138,91 @@ Este archivo contiene las reglas globales que **todos los roles** deben seguir s
 - Password se hashea en el UseCase, no en el entity
 ```
 
+### 7. Trust Model (Calibración de Supervisión)
+
+**Origen**: Addy Osmani, "Beyond Vibe Coding" (2026)
+
+**Regla**: La cantidad de supervisión que necesita una tarea depende de tres factores.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     TRUST MODEL                             │
+│                                                             │
+│   FAMILIARITY ──────▶ TRUST ──────▶ CONTROL                │
+│                                                             │
+│   ¿Conoces la         ¿Ha entregado    ¿Cuánta supervisión │
+│   tecnología/tarea?   bien antes?      necesita?           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Niveles de Control
+
+| Nivel | Cuándo Aplicar | Qué Significa |
+|-------|----------------|---------------|
+| 🔴 **ALTO** | Nueva tecnología, código crítico (auth, payments), primer feature de un tipo | Review en cada paso, checkpoints frecuentes, pair review |
+| 🟡 **MEDIO** | Tecnología conocida, patrones establecidos | Review en checkpoints principales, tests obligatorios |
+| 🟢 **BAJO** | Features similares a anteriores, alta confianza | Review final, confiar en tests automatizados |
+
+#### Matriz de Decisión
+
+| Situación | Familiarity | Control |
+|-----------|-------------|---------|
+| Primer auth feature | Baja | 🔴 Alto |
+| Segundo auth feature (mismo patrón) | Alta | 🟡 Medio |
+| Décimo CRUD similar | Alta | 🟢 Bajo |
+| Nueva API externa | Baja | 🔴 Alto |
+| Refactor de código conocido | Alta | 🟢 Bajo |
+| Feature con requisitos de seguridad | Variable | 🔴 Alto siempre |
+
+#### Aplicación Práctica
+
+**Al iniciar un feature, el Planner debe indicar:**
+
+```markdown
+## Trust Assessment
+
+**Feature**: user-authentication
+**Trust Level**: 🔴 HIGH CONTROL
+
+**Razón**:
+- Primera implementación de auth en el proyecto
+- Código crítico de seguridad
+- Nuevos patrones (JWT, bcrypt)
+
+**Supervisión requerida**:
+- [ ] Review de cada checkpoint por Planner
+- [ ] Security review obligatorio
+- [ ] Tests de seguridad adicionales
+- [ ] Documentación detallada de decisiones
+```
+
+**Para features con 🟢 LOW CONTROL:**
+
+```markdown
+## Trust Assessment
+
+**Feature**: user-profile-edit
+**Trust Level**: 🟢 LOW CONTROL
+
+**Razón**:
+- Patrón CRUD ya establecido
+- Similar a user-registration (completado)
+- Sin requisitos de seguridad especiales
+
+**Supervisión requerida**:
+- [ ] Review final antes de merge
+- [ ] Tests automatizados deben pasar
+```
+
+#### The 70% Problem Awareness
+
+> "AI te ayuda a llegar al 70% rápido, pero el 30% restante es donde está la complejidad real."
+
+**Implicación para Trust Model:**
+- El 70% inicial puede tener 🟢 LOW CONTROL
+- El 30% final (edge cases, security, integration) necesita 🔴 HIGH CONTROL
+- Ajustar supervisión conforme avanza el feature
+
 ---
 
 ## 🔒 Permisos y Restricciones

@@ -519,6 +519,85 @@ Next steps:
 - Re-review when fixes are committed and pushed
 ```
 
+### Quality Gates for Production (Addy Osmani Checklist)
+
+Before approving ANY feature for production, verify ALL of these gates:
+
+```markdown
+## Quality Gates Checklist (MANDATORY)
+
+### 1. Logic & Correctness
+- [ ] Logic is correct for ALL expected inputs
+- [ ] ALL edge cases identified in spec are handled
+- [ ] Code does EXACTLY what the specification says
+- [ ] No off-by-one errors, null pointer issues
+
+### 2. Security (CRITICAL)
+- [ ] Input validation on ALL entry points
+- [ ] No hardcoded secrets (API keys, passwords)
+- [ ] SQL/NoSQL injection prevented (parameterized queries)
+- [ ] XSS prevented (output encoding, CSP headers)
+- [ ] Auth/authz correctly implemented
+- [ ] HTTPS enforced for sensitive data
+- [ ] Rate limiting on public endpoints
+
+### 3. Performance
+- [ ] No N+1 queries (check ORM logs)
+- [ ] Expensive operations are async or cached
+- [ ] No memory leaks (check for unbounded growth)
+- [ ] Pagination implemented for large datasets
+- [ ] Indexes exist for frequently queried fields
+
+### 4. Error Handling
+- [ ] ALL errors have appropriate handling
+- [ ] Errors logged with sufficient context
+- [ ] User receives helpful messages (not stack traces)
+- [ ] Graceful degradation when services unavailable
+- [ ] Retry logic with backoff for transient failures
+
+### 5. Testing
+- [ ] Coverage > 80% (backend) / > 70% (frontend)
+- [ ] Tests cover happy path AND edge cases
+- [ ] Integration tests for all API endpoints
+- [ ] E2E tests for critical user flows
+- [ ] Tests are deterministic (no flaky tests)
+
+### 6. Documentation
+- [ ] API contracts updated and accurate
+- [ ] Architectural decisions documented
+- [ ] README updated if setup changes
+- [ ] Inline comments for non-obvious logic
+
+### 7. Dependencies
+- [ ] No known vulnerabilities in dependencies
+- [ ] Licenses are compatible with project
+- [ ] Dependencies pinned to specific versions
+- [ ] No unnecessary dependencies added
+```
+
+**Gate Results Format:**
+
+```
+Quality Gates: 6/7 PASSED
+
+✅ Logic & Correctness: PASSED
+✅ Security: PASSED
+✅ Performance: PASSED
+⚠️ Error Handling: PARTIAL (missing retry logic on external API)
+✅ Testing: PASSED (Backend: 87%, Frontend: 75%)
+✅ Documentation: PASSED
+✅ Dependencies: PASSED
+
+Blocking Issues: 0
+Warnings: 1 (error handling - non-blocking)
+
+Decision: APPROVED with note to add retry logic in next sprint
+```
+
+> Source: [Beyond Vibe Coding - Addy Osmani](https://beyond.addy.ie/)
+
+---
+
 ### Anti-Patterns to Avoid (QA Edition)
 
 ❌ **Don't say**: "I tested it, looks good"

@@ -370,6 +370,168 @@ if iterations >= MAX_ITERATIONS:
 
 ---
 
+### 10. The 70% Problem & Trust Model
+
+**Origen:** Addy Osmani (Google Chrome Engineer) en "Beyond Vibe Coding" (2026).
+
+**El Problema del 70%:**
+
+AI te ayuda a llegar al 70% de un proyecto rápidamente. Pero el 30% restante es donde está la complejidad real:
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                        PROYECTO                                │
+├────────────────────────────────────┬───────────────────────────┤
+│           70% RÁPIDO               │        30% DIFÍCIL        │
+│                                    │                           │
+│  • Scaffolding                     │  • Edge cases             │
+│  • CRUD básico                     │  • Error handling robusto │
+│  • UI inicial                      │  • Security               │
+│  • Happy paths                     │  • Performance            │
+│                                    │  • Integración real       │
+│                                    │  • Casos de borde         │
+│         ⚡ AI excels here          │    🧠 Human expertise     │
+└────────────────────────────────────┴───────────────────────────┘
+```
+
+**Patrones de fallo en el 30%:**
+
+| Patrón | Descripción | Costo |
+|--------|-------------|-------|
+| **Two-step-back** | Fixes que introducen nuevos bugs | 2-3x tiempo |
+| **Hidden complexity** | Dependencias no obvias | Rewrite parcial |
+| **Diminishing returns** | Cada fix toma más tiempo | Frustración |
+| **Security gaps** | Vulnerabilidades no detectadas | Riesgo real |
+
+**Por qué este workflow mitiga el 70% Problem:**
+- **Spec-Driven**: Especificaciones completas antes de código previenen "sorpresas" en el 30%
+- **TDD**: Tests escritos primero atrapan edge cases temprano
+- **Ralph Wiggum Loop**: Bounded iteration evita loops infinitos en el 30% difícil
+- **Quality Gates**: Checklist explícito para el 30% crítico
+
+---
+
+**Three Pillars of Trust (Modelo de Confianza):**
+
+Cuánta supervisión necesita cada tarea depende de tres factores:
+
+```
+                    TRUST MODEL
+
+     ┌─────────────────────────────────────┐
+     │                                     │
+     │   FAMILIARITY ──▶ TRUST ──▶ CONTROL │
+     │                                     │
+     │   ¿Conoces       ¿Ha        ¿Cuánta │
+     │   la tarea?      entregado  supervisión│
+     │                  bien?      necesita?│
+     └─────────────────────────────────────┘
+
+Calibración de Control:
+
+  HIGH CONTROL (supervisión constante)
+    │
+    │  • Nueva tecnología
+    │  • Código crítico (auth, payments)
+    │  • Primer feature de un tipo
+    │
+    ├──────────────────────────────────────
+    │
+    │  • Tecnología conocida
+    │  • Patrones establecidos
+    │  • Features similares a anteriores
+    │
+    │  LOW CONTROL (más autonomía)
+    ▼
+```
+
+**Aplicación práctica:**
+
+| Situación | Familiarity | Trust | Control Recomendado |
+|-----------|-------------|-------|---------------------|
+| Primer auth feature | Baja | Baja | 🔴 Alto - review cada paso |
+| Segundo auth feature | Alta | Media | 🟡 Medio - review checkpoints |
+| Décimo auth feature | Alta | Alta | 🟢 Bajo - review final |
+| Feature con nueva API externa | Baja | N/A | 🔴 Alto - investigar primero |
+| Refactor de código conocido | Alta | Alta | 🟢 Bajo - confiar en tests |
+
+---
+
+**"Junior Developer Code" Philosophy:**
+
+> *"Treat AI-generated code like code from a junior developer. It needs careful review and testing before submission."* — Addy Osmani
+
+**Implicaciones:**
+- ✅ AI puede escribir código funcional rápidamente
+- ⚠️ Pero puede no entender el contexto completo
+- ⚠️ Puede introducir vulnerabilidades sutiles
+- ⚠️ Puede no seguir patrones del proyecto
+- ✅ **Siempre requiere review humano o automatizado**
+
+**Cómo este workflow implementa esta filosofía:**
+- QA Agent revisa TODO el código generado
+- Security Review Agent busca vulnerabilidades
+- DDD Compliance Agent verifica patrones
+- Spec Analyzer valida contra contratos
+
+---
+
+**Quality Gates for Production:**
+
+Checklist obligatorio antes de considerar código "production-ready":
+
+```markdown
+## Quality Gates Checklist
+
+### Logic & Correctness
+- [ ] ¿La lógica es correcta para todos los inputs esperados?
+- [ ] ¿Se manejan todos los edge cases identificados?
+- [ ] ¿El código hace exactamente lo que la spec dice?
+
+### Security
+- [ ] ¿Input validation en todos los entry points?
+- [ ] ¿No hay secrets hardcodeados?
+- [ ] ¿SQL/NoSQL injection prevenido?
+- [ ] ¿XSS prevenido (si aplica)?
+- [ ] ¿Auth/authz correctamente implementados?
+
+### Performance
+- [ ] ¿No hay N+1 queries?
+- [ ] ¿Operaciones costosas son async o cached?
+- [ ] ¿Memory leaks prevenidos?
+
+### Error Handling
+- [ ] ¿Todos los errores tienen handling apropiado?
+- [ ] ¿Errores loggeados con contexto suficiente?
+- [ ] ¿Usuario recibe mensajes útiles (no stack traces)?
+
+### Testing
+- [ ] ¿Coverage > 80% (backend) / > 70% (frontend)?
+- [ ] ¿Tests cubren happy path Y edge cases?
+- [ ] ¿Integration tests para APIs?
+
+### Documentation
+- [ ] ¿API contracts actualizados?
+- [ ] ¿Decisiones arquitectónicas documentadas?
+- [ ] ¿README actualizado si hay cambios de setup?
+
+### Dependencies
+- [ ] ¿No hay vulnerabilidades conocidas en deps?
+- [ ] ¿Licencias son compatibles?
+```
+
+**Implementación en este workflow:**
+- Este checklist está integrado en el QA Agent
+- Security Review Agent cubre la sección de Security
+- Performance Review Agent cubre Performance
+- Spec Analyzer cubre Logic & Correctness contra specs
+
+> **Fuentes:**
+> - [Beyond Vibe Coding - Addy Osmani](https://beyond.addy.ie/)
+> - [The 70% Problem in AI-Assisted Development](https://addyosmani.com/blog/)
+
+---
+
 ## Arquitectura del Sistema
 
 ```
@@ -510,6 +672,8 @@ Analyze → Extract Patterns → Update Rules → Measure Acceleration
 6. **Testing Before Completion** - Nunca marcar done sin verificar
 7. **Knowledge Compounding** - Cada feature acelera los siguientes
 8. **Spec-Driven** - Contratos completos antes de implementar, validación automática de compliance
+9. **Trust Model** - Calibrar supervisión según familiaridad, confianza y riesgo (70% Problem awareness)
+10. **Quality Gates** - Checklist obligatorio de producción antes de aprobar cualquier feature
 
 ---
 
@@ -565,6 +729,10 @@ Analyze → Extract Patterns → Update Rules → Measure Acceleration
 - [Design by Contract - Wikipedia](https://en.wikipedia.org/wiki/Design_by_contract)
 - [API-First Development - Swagger](https://swagger.io/resources/articles/adopting-an-api-first-approach/)
 - [Contract-First API Design - Microsoft](https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design)
+
+### Beyond Vibe Coding (The 70% Problem & Trust Model)
+- [Beyond Vibe Coding - Addy Osmani](https://beyond.addy.ie/)
+- [Vibe Coding Hangover - DEV Community](https://dev.to/maximiliano_allende97/the-vibe-coding-hangover-why-im-returning-to-engineering-rigor-in-2026-49hl)
 
 ---
 
