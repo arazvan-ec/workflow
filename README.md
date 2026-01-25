@@ -674,6 +674,7 @@ Analyze → Extract Patterns → Update Rules → Measure Acceleration
 8. **Spec-Driven** - Contratos completos antes de implementar, validación automática de compliance
 9. **Trust Model** - Calibrar supervisión según familiaridad, confianza y riesgo (70% Problem awareness)
 10. **Quality Gates** - Checklist obligatorio de producción antes de aprobar cualquier feature
+11. **Evolution Governance** - Análisis exhaustivo obligatorio antes de implementar nuevas tendencias, herramientas o refactors
 
 ---
 
@@ -687,6 +688,7 @@ Analyze → Extract Patterns → Update Rules → Measure Acceleration
 | Implementar sin leer context.md | Siempre leer context.md primero |
 | One-shot de features completos | Desarrollo incremental feature por feature |
 | Marcar complete sin testing | Verificar con tests antes de marcar done |
+| Adoptar tendencias "porque están de moda" | Análisis exhaustivo con proceso de Evolution Governance |
 
 ---
 
