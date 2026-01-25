@@ -235,6 +235,141 @@ if iterations >= MAX_ITERATIONS:
 
 ---
 
+### 9. Spec-Driven Development (Desarrollo Dirigido por Especificaciones)
+
+**Principio central:** *"Las especificaciones son el contrato. El código es la implementación del contrato."*
+
+**Filosofía:** En desarrollo tradicional, las especificaciones suelen ser documentos que se desactualizan rápidamente. En este workflow, las especificaciones son **artefactos vivos** que:
+- Se crean **ANTES** de cualquier línea de código
+- Son la **fuente de verdad** para validar implementaciones
+- Permiten **desarrollo paralelo** (frontend puede mockear mientras backend implementa)
+- Son **verificables automáticamente** contra el código
+
+**El problema que resuelve:**
+```
+❌ Sin Spec-Driven:
+  Developer recibe: "Implementa autenticación"
+  Developer pregunta: "¿Qué campos? ¿Qué errores? ¿Qué formato?"
+  → Ciclos de ida y vuelta, retrabajos, bugs por malentendidos
+
+✅ Con Spec-Driven:
+  Developer recibe: Contrato completo con request/response/errores
+  Developer implementa: Exactamente lo especificado
+  Validator verifica: Implementación cumple 100% del contrato
+  → Cero ambigüedad, desarrollo paralelo, validación automática
+```
+
+**Flujo Spec-Driven en este workflow:**
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   PLANNER   │────▶│ API DESIGNER│────▶│  ENGINEERS  │────▶│SPEC ANALYZER│
+│             │     │             │     │             │     │             │
+│ Define      │     │ Create      │     │ Implement   │     │ Validate    │
+│ Feature     │     │ Contracts   │     │ Against     │     │ Compliance  │
+│ Requirements│     │ (APIs, UI)  │     │ Contracts   │     │             │
+└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
+                           │                   │                   │
+                           ▼                   ▼                   ▼
+                    ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+                    │20_api_      │     │   Código    │     │ Compliance  │
+                    │contracts.md │     │   + Tests   │     │ Report 85%  │
+                    └─────────────┘     └─────────────┘     └─────────────┘
+```
+
+**Agentes involucrados:**
+
+| Agente | Rol en Spec-Driven | Output |
+|--------|-------------------|--------|
+| **Planner** | Define qué se necesita, acceptance criteria | `FEATURE_X.md`, `00_requirements.md` |
+| **API Designer** | Crea contratos técnicos detallados | `20_api_contracts.md`, OpenAPI specs |
+| **Backend/Frontend** | Implementan contra contratos | Código que cumple especificaciones |
+| **Spec Analyzer** | Valida compliance | Reporte con % de cumplimiento |
+
+**Estructura de un API Contract:**
+
+```markdown
+## Endpoint: POST /api/users
+
+### Request
+| Field    | Type   | Required | Validation              |
+|----------|--------|----------|-------------------------|
+| email    | string | Yes      | Valid email format      |
+| name     | string | Yes      | 2-50 characters         |
+| password | string | Yes      | Min 8 chars, 1 number   |
+
+### Responses
+| Status | Condition        | Body                           |
+|--------|------------------|--------------------------------|
+| 201    | Success          | `{ id, email, name, created }` |
+| 400    | Validation error | `{ error: { details: [...] }}` |
+| 409    | Email exists     | `{ error: { code: "EMAIL_EXISTS" }}` |
+
+### Verification
+- Backend: `curl -X POST localhost:8000/api/users -d '{...}'`
+- Frontend: Submit form → success toast → redirect /dashboard
+```
+
+**Spec Analyzer Output (ejemplo):**
+
+```markdown
+# Spec Compliance Report: user-authentication
+
+**Compliance**: 85% (17/20 items)
+
+## API Contract Compliance
+| Endpoint         | Spec Items | Implemented | Status |
+|------------------|------------|-------------|--------|
+| POST /api/users  | 4          | 3           | 75%    |
+| GET /api/users   | 3          | 3           | 100%   |
+
+## Gaps Found
+1. ❌ 409 response not implemented (POST /api/users)
+2. ❌ Email uniqueness validation missing
+
+## Recommendations
+1. Add `findByEmail()` to UserRepository
+2. Implement check in CreateUserUseCase
+```
+
+**Beneficios clave:**
+
+1. **Desarrollo Paralelo Real**
+   - Frontend puede crear mocks basados en contratos
+   - Backend implementa mientras frontend avanza
+   - Integración es "plug and play" porque ambos siguen el mismo contrato
+
+2. **Validación Automática**
+   - Spec Analyzer detecta gaps antes de QA
+   - Reduce ciclos de feedback
+   - Compliance medible (porcentaje)
+
+3. **Documentación Siempre Actualizada**
+   - Contratos SON la documentación
+   - Si el código pasa validación, la documentación es correcta
+   - No hay docs desactualizados
+
+4. **Onboarding Acelerado**
+   - Nuevos developers leen contratos, no código legacy
+   - Claridad sobre qué debe hacer cada endpoint
+   - Menos preguntas, más productividad
+
+**Regla de oro:**
+> *"Si un engineer puede empezar a implementar SIN hacer preguntas, la especificación está completa. Si tiene que preguntar algo, la especificación está incompleta."*
+
+**Implementación en este workflow:**
+- `/workflows:plan` genera especificaciones antes de código
+- `agents/design/api-designer.md` crea contratos detallados
+- `agents/workflow/spec-analyzer.md` valida compliance
+- `20_api_contracts.md` es el artefacto central de especificación
+
+> **Fuentes:**
+> - [Design by Contract - Bertrand Meyer](https://en.wikipedia.org/wiki/Design_by_contract)
+> - [API-First Development - Swagger](https://swagger.io/resources/articles/adopting-an-api-first-approach/)
+> - [Contract-First API Design - Microsoft](https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design)
+
+---
+
 ## Arquitectura del Sistema
 
 ```
@@ -374,6 +509,7 @@ Analyze → Extract Patterns → Update Rules → Measure Acceleration
 5. **Fail Fast and Correct** - Errores baratos cuando regenerar toma segundos
 6. **Testing Before Completion** - Nunca marcar done sin verificar
 7. **Knowledge Compounding** - Cada feature acelera los siguientes
+8. **Spec-Driven** - Contratos completos antes de implementar, validación automática de compliance
 
 ---
 
@@ -424,6 +560,11 @@ Analyze → Extract Patterns → Update Rules → Measure Acceleration
 - [7 Agentic AI Trends 2026 - MachineLearningMastery](https://machinelearningmastery.com/7-agentic-ai-trends-to-watch-in-2026/)
 - [5 Key Trends in Agentic Development 2026 - The New Stack](https://thenewstack.io/5-key-trends-shaping-agentic-development-in-2026/)
 - [Best AI Coding Agents 2026 - Faros AI](https://www.faros.ai/blog/best-ai-coding-agents-2026)
+
+### Spec-Driven Development
+- [Design by Contract - Wikipedia](https://en.wikipedia.org/wiki/Design_by_contract)
+- [API-First Development - Swagger](https://swagger.io/resources/articles/adopting-an-api-first-approach/)
+- [Contract-First API Design - Microsoft](https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design)
 
 ---
 
