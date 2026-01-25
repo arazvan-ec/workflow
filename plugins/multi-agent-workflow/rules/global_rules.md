@@ -225,6 +225,147 @@ Este archivo contiene las reglas globales que **todos los roles** deben seguir s
 
 ---
 
+## 🧬 Evolución del Workflow (Governance)
+
+**Regla IMPERATIVA**: Ninguna nueva funcionalidad, tendencia, herramienta o refactor puede implementarse sin análisis exhaustivo previo.
+
+### Principio Fundamental
+
+> *"El workflow evoluciona deliberadamente, no por moda. Cada adición debe demostrar valor antes de implementarse."*
+
+### Proceso Obligatorio de Validación
+
+Antes de implementar CUALQUIER cambio al workflow (nueva herramienta, integración, metodología, o refactor significativo), se DEBE completar:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              EVOLUTION VALIDATION GATE                          │
+│                                                                 │
+│  1. ANÁLISIS ──▶ 2. EVALUACIÓN ──▶ 3. PRUEBA ──▶ 4. DECISIÓN  │
+│                                                                 │
+│  ❌ Sin validación = No implementar                            │
+│  ✅ Con validación = Proceder con implementación               │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 1. Análisis Exhaustivo (Obligatorio)
+
+Crear documento `.ai/workflow/proposals/[NOMBRE]-analysis.md`:
+
+```markdown
+## Proposal: [Nombre de la tendencia/herramienta]
+
+### Identificación
+- **Nombre**:
+- **Origen/Autor**:
+- **Fecha de surgimiento**:
+- **Madurez**: [Experimental | Early Adopter | Mainstream | Establecido]
+
+### Fuentes Verificadas (mínimo 3)
+1. [Fuente oficial/paper/documentación]
+2. [Caso de estudio real]
+3. [Análisis independiente]
+
+### ¿Qué problema resuelve?
+- Problema específico que aborda
+- ¿Este problema existe en NUESTRO workflow?
+- ¿Cómo se resuelve actualmente (si aplica)?
+
+### Análisis de Alternativas
+| Alternativa | Pros | Contras |
+|-------------|------|---------|
+| Status quo (no hacer nada) | | |
+| Esta propuesta | | |
+| Alternativa B | | |
+```
+
+### 2. Evaluación de Valor (Scoring)
+
+Cada propuesta debe evaluarse con esta matriz:
+
+| Criterio | Peso | Score (1-5) | Weighted |
+|----------|------|-------------|----------|
+| **Problema Real** - ¿Resuelve un problema que tenemos? | 30% | | |
+| **Madurez** - ¿Está probado en producción por otros? | 20% | | |
+| **Compatibilidad** - ¿Se integra con nuestro sistema? | 20% | | |
+| **Complejidad** - ¿El beneficio justifica la complejidad? | 15% | | |
+| **Mantenibilidad** - ¿Podemos mantenerlo a largo plazo? | 15% | | |
+| **TOTAL** | 100% | | **/5.0** |
+
+**Umbral mínimo**: Score >= 3.5 para proceder
+
+### 3. Proof of Concept (Obligatorio para score >= 3.5)
+
+- **Implementación aislada** (no en main/develop)
+- **Branch**: `proposal/[nombre]-poc`
+- **Duración máxima**: 1-2 sesiones de trabajo
+- **Entregables**:
+  - Demostración funcional mínima
+  - Documentación de hallazgos
+  - Lista de riesgos identificados
+
+### 4. Decisión Final
+
+```markdown
+## Decisión: [APROBADO | RECHAZADO | APLAZADO]
+
+**Fecha**:
+**Score Final**: X.X/5.0
+**POC Exitoso**: [Sí/No]
+
+### Si APROBADO:
+- Plan de implementación en `.ai/workflow/proposals/[nombre]-implementation.md`
+- Asignar a sprint/milestone
+
+### Si RECHAZADO:
+- Razón documentada
+- Condiciones para reconsiderar (si aplica)
+
+### Si APLAZADO:
+- Razón del aplazamiento
+- Fecha de reconsideración
+```
+
+### Ejemplos de Aplicación
+
+#### ❌ Incorrecto (Sin validación)
+```
+"ClawdBot parece interesante, vamos a integrarlo"
+→ NO. Falta análisis de si resuelve un problema real.
+```
+
+#### ✅ Correcto (Con validación)
+```
+1. Crear: .ai/workflow/proposals/clawdbot-analysis.md
+2. Investigar: ¿Qué problema resuelve? ¿Lo tenemos?
+3. Evaluar: Score = 2.8/5.0 (< 3.5)
+4. Decisión: RECHAZADO - No resuelve problema actual
+5. Documentar: "Reconsiderar cuando necesitemos control remoto del workflow"
+```
+
+### Excepciones
+
+La única excepción a esta regla es:
+- **Bugfixes críticos de seguridad** - Pueden implementarse directamente
+- **Actualizaciones de dependencias** - Siguiendo proceso estándar de deps
+
+### Prohibiciones
+
+🚫 **PROHIBIDO**:
+- Implementar tendencias "porque están de moda"
+- Agregar herramientas sin caso de uso concreto
+- Refactors mayores sin análisis de impacto
+- Adoptar tecnología solo porque "todos la usan"
+- Implementar features "por si acaso los necesitamos"
+
+### Responsabilidad
+
+- **Planner** es responsable de aprobar/rechazar propuestas
+- **Cualquier rol** puede proponer, pero debe seguir el proceso
+- **Nadie** puede saltarse el proceso de validación
+
+---
+
 ## 🔒 Permisos y Restricciones
 
 ### Lectura
@@ -480,7 +621,7 @@ No es suficiente leerlo una vez. Las reglas pueden actualizarse, y es tu respons
 
 ---
 
-**Última actualización**: 2026-01-16
+**Última actualización**: 2026-01-25
 **Actualizado por**: Planner
-**Cambios recientes**: Añadido Context Window Management (Ralph Wiggum Pattern)
+**Cambios recientes**: Añadida regla imperativa de Evolution Governance (validación antes de implementar)
 **Próxima revisión**: Mensual o cuando sea necesario
