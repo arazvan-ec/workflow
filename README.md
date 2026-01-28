@@ -385,13 +385,41 @@ if iterations >= MAX_ITERATIONS:
 
 ---
 
-### 10. The 70% Problem & Trust Model
+### 10. The 80% Problem & Comprehension Debt
 
-**Origen:** Addy Osmani (Google Chrome Engineer) en "Beyond Vibe Coding" (2026).
+**Origen:** Addy Osmani, "The 80% Problem in Agentic Coding" (Enero 2026)
 
-**El Problema del 70%:**
+**El Problema del 80%:**
 
-AI te ayuda a llegar al 70% de un proyecto rápidamente. Pero el 30% restante es donde está la complejidad real:
+Los modelos AI ahora generan aproximadamente **80% del código**, dejando solo 20% para ediciones humanas. Pero este cambio porcentual oculta problemas profundos:
+
+#### Comprehension Debt (Deuda de Comprensión)
+
+> *"Es trivialmente fácil revisar código que ya no podrías escribir desde cero."* - Addy Osmani
+
+**Definición**: La brecha entre el código que puedes revisar vs el código que podrías escribir.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    DEUDA DE COMPRENSIÓN                          │
+│                                                                  │
+│   Código que puedes    Código que podrías   =    Deuda de       │
+│      REVISAR        -    ESCRIBIR               Comprensión     │
+│                                                                  │
+│   ⚠️ Si la brecha crece, pierdes control del sistema            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Cambio en la Naturaleza de los Errores
+
+| Antes de AI (Errores de Sintaxis) | Después de AI (Errores Conceptuales) |
+|-----------------------------------|--------------------------------------|
+| Puntos y coma faltantes | Suposiciones incorrectas |
+| Errores de tipos | Decisiones arquitectónicas erróneas |
+| Errores de import | Features construidos sobre premisas defectuosas |
+| Fáciles de detectar en IDE | Difíciles de detectar hasta producción |
+
+#### El Problema Real
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -418,11 +446,41 @@ AI te ayuda a llegar al 70% de un proyecto rápidamente. Pero el 30% restante es
 | **Diminishing returns** | Cada fix toma más tiempo | Frustración |
 | **Security gaps** | Vulnerabilidades no detectadas | Riesgo real |
 
-**Por qué este workflow mitiga el 70% Problem:**
-- **Spec-Driven**: Especificaciones completas antes de código previenen "sorpresas" en el 30%
+**Por qué este workflow mitiga el 80% Problem:**
+- **Spec-Driven**: Especificaciones completas antes de código previenen "sorpresas" en el 20% difícil
 - **TDD**: Tests escritos primero atrapan edge cases temprano
-- **Ralph Wiggum Loop**: Bounded iteration evita loops infinitos en el 30% difícil
-- **Quality Gates**: Checklist explícito para el 30% crítico
+- **Ralph Wiggum Loop**: Bounded iteration evita loops infinitos
+- **Quality Gates**: Checklist explícito para código crítico
+- **Comprehension Guardian**: Nuevo agente que verifica comprensión antes de aprobar
+- **Self-Review Pattern**: Agentes critican su propio código con "contexto fresco"
+
+#### Estrategias de Mitigación Implementadas
+
+| Estrategia | Descripción | Implementación |
+|------------|-------------|----------------|
+| **Self-Review** | Agente critica su propio código | Checklist obligatorio antes de COMPLETED |
+| **Comprehension Checkpoints** | Verificar entendimiento periódicamente | Cada 3 iteraciones TDD |
+| **Decision Documentation** | Documentar el "por qué" | DECISIONS.md obligatorio |
+| **Bounded Iteration** | No loops infinitos | Max 10 iteraciones (Ralph Wiggum) |
+| **Fresh Context Review** | Revisar como si otro lo escribió | Self-Review Pattern |
+
+#### Comprehension Guardian Agent (NUEVO)
+
+Agente especializado que:
+- Detecta acumulación de deuda de comprensión
+- Requiere self-review antes de COMPLETED
+- Verifica checkpoints de conocimiento
+- Asegura documentación de decisiones
+
+```bash
+# Ejecutar verificación de comprensión
+/workflows:comprehension feature-name
+
+# Generar reporte
+/workflows:comprehension-report feature-name
+```
+
+> **Referencia completa**: `.ai/workflow/docs/COMPREHENSION_DEBT.md`
 
 ---
 
@@ -687,9 +745,10 @@ Analyze → Extract Patterns → Update Rules → Measure Acceleration
 6. **Testing Before Completion** - Nunca marcar done sin verificar
 7. **Knowledge Compounding** - Cada feature acelera los siguientes
 8. **Spec-Driven** - Contratos completos antes de implementar, validación automática de compliance
-9. **Trust Model** - Calibrar supervisión según familiaridad, confianza y riesgo (70% Problem awareness)
+9. **Trust Model** - Calibrar supervisión según familiaridad, confianza y riesgo
 10. **Quality Gates** - Checklist obligatorio de producción antes de aprobar cualquier feature
 11. **Evolution Governance** - Análisis exhaustivo obligatorio antes de implementar nuevas tendencias, herramientas o refactors
+12. **Comprehension Debt Management** - Velocidad de generación no debe exceder velocidad de comprensión (80% Problem awareness)
 
 ---
 
@@ -747,7 +806,8 @@ Analyze → Extract Patterns → Update Rules → Measure Acceleration
 - [API-First Development - Swagger](https://swagger.io/resources/articles/adopting-an-api-first-approach/)
 - [Contract-First API Design - Microsoft](https://learn.microsoft.com/en-us/azure/architecture/best-practices/api-design)
 
-### Beyond Vibe Coding (The 70% Problem & Trust Model)
+### The 80% Problem & Comprehension Debt
+- [The 80% Problem in Agentic Coding - Addy Osmani](https://addyo.substack.com/p/the-80-problem-in-agentic-coding)
 - [Beyond Vibe Coding - Addy Osmani](https://beyond.addy.ie/)
 - [Vibe Coding Hangover - DEV Community](https://dev.to/maximiliano_allende97/the-vibe-coding-hangover-why-im-returning-to-engineering-rigor-in-2026-49hl)
 
@@ -765,4 +825,4 @@ MIT License
 /workflows:plan my-feature
 ```
 
-*Sistema actualizado: Enero 2026*
+*Sistema actualizado: 28 Enero 2026 - Añadido The 80% Problem & Comprehension Debt (Addy Osmani)*

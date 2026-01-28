@@ -469,6 +469,130 @@ Fix & Verify:
 
 ---
 
+## 🔄 Self-Review Pattern (The 80% Problem)
+
+**Origin**: Addy Osmani, "The 80% Problem in Agentic Coding" (January 2026)
+
+AI models now generate ~80% of code, creating **comprehension debt** - the gap between code you can review and code you could write.
+
+### The Problem
+
+```
+❌ DANGEROUS CYCLE:
+
+AI generates 1000 lines → You review in 5 minutes → "Looks good" → Ship
+
+Result: Code you "approved" but don't truly understand
+```
+
+### Self-Review Protocol
+
+Before marking code COMPLETED, require the agent to critique its own work with "fresh context":
+
+```markdown
+## Self-Review Checklist
+
+### Step 1: Reset Context
+"Forget you wrote this. Review it as a skeptical senior developer."
+
+### Step 2: Code Critique
+- [ ] Would I write this the same way manually?
+- [ ] Are there abstractions I don't fully understand?
+- [ ] Did I copy patterns without understanding why?
+- [ ] Are there "magic" values or logic I can't justify?
+- [ ] What would a skeptical reviewer ask about this?
+
+### Step 3: Assumption Validation
+- [ ] What assumptions did I make?
+- [ ] Did I validate these or just proceed?
+- [ ] What could go wrong that I haven't considered?
+
+### Step 4: Simplification Check
+- [ ] Is this the simplest solution?
+- [ ] Did I over-engineer? (YAGNI violations)
+- [ ] Could this be 50% shorter while doing the same thing?
+
+### Step 5: Output
+List at least:
+- 3 potential improvements
+- 2 questions a reviewer would ask
+- 1 thing that could be simpler
+```
+
+### Practical Application
+
+**Bad:**
+```
+You: "Implement authentication"
+Claude: [generates 500 lines]
+You: "Looks good, commit it"
+```
+
+**Good:**
+```
+You: "Implement authentication"
+Claude: [generates 500 lines]
+You: "Now review your own code as a skeptical senior developer.
+      What would you change? What assumptions did you make?
+      What questions would a reviewer ask?"
+Claude: [provides critique]
+You: "Good points. Fix issues 1 and 3, then explain why
+      you chose JWT over sessions"
+Claude: [fixes and explains]
+You: "Now I understand. Commit it."
+```
+
+### Comprehension Checkpoint Template
+
+Use after every major feature or every 3 TDD iterations:
+
+```markdown
+## Comprehension Checkpoint
+
+**Feature**: [name]
+**Date**: [date]
+
+### Quick Knowledge Test (Answer without looking at code)
+
+1. What does this code do? (one sentence)
+   Answer: ___
+
+2. How does data flow through it?
+   Answer: ___
+
+3. What happens when [edge case]?
+   Answer: ___
+
+4. How would you add [hypothetical feature]?
+   Answer: ___
+
+### Score
+- [ ] 5/5 - Could rewrite from scratch
+- [ ] 4/5 - Could modify confidently
+- [ ] 3/5 - Could maintain with docs
+- [ ] 2/5 - Need help to modify
+- [ ] 1/5 - Only know it "works"
+
+**Score < 3 = STOP** - Cannot proceed until comprehension improves
+```
+
+### Integration with Workflow
+
+Add to your prompts:
+
+```
+"After implementation:
+1. Run tests: [command]
+2. Self-review: Critique your code as a skeptical reviewer
+3. List 3 improvements and 2 questions
+4. Comprehension check: Can you explain this without looking?
+5. STOP and show me results"
+```
+
+> **Reference**: `.ai/workflow/docs/COMPREHENSION_DEBT.md` for full methodology
+
+---
+
 ## 🔬 Trust = Passing Test Suite
 
 > **"Trust isn't a feeling, it's a passing test suite."**

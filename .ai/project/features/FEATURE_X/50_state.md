@@ -188,6 +188,53 @@ Wait for Backend.completion_signal == true AND Frontend.completion_signal == tru
 
 ---
 
+## Comprehension Tracking
+
+> Track comprehension debt to ensure sustainable development velocity
+
+### Current Assessment
+
+| Field | Value |
+|-------|-------|
+| **Debt Level** | 🟢 LOW / 🟡 MEDIUM / 🔴 HIGH |
+| **Last Checkpoint** | - |
+| **Knowledge Score** | -/5 |
+| **Next Check Due** | After first checkpoint |
+
+### Debt Indicators
+
+| Indicator | Count | Notes |
+|-----------|-------|-------|
+| "Magic" code incidents | 0 | Code that works but isn't understood |
+| Patterns copied without understanding | 0 | Patterns used without knowing why |
+| Over-engineering flags | 0 | YAGNI violations |
+| Unexplained abstractions | 0 | Abstractions without documented purpose |
+
+### Self-Review Status
+
+| Role | Self-Review Done | Score | Issues Found |
+|------|------------------|-------|--------------|
+| Backend | ⬜ Pending | - | - |
+| Frontend | ⬜ Pending | - | - |
+
+### Comprehension Checkpoints
+
+| Checkpoint | Date | Score | Action Taken |
+|------------|------|-------|--------------|
+| - | - | - | - |
+
+### Knowledge Gaps Identified
+
+<!-- Document any areas where understanding is weak -->
+None identified yet.
+
+### Recommended Actions
+
+<!-- Actions to reduce comprehension debt -->
+Feature not started - no actions needed yet.
+
+---
+
 ## Session Resume Info
 
 > Fill this when ending a session to help resume later
