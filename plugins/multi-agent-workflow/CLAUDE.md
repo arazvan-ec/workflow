@@ -2,6 +2,95 @@
 
 A compound engineering framework for coordinating multiple AI agents working in parallel on software development.
 
+---
+
+## 🚨 MANDATORY: Workflow Routing (READ FIRST)
+
+**CRITICAL RULE**: Every interaction with this plugin MUST pass through the workflow router.
+
+### The Golden Rule
+
+> **"No direct workflow execution without routing first. When in doubt, ASK."**
+
+### Mandatory Entry Point
+
+Before executing ANY task, Claude MUST:
+
+1. **Analyze** the user's request
+2. **Classify** the type of work (feature, bug, refactor, investigation, etc.)
+3. **Assess** complexity and scope
+4. **Ask clarifying questions** if confidence is < 60%
+5. **Route** to the appropriate workflow
+
+### Quick Routing Command
+
+```bash
+/workflows:route
+```
+
+### Self-Check Protocol (MUST run before ANY code change)
+
+```markdown
+## Router Verification Checklist
+
+- [ ] Did this request pass through /workflows:route?
+- [ ] Was the work type clearly identified?
+- [ ] Were clarifying questions asked if needed?
+- [ ] Is the chosen workflow appropriate for the task?
+- [ ] Has trust level been considered for sensitive areas?
+
+⚠️ If ANY checkbox is NO → STOP and run /workflows:route first
+```
+
+### When to Ask Clarifying Questions
+
+Ask questions when:
+- The request is vague or ambiguous
+- Multiple workflows could apply
+- The scope is unclear
+- Sensitive areas (auth, payments, security) may be touched
+- The user says "just do it" without specifications
+
+### Clarifying Question Templates
+
+**For Features**:
+- ¿Puedes describir la funcionalidad en 2-3 oraciones?
+- ¿Quién usará esta funcionalidad?
+- ¿Backend, frontend, o ambos?
+- ¿Se conecta con APIs externas?
+- ¿Maneja datos sensibles?
+
+**For Bugs**:
+- ¿Qué está pasando ahora vs qué debería pasar?
+- ¿Cómo puedo reproducir el error?
+- ¿Siempre ocurre o es intermitente?
+- ¿Hay mensajes de error específicos?
+
+**For Refactoring**:
+- ¿Qué archivos/módulos están involucrados?
+- ¿Por qué es necesario este cambio?
+- ¿Hay tests existentes?
+
+### Workflow Selection Quick Guide
+
+| User Need | Ask About | Then Route To |
+|-----------|-----------|---------------|
+| Nueva funcionalidad | Complejidad, stack, integraciones | `/workflows:plan` |
+| Bug fix | Reproducibilidad, error messages | `bug-reproducer` → `/workflows:work` |
+| Refactoring | Alcance, motivación, tests | Depends on scope |
+| Investigación | Qué necesita saber, dónde buscar | Research agents |
+| Code review | Qué revisar, preocupaciones | `/workflows:review` |
+
+### Exception: Continuing Previous Work
+
+The ONLY exception to mandatory routing is when:
+- Continuing an already-routed task in the same session
+- The workflow and next steps are already established in `50_state.md`
+
+Even then, verify the context is still valid before proceeding.
+
+---
+
 ## Philosophy
 
 > **"Each unit of engineering work should make subsequent units easier—not harder"**
@@ -77,6 +166,7 @@ Best for: Independent features or separate teams
 
 | Command | Description |
 |---------|-------------|
+| `/workflows:route` | **MANDATORY** - Route requests to appropriate workflow (entry point) |
 | `/workflows:role` | Work as a specific role on a feature |
 | `/workflows:sync` | Synchronize state between agents |
 | `/workflows:status` | View status of all roles |
@@ -213,11 +303,13 @@ plugins/multi-agent-workflow/
 
 ## Best Practices
 
-1. **80% Planning, 20% Execution**: Invest in planning with `/workflows:plan`
-2. **One role per session**: Don't switch roles mid-conversation
-3. **Sync before work**: Always pull latest changes first
-4. **TDD always**: Write tests before implementation
-5. **Compound always**: Run `/workflows:compound` after each feature
+1. **Route First, Always**: Every request passes through `/workflows:route` before any work
+2. **Ask When Unclear**: If confidence < 60%, ask clarifying questions before proceeding
+3. **80% Planning, 20% Execution**: Invest in planning with `/workflows:plan`
+4. **One role per session**: Don't switch roles mid-conversation
+5. **Sync before work**: Always pull latest changes first
+6. **TDD always**: Write tests before implementation
+7. **Compound always**: Run `/workflows:compound` after each feature
 
 ## Integration
 

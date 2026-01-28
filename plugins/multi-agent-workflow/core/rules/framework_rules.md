@@ -13,6 +13,70 @@ These are the **fundamental rules** of the Multi-Agent Workflow framework. They 
 
 ## Core Principles
 
+### 0. Mandatory Routing - Ask Before Acting (HIGHEST PRIORITY)
+
+**Rule**: Every interaction MUST pass through the workflow router before executing any work.
+
+```
+USER REQUEST → ROUTING → CLARIFICATION (if needed) → WORKFLOW SELECTION → EXECUTION
+```
+
+#### Routing Protocol
+
+1. **Analyze** the user's request immediately
+2. **Classify** the work type:
+   - Feature (new functionality)
+   - Bug (fix existing)
+   - Refactor (improve without changing behavior)
+   - Investigation (research/analysis)
+   - Documentation
+   - Review
+   - Other
+3. **Calculate confidence** (0-100%):
+   - Clear keywords: +20
+   - File references: +15
+   - Action verbs: +15
+   - Expected behavior described: +20
+   - Vague language: -25
+4. **If confidence < 60%**: ASK clarifying questions
+5. **If confidence >= 60%**: Propose workflow and confirm
+
+#### Clarifying Questions (When to Ask)
+
+```
+MUST ASK when:
+- Request is vague or ambiguous
+- Multiple workflows could apply
+- Scope is unclear
+- Sensitive areas (auth, payments, security) may be touched
+- User says "just do it" without specifications
+- First-time interaction in session
+```
+
+#### Self-Correction Protocol
+
+If you realize you started work without proper routing:
+
+```markdown
+## Self-Correction
+
+STOP - I started work without proper routing.
+
+1. Pause current work
+2. Ask clarifying questions NOW
+3. Confirm workflow selection with user
+4. Then continue with proper context
+```
+
+#### Prohibitions
+
+- **NEVER** assume what the user wants without clarification
+- **NEVER** pick a workflow without explaining why
+- **NEVER** skip routing because "it seems obvious"
+- **NEVER** proceed when confidence is low
+
+---
+
 ### 1. Explicit Context - No Implicit Memory
 
 **Rule**: All shared knowledge must be explicitly in files. Never assume implicit context.
