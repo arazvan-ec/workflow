@@ -131,43 +131,85 @@ Status values: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, 
 
 ## Project Structure
 
+The plugin separates **core framework** (immutable) from **project extensions** (customizable).
+
+### Plugin Core (DO NOT MODIFY)
+
 ```
 plugins/multi-agent-workflow/
 ├── .claude-plugin/
-│   └── plugin.json
-├── agents/
-│   ├── roles/           # 4 core roles
-│   ├── review/          # 4 review agents
-│   ├── research/        # 3 research agents
-│   ├── workflow/        # 3 workflow agents
-│   └── design/          # 2 design agents
+│   └── plugin.json          # Plugin metadata
+├── core/                    # Framework core
+│   ├── rules/               # Framework rules (immutable)
+│   │   └── framework_rules.md
+│   ├── roles/               # Base role definitions
+│   │   ├── planner.md
+│   │   ├── backend.md
+│   │   ├── frontend.md
+│   │   └── qa.md
+│   ├── schemas/             # JSON validation schemas
+│   │   ├── feature_spec.json
+│   │   ├── task_spec.json
+│   │   └── api_contract.json
+│   ├── templates/           # YAML templates
+│   └── docs/                # Methodology docs
+│       ├── COMPREHENSION_DEBT.md
+│       ├── PAIRING_PATTERNS.md
+│       └── GIT_WORKFLOW.md
+├── agents/                  # Specialized agents
+│   ├── review/              # 4 review agents
+│   ├── research/            # 3 research agents
+│   ├── workflow/            # 4 workflow agents
+│   └── design/              # 2 design agents
 ├── commands/
-│   └── workflows/
-│       ├── plan.md
-│       ├── work.md
-│       ├── review.md
-│       ├── compound.md
-│       ├── role.md
-│       ├── sync.md
-│       └── status.md
-├── skills/
-│   ├── consultant/
-│   ├── checkpoint/
-│   ├── git-sync/
-│   ├── test-runner/
-│   ├── coverage-checker/
-│   ├── lint-fixer/
-│   ├── worktree-manager/
-│   ├── commit-formatter/
-│   ├── changelog-generator/
-│   └── layer-validator/
-├── rules/
-│   ├── global_rules.md
-│   ├── ddd_rules.md
-│   └── project_specific.md
+│   └── workflows/           # Executable commands
+├── skills/                  # Shared skills
 ├── CLAUDE.md
 └── README.md
 ```
+
+### Project Extensions (CUSTOMIZE HERE)
+
+```
+.ai/
+├── project/                 # Project specs
+│   ├── config.yaml          # Project configuration
+│   ├── context.md           # Project context
+│   ├── features/            # Feature specifications
+│   │   └── [feature-name]/
+│   │       ├── FEATURE.md
+│   │       ├── 50_state.md
+│   │       └── ...
+│   └── sessions/            # Checkpoints
+└── extensions/              # Project extensions
+    ├── rules/               # Project-specific rules
+    │   ├── project_rules.md # Stack, conventions
+    │   └── ddd_rules.md     # DDD rules (if applicable)
+    ├── workflows/           # Custom workflows
+    │   ├── default.yaml
+    │   └── *.yaml
+    ├── trust/               # Trust configuration
+    │   └── trust_model.yaml
+    ├── scripts/             # Utility scripts
+    │   ├── git/
+    │   ├── enforcement/
+    │   ├── harness/
+    │   └── tools/
+    ├── templates/           # Markdown templates
+    └── proposals/           # Workflow proposals
+```
+
+### Key Separation
+
+| Component | Location | Modifiable |
+|-----------|----------|------------|
+| Framework Rules | `plugins/.../core/rules/` | NO |
+| Project Rules | `.ai/extensions/rules/` | YES |
+| Base Roles | `plugins/.../core/roles/` | NO |
+| Workflows | `.ai/extensions/workflows/` | YES |
+| Trust Model | `.ai/extensions/trust/` | YES |
+| Features | `.ai/project/features/` | YES |
+| Scripts | `.ai/extensions/scripts/` | YES |
 
 ## Best Practices
 
@@ -187,6 +229,7 @@ This plugin works best with:
 
 ---
 
-**Version**: 2.0.0
+**Version**: 2.1.0
 **Aligned with**: Compound Engineering principles
-**Last updated**: 2026-01-16
+**Last updated**: 2026-01-28
+**Changes**: Refactored structure to separate plugin core from project extensions
