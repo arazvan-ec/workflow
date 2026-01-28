@@ -138,7 +138,121 @@ Este archivo contiene las reglas globales que **todos los roles** deben seguir s
 - Password se hashea en el UseCase, no en el entity
 ```
 
-### 7. Trust Model (Calibración de Supervisión)
+### 7. Comprehension Debt Management (El Problema del 80%)
+
+**Origen**: Addy Osmani, "The 80% Problem in Agentic Coding" (2026)
+
+**Regla**: La velocidad de generación de código NO debe exceder la velocidad de comprensión.
+
+> *"Es trivialmente fácil revisar código que ya no podrías escribir desde cero."* - Addy Osmani
+
+#### El Problema del 80%
+
+AI genera ~80% del código, pero este cambio de porcentaje oculta problemas profundos:
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│           DEUDA DE COMPRENSIÓN                                  │
+│                                                                 │
+│   Código que puedes    Código que podrías   =   Deuda de       │
+│      REVISAR        -    ESCRIBIR              Comprensión     │
+│                                                                 │
+│   ⚠️ Si la brecha crece, pierdes control del sistema          │
+└────────────────────────────────────────────────────────────────┘
+```
+
+#### Indicadores de Deuda de Comprensión
+
+| Nivel | Indicador | Acción |
+|-------|-----------|--------|
+| 🔴 **CRÍTICO** | "Funciona pero no sé por qué" | STOP - Entender antes de continuar |
+| 🔴 **CRÍTICO** | No puedo predecir comportamiento para inputs nuevos | Escribir más tests, estudiar edge cases |
+| 🟡 **ALTO** | Necesito re-leer el archivo para cada cambio | Documentar conceptos clave |
+| 🟡 **MEDIO** | Copio patrones sin entender por qué | Estudiar el patrón primero |
+| 🟢 **BAJO** | Puedo explicar el código de memoria | Estado saludable |
+
+#### Checkpoints de Comprensión Obligatorios
+
+**Antes de marcar COMPLETED**, verificar:
+
+```markdown
+## Checkpoint de Comprensión
+
+- [ ] Puedo explicar qué hace el código SIN mirarlo
+- [ ] Podría reescribirlo si fuera necesario
+- [ ] Entiendo TODAS las abstracciones usadas
+- [ ] No hay código "mágico" sin explicación
+- [ ] Podría explicar esto a un nuevo miembro del equipo
+- [ ] Las decisiones están documentadas con el "por qué"
+
+**Puntuación**: [1-5] (mínimo 3 para continuar)
+```
+
+#### Self-Review Obligatorio
+
+Antes de completar código, el agente debe criticar su propio trabajo:
+
+```markdown
+## Self-Review Checklist
+
+### Crítica del Código
+- [ ] ¿Escribiría esto igual manualmente?
+- [ ] ¿Hay abstracciones que no entiendo completamente?
+- [ ] ¿Copié patrones sin entender por qué?
+- [ ] ¿Hay valores o lógica "mágica" que no puedo justificar?
+
+### Validación de Supuestos
+- [ ] ¿Qué supuestos hice?
+- [ ] ¿Validé estos supuestos o simplemente procedí?
+- [ ] ¿Qué podría fallar que no he considerado?
+
+### Check de Simplificación
+- [ ] ¿Es esta la solución más simple?
+- [ ] ¿Sobre-ingenierié? (violaciones YAGNI)
+- [ ] ¿Podría ser 50% más corto haciendo lo mismo?
+```
+
+#### Documentación de Decisiones (OBLIGATORIO)
+
+Todas las decisiones no triviales deben documentarse en `DECISIONS.md`:
+
+```markdown
+### Decisión: [Título]
+
+**Contexto**: ¿Qué situación requirió esta decisión?
+
+**Opciones consideradas**:
+1. Opción A: [pros/cons]
+2. Opción B: [pros/cons]
+
+**Decisión**: [cuál y POR QUÉ]
+
+**Trade-offs aceptados**: Estamos intercambiando [X] por [Y]
+
+**Cuándo reconsiderar**: Si [condición] cambia
+```
+
+#### Integración con 50_state.md
+
+```markdown
+## Tracking de Comprensión
+
+**Nivel de Deuda**: 🟢 BAJO / 🟡 MEDIO / 🔴 ALTO
+**Último Checkpoint**: [fecha]
+**Puntuación Conocimiento**: [X/5]
+**Próxima Verificación**: [checkpoint/fecha]
+
+**Indicadores**:
+- Incidentes "código mágico": 0
+- Patrones sin entender: 0
+- Sobre-ingeniería flags: 0
+```
+
+> **Referencia completa**: `.ai/workflow/docs/COMPREHENSION_DEBT.md`
+
+---
+
+### 8. Trust Model (Calibración de Supervisión)
 
 **Origen**: Addy Osmani, "Beyond Vibe Coding" (2026)
 
@@ -621,7 +735,7 @@ No es suficiente leerlo una vez. Las reglas pueden actualizarse, y es tu respons
 
 ---
 
-**Última actualización**: 2026-01-25
+**Última actualización**: 2026-01-28
 **Actualizado por**: Planner
-**Cambios recientes**: Añadida regla imperativa de Evolution Governance (validación antes de implementar)
+**Cambios recientes**: Añadida regla 7 de Comprehension Debt Management (El Problema del 80% - Addy Osmani)
 **Próxima revisión**: Mensual o cuando sea necesario
