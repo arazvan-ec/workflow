@@ -1,7 +1,7 @@
 {
   "name": "multi-agent-workflow",
-  "version": "2.1.0",
-  "description": "Compound engineering framework for multi-agent AI development. 16 specialized agents in 5 categories, 7 workflow commands, 10 skills, and quality-gated checkpoints with DDD architecture support.",
+  "version": "2.2.0",
+  "description": "Compound engineering framework for multi-agent AI development with SDK lifecycle hooks. 16 specialized agents, 21 workflow commands, 11 skills, and quality-gated checkpoints with DDD architecture support.",
   "author": {
     "name": "arazvan-ec",
     "url": "https://github.com/arazvan-ec"
@@ -20,6 +20,10 @@
     "test-driven-development",
     "code-review",
     "quality-assurance",
-    "team-coordination"
-  ]
+    "lifecycle-hooks",
+    "mcp-integration"
+  ],
+  "commands": "./commands/",
+  "agents": "./agents/",
+  "skills": "./skills/"
 }
