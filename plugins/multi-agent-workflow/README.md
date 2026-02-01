@@ -6,12 +6,20 @@ A **compound engineering** framework for Claude Code that coordinates multiple A
 
 ## Features
 
+### Core Capabilities
 - **16 Specialized Agents** in 5 categories: roles, review, research, workflow, design
-- **7 Workflow Commands**: plan, work, review, compound, role, sync, status
-- **10 Skills**: Core, Quality, Workflow, and Compound automation
+- **21 Workflow Commands**: Core workflows + session management + metrics
+- **11 Skills**: Core, Quality, Workflow, Compound, and Integration
 - **3 Parallelization Modes**: By roles, by layers (DDD), or by stacks
 - **Quality Gates**: Blocking checkpoints with auto-correction loops
 - **Compound Learning**: Capture insights from each feature
+
+### v2.2.0 New Features
+- **Lifecycle Hooks**: Automatic trust enforcement, audit trails, auto-checkpoints
+- **MCP Integration**: Connect to postgres, github, slack, puppeteer
+- **Session Continuity**: Snapshot/restore for long-running sessions
+- **Workflow Metrics**: Track performance, identify bottlenecks
+- **Skill Hot-Reload**: Update skills without losing context
 
 ## Installation
 
@@ -103,11 +111,21 @@ Backend complete + Frontend complete (parallel)
 
 ## Multi-Agent Commands
 
+### Core Commands
 | Command | Description |
 |---------|-------------|
+| `/workflows:route` | **MANDATORY** entry point - routes to appropriate workflow |
 | `/workflows:role <role> <feature>` | Work as a specific role |
 | `/workflows:sync <feature>` | Synchronize state |
 | `/workflows:status <feature>` | View all roles' status |
+
+### Session & Context Commands (v2.2.0)
+| Command | Description |
+|---------|-------------|
+| `/workflows:reload` | Hot-reload skills/agents without losing context |
+| `/workflows:snapshot --name=<name>` | Save session state for later restoration |
+| `/workflows:restore --name=<name>` | Restore session from snapshot |
+| `/workflows:metrics` | Analyze workflow performance |
 
 ## Skills
 
@@ -128,6 +146,9 @@ Backend complete + Frontend complete (parallel)
 ### Compound
 - **changelog-generator**: Generate changelogs
 - **layer-validator**: DDD layer validation
+
+### Integration (v2.2.0)
+- **mcp-connector**: Connect to external tools via MCP (postgres, github, slack, puppeteer)
 
 ## Key Patterns
 
@@ -205,11 +226,18 @@ Status values: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, 
 
 ## Best Practices
 
-1. **80% Planning, 20% Execution**: Invest in `/workflows:plan`
-2. **One role per session**: Don't switch roles mid-conversation
-3. **Sync before work**: Always pull latest changes first
-4. **TDD always**: Write tests before implementation
-5. **Compound always**: Run `/workflows:compound` after each feature
+### Core
+1. **Route First**: Every request passes through `/workflows:route`
+2. **80% Planning, 20% Execution**: Invest in `/workflows:plan`
+3. **One role per session**: Don't switch roles mid-conversation
+4. **Sync before work**: Always pull latest changes first
+5. **TDD always**: Write tests before implementation
+6. **Compound always**: Run `/workflows:compound` after each feature
+
+### Session Management (v2.2.0)
+7. **Snapshot before breaks**: Save state before ending long sessions
+8. **Reload after edits**: Use `/workflows:reload` after modifying skills
+9. **Trust the hooks**: Lifecycle hooks enforce rules automatically
 
 ## The Compound Effect
 
@@ -229,6 +257,8 @@ Works best with:
 - **Tilix/tmux**: For running multiple roles in parallel
 - **Symfony/React**: Optimized for this stack (but adaptable)
 - **DDD Architecture**: Domain-Driven Design patterns
+- **Claude Code SDK**: Lifecycle hooks for automatic enforcement (v2.2.0)
+- **MCP Servers**: External tool integration - postgres, github, slack (v2.2.0)
 
 ## License
 
@@ -240,5 +270,6 @@ arazvan-ec
 
 ---
 
-**Version**: 2.0.0
-**Aligned with**: Compound Engineering principles
+**Version**: 2.2.0
+**Aligned with**: Compound Engineering principles + Claude Agent SDK
+**Changelog**: See CLAUDE.md for v2.2.0 changes

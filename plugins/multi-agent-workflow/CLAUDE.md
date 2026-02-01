@@ -164,12 +164,29 @@ Best for: Independent features or separate teams
 
 ## Multi-Agent Commands
 
+### Core Commands
+
 | Command | Description |
 |---------|-------------|
 | `/workflows:route` | **MANDATORY** - Route requests to appropriate workflow (entry point) |
 | `/workflows:role` | Work as a specific role on a feature |
 | `/workflows:sync` | Synchronize state between agents |
 | `/workflows:status` | View status of all roles |
+
+### Session & Context Commands
+
+| Command | Description |
+|---------|-------------|
+| `/workflows:reload` | **Hot-reload** skills/agents without losing context |
+| `/workflows:snapshot` | Save session state for later restoration |
+| `/workflows:restore` | Restore session from a saved snapshot |
+| `/workflows:metrics` | Analyze workflow performance and patterns |
+
+### When to Use Session Commands
+
+- **`/workflows:reload`**: After modifying skill/agent definitions, reload without restarting session
+- **`/workflows:snapshot`**: Before long breaks, before risky operations, at major checkpoints
+- **`/workflows:restore`**: Resume work in new session, recover from context overflow
 
 ## Skills
 
@@ -179,6 +196,7 @@ Best for: Independent features or separate teams
 | **Quality** | test-runner, coverage-checker, lint-fixer |
 | **Workflow** | worktree-manager, commit-formatter |
 | **Compound** | changelog-generator, layer-validator |
+| **Integration** | mcp-connector (connect to external tools via MCP) |
 
 ## Key Patterns
 
@@ -218,6 +236,130 @@ All roles communicate via `50_state.md`:
 ```
 
 Status values: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, `APPROVED`, `REJECTED`
+
+---
+
+## Lifecycle Hooks (SDK Integration)
+
+The workflow integrates with Claude Code's hook system for **automatic enforcement** and **audit trails**.
+
+### Configured Hooks
+
+| Hook | File | Purpose |
+|------|------|---------|
+| `PreToolUse` | `.ai/hooks/lifecycle/pre_tool_use.sh` | Trust model enforcement before file edits |
+| `PostToolUse` | `.ai/hooks/lifecycle/post_tool_use.sh` | Auto-update `50_state.md`, create audit logs |
+| `Stop` | `.ai/hooks/lifecycle/stop.sh` | Auto-checkpoint when agent stops |
+| `PreCompact` | `.ai/hooks/lifecycle/pre_compact.sh` | Preserve context before compaction |
+
+### How Hooks Change the Workflow
+
+1. **Automatic Trust Enforcement**: Low-trust files (`auth/`, `security/`, `payment/`) are blocked without pair review - no manual checking needed
+2. **State Sync**: `50_state.md` is automatically updated after every tool use
+3. **Audit Trail**: All actions logged to `.ai/logs/` for debugging and compliance
+4. **Safe Context Compression**: Critical state preserved when context window fills up
+
+### Configuration
+
+Hooks are registered in `.claude/settings.json`. See `core/docs/LIFECYCLE_HOOKS.md` for details.
+
+---
+
+## MCP Integration (External Tools)
+
+Connect to external services via Model Context Protocol (MCP) servers.
+
+### Configured Servers
+
+| Server | Purpose | Used By |
+|--------|---------|---------|
+| `postgres` | Validate migrations, query DB | backend, qa |
+| `github` | Create PRs, read issues | planner, compound |
+| `slack` | Notify when BLOCKED | all roles |
+| `puppeteer` | Browser automation for UI tests | qa, ui-verifier |
+
+### Using MCP Tools
+
+```bash
+# Tools are named: mcp__<server>__<tool>
+# Example: mcp__github__create_pull_request
+
+# Use the mcp-connector skill for guided integration
+```
+
+### Configuration
+
+MCP servers are configured in `.ai/extensions/mcp/servers.yaml`. See `core/docs/MCP_INTEGRATION.md` for details.
+
+---
+
+## Session Continuity
+
+Manage long-running sessions and context overflow with snapshots.
+
+### Snapshot Workflow
+
+```bash
+# Before a break or risky operation
+/workflows:snapshot --name="feature-x-checkpoint"
+
+# In a new session, restore context
+/workflows:restore --list                    # See available snapshots
+/workflows:restore --name="feature-x-checkpoint"
+```
+
+### What Gets Saved
+
+- Current `50_state.md` (role status)
+- Active tasks from `30_tasks.md`
+- Conversation summary
+- Modified files list
+- Current role and stage
+
+### When to Snapshot
+
+- Before ending a long session
+- Before major refactoring
+- When context window is filling up (>50 messages)
+- Before switching to a different feature
+
+See `core/docs/SESSION_CONTINUITY.md` for details.
+
+---
+
+## Workflow Metrics
+
+Track and analyze workflow performance over time.
+
+### Available Metrics
+
+```bash
+/workflows:metrics                    # Overall summary
+/workflows:metrics --feature=auth     # Specific feature
+/workflows:metrics --role=backend     # Specific role
+/workflows:metrics --period=30d       # Time period
+```
+
+### What's Tracked
+
+| Metric | Description |
+|--------|-------------|
+| Stage Duration | Time spent in each workflow stage |
+| Checkpoint Pass Rate | % of checkpoints passed on first try |
+| Iteration Count | Ralph Wiggum pattern iterations needed |
+| Block Frequency | How often roles get BLOCKED |
+| Compound Effectiveness | Patterns reused across features |
+
+### Using Metrics
+
+1. Identify slow stages → optimize planning
+2. High iteration counts → improve specs
+3. Frequent blocks → add documentation
+4. Low reuse → capture more patterns
+
+See `core/docs/METRICS.md` for details.
+
+---
 
 ## Project Structure
 
@@ -271,6 +413,16 @@ plugins/multi-agent-workflow/
 │   │       ├── 50_state.md
 │   │       └── ...
 │   └── sessions/            # Checkpoints
+├── hooks/                   # Lifecycle hooks (NEW)
+│   └── lifecycle/
+│       ├── pre_tool_use.sh  # Trust enforcement
+│       ├── post_tool_use.sh # State sync & audit
+│       ├── stop.sh          # Auto-checkpoint
+│       └── pre_compact.sh   # Context preservation
+├── snapshots/               # Session snapshots (NEW)
+│   └── [snapshot-name]/
+├── metrics/                 # Performance data (NEW)
+│   └── *.json
 └── extensions/              # Project extensions
     ├── rules/               # Project-specific rules
     │   ├── project_rules.md # Stack, conventions
@@ -280,6 +432,12 @@ plugins/multi-agent-workflow/
     │   └── *.yaml
     ├── trust/               # Trust configuration
     │   └── trust_model.yaml
+    ├── mcp/                 # MCP configuration (NEW)
+    │   ├── servers.yaml     # Server definitions
+    │   └── README.md        # Setup guide
+    ├── metrics/             # Metrics configuration (NEW)
+    │   ├── schema.yaml      # Data schema
+    │   └── collector.md     # Collection skill
     ├── scripts/             # Utility scripts
     │   ├── git/
     │   ├── enforcement/
@@ -300,9 +458,14 @@ plugins/multi-agent-workflow/
 | Trust Model | `.ai/extensions/trust/` | YES |
 | Features | `.ai/project/features/` | YES |
 | Scripts | `.ai/extensions/scripts/` | YES |
+| Lifecycle Hooks | `.ai/hooks/lifecycle/` | YES |
+| MCP Servers | `.ai/extensions/mcp/` | YES |
+| Metrics Config | `.ai/extensions/metrics/` | YES |
+| Snapshots | `.ai/snapshots/` | AUTO |
 
 ## Best Practices
 
+### Core Practices
 1. **Route First, Always**: Every request passes through `/workflows:route` before any work
 2. **Ask When Unclear**: If confidence < 60%, ask clarifying questions before proceeding
 3. **80% Planning, 20% Execution**: Invest in planning with `/workflows:plan`
@@ -311,6 +474,17 @@ plugins/multi-agent-workflow/
 6. **TDD always**: Write tests before implementation
 7. **Compound always**: Run `/workflows:compound` after each feature
 
+### Session Management (NEW)
+8. **Snapshot before breaks**: Run `/workflows:snapshot` before ending long sessions
+9. **Snapshot before risk**: Create checkpoint before major refactoring or risky changes
+10. **Reload after edits**: Use `/workflows:reload` after modifying skills/agents
+11. **Review metrics weekly**: Check `/workflows:metrics` to identify bottlenecks
+
+### Hooks & Automation (NEW)
+12. **Trust the hooks**: Lifecycle hooks enforce trust model automatically - don't bypass
+13. **Check audit logs**: Review `.ai/logs/` when debugging unexpected behavior
+14. **Don't skip hooks**: Avoid `SKIP_HOOKS=true` except in emergencies
+
 ## Integration
 
 This plugin works best with:
@@ -318,10 +492,19 @@ This plugin works best with:
 - **Tilix/tmux**: For running multiple roles in parallel
 - **Symfony/React**: Optimized for this stack (but adaptable)
 - **DDD Architecture**: Domain-Driven Design patterns
+- **Claude Code SDK**: Lifecycle hooks for automation (PreToolUse, PostToolUse, Stop, PreCompact)
+- **MCP Servers**: External tool integration (postgres, github, slack, puppeteer)
 
 ---
 
-**Version**: 2.1.0
-**Aligned with**: Compound Engineering principles
-**Last updated**: 2026-01-28
-**Changes**: Refactored structure to separate plugin core from project extensions
+**Version**: 2.2.0
+**Aligned with**: Compound Engineering principles + Claude Agent SDK
+**Last updated**: 2026-02-01
+**Changes**:
+- Added lifecycle hooks (PreToolUse, PostToolUse, Stop, PreCompact)
+- Added MCP server integration for external tools
+- Added session snapshot/restore for context continuity
+- Added workflow metrics and analytics
+- Added `/workflows:reload` for skill hot-reload
+- Added `/workflows:snapshot`, `/workflows:restore`, `/workflows:metrics` commands
+- Added `mcp-connector` skill
