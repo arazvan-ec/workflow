@@ -96,6 +96,9 @@ Even then, verify the context is still valid before proceeding.
 > **"Each unit of engineering work should make subsequent units easier—not harder"**
 > — Compound Engineering Principle
 
+> **"Give it success criteria and watch it go"**
+> — Karpathy-inspired AI collaboration principle
+
 This plugin extends compound engineering with:
 
 1. **Shared Technical Context**: Agents work with predefined rules (DDD, TDD, project conventions)
@@ -199,6 +202,19 @@ Best for: Independent features or separate teams
 | **Integration** | mcp-connector (connect to external tools via MCP) |
 
 ## Key Patterns
+
+### Karpathy Principles (CRITICAL - Apply Always)
+
+Four principles to prevent common AI coding failures:
+
+| Principle | Rule | Quick Check |
+|-----------|------|-------------|
+| **Think Before Coding** | State assumptions, clarify ambiguities | Did I ask before assuming? |
+| **Simplicity First** | Implement ONLY what's requested | Can I delete anything? |
+| **Surgical Changes** | Touch ONLY essential code | Is every change necessary? |
+| **Goal-Driven Execution** | Define testable success criteria | How do I verify completion? |
+
+See `core/docs/KARPATHY_PRINCIPLES.md` for detailed guidance.
 
 ### Ralph Wiggum Pattern (Auto-Correction Loop)
 ```
@@ -468,22 +484,26 @@ plugins/multi-agent-workflow/
 ### Core Practices
 1. **Route First, Always**: Every request passes through `/workflows:route` before any work
 2. **Ask When Unclear**: If confidence < 60%, ask clarifying questions before proceeding
-3. **80% Planning, 20% Execution**: Invest in planning with `/workflows:plan`
-4. **One role per session**: Don't switch roles mid-conversation
-5. **Sync before work**: Always pull latest changes first
-6. **TDD always**: Write tests before implementation
-7. **Compound always**: Run `/workflows:compound` after each feature
+3. **State Assumptions**: Before coding, explicitly list what you're assuming (Karpathy)
+4. **Define Success Criteria**: Transform vague requests into testable goals (Karpathy)
+5. **Simplicity First**: Implement ONLY what's requested, avoid over-engineering (Karpathy)
+6. **Surgical Changes**: Touch only essential code, preserve existing style (Karpathy)
+7. **80% Planning, 20% Execution**: Invest in planning with `/workflows:plan`
+8. **One role per session**: Don't switch roles mid-conversation
+9. **Sync before work**: Always pull latest changes first
+10. **TDD always**: Write tests before implementation
+11. **Compound always**: Run `/workflows:compound` after each feature
 
-### Session Management (NEW)
-8. **Snapshot before breaks**: Run `/workflows:snapshot` before ending long sessions
-9. **Snapshot before risk**: Create checkpoint before major refactoring or risky changes
-10. **Reload after edits**: Use `/workflows:reload` after modifying skills/agents
-11. **Review metrics weekly**: Check `/workflows:metrics` to identify bottlenecks
+### Session Management
+12. **Snapshot before breaks**: Run `/workflows:snapshot` before ending long sessions
+13. **Snapshot before risk**: Create checkpoint before major refactoring or risky changes
+14. **Reload after edits**: Use `/workflows:reload` after modifying skills/agents
+15. **Review metrics weekly**: Check `/workflows:metrics` to identify bottlenecks
 
-### Hooks & Automation (NEW)
-12. **Trust the hooks**: Lifecycle hooks enforce trust model automatically - don't bypass
-13. **Check audit logs**: Review `.ai/logs/` when debugging unexpected behavior
-14. **Don't skip hooks**: Avoid `SKIP_HOOKS=true` except in emergencies
+### Hooks & Automation
+16. **Trust the hooks**: Lifecycle hooks enforce trust model automatically - don't bypass
+17. **Check audit logs**: Review `.ai/logs/` when debugging unexpected behavior
+18. **Don't skip hooks**: Avoid `SKIP_HOOKS=true` except in emergencies
 
 ## Integration
 
@@ -497,10 +517,14 @@ This plugin works best with:
 
 ---
 
-**Version**: 2.2.0
-**Aligned with**: Compound Engineering principles + Claude Agent SDK
+**Version**: 2.3.0
+**Aligned with**: Compound Engineering + Karpathy Principles + Claude Agent SDK
 **Last updated**: 2026-02-01
 **Changes**:
+- Integrated Karpathy-inspired coding principles (Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution)
+- Added `KARPATHY_PRINCIPLES.md` detailed guidance document
+- Enhanced Self-Review Checklist with Karpathy principles
+- Updated router with assumptions and success criteria steps
 - Added lifecycle hooks (PreToolUse, PostToolUse, Stop, PreCompact)
 - Added MCP server integration for external tools
 - Added session snapshot/restore for context continuity

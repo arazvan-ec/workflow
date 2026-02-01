@@ -1,6 +1,6 @@
 # /workflows:route - Workflow Router (Mandatory Entry Point)
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Category**: Core
 **Priority**: CRITICAL - Must be invoked for ALL new interactions
 
@@ -9,6 +9,8 @@
 ## Purpose
 
 This command is the **MANDATORY entry point** for all interactions with the Multi-Agent Workflow plugin. It analyzes user needs and routes to the appropriate workflow, asking clarifying questions when necessary.
+
+**Karpathy Integration**: This router enforces "Think Before Coding" by requiring explicit assumptions and success criteria before any work begins.
 
 ## Invocation
 
@@ -193,7 +195,50 @@ Para investigar esto efectivamente, necesito entender:
 Present the relevant clarifying questions based on detected type.
 Wait for user response before proceeding.
 
-### Step 3: Workflow Recommendation
+### Step 3: State Assumptions (Karpathy: Think Before Coding)
+
+Before recommending a workflow, explicitly state assumptions:
+
+```markdown
+## Pre-Work Assumptions
+
+**Request Interpretation**: [How I understand the request]
+
+**My Assumptions**:
+1. **Scope**: [What's included/excluded]
+2. **Inputs**: [Expected data, formats, sources]
+3. **Outputs**: [What will be produced]
+4. **Edge Cases**: [Scenarios to handle]
+5. **Dependencies**: [External systems, APIs, libraries]
+
+**Potential Ambiguities**:
+- [ ] [Ambiguity 1] - My interpretation: [X]
+
+**If any assumption is wrong, please correct me before we proceed.**
+```
+
+### Step 4: Define Success Criteria (Karpathy: Goal-Driven Execution)
+
+Transform vague requests into testable goals:
+
+```markdown
+## Success Criteria
+
+**Original Request**: [User's words]
+
+**Testable Goals**:
+1. [ ] [Specific, verifiable criterion 1]
+2. [ ] [Specific, verifiable criterion 2]
+3. [ ] [Specific, verifiable criterion 3]
+
+**Verification Method**:
+- Command: `[how to verify completion]`
+- Expected: [what success looks like]
+
+**Does this capture what you need? Adjust if needed.**
+```
+
+### Step 5: Workflow Recommendation
 
 ```markdown
 ## Recomendación de Workflow
@@ -204,6 +249,9 @@ Basado en tu solicitud, recomiendo:
 **Comando**: `/workflows:[command] --workflow=[workflow-name]`
 **Razón**: [brief explanation]
 
+**Assumptions Confirmed**: [list key assumptions]
+**Success Criteria**: [list testable goals]
+
 **Pasos siguientes**:
 1. [step 1]
 2. [step 2]
@@ -212,9 +260,9 @@ Basado en tu solicitud, recomiendo:
 ¿Quieres proceder con este workflow o prefieres ajustar algo?
 ```
 
-### Step 4: Handoff
+### Step 6: Handoff
 
-Once confirmed, invoke the appropriate workflow command with all gathered context.
+Once confirmed, invoke the appropriate workflow command with all gathered context (including confirmed assumptions and success criteria).
 
 ## Integration with Trust Model
 
@@ -308,13 +356,41 @@ No workflow needed - this is a research task.
 
 ---
 
+## Karpathy Principles Quick Check
+
+Before completing routing, verify:
+
+```markdown
+## Karpathy Routing Check
+
+### Think Before Coding
+- [ ] Assumptions explicitly stated
+- [ ] Ambiguities clarified or questions asked
+- [ ] Would push back if approach seems wrong
+
+### Simplicity First
+- [ ] Workflow complexity matches task complexity
+- [ ] Not over-planning for simple tasks
+- [ ] Not under-planning for complex tasks
+
+### Goal-Driven Execution
+- [ ] Success criteria defined and testable
+- [ ] User confirmed criteria capture their intent
+- [ ] Verification method identified
+```
+
+---
+
 ## Summary
 
 The `/workflows:route` command ensures:
 
 1. **Correct workflow selection** for every task
-2. **Gathering necessary context** through clarifying questions
-3. **Appropriate trust level** application
-4. **Consistent entry point** for all interactions
+2. **Explicit assumptions** stated before work begins (Think Before Coding)
+3. **Testable success criteria** defined upfront (Goal-Driven Execution)
+4. **Appropriate complexity** matching task needs (Simplicity First)
+5. **Gathering necessary context** through clarifying questions
+6. **Appropriate trust level** application
+7. **Consistent entry point** for all interactions
 
-**Remember**: When in doubt, ASK. It's better to clarify than to execute the wrong workflow.
+**Remember**: When in doubt, ASK. State assumptions. Define success criteria. It's better to clarify than to execute the wrong workflow.
