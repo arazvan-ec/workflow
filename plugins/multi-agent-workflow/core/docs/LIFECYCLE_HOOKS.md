@@ -33,37 +33,117 @@ All lifecycle hooks are located in:
 
 ## Hook Registration
 
-Hooks are registered in `.claude/settings.json`:
+Hooks are registered in `.claude/settings.json` using the Claude Code SDK format:
 
 ```json
 {
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "*",
-        "hooks": [".ai/hooks/lifecycle/pre_tool_use.sh"]
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".ai/hooks/lifecycle/pre_tool_use.sh",
+            "description": "Enforce trust model before file edits"
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "*",
-        "hooks": [".ai/hooks/lifecycle/post_tool_use.sh"]
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".ai/hooks/lifecycle/post_tool_use.sh",
+            "description": "Update state files and create audit trail"
+          }
+        ]
       }
     ],
     "Stop": [
       {
-        "matcher": "*",
-        "hooks": [".ai/hooks/lifecycle/stop.sh"]
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".ai/hooks/lifecycle/stop.sh",
+            "description": "Auto-checkpoint and verify no unhandled blockers"
+          }
+        ]
       }
     ],
     "PreCompact": [
       {
-        "matcher": "*",
-        "hooks": [".ai/hooks/lifecycle/pre_compact.sh"]
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".ai/hooks/lifecycle/pre_compact.sh",
+            "description": "Save context summary before compaction"
+          }
+        ]
       }
     ]
   }
 }
+```
+
+### Matcher Syntax
+
+| Pattern | Matches |
+|---------|---------|
+| `""` (empty) | All events |
+| `Edit\|Write` | Edit OR Write tools |
+| `mcp__.*` | Any MCP tool |
+| `Bash` | Only Bash tool |
+
+---
+
+## Hook Input/Output Protocol
+
+### Input (JSON on stdin)
+
+Hooks receive JSON on stdin. The structure varies by hook type:
+
+**PreToolUse / PostToolUse:**
+```json
+{
+  "tool_name": "Edit",
+  "tool_input": { "file_path": "/path/to/file", ... },
+  "session_id": "abc123"
+}
+```
+
+**Stop:**
+```json
+{
+  "session_id": "abc123",
+  "stop_reason": "user_request"
+}
+```
+
+**PreCompact:**
+```json
+{
+  "session_id": "abc123",
+  "message_count": 50,
+  "token_count": 180000
+}
+```
+
+### Output (Exit codes and stdout)
+
+| Exit Code | Meaning |
+|-----------|---------|
+| `0` | Allow / Success |
+| `2` | Block (PreToolUse only) |
+
+**JSON output for decisions:**
+```json
+{"decision": "allow"}
+{"decision": "block", "reason": "Explanation"}
 ```
 
 ---
@@ -74,14 +154,16 @@ Hooks are registered in `.claude/settings.json`:
 
 **Purpose**: Enforce trust model before file edits, block unauthorized modifications to sensitive paths.
 
-**Trigger**: Before any tool (Edit, Write, Bash, etc.) is executed.
+**Trigger**: Before Edit or Write tools are executed.
 
-**Environment Variables**:
-| Variable | Description |
-|----------|-------------|
-| `TOOL_NAME` | Name of the tool being invoked |
-| `TOOL_INPUT` | JSON string of tool input parameters |
-| `SESSION_ID` | Current session identifier |
+**JSON Input** (via stdin):
+```json
+{
+  "tool_name": "Edit",
+  "tool_input": { "file_path": "/path/to/file", ... },
+  "session_id": "abc123"
+}
+```
 | `WORKING_DIR` | Current working directory |
 
 **Behavior**:

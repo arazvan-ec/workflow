@@ -3,274 +3,156 @@
 # Saves context summary before compaction and preserves critical state information
 #
 # This hook is called by Claude Code before context window compaction.
-# Environment variables provided by Claude Code:
-#   SESSION_ID - Current session identifier
-#   COMPACT_REASON - Reason for compaction (token_limit, user_request, etc.)
-#   WORKING_DIR - Current working directory
-#   CONTEXT_TOKENS - Approximate number of tokens being compacted (if available)
+# It receives JSON input on stdin with the following structure:
+# {
+#   "session_id": "abc123",
+#   "message_count": 50,
+#   "token_count": 180000
+# }
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AI_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
-PROJECT_DIR="${AI_DIR}/project"
 LOG_DIR="${AI_DIR}/logs"
 CONTEXT_DIR="${LOG_DIR}/context_snapshots"
-
-# Timestamp
-TIMESTAMP=$(date -Iseconds)
-
-# Colors
-YELLOW='\033[1;33m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+STATE_DIR="${AI_DIR}/project/features"
 
 # Ensure directories exist
 mkdir -p "$CONTEXT_DIR"
 
-# Find active feature
-find_active_feature() {
-    for state_file in "${PROJECT_DIR}/features"/*/50_state.md; do
-        if [[ -f "$state_file" ]]; then
-            if grep -q "IN_PROGRESS" "$state_file" 2>/dev/null; then
-                dirname "$state_file" | xargs basename
-                return 0
-            fi
-        fi
-    done
-    echo ""
+# Timestamp
+TIMESTAMP=$(date -Iseconds)
+DATE_STAMP=$(date +%Y%m%d_%H%M%S)
+
+# Read JSON input from stdin
+INPUT_JSON=$(cat)
+
+# Parse JSON using jq
+if command -v jq &> /dev/null; then
+    SESSION_ID=$(echo "$INPUT_JSON" | jq -r '.session_id // "unknown"')
+    MESSAGE_COUNT=$(echo "$INPUT_JSON" | jq -r '.message_count // 0')
+    TOKEN_COUNT=$(echo "$INPUT_JSON" | jq -r '.token_count // 0')
+else
+    SESSION_ID="unknown"
+    MESSAGE_COUNT="0"
+    TOKEN_COUNT="0"
+fi
+
+# Find active feature's state files
+find_active_state_file() {
+    find "$STATE_DIR" -name "50_state.md" -type f 2>/dev/null | \
+        xargs ls -t 2>/dev/null | \
+        head -1
 }
 
-# Find active role
-find_active_role() {
-    local feature_id="$1"
-    local state_file="${PROJECT_DIR}/features/${feature_id}/50_state.md"
-
-    if [[ ! -f "$state_file" ]]; then
-        echo ""
-        return
-    fi
-
-    for role in planner backend frontend qa; do
-        local role_upper="${role^}"
-        if awk "/^## ${role_upper}/,/^## [A-Z]/" "$state_file" 2>/dev/null | grep -q "IN_PROGRESS"; then
-            echo "$role"
-            return 0
-        fi
-    done
-    echo ""
+find_active_tasks_file() {
+    find "$STATE_DIR" -name "30_tasks.md" -type f 2>/dev/null | \
+        xargs ls -t 2>/dev/null | \
+        head -1
 }
 
-# Extract current task from state file
-extract_current_task() {
-    local feature_id="$1"
-    local role="$2"
-    local state_file="${PROJECT_DIR}/features/${feature_id}/50_state.md"
-
-    if [[ ! -f "$state_file" ]]; then
-        echo "Unknown"
-        return
-    fi
-
-    local role_upper="${role^}"
-    # Look for Next Action in role section
-    awk "/^## ${role_upper}/,/^## [A-Z]/" "$state_file" 2>/dev/null | \
-        grep -A 3 "### Next Action" | tail -n +2 | head -3 | \
-        sed 's/^<!-- .* -->//' | tr '\n' ' ' | sed 's/^[[:space:]]*//'
-
-    echo ""
-}
-
-# Extract key decisions from DECISIONS.md if exists
-extract_key_decisions() {
-    local feature_id="$1"
-    local decisions_file="${PROJECT_DIR}/features/${feature_id}/DECISIONS.md"
-
-    if [[ -f "$decisions_file" ]]; then
-        # Get last 5 decisions
-        grep -E "^(##|\*\*Decision|\*\*Rationale)" "$decisions_file" 2>/dev/null | tail -15
-    else
-        echo "No DECISIONS.md found"
-    fi
-}
-
-# Get recent git activity
-get_recent_git_activity() {
-    git log --oneline -10 2>/dev/null || echo "Not a git repository"
-}
-
-# Get modified files in session
-get_session_modifications() {
-    local modifications_file="${LOG_DIR}/session_modifications.txt"
-    if [[ -f "$modifications_file" ]]; then
-        cat "$modifications_file" | sort -u
-    else
-        echo "No tracked modifications"
-    fi
-}
-
-# Create context snapshot
+# Create context snapshot before compaction
 create_context_snapshot() {
-    local session_id="$1"
-    local feature_id="$2"
-    local role="$3"
-    local compact_reason="$4"
+    local snapshot_dir="${CONTEXT_DIR}/${SESSION_ID}_${DATE_STAMP}"
+    mkdir -p "$snapshot_dir"
 
-    local snapshot_file="${CONTEXT_DIR}/context_${session_id}_$(date +%Y%m%d_%H%M%S).md"
+    # Save state file
+    local state_file
+    state_file=$(find_active_state_file)
+    if [[ -n "$state_file" && -f "$state_file" ]]; then
+        cp "$state_file" "${snapshot_dir}/50_state.md"
+    fi
 
-    cat > "$snapshot_file" << EOF
+    # Save tasks file
+    local tasks_file
+    tasks_file=$(find_active_tasks_file)
+    if [[ -n "$tasks_file" && -f "$tasks_file" ]]; then
+        cp "$tasks_file" "${snapshot_dir}/30_tasks.md"
+    fi
+
+    # Extract current role/status from state file
+    local current_role="unknown"
+    local current_status="unknown"
+    local current_checkpoint="none"
+
+    if [[ -n "$state_file" && -f "$state_file" ]]; then
+        current_role=$(grep -E "^## .* Engineer|^## Planner|^## QA" "$state_file" | head -1 | sed 's/## //' || echo "unknown")
+        current_status=$(grep -E "^\*\*Status\*\*:" "$state_file" | head -1 | sed 's/.*: //' || echo "unknown")
+        current_checkpoint=$(grep -E "^\*\*Checkpoint\*\*:" "$state_file" | head -1 | sed 's/.*: //' || echo "none")
+    fi
+
+    # Create compaction metadata
+    cat > "${snapshot_dir}/compaction_meta.json" << EOF
+{
+    "timestamp": "${TIMESTAMP}",
+    "session_id": "${SESSION_ID}",
+    "message_count": ${MESSAGE_COUNT},
+    "token_count": ${TOKEN_COUNT},
+    "current_role": "${current_role}",
+    "current_status": "${current_status}",
+    "current_checkpoint": "${current_checkpoint}",
+    "type": "pre_compact_snapshot"
+}
+EOF
+
+    # Create human-readable summary
+    cat > "${snapshot_dir}/CONTEXT_SUMMARY.md" << EOF
 # Context Snapshot Before Compaction
 
-> This snapshot preserves critical context information before context window compaction.
-> Claude Code can reference this to restore important state after compaction.
-
 **Created**: ${TIMESTAMP}
-**Session ID**: ${session_id}
-**Compact Reason**: ${compact_reason}
-**Feature**: ${feature_id:-None active}
-**Role**: ${role:-None active}
+**Session**: ${SESSION_ID}
+**Messages**: ${MESSAGE_COUNT}
+**Tokens**: ${TOKEN_COUNT}
 
----
+## Current State
 
-## Critical State Information
+- **Role**: ${current_role}
+- **Status**: ${current_status}
+- **Checkpoint**: ${current_checkpoint}
 
-### Active Work Context
-- **Feature**: ${feature_id:-No active feature}
-- **Role**: ${role:-No active role}
-- **Current Task**: $(extract_current_task "$feature_id" "$role")
+## Files Preserved
 
-### Files Modified This Session
-\`\`\`
-$(get_session_modifications)
-\`\`\`
+- 50_state.md - Role status and progress
+- 30_tasks.md - Task breakdown (if exists)
 
-### Recent Git Activity
-\`\`\`
-$(get_recent_git_activity)
-\`\`\`
+## Resume Instructions
 
----
+To resume from this snapshot after compaction:
 
-## Key Information to Preserve
+1. Read CONTEXT_SUMMARY.md for current state
+2. Read 50_state.md for detailed progress
+3. Read 30_tasks.md for remaining tasks
+4. Continue from the current checkpoint
 
-### Current State Summary
 EOF
 
-    # Add current state file content if exists
-    if [[ -n "$feature_id" ]]; then
-        local state_file="${PROJECT_DIR}/features/${feature_id}/50_state.md"
-        if [[ -f "$state_file" ]]; then
-            echo "" >> "$snapshot_file"
-            echo "#### Feature State (50_state.md)" >> "$snapshot_file"
-            echo '```markdown' >> "$snapshot_file"
-            # Extract just the status tables, not full content
-            grep -E "^\| \*\*Status\*\*|^\| \*\*Completion|^## (Planner|Backend|Frontend|QA)" "$state_file" | head -20 >> "$snapshot_file"
-            echo '```' >> "$snapshot_file"
-        fi
+    echo "[PRE_COMPACT HOOK] Context snapshot created: $snapshot_dir"
+    echo "[${TIMESTAMP}] session=${SESSION_ID} messages=${MESSAGE_COUNT} tokens=${TOKEN_COUNT} PRE_COMPACT snapshot=${snapshot_dir}" >> "${LOG_DIR}/session_$(date +%Y%m%d).log"
+}
+
+# Cleanup old snapshots (keep last 10)
+cleanup_old_snapshots() {
+    local count
+    count=$(find "$CONTEXT_DIR" -maxdepth 1 -type d -name "${SESSION_ID}_*" 2>/dev/null | wc -l)
+
+    if [[ $count -gt 10 ]]; then
+        find "$CONTEXT_DIR" -maxdepth 1 -type d -name "${SESSION_ID}_*" | \
+            sort | \
+            head -n $((count - 10)) | \
+            xargs rm -rf 2>/dev/null || true
     fi
-
-    cat >> "$snapshot_file" << EOF
-
-### Key Decisions Made
-\`\`\`
-$(extract_key_decisions "$feature_id")
-\`\`\`
-
----
-
-## Resume After Compaction
-
-### Essential Context to Reload
-1. **Project context**: .ai/project/context.md
-2. **Feature state**: .ai/project/features/${feature_id:-FEATURE_X}/50_state.md
-3. **This snapshot**: ${snapshot_file}
-
-### Immediate Next Steps
-After compaction, Claude should:
-1. Read the project context file
-2. Read the current feature state
-3. Continue with the task that was in progress
-
----
-
-## Technical Context
-
-### Working Directory
-$(pwd)
-
-### Environment
-- Date: $(date)
-- Git Branch: $(git branch --show-current 2>/dev/null || echo "N/A")
-- Git Status: $(git status --short 2>/dev/null | head -5 || echo "N/A")
-
----
-
-**Snapshot Purpose**: This file allows Claude to quickly restore context after
-the context window is compacted. It should be read early in the resumed conversation.
-EOF
-
-    echo "$snapshot_file"
 }
 
 # Main hook logic
 main() {
-    local session_id="${SESSION_ID:-$(date +%s)}"
-    local compact_reason="${COMPACT_REASON:-token_limit}"
-    local context_tokens="${CONTEXT_TOKENS:-unknown}"
-
-    echo ""
-    echo -e "${CYAN}=== Pre-Compaction Hook ===${NC}"
-    echo -e "Session ID: ${session_id}"
-    echo -e "Compact Reason: ${compact_reason}"
-    echo -e "Context Tokens: ${context_tokens}"
-    echo ""
-
-    # Find active context
-    local feature_id
-    feature_id=$(find_active_feature)
-
-    local role=""
-    if [[ -n "$feature_id" ]]; then
-        role=$(find_active_role "$feature_id")
-    fi
-
-    echo -e "${BLUE}Saving context summary...${NC}"
-
     # Create context snapshot
-    local snapshot_file
-    snapshot_file=$(create_context_snapshot "$session_id" "$feature_id" "$role" "$compact_reason")
+    create_context_snapshot
 
-    echo -e "${GREEN}Context snapshot saved:${NC} ${snapshot_file}"
-
-    # Output summary for Claude to see before compaction
-    echo ""
-    echo -e "${YELLOW}=== CONTEXT SUMMARY FOR POST-COMPACTION ===${NC}"
-    echo ""
-    echo "After compaction, read these files to restore context:"
-    echo "  1. ${snapshot_file}"
-    if [[ -n "$feature_id" ]]; then
-        echo "  2. ${PROJECT_DIR}/features/${feature_id}/50_state.md"
-    fi
-    echo "  3. ${PROJECT_DIR}/context.md"
-    echo ""
-
-    if [[ -n "$feature_id" && -n "$role" ]]; then
-        echo -e "${BLUE}Current Work:${NC}"
-        echo "  Feature: ${feature_id}"
-        echo "  Role: ${role}"
-        echo "  Task: $(extract_current_task "$feature_id" "$role")"
-    fi
-
-    echo ""
-    echo -e "${CYAN}=== Pre-Compaction Complete ===${NC}"
-    echo ""
+    # Cleanup old snapshots
+    cleanup_old_snapshots
 
     exit 0
 }
 
-# Run main if not being sourced
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
+main

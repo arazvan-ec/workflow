@@ -2,57 +2,51 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "*",
-        "hooks": [".ai/hooks/lifecycle/pre_tool_use.sh"],
-        "description": "Enforce trust model and log tool uses before execution"
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".ai/hooks/lifecycle/pre_tool_use.sh",
+            "description": "Enforce trust model before file edits"
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "*",
-        "hooks": [".ai/hooks/lifecycle/post_tool_use.sh"],
-        "description": "Update state files and create audit trail after tool completion"
+        "matcher": "Edit|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".ai/hooks/lifecycle/post_tool_use.sh",
+            "description": "Update state files and create audit trail"
+          }
+        ]
       }
     ],
     "Stop": [
       {
-        "matcher": "*",
-        "hooks": [".ai/hooks/lifecycle/stop.sh"],
-        "description": "Auto-checkpoint and verify no unhandled blockers on session end"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".ai/hooks/lifecycle/stop.sh",
+            "description": "Auto-checkpoint and verify no unhandled blockers"
+          }
+        ]
       }
     ],
     "PreCompact": [
       {
-        "matcher": "*",
-        "hooks": [".ai/hooks/lifecycle/pre_compact.sh"],
-        "description": "Save context summary before compaction"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".ai/hooks/lifecycle/pre_compact.sh",
+            "description": "Save context summary before compaction"
+          }
+        ]
       }
     ]
-  },
-  "trust": {
-    "lowTrustPaths": [
-      "auth/",
-      "Auth/",
-      "security/",
-      "Security/",
-      "payment/",
-      "Payment/",
-      "billing/",
-      "checkout/",
-      "migrations/"
-    ],
-    "requirePairReview": true,
-    "auditLogging": true
-  },
-  "context": {
-    "autoCheckpoint": true,
-    "preserveOnCompact": true,
-    "snapshotDirectory": ".ai/logs/context_snapshots"
-  },
-  "logging": {
-    "directory": ".ai/logs",
-    "retentionDays": 30,
-    "includeToolInput": true,
-    "includeToolOutput": false
   }
 }
