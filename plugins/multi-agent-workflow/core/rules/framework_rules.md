@@ -1,13 +1,15 @@
 # Framework Rules - Multi-Agent Workflow
 
-**Framework Version**: 2.0.0
-**Last Updated**: 2026-01-28
+**Framework Version**: 2.1.0
+**Last Updated**: 2026-02-01
 
 ---
 
 ## Purpose
 
 These are the **fundamental rules** of the Multi-Agent Workflow framework. They apply to ALL projects using this plugin and should NOT be modified per-project. Project-specific rules go in `.ai/extensions/rules/`.
+
+**Note**: This framework integrates Karpathy-inspired coding principles. See `core/docs/KARPATHY_PRINCIPLES.md` for detailed guidance.
 
 ---
 
@@ -74,6 +76,78 @@ STOP - I started work without proper routing.
 - **NEVER** pick a workflow without explaining why
 - **NEVER** skip routing because "it seems obvious"
 - **NEVER** proceed when confidence is low
+
+---
+
+### 0.1 Karpathy Principles (CRITICAL - Apply to ALL work)
+
+These four principles address common AI failure modes. Apply them at every stage.
+
+#### Think Before Coding
+
+**Rule**: Before writing ANY code, state assumptions and clarify ambiguities.
+
+```markdown
+## Pre-Implementation Assumptions
+
+**My Assumptions**:
+1. [Assumption about scope]
+2. [Assumption about inputs/outputs]
+3. [Assumption about edge cases]
+
+**Questions** (if any): [Ask before proceeding]
+```
+
+- State assumptions even when confidence is HIGH
+- Present multiple interpretations when ambiguous
+- Push back on suboptimal approaches
+- STOP and ask when confused - never proceed blindly
+
+#### Simplicity First
+
+**Rule**: Implement ONLY what is explicitly requested.
+
+- Don't add "nice to have" features
+- Don't create interfaces for single implementations
+- Don't add parameters "just in case"
+- If it can be 50 lines, don't write 200
+
+**Simplicity Check**: Before commit, ask:
+- Did I implement ONLY what was requested?
+- Is every abstraction necessary?
+- Can I delete anything and still meet requirements?
+
+#### Surgical Changes
+
+**Rule**: Touch ONLY the code essential to the task.
+
+- Change only what's necessary
+- Match existing style conventions exactly
+- If you find unrelated issues: REPORT them, don't fix them
+- Only remove code that YOUR changes made orphan
+
+**Red Flags**:
+- "Drive-by" improvements to unrelated code
+- Reformatting unchanged files
+- Deleting code you didn't orphan
+
+#### Goal-Driven Execution
+
+**Rule**: Transform vague requests into testable success criteria.
+
+| Vague Request | Testable Goal |
+|---------------|---------------|
+| "Fix the bug" | "Write test that reproduces bug, make it pass" |
+| "Make it faster" | "Reduce response time from Xms to Yms" |
+| "Add login" | "User authenticates with email/password, receives JWT" |
+
+```markdown
+## Success Criteria
+
+1. [ ] [Specific, testable criterion]
+2. [ ] [Verification command: `npm test`]
+3. [ ] [Expected output: all tests pass]
+```
 
 ---
 
@@ -193,28 +267,42 @@ Before marking COMPLETED, verify:
 **Score**: [1-5] (minimum 3 to continue)
 ```
 
-### Mandatory Self-Review
+### Mandatory Self-Review (Karpathy-Enhanced)
 
 Before completing code, the agent must critique their own work:
 
 ```markdown
 ## Self-Review Checklist
 
-### Code Critique
-- [ ] Would I write this the same way manually?
-- [ ] Are there abstractions I don't fully understand?
-- [ ] Did I copy patterns without understanding why?
-- [ ] Is there "magic" values or logic I can't justify?
+### Think Before Coding
+- [ ] Did I state my assumptions before coding?
+- [ ] Did I ask clarifying questions when uncertain?
+- [ ] Did I push back on suboptimal approaches?
+- [ ] No blind assumptions were made?
 
-### Assumption Validation
-- [ ] What assumptions did I make?
-- [ ] Did I validate these assumptions or just proceed?
-- [ ] What could fail that I haven't considered?
+### Simplicity First
+- [ ] Did I implement ONLY what was requested?
+- [ ] Are there features I added that weren't asked for?
+- [ ] Is every abstraction necessary?
+- [ ] Can I delete anything and still meet requirements?
+- [ ] Could this be 50% shorter doing the same thing?
 
-### Simplification Check
-- [ ] Is this the simplest solution?
-- [ ] Did I over-engineer? (YAGNI violations)
-- [ ] Could it be 50% shorter doing the same thing?
+### Surgical Changes
+- [ ] Every changed line is necessary for this task?
+- [ ] No "drive-by" improvements or cleanups?
+- [ ] Existing style conventions preserved?
+- [ ] Only MY orphaned code was removed?
+
+### Goal-Driven Execution
+- [ ] Success criteria were defined before coding?
+- [ ] All success criteria are now met?
+- [ ] Verification command runs successfully?
+- [ ] No regressions in existing tests?
+
+### Comprehension Check
+- [ ] Can explain code WITHOUT looking at it?
+- [ ] Could rewrite it if necessary?
+- [ ] No "magic" code without explanation?
 ```
 
 ---
