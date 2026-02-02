@@ -263,4 +263,8 @@ No context yet - feature not started.
 | 2026-01-16 | - | - | - | Updated to new completion signal format |
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/30_tasks_backend.md (2026-02-02T22:58:31+00:00)
+- /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/10_architecture.md (2026-02-02T22:57:49+00:00)
+- /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/FEATURE_snaapi-scalable-architecture.md (2026-02-02T22:56:42+00:00)
+- /home/user/workflow/.ai/extensions/rules/api_gateway_architecture.md (2026-02-02T22:56:05+00:00)
 - /home/user/workflow/.gitignore (2026-02-02T20:44:58+00:00)
