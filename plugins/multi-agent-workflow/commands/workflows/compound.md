@@ -59,6 +59,33 @@ Run after:
 
 ## What This Command Does
 
+### Execution Strategy: Parallel Subagents
+
+This command can launch multiple specialized subagents IN PARALLEL to maximize efficiency:
+
+**Parallel Subagents (Optional - for thorough documentation):**
+
+| Subagent | Task | Returns |
+|----------|------|---------|
+| **Context Analyzer** | Extract feature context, problem type, components | YAML frontmatter skeleton |
+| **Solution Extractor** | Analyze investigation steps, find root cause | Solution content block |
+| **Related Docs Finder** | Search docs/solutions/ for related documentation | Links and relationships |
+| **Prevention Strategist** | Develop prevention strategies, test cases | Prevention/testing content |
+| **Pattern Recognizer** | Identify reusable patterns and anti-patterns | Pattern documentation |
+
+**Launch with:**
+```
+Task general-purpose: "Analyze the conversation history for this feature.
+Extract: problem type, component affected, symptoms, and root cause.
+Return YAML frontmatter for docs/solutions/"
+
+Task general-purpose: "Search docs/solutions/ for related documentation.
+Find: cross-references, similar issues, related patterns.
+Return: list of related files and suggested links"
+```
+
+**Sequential Steps (Main Flow):**
+
 ### Step 1: Analyze Feature History
 
 ```bash
@@ -318,3 +345,87 @@ Month 6: New features feel like "already done"
 ```
 
 The compound effect is why planning matters: good planning creates good patterns, good patterns accelerate future work.
+
+## Structured Documentation (docs/solutions/)
+
+For permanent institutional knowledge, create files in `docs/solutions/` with YAML frontmatter:
+
+### Directory Structure
+```
+docs/solutions/
+├── performance-issues/
+├── database-issues/
+├── runtime-errors/
+├── security-issues/
+├── integration-issues/
+├── ui-bugs/
+├── logic-errors/
+├── test-failures/
+├── build-errors/
+├── best-practices/
+└── patterns/
+    └── critical-patterns.md   # Must-know patterns for all work
+```
+
+### Frontmatter Schema
+```yaml
+---
+title: "N+1 Query Fix for User Dashboard"
+category: performance-issues
+tags: [orm, n-plus-one, eager-loading, database]
+module: UserDashboard
+component: api
+symptoms:
+  - "Slow page load (>2s)"
+  - "Multiple queries in logs"
+root_cause: "Missing includes on association"
+severity: high
+date_discovered: 2026-01-15
+feature_origin: user-authentication
+---
+```
+
+### When to Create docs/solutions/ Entry
+
+Create a structured solution document when:
+- Problem took >30 minutes to diagnose
+- Root cause was non-obvious
+- Pattern applies to multiple modules
+- Security or data integrity issue
+- Performance degradation >50%
+
+### Auto-Invoke Triggers
+
+<auto_invoke>
+<trigger_phrases>
+- "that worked"
+- "it's fixed"
+- "working now"
+- "problem solved"
+- "tests passing"
+- "QA approved"
+</trigger_phrases>
+
+<manual_override>
+Use `/workflows:compound [feature]` to document immediately.
+</manual_override>
+</auto_invoke>
+
+## Applicable Review Agents
+
+After compound capture, these agents can enhance documentation:
+
+### Quality Review
+- **code-simplicity-reviewer**: Ensures solution is minimal
+- **pattern-recognition-specialist**: Identifies anti-patterns
+
+### Domain Experts
+- **security-review**: Reviews security issues
+- **performance-review**: Validates optimization approaches
+- **ddd-compliance**: Checks architectural learnings
+
+### Integration
+This command integrates with:
+- `/workflows:plan` - Learnings inform future plans
+- `learnings-researcher` agent - Searches documented solutions
+- `compound_log.md` - Quick reference for patterns

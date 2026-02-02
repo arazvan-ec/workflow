@@ -405,8 +405,8 @@ plugins/multi-agent-workflow/
 │       ├── PAIRING_PATTERNS.md
 │       └── GIT_WORKFLOW.md
 ├── agents/                  # Specialized agents
-│   ├── review/              # 4 review agents
-│   ├── research/            # 3 research agents
+│   ├── review/              # 7 review agents
+│   ├── research/            # 5 research agents
 │   ├── workflow/            # 4 workflow agents
 │   └── design/              # 2 design agents
 ├── commands/
@@ -519,8 +519,20 @@ This plugin works best with:
 
 **Version**: 2.3.0
 **Aligned with**: Compound Engineering + Karpathy Principles + Claude Agent SDK
-**Last updated**: 2026-02-01
-**Changes**:
+**Last updated**: 2026-02-02
+**Inspired by**: [EveryInc/compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin)
+
+**v2.3.0 Changes**:
+- Added 3 new review agents: `agent-native-reviewer`, `code-simplicity-reviewer`, `pattern-recognition-specialist`
+- Added 2 new research agents: `learnings-researcher`, `best-practices-researcher`
+- Added `/workflows:deepen-plan` command for parallel plan enhancement
+- Added `/workflows:heal-skill` command for fixing skill documentation
+- Enhanced `/workflows:compound` with parallel subagents for efficient documentation
+- Added institutional knowledge structure (`docs/solutions/`) with YAML frontmatter
+- Updated from 16 to 21 specialized agents
+- Updated from 21 to 24 workflow commands
+
+**v2.2.0 Changes**:
 - Integrated Karpathy-inspired coding principles (Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution)
 - Added `KARPATHY_PRINCIPLES.md` detailed guidance document
 - Enhanced Self-Review Checklist with Karpathy principles

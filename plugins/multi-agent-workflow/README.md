@@ -7,8 +7,8 @@ A **compound engineering** framework for Claude Code that coordinates multiple A
 ## Features
 
 ### Core Capabilities
-- **16 Specialized Agents** in 5 categories: roles, review, research, workflow, design
-- **21 Workflow Commands**: Core workflows + session management + metrics
+- **21 Specialized Agents** in 5 categories: roles, review, research, workflow, design
+- **24 Workflow Commands**: Core workflows + session management + metrics
 - **11 Skills**: Core, Quality, Workflow, Compound, and Integration
 - **3 Parallelization Modes**: By roles, by layers (DDD), or by stacks
 - **Quality Gates**: Blocking checkpoints with auto-correction loops
@@ -81,20 +81,25 @@ Backend complete + Frontend complete (parallel)
 | `frontend` | Implement UI, responsive design |
 | `qa` | Review, test, approve/reject |
 
-### Review (4 agents)
+### Review (7 agents)
 | Agent | Purpose |
 |-------|---------|
 | `security-review` | OWASP, vulnerabilities |
 | `performance-review` | Speed, optimization |
 | `ddd-compliance` | Layer separation, DDD rules |
 | `code-review-ts` | TypeScript/React patterns |
+| `agent-native-reviewer` | Action/context parity for agents |
+| `code-simplicity-reviewer` | YAGNI, minimalism, simplification |
+| `pattern-recognition-specialist` | Design patterns, anti-patterns |
 
-### Research (3 agents)
+### Research (5 agents)
 | Agent | Purpose |
 |-------|---------|
 | `codebase-analyzer` | Understand structure, patterns |
 | `git-historian` | Extract learnings from history |
 | `dependency-auditor` | Security, updates |
+| `learnings-researcher` | Search docs/solutions/ for past solutions |
+| `best-practices-researcher` | Research external best practices |
 
 ### Workflow (3 agents)
 | Agent | Purpose |
@@ -126,6 +131,12 @@ Backend complete + Frontend complete (parallel)
 | `/workflows:snapshot --name=<name>` | Save session state for later restoration |
 | `/workflows:restore --name=<name>` | Restore session from snapshot |
 | `/workflows:metrics` | Analyze workflow performance |
+
+### Enhancement Commands (v2.3.0)
+| Command | Description |
+|---------|-------------|
+| `/workflows:deepen-plan` | Enhance plans with parallel research agents |
+| `/workflows:heal-skill` | Fix incorrect SKILL.md files |
 
 ## Skills
 
@@ -179,8 +190,8 @@ plugins/multi-agent-workflow/
 │   └── plugin.json
 ├── agents/
 │   ├── roles/           # 4 core roles
-│   ├── review/          # 4 review agents
-│   ├── research/        # 3 research agents
+│   ├── review/          # 7 review agents
+│   ├── research/        # 5 research agents
 │   ├── workflow/        # 3 workflow agents
 │   └── design/          # 2 design agents
 ├── commands/
@@ -268,8 +279,31 @@ MIT
 
 arazvan-ec
 
+## Institutional Knowledge (docs/solutions/)
+
+Structure for compounding knowledge:
+```
+docs/solutions/
+├── performance-issues/
+├── database-issues/
+├── runtime-errors/
+├── security-issues/
+├── integration-issues/
+├── ui-bugs/
+├── logic-errors/
+├── best-practices/
+└── patterns/
+    └── critical-patterns.md
+```
+
+Use `/workflows:compound` to document learnings with YAML frontmatter for searchability.
+
+## Acknowledgments
+
+Inspired by [EveryInc/compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin) and the [Compound Engineering](https://every.to/source-code/compound-engineering-how-every-codes-with-agents-af3a1bae-cf9b-458e-8048-c6b4ba860e62) philosophy.
+
 ---
 
-**Version**: 2.2.0
+**Version**: 2.3.0
 **Aligned with**: Compound Engineering principles + Claude Agent SDK
-**Changelog**: See CLAUDE.md for v2.2.0 changes
+**Changelog**: See CLAUDE.md for version history
