@@ -1,11 +1,14 @@
-# Backend Tasks - SNAAPI Scalable Architecture
+# Backend Tasks - SNAAPI Pipeline + Normalizers Architecture
 
-## Phase 1: Foundation (Domain Layer)
+> **Architecture**: Pipeline (enrichment) + Symfony Normalizers (transformation)
+> **Decision Record**: See `05_architecture_decision.md`
+
+---
+
+## Phase 1: Foundation (Interfaces & Context)
 
 ### Task 1.1: Create Gateway Interfaces
-**Priority**: P0
-**Effort**: Low
-**Dependencies**: None
+**Priority**: P0 | **Effort**: Low | **Files**: 6 new
 
 Create port interfaces for all external microservices:
 
@@ -19,425 +22,634 @@ src/Domain/Port/Gateway/
 └── MembershipGatewayInterface.php
 ```
 
+```php
+interface EditorialGatewayInterface
+{
+    public function findById(string $id): ?Editorial;
+    public function findByIdAsync(string $id): PromiseInterface;
+}
+```
+
 **Acceptance Criteria**:
-- [ ] Each interface defines sync and async methods
-- [ ] Use Value Objects for IDs (EditorialId, etc.)
+- [ ] Each interface has sync and async methods
 - [ ] PHPStan Level 9 passes
-- [ ] Documented with PHPDoc
+- [ ] No implementation yet (just interfaces)
 
 ---
 
-### Task 1.2: Migrate Enums to Domain
-**Priority**: P0
-**Effort**: Low
-**Dependencies**: None
+### Task 1.2: Create EditorialContext (Pipeline DTO)
+**Priority**: P0 | **Effort**: Low | **Files**: 1 new
 
-Move enums from Infrastructure to Domain:
+The mutable DTO that travels through the pipeline:
 
-```
-src/Domain/Enum/
-├── EditorialType.php      # From Infrastructure/Enum/EditorialTypesEnum
-├── MultimediaType.php     # New
-├── Site.php               # From Infrastructure/Enum/SitesEnum
-└── ClosingMode.php        # From Infrastructure/Enum/ClossingModeEnum
+```php
+// src/Application/Pipeline/EditorialContext.php
+final class EditorialContext
+{
+    private array $data = [];
+
+    public function __construct(
+        private readonly string $editorialId,
+    ) {}
+
+    public function editorialId(): string { return $this->editorialId; }
+
+    public function set(string $key, mixed $value): void
+    {
+        $this->data[$key] = $value;
+    }
+
+    public function get(string $key, mixed $default = null): mixed
+    {
+        return $this->data[$key] ?? $default;
+    }
+
+    public function has(string $key): bool
+    {
+        return isset($this->data[$key]);
+    }
+
+    public function editorial(): ?Editorial { return $this->get('editorial'); }
+    public function multimedia(): ?Multimedia { return $this->get('multimedia'); }
+    public function section(): ?Section { return $this->get('section'); }
+    public function tags(): array { return $this->get('tags', []); }
+    public function journalists(): array { return $this->get('journalists', []); }
+}
 ```
 
 **Acceptance Criteria**:
-- [ ] PHP 8.1+ enum syntax
-- [ ] Backward compatible (same values)
-- [ ] Update all usages
-- [ ] Tests pass
+- [ ] Immutable editorialId, mutable data
+- [ ] Type-safe getters for common data
+- [ ] Unit tests
 
 ---
 
-### Task 1.3: Create Domain Exceptions
-**Priority**: P0
-**Effort**: Low
-**Dependencies**: None
+### Task 1.3: Create EnricherInterface
+**Priority**: P0 | **Effort**: Low | **Files**: 1 new
 
-```
-src/Domain/Exception/
-├── EditorialNotFoundException.php
-├── EditorialNotPublishedException.php
-├── MultimediaNotFoundException.php
-└── ServiceUnavailableException.php
+```php
+// src/Application/Pipeline/EnricherInterface.php
+interface EnricherInterface
+{
+    /**
+     * Priority determines execution order (higher = earlier)
+     */
+    public function priority(): int;
+
+    /**
+     * Whether this enricher should run for this context
+     */
+    public function supports(EditorialContext $context): bool;
+
+    /**
+     * Enrich the context with data (mutates context)
+     */
+    public function enrich(EditorialContext $context): void;
+}
 ```
 
 **Acceptance Criteria**:
-- [ ] Extend base exception
-- [ ] Include context (ID, service name)
-- [ ] HTTP status code mapping
+- [ ] Simple interface with 3 methods
+- [ ] Priority for ordering
+- [ ] supports() for conditional execution
 
 ---
 
-## Phase 2: Infrastructure Gateways
+### Task 1.4: Create EnrichmentPipeline
+**Priority**: P0 | **Effort**: Medium | **Files**: 1 new
+
+```php
+// src/Application/Pipeline/EnrichmentPipeline.php
+final class EnrichmentPipeline
+{
+    /** @var EnricherInterface[] */
+    private array $enrichers = [];
+
+    public function __construct(iterable $enrichers)
+    {
+        $this->enrichers = iterator_to_array($enrichers);
+        usort($this->enrichers, fn($a, $b) => $b->priority() <=> $a->priority());
+    }
+
+    public function process(EditorialContext $context): EditorialContext
+    {
+        foreach ($this->enrichers as $enricher) {
+            if ($enricher->supports($context)) {
+                try {
+                    $enricher->enrich($context);
+                } catch (Throwable $e) {
+                    // Log and continue - graceful degradation
+                    $context->set('errors.' . get_class($enricher), $e->getMessage());
+                }
+            }
+        }
+        return $context;
+    }
+}
+```
+
+**Acceptance Criteria**:
+- [ ] Enrichers injected via tagged iterator
+- [ ] Ordered by priority
+- [ ] Graceful error handling (continue on failure)
+- [ ] Unit tests with mocked enrichers
+
+---
+
+## Phase 2: Gateway Implementations
 
 ### Task 2.1: Implement EditorialHttpGateway
-**Priority**: P0
-**Effort**: Medium
-**Dependencies**: Task 1.1
-
-Wrap existing `QueryEditorialClient` in new Gateway interface:
+**Priority**: P0 | **Effort**: Low | **Files**: 1 new
 
 ```php
 // src/Infrastructure/Gateway/Http/EditorialHttpGateway.php
 final readonly class EditorialHttpGateway implements EditorialGatewayInterface
 {
     public function __construct(
-        private QueryEditorialClient $client,
+        private QueryEditorialClient $client,  // Existing client
     ) {}
 
-    public function findById(EditorialId $id): ?Editorial
+    public function findById(string $id): ?Editorial
     {
-        return $this->client->findEditorialById($id->value());
+        return $this->client->findEditorialById($id);
     }
 
-    public function findByIdAsync(EditorialId $id): PromiseInterface
+    public function findByIdAsync(string $id): PromiseInterface
     {
-        return $this->client->findEditorialById($id->value(), true);
+        return $this->client->findEditorialById($id, true);
     }
 }
 ```
 
 **Acceptance Criteria**:
-- [ ] Implements EditorialGatewayInterface
-- [ ] Wraps existing client (no breaking changes)
-- [ ] Unit tests with mocked client
-- [ ] Integration test with real client (optional)
+- [ ] Wraps existing `QueryEditorialClient`
+- [ ] No logic changes, just adapter
+- [ ] Unit test with mocked client
 
 ---
 
-### Task 2.2: Implement MultimediaHttpGateway
-**Priority**: P0
-**Effort**: Medium
-**Dependencies**: Task 1.1
+### Task 2.2-2.6: Implement Other Gateways
+**Priority**: P1 | **Effort**: Low each | **Files**: 5 new
 
-Same pattern as Editorial gateway.
-
----
-
-### Task 2.3: Implement SectionHttpGateway
-**Priority**: P1
-**Effort**: Low
-**Dependencies**: Task 1.1
+Same pattern for:
+- `MultimediaHttpGateway`
+- `SectionHttpGateway`
+- `TagHttpGateway`
+- `JournalistHttpGateway`
+- `MembershipHttpGateway`
 
 ---
 
-### Task 2.4: Implement TagHttpGateway
-**Priority**: P1
-**Effort**: Low
-**Dependencies**: Task 1.1
+## Phase 3: Enrichers (Pipeline Steps)
 
----
-
-### Task 2.5: Implement JournalistHttpGateway
-**Priority**: P1
-**Effort**: Low
-**Dependencies**: Task 1.1
-
----
-
-### Task 2.6: Implement MembershipHttpGateway
-**Priority**: P1
-**Effort**: Low
-**Dependencies**: Task 1.1
-
----
-
-## Phase 3: Gateway Decorators
-
-### Task 3.1: Create CircuitBreakerDecorator
-**Priority**: P1
-**Effort**: Medium
-**Dependencies**: Task 2.1
+### Task 3.1: Create EditorialEnricher
+**Priority**: P0 | **Effort**: Low | **Files**: 1 new
 
 ```php
-// src/Infrastructure/Gateway/Decorator/CircuitBreakerDecorator.php
-final class CircuitBreakerDecorator implements EditorialGatewayInterface
-{
-    private const FAILURE_THRESHOLD = 5;
-    private const RECOVERY_TIMEOUT = 30;
-
-    public function __construct(
-        private readonly EditorialGatewayInterface $inner,
-        private readonly CircuitBreakerService $circuitBreaker,
-        private readonly string $serviceName,
-    ) {}
-
-    public function findById(EditorialId $id): ?Editorial
-    {
-        return $this->circuitBreaker->execute(
-            serviceName: $this->serviceName,
-            operation: fn() => $this->inner->findById($id),
-            fallback: fn() => null,
-        );
-    }
-}
-```
-
-**Acceptance Criteria**:
-- [ ] Generic decorator (works with any gateway)
-- [ ] Configurable thresholds
-- [ ] State tracking (open/closed/half-open)
-- [ ] Unit tests for all states
-
----
-
-### Task 3.2: Create CachedGatewayDecorator
-**Priority**: P2
-**Effort**: Medium
-**Dependencies**: Task 2.1
-
-```php
-// src/Infrastructure/Gateway/Decorator/CachedGatewayDecorator.php
-final class CachedGatewayDecorator implements EditorialGatewayInterface
+// src/Application/Pipeline/Enricher/EditorialEnricher.php
+final readonly class EditorialEnricher implements EnricherInterface
 {
     public function __construct(
-        private readonly EditorialGatewayInterface $inner,
-        private readonly CacheInterface $cache,
-        private readonly int $ttl = 300,
+        private EditorialGatewayInterface $gateway,
     ) {}
 
-    public function findById(EditorialId $id): ?Editorial
-    {
-        $key = sprintf('editorial:%s', $id->value());
+    public function priority(): int { return 100; } // First
 
-        return $this->cache->get($key, fn() => $this->inner->findById($id), $this->ttl);
+    public function supports(EditorialContext $context): bool
+    {
+        return true; // Always runs
+    }
+
+    public function enrich(EditorialContext $context): void
+    {
+        $editorial = $this->gateway->findById($context->editorialId());
+
+        if ($editorial === null || !$editorial->isVisible()) {
+            throw new EditorialNotFoundException($context->editorialId());
+        }
+
+        $context->set('editorial', $editorial);
     }
 }
 ```
 
 **Acceptance Criteria**:
-- [ ] Configurable TTL per gateway
-- [ ] Cache key generation
-- [ ] Bypass for async calls (or cache promises)
-- [ ] Unit tests
+- [ ] Highest priority (runs first)
+- [ ] Throws if not found/not visible
+- [ ] Unit test with mocked gateway
 
 ---
 
-## Phase 4: Application Layer
-
-### Task 4.1: Create EditorialAggregator
-**Priority**: P0
-**Effort**: Medium
-**Dependencies**: Phase 2 complete
+### Task 3.2: Create MultimediaEnricher
+**Priority**: P0 | **Effort**: Low | **Files**: 1 new
 
 ```php
-// src/Application/Aggregator/EditorialAggregator.php
-final readonly class EditorialAggregator
+// src/Application/Pipeline/Enricher/MultimediaEnricher.php
+final readonly class MultimediaEnricher implements EnricherInterface
 {
     public function __construct(
-        private EditorialGatewayInterface $editorialGateway,
-        private MultimediaGatewayInterface $multimediaGateway,
-        private SectionGatewayInterface $sectionGateway,
-        private TagGatewayInterface $tagGateway,
-        private JournalistGatewayInterface $journalistGateway,
-        private MembershipGatewayInterface $membershipGateway,
+        private MultimediaGatewayInterface $gateway,
     ) {}
 
-    public function aggregate(EditorialId $id): ?AggregatedEditorial
+    public function priority(): int { return 90; }
+
+    public function supports(EditorialContext $context): bool
     {
-        // Implementation
+        return $context->editorial()?->hasMultimedia() ?? false;
+    }
+
+    public function enrich(EditorialContext $context): void
+    {
+        $editorial = $context->editorial();
+        $multimedia = $this->gateway->findById($editorial->multimediaId());
+        $context->set('multimedia', $multimedia);
+    }
+}
+```
+
+---
+
+### Task 3.3: Create SectionEnricher
+**Priority**: P1 | **Effort**: Low | **Files**: 1 new
+
+---
+
+### Task 3.4: Create TagsEnricher
+**Priority**: P1 | **Effort**: Low | **Files**: 1 new
+
+---
+
+### Task 3.5: Create JournalistsEnricher
+**Priority**: P1 | **Effort**: Low | **Files**: 1 new
+
+---
+
+### Task 3.6: Create MembershipEnricher
+**Priority**: P1 | **Effort**: Low | **Files**: 1 new
+
+---
+
+### Task 3.7: Create AsyncBatchEnricher (Optimization)
+**Priority**: P2 | **Effort**: Medium | **Files**: 1 new
+
+Optional: Batch async calls for performance:
+
+```php
+// src/Application/Pipeline/Enricher/AsyncBatchEnricher.php
+final class AsyncBatchEnricher implements EnricherInterface
+{
+    public function priority(): int { return 80; } // After editorial
+
+    public function enrich(EditorialContext $context): void
+    {
+        $editorial = $context->editorial();
+
+        $promises = [
+            'multimedia' => $this->multimediaGateway->findByIdAsync($editorial->multimediaId()),
+            'section' => $this->sectionGateway->findByIdAsync($editorial->sectionId()),
+            'tags' => $this->tagGateway->findByIdsAsync($editorial->tagIds()),
+            'journalists' => $this->journalistGateway->findByIdsAsync($editorial->journalistIds()),
+        ];
+
+        $results = Utils::settle($promises)->wait();
+
+        foreach ($results as $key => $result) {
+            if ($result['state'] === 'fulfilled') {
+                $context->set($key, $result['value']);
+            }
+        }
+    }
+}
+```
+
+---
+
+## Phase 4: Symfony Normalizers
+
+### Task 4.1: Create EditorialNormalizer
+**Priority**: P0 | **Effort**: Medium | **Files**: 1 new
+
+```php
+// src/Infrastructure/Serializer/Normalizer/EditorialNormalizer.php
+final class EditorialNormalizer implements NormalizerInterface, NormalizerAwareInterface
+{
+    use NormalizerAwareTrait;
+
+    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    {
+        return $data instanceof EditorialContext;
+    }
+
+    public function normalize(mixed $object, ?string $format = null, array $context = []): array
+    {
+        /** @var EditorialContext $object */
+        $editorial = $object->editorial();
+
+        return [
+            'id' => $editorial->id(),
+            'url' => $editorial->url(),
+            'titles' => $this->normalizer->normalize($editorial->titles(), $format, $context),
+            'lead' => $editorial->lead(),
+            'publicationDate' => $editorial->publicationDate()->format('c'),
+            'body' => $this->normalizer->normalize($editorial->body(), $format, $context),
+            'multimedia' => $this->normalizer->normalize($object->multimedia(), $format, $context),
+            'signatures' => $this->normalizer->normalize($object->journalists(), $format, $context),
+            'section' => $this->normalizer->normalize($object->section(), $format, $context),
+            'tags' => $this->normalizer->normalize($object->tags(), $format, $context),
+        ];
     }
 }
 ```
 
 **Acceptance Criteria**:
-- [ ] Parallel fetching with promises
-- [ ] Graceful handling of failed promises
-- [ ] Returns AggregatedEditorial value object
-- [ ] Unit tests with mocked gateways
+- [ ] Delegates to child normalizers
+- [ ] Same JSON structure as current API
+- [ ] Unit test comparing output
 
 ---
 
-### Task 4.2: Create GetEditorialByIdQuery Handler
-**Priority**: P0
-**Effort**: Medium
-**Dependencies**: Task 4.1
-
-```
-src/Application/Query/GetEditorialById/
-├── GetEditorialByIdQuery.php
-├── GetEditorialByIdHandler.php
-└── GetEditorialByIdResponse.php
-```
-
-**Acceptance Criteria**:
-- [ ] Query is immutable DTO
-- [ ] Handler orchestrates aggregator + transformer
-- [ ] Response matches current API structure
-- [ ] Unit tests
-
----
-
-### Task 4.3: Migrate BodyDataTransformer
-**Priority**: P0
-**Effort**: High
-**Dependencies**: Task 4.2
-
-Migrate existing transformers to new structure:
-
-```
-src/Application/Transformer/Editorial/
-├── EditorialResponseTransformer.php
-├── BodyTransformerChain.php
-└── Element/
-    ├── ElementTransformerInterface.php
-    ├── ParagraphTransformer.php
-    ├── SubHeadTransformer.php
-    ├── PictureTransformer.php
-    ├── VideoYoutubeTransformer.php
-    └── ... (all 18 transformers)
-```
-
-**Acceptance Criteria**:
-- [ ] Same output as current transformers
-- [ ] Chain of Responsibility pattern
-- [ ] Service tags for auto-registration
-- [ ] Unit tests for each transformer
-
----
-
-### Task 4.4: Migrate MediaDataTransformer
-**Priority**: P1
-**Effort**: Medium
-**Dependencies**: Task 4.3
-
-```
-src/Application/Transformer/Multimedia/
-├── MultimediaTransformerChain.php
-└── Type/
-    ├── PhotoTransformer.php
-    ├── VideoTransformer.php
-    └── WidgetTransformer.php
-```
-
----
-
-### Task 4.5: Create Response DTOs
-**Priority**: P0
-**Effort**: Low
-**Dependencies**: None
-
-```
-src/Application/DTO/Response/
-├── EditorialResponse.php
-├── BodyResponse.php
-├── BodyElementResponse.php
-├── MultimediaResponse.php
-├── SectionResponse.php
-├── TagResponse.php
-└── SignatureResponse.php
-```
-
-**Acceptance Criteria**:
-- [ ] Readonly classes
-- [ ] JSON serializable
-- [ ] Match current API structure exactly
-
----
-
-## Phase 5: Controller Migration
-
-### Task 5.1: Update EditorialController
-**Priority**: P0
-**Effort**: Low
-**Dependencies**: Task 4.2
+### Task 4.2: Create BodyNormalizer
+**Priority**: P0 | **Effort**: Low | **Files**: 1 new
 
 ```php
-// src/Infrastructure/Controller/V1/EditorialController.php
+// src/Infrastructure/Serializer/Normalizer/BodyNormalizer.php
+final class BodyNormalizer implements NormalizerInterface, NormalizerAwareInterface
+{
+    use NormalizerAwareTrait;
+
+    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    {
+        return $data instanceof Body;
+    }
+
+    public function normalize(mixed $object, ?string $format = null, array $context = []): array
+    {
+        /** @var Body $object */
+        return [
+            'type' => $object->type(),
+            'elements' => array_map(
+                fn($el) => $this->normalizer->normalize($el, $format, $context),
+                $object->elements()
+            ),
+        ];
+    }
+}
+```
+
+---
+
+### Task 4.3: Create Body Element Normalizers
+**Priority**: P0 | **Effort**: Medium | **Files**: ~18 new
+
+One normalizer per body element type:
+
+```
+src/Infrastructure/Serializer/Normalizer/BodyElement/
+├── ParagraphNormalizer.php
+├── SubHeadNormalizer.php
+├── PictureNormalizer.php
+├── VideoYoutubeNormalizer.php
+├── VideoEmbedNormalizer.php
+├── BlockquoteNormalizer.php
+├── ListNormalizer.php
+├── TableNormalizer.php
+├── WidgetNormalizer.php
+└── ... (all 18 types)
+```
+
+Example:
+
+```php
+// src/Infrastructure/Serializer/Normalizer/BodyElement/ParagraphNormalizer.php
+final class ParagraphNormalizer implements NormalizerInterface
+{
+    public function supportsNormalization(mixed $data, ?string $format = null): bool
+    {
+        return $data instanceof Paragraph;
+    }
+
+    public function normalize(mixed $object, ?string $format = null, array $context = []): array
+    {
+        /** @var Paragraph $object */
+        return [
+            'type' => 'paragraph',
+            'content' => $object->content(),
+        ];
+    }
+}
+```
+
+**Acceptance Criteria**:
+- [ ] One normalizer per BodyElement subclass
+- [ ] Auto-discovered via autoconfigure
+- [ ] Unit test for each
+- [ ] Output matches current transformers
+
+---
+
+### Task 4.4: Create MultimediaNormalizer
+**Priority**: P1 | **Effort**: Medium | **Files**: 1 new + subtypes
+
+---
+
+### Task 4.5: Create SectionNormalizer
+**Priority**: P1 | **Effort**: Low | **Files**: 1 new
+
+---
+
+### Task 4.6: Create TagNormalizer
+**Priority**: P1 | **Effort**: Low | **Files**: 1 new
+
+---
+
+### Task 4.7: Create SignatureNormalizer
+**Priority**: P1 | **Effort**: Low | **Files**: 1 new
+
+---
+
+## Phase 5: Integration
+
+### Task 5.1: Create GetEditorialHandler
+**Priority**: P0 | **Effort**: Low | **Files**: 1 new
+
+```php
+// src/Application/Handler/GetEditorialHandler.php
+final readonly class GetEditorialHandler
+{
+    public function __construct(
+        private EnrichmentPipeline $pipeline,
+        private SerializerInterface $serializer,
+    ) {}
+
+    public function __invoke(string $editorialId): array
+    {
+        $context = new EditorialContext($editorialId);
+        $enrichedContext = $this->pipeline->process($context);
+
+        return $this->serializer->normalize($enrichedContext, 'json');
+    }
+}
+```
+
+---
+
+### Task 5.2: Update EditorialController
+**Priority**: P0 | **Effort**: Low | **Files**: 1 modified
+
+```php
+// src/Controller/V1/EditorialController.php
 #[Route('/v1/editorials')]
 final class EditorialController
 {
     public function __construct(
-        private readonly GetEditorialByIdHandler $handler,
+        private readonly GetEditorialHandler $handler,
     ) {}
 
     #[Route('/{id}', methods: ['GET'])]
     public function getById(string $id): JsonResponse
     {
-        $query = new GetEditorialByIdQuery(new EditorialId($id));
-        $response = ($this->handler)($query);
-
-        return new JsonResponse($response);
+        $data = ($this->handler)($id);
+        return new JsonResponse($data);
     }
 }
 ```
 
-**Acceptance Criteria**:
-- [ ] Uses Query Handler directly (simple app, no bus needed)
-- [ ] Same route, same response
-- [ ] Thin controller
-- [ ] Functional test passes
+---
+
+### Task 5.3: Configure Services
+**Priority**: P0 | **Effort**: Low | **Files**: 1-2 modified
+
+```yaml
+# config/services.yaml
+services:
+    # Auto-tag enrichers
+    _instanceof:
+        App\Application\Pipeline\EnricherInterface:
+            tags: ['app.enricher']
+
+    # Pipeline with tagged enrichers
+    App\Application\Pipeline\EnrichmentPipeline:
+        arguments:
+            $enrichers: !tagged_iterator app.enricher
+
+    # Gateways (bind interfaces to implementations)
+    App\Domain\Port\Gateway\EditorialGatewayInterface:
+        alias: App\Infrastructure\Gateway\Http\EditorialHttpGateway
+```
 
 ---
 
-### Task 5.2: Create Comparison Tests
-**Priority**: P0
-**Effort**: Medium
-**Dependencies**: Task 5.1
-
-Create tests that compare old vs new implementation output:
+### Task 5.4: Create Comparison Tests
+**Priority**: P0 | **Effort**: High | **Files**: 1 new
 
 ```php
-public function testResponseMatchesLegacy(): void
+// tests/Integration/BackwardCompatibilityTest.php
+final class BackwardCompatibilityTest extends KernelTestCase
 {
-    $legacyResponse = $this->legacyOrchestrator->execute($request);
-    $newResponse = $this->newHandler->__invoke($query);
+    /**
+     * @dataProvider editorialIdsProvider
+     */
+    public function testNewOutputMatchesLegacy(string $id): void
+    {
+        // Old way
+        $legacyResponse = $this->legacyOrchestrator->execute($id);
 
-    $this->assertEquals(
-        json_encode($legacyResponse),
-        json_encode($newResponse)
-    );
+        // New way
+        $newResponse = $this->newHandler->__invoke($id);
+
+        $this->assertEquals(
+            json_encode($legacyResponse),
+            json_encode($newResponse),
+            "Output mismatch for editorial $id"
+        );
+    }
 }
 ```
 
-**Acceptance Criteria**:
-- [ ] Compare JSON output byte-by-byte
-- [ ] Test with multiple editorial types
-- [ ] Test edge cases (no multimedia, no tags, etc.)
+---
+
+## Phase 6: Decorators (Optional Enhancements)
+
+### Task 6.1: Create CachedGatewayDecorator
+**Priority**: P2 | **Effort**: Medium | **Files**: 1 new
 
 ---
 
-## Phase 6: Cleanup
-
-### Task 6.1: Deprecate Old Orchestrators
-**Priority**: P2
-**Effort**: Low
-**Dependencies**: Phase 5 complete
-
-Add `@deprecated` annotations to old classes.
+### Task 6.2: Create CircuitBreakerDecorator
+**Priority**: P2 | **Effort**: Medium | **Files**: 1 new
 
 ---
 
-### Task 6.2: Remove Old Code
-**Priority**: P3
-**Effort**: Medium
-**Dependencies**: Task 6.1 + QA approval
+## Phase 7: Cleanup
 
-Remove deprecated orchestrators and old transformers after validation.
+### Task 7.1: Deprecate Old Orchestrators
+**Priority**: P3 | **Effort**: Low | **Files**: Modified
+
+Add `@deprecated` to old classes.
 
 ---
 
-### Task 6.3: Update Documentation
-**Priority**: P2
-**Effort**: Low
-**Dependencies**: Phase 5 complete
+### Task 7.2: Remove Deprecated Code
+**Priority**: P3 | **Effort**: Medium | **Files**: Deleted
 
-Update CLAUDE.md with new architecture.
+After QA approval, remove old orchestrators and transformers.
+
+---
+
+### Task 7.3: Update CLAUDE.md
+**Priority**: P2 | **Effort**: Low | **Files**: 1 modified
+
+Document new architecture.
 
 ---
 
 ## Summary
 
-| Phase | Tasks | Priority | Total Effort |
-|-------|-------|----------|--------------|
-| 1. Foundation | 3 | P0 | Low |
-| 2. Gateways | 6 | P0-P1 | Medium |
-| 3. Decorators | 2 | P1-P2 | Medium |
-| 4. Application | 5 | P0-P1 | High |
-| 5. Migration | 2 | P0 | Medium |
-| 6. Cleanup | 3 | P2-P3 | Low |
+| Phase | Tasks | New Files | Key Deliverable |
+|-------|-------|-----------|-----------------|
+| 1. Foundation | 4 | 4 | Pipeline infrastructure |
+| 2. Gateways | 6 | 6 | HTTP adapters |
+| 3. Enrichers | 7 | 7 | Pipeline steps |
+| 4. Normalizers | 7 | ~25 | Serialization |
+| 5. Integration | 4 | 2 | Wire everything |
+| 6. Decorators | 2 | 2 | Cache + Circuit Breaker |
+| 7. Cleanup | 3 | 0 | Remove old code |
 
-**Total Tasks**: 21
-**Critical Path**: 1.1 → 2.1 → 4.1 → 4.2 → 4.3 → 5.1 → 5.2
+**Total**: 33 tasks, ~46 new files
+
+### Critical Path
+```
+1.1 (Interfaces) → 1.2 (Context) → 1.3 (EnricherInterface) → 1.4 (Pipeline)
+                                                                    ↓
+2.1 (EditorialGateway) ─────────────────────────────────────→ 3.1 (EditorialEnricher)
+                                                                    ↓
+4.1 (EditorialNormalizer) → 4.2 (BodyNormalizer) → 4.3 (Elements)
+                                                                    ↓
+5.1 (Handler) → 5.2 (Controller) → 5.4 (Comparison Tests)
+```
+
+### Validation: Add New Field Test
+
+After implementation, verify architecture with this test:
+
+**"Add `commentsCount` to JSON response"**
+
+Expected: Create 1 file (`CommentsEnricher.php`), modify 0 files.
+
+```php
+// src/Application/Pipeline/Enricher/CommentsEnricher.php
+final readonly class CommentsEnricher implements EnricherInterface
+{
+    public function __construct(private CommentsGatewayInterface $gateway) {}
+
+    public function priority(): int { return 50; }
+    public function supports(EditorialContext $context): bool { return true; }
+
+    public function enrich(EditorialContext $context): void
+    {
+        $count = $this->gateway->getCount($context->editorialId());
+        $context->set('commentsCount', $count);
+    }
+}
+// Done! JSON now includes commentsCount (via EditorialNormalizer)
+```
