@@ -18,6 +18,39 @@ The quality of architectural decisions depends entirely on the quality of the cr
 - Document WHY an architecture was chosen (not just WHAT)
 - Enable future re-evaluation if context changes
 
+## Base Criteria (Always Applied)
+
+**IMPORTANT**: Before generating feature-specific criteria, ALWAYS load the base architecture quality criteria:
+
+```
+Read: plugins/multi-agent-workflow/core/architecture-quality-criteria.md
+```
+
+These **6 base criteria** are NON-NEGOTIABLE and apply to ALL features:
+
+| ID | Base Criterion | What It Ensures |
+|----|----------------|-----------------|
+| C-BASE-01 | Escalabilidad Estructural | Añadir features sin reescribir (≤5 archivos) |
+| C-BASE-02 | SOLID Compliance | Los 5 principios respetados |
+| C-BASE-03 | Clean Code Metrics | Código legible y mantenible |
+| C-BASE-04 | Responsabilidades Definidas | Separación de capas DDD |
+| C-BASE-05 | Patrones Adecuados | Patrones que simplifican, no complican |
+| C-BASE-06 | Invasividad de Cambios | Cambio fácil = pocos archivos |
+
+### Key Principle: Change Impact
+
+> "Una arquitectura es buena cuando un cambio fácil es poco invasivo"
+
+| Tipo de Cambio | Archivos Máximos |
+|----------------|------------------|
+| Nuevo campo en entidad | ≤3 |
+| Nueva validación | ≤2 |
+| Nuevo endpoint CRUD | ≤4 |
+| Cambio en UI de un campo | ≤1 |
+| Cambio de proveedor externo | ≤1 |
+
+If an architecture option violates these limits, it scores LOW on invasivity.
+
 ## When to Use
 
 - Before creating architecture design (10_architecture.md)
@@ -29,7 +62,7 @@ The quality of architectural decisions depends entirely on the quality of the cr
 ## Invocation
 
 ```bash
-# Generate criteria for a feature
+# Generate criteria for a feature (includes base criteria automatically)
 /skill:criteria-generator --feature=<feature-id>
 
 # Evaluate options against existing criteria
@@ -42,7 +75,23 @@ The quality of architectural decisions depends entirely on the quality of the cr
 /skill:criteria-generator --interview --feature=<feature-id>
 ```
 
-## Criteria Categories
+## Criteria Structure
+
+### Tier 1: Base Criteria (Always Applied)
+
+From `architecture-quality-criteria.md`:
+- Escalabilidad Estructural
+- SOLID Compliance
+- Clean Code Metrics
+- Responsabilidades Definidas (Layer Separation)
+- Patrones de Diseño Adecuados
+- Invasividad de Cambios
+
+### Tier 2: Feature-Specific Criteria
+
+Added based on feature context and developer consultation.
+
+## Feature-Specific Criteria Categories
 
 ### 1. Functional Fit Criteria
 

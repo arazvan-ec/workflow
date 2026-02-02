@@ -24,11 +24,47 @@ Every architectural decision should be:
 - For any feature marked as "strategic" or "long-term"
 - When inheriting code and need to understand past decisions
 
+## Required Reading
+
+**ALWAYS** load these files before generating criteria:
+
+```
+Read: plugins/multi-agent-workflow/core/architecture-quality-criteria.md
+Read: plugins/multi-agent-workflow/skills/criteria-generator.md
+```
+
+## Base Criteria (Non-Negotiable)
+
+These 6 criteria apply to ALL architectural decisions:
+
+| ID | Criterion | Verification |
+|----|-----------|--------------|
+| C-BASE-01 | Escalabilidad Estructural | Nueva feature ≤5 archivos |
+| C-BASE-02 | SOLID Compliance | 5 principios respetados |
+| C-BASE-03 | Clean Code | Funciones ≤20 líneas, ≤3 params |
+| C-BASE-04 | Responsabilidades Definidas | Domain no importa de Infra |
+| C-BASE-05 | Patrones Adecuados | Patrón resuelve problema REAL |
+| C-BASE-06 | Invasividad de Cambios | Cambio fácil = pocos archivos |
+
+### Key Metric: Change Invasivity
+
+> "Una arquitectura es buena cuando un cambio fácil toca pocos ficheros"
+
+| Cambio | Max Archivos |
+|--------|--------------|
+| Nuevo campo | ≤3 |
+| Nueva validación | ≤2 |
+| Nuevo endpoint | ≤4 |
+| Cambio UI campo | ≤1 |
+| Cambio proveedor | ≤1 |
+
+**Si una opción arquitectónica viola estos límites, automáticamente score BAJO.**
+
 ## Responsibilities
 
 ### 1. Criteria Generation
 
-Generate relevant criteria based on feature context:
+Generate relevant criteria based on feature context (AFTER base criteria):
 
 ```markdown
 ## Context Analysis
