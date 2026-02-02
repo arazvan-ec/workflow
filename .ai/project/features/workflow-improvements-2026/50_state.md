@@ -196,6 +196,7 @@ Total:        [########  ]  80%
 | 2026-01-27 | Use tmux over Tilix | More scriptable, cross-platform | All parallel scripts |
 | 2026-01-27 | YAML specs with JSON Schema | Readable + validatable | Spec system |
 | 2026-01-27 | Backward compatible | Minimize disruption | All features |
+| 2026-02-02 | Add Architecture Criteria System | Good criteria → good architecture decisions | All planning workflows |
 
 See `DECISIONS.md` for full decision log.
 
@@ -204,9 +205,13 @@ See `DECISIONS.md` for full decision log.
 ## Next Actions
 
 ### Immediate (Today)
-1. Start Phase 5 (Advanced Integration)
-2. Implement BE-021 (MCP Integration Structure)
-3. Create GitHub Actions templates
+1. NEW: Architecture Criteria System implemented
+   - `/workflows:criteria` command for developer consultation
+   - `criteria-generator` skill for generating criteria
+   - `architecture-criteria-analyst` agent for evaluation
+   - Workflow integration in task-breakdown.yaml
+2. Start Phase 5 (Advanced Integration)
+3. Implement BE-021 (MCP Integration Structure)
 
 ### Short Term (This Week)
 1. Complete Phase 5 (BE-021 to BE-025)
@@ -230,6 +235,7 @@ See `DECISIONS.md` for full decision log.
 | 2026-01-27 | Backend | Phase 3 completed: Spec-Driven Development |
 | 2026-01-27 | Backend | Phase 4 completed: TDD Enforcement + Context/Compound |
 | 2026-01-27 | Frontend | Commands implemented: progress, trust, parallel, monitor, validate, interview, tdd |
+| 2026-02-02 | Planner | Architecture Criteria System: skill, agent, command, workflow integration |
 
 ---
 
@@ -238,6 +244,13 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/plugins/multi-agent-workflow/core/architecture-quality-criteria.md (2026-02-02T23:40:12+00:00)
+- /home/user/workflow/.ai/project/features/workflow-improvements-2026/50_state.md (2026-02-02T23:31:20+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/plan.md (2026-02-02T23:30:48+00:00)
+- /home/user/workflow/.ai/extensions/workflows/task-breakdown.yaml (2026-02-02T23:30:35+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/criteria.md (2026-02-02T23:30:01+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/agents/design/architecture-criteria-analyst.md (2026-02-02T23:28:54+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/skills/criteria-generator.md (2026-02-02T23:27:53+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/core/docs/SESSION_CONTINUITY.md (2026-02-02T21:41:27+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/skills/token-advisor.md (2026-02-02T21:41:26+00:00)
 - /home/user/workflow/.gitignore (2026-02-02T20:54:17+00:00)
