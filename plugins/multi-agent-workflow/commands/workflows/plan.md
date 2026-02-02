@@ -51,14 +51,27 @@ Read: rules/ddd_rules.md
 Read: rules/project_specific.md
 ```
 
-### Step 3: Analyze Existing Patterns
+### Step 3: Define Architecture Criteria (Recommended)
+
+Before designing architecture, define evaluation criteria:
+```bash
+/workflows:criteria ${FEATURE_ID} --interview
+```
+
+This ensures:
+- Explicit criteria for choosing architecture
+- Developer consultation on priorities
+- Trade-offs documented upfront
+- "Why this architecture and not others?" is answered
+
+### Step 4: Analyze Existing Patterns
 
 Before planning, analyze the codebase:
 - Find similar features to use as reference
 - Identify existing code patterns
 - Understand technical constraints
 
-### Step 4: Create Planning Documents
+### Step 5: Create Planning Documents
 
 **For `default` workflow:**
 1. `FEATURE_${FEATURE_ID}.md` - Feature definition with:
@@ -73,17 +86,18 @@ Before planning, analyze the codebase:
 
 **For `task-breakdown` workflow (10 documents):**
 1. `00_requirements_analysis.md`
-2. `10_architecture.md`
-3. `15_data_model.md`
-4. `20_api_contracts.md`
-5. `30_tasks_backend.md`
-6. `31_tasks_frontend.md`
-7. `32_tasks_qa.md`
-8. `35_dependencies.md`
-9. `FEATURE_${FEATURE_ID}.md`
-10. `50_state.md`
+2. `12_architecture_criteria.md` (NEW: criteria for architecture decisions)
+3. `10_architecture.md`
+4. `15_data_model.md`
+5. `20_api_contracts.md`
+6. `30_tasks_backend.md`
+7. `31_tasks_frontend.md`
+8. `32_tasks_qa.md`
+9. `35_dependencies.md`
+10. `FEATURE_${FEATURE_ID}.md`
+11. `50_state.md`
 
-### Step 5: Initialize State File
+### Step 6: Initialize State File
 
 ```markdown
 # Feature State: ${FEATURE_ID}
