@@ -238,6 +238,13 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/INDEX.md (2026-02-02T21:56:54+00:00)
+- /home/user/workflow/.ai/project/decisions/ADR-002-yaml-con-json-schema.yaml (2026-02-02T21:56:38+00:00)
+- /home/user/workflow/.ai/project/decisions/ADR-001-usar-tmux-sobre-tilix.md (2026-02-02T21:56:07+00:00)
+- /home/user/workflow/.ai/project/decisions/TEMPLATE.yaml (2026-02-02T21:55:37+00:00)
+- /home/user/workflow/.ai/project/decisions/README.md (2026-02-02T21:55:19+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/schemas/adr_spec.json (2026-02-02T21:54:48+00:00)
+- /home/user/workflow/.ai/project/decisions/TEMPLATE.md (2026-02-02T21:54:20+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/core/docs/SESSION_CONTINUITY.md (2026-02-02T21:41:27+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/skills/token-advisor.md (2026-02-02T21:41:26+00:00)
 - /home/user/workflow/.gitignore (2026-02-02T20:54:17+00:00)

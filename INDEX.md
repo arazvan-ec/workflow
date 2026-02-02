@@ -164,6 +164,23 @@ workflow/
 
 ---
 
+## Architecture Decision Records (ADRs)
+
+Los ADRs documentan decisiones arquitectónicas significativas con su contexto y consecuencias.
+
+| ADR | Título | Estado |
+|-----|--------|--------|
+| [ADR-001](/.ai/project/decisions/ADR-001-usar-tmux-sobre-tilix.md) | Usar tmux sobre Tilix | ACCEPTED |
+| [ADR-002](/.ai/project/decisions/ADR-002-yaml-con-json-schema.yaml) | YAML con JSON Schema para specs | ACCEPTED |
+
+**Recursos ADR**:
+- [README de decisiones](/.ai/project/decisions/README.md) - Guía completa
+- [Template Markdown](/.ai/project/decisions/TEMPLATE.md) - Para crear nuevos ADRs
+- [Template YAML](/.ai/project/decisions/TEMPLATE.yaml) - Formato validable
+- [JSON Schema](./plugins/multi-agent-workflow/core/schemas/adr_spec.json) - Para validación
+
+---
+
 ## FAQ de Navegación
 
 **¿Dónde encuentro las reglas de arquitectura DDD?**
@@ -181,12 +198,16 @@ workflow/
 **¿Qué archivo lee Claude primero?**
 → [CLAUDE.md](./CLAUDE.md)
 
+**¿Dónde documento decisiones arquitectónicas?**
+→ [.ai/project/decisions/](/.ai/project/decisions/README.md) - Usar templates ADR
+
 ---
 
 ## Actualizaciones Recientes
 
 | Fecha | Cambio | Archivo Afectado |
 |-------|--------|------------------|
+| 2026-02 | Sistema de ADRs | .ai/project/decisions/, INDEX.md |
 | 2026-01 | Evolution Governance | global_rules.md |
 | 2026-01 | Beyond Vibe Coding | README.md |
 | 2026-01 | Spec-Driven Development | README.md |

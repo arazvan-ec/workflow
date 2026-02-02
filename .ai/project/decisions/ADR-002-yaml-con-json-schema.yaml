@@ -1,0 +1,177 @@
+# ADR-002: Usar YAML con JSON Schema para especificaciones
+
+version: "1.0"
+
+adr:
+  id: "ADR-002"
+  title: "Usar YAML con JSON Schema para especificaciones de features"
+  status: accepted
+  date: "2026-01-27"
+  deciders:
+    - "Planner Agent"
+  feature_id: "workflow-improvements-2026"
+  tags:
+    - "specs"
+    - "validation"
+    - "developer-experience"
+
+context:
+  problem: |
+    Las especificaciones de features actualmente se escriben en Markdown libre,
+    lo que dificulta la validación automática, la extracción de datos estructurados,
+    y la generación de tareas. Necesitamos un formato que sea:
+    - Legible por humanos
+    - Validable automáticamente
+    - Parseable para generación de código/tareas
+
+  drivers:
+    - "Necesidad de validación automática de specs antes de comenzar implementación"
+    - "Generación automática de tareas desde specs"
+    - "Soporte para comentarios en los archivos de configuración"
+    - "Facilidad de edición manual por desarrolladores"
+
+  constraints:
+    - "Debe ser compatible con editores comunes (VSCode, etc.)"
+    - "No debe requerir herramientas propietarias"
+    - "Debe tener soporte maduro en el ecosistema"
+
+  assumptions:
+    - "Los desarrolladores están familiarizados con YAML"
+    - "JSON Schema es suficientemente expresivo para nuestras validaciones"
+
+options:
+  - name: "YAML con JSON Schema"
+    description: |
+      Usar YAML para escribir specs (legibilidad) y JSON Schema
+      para definir y validar la estructura.
+    pros:
+      - "YAML es muy legible y soporta comentarios"
+      - "JSON Schema es un estándar ampliamente adoptado"
+      - "Excelente soporte en IDEs (autocompletado, validación inline)"
+      - "Herramientas maduras de validación (ajv, yajsv)"
+      - "Conversión trivial YAML ↔ JSON"
+    cons:
+      - "YAML tiene algunas gotchas (indentación, tipos implícitos)"
+      - "JSON Schema puede ser verboso para validaciones complejas"
+    effort: medium
+    risk: low
+
+  - name: "JSON puro"
+    description: |
+      Usar JSON tanto para specs como para validación.
+    pros:
+      - "Parsing sin ambigüedad"
+      - "Soporte universal"
+    cons:
+      - "No soporta comentarios"
+      - "Menos legible (comillas, llaves)"
+      - "Más propenso a errores de sintaxis"
+    effort: low
+    risk: medium
+
+  - name: "Markdown estructurado con parser custom"
+    description: |
+      Mantener Markdown pero con convenciones estrictas
+      y un parser personalizado.
+    pros:
+      - "Máxima legibilidad"
+      - "No requiere migración de specs existentes"
+    cons:
+      - "Parser custom = mantenimiento continuo"
+      - "Validación frágil"
+      - "No hay estándares de tooling"
+    effort: high
+    risk: high
+
+  - name: "TOML"
+    description: |
+      Usar TOML como formato de configuración.
+    pros:
+      - "Muy legible para configuraciones simples"
+      - "Soporte de comentarios"
+    cons:
+      - "Menos expresivo para estructuras anidadas complejas"
+      - "Menor adopción que YAML"
+      - "Menos soporte de tooling"
+    effort: medium
+    risk: medium
+
+decision:
+  chosen_option: "YAML con JSON Schema"
+  rationale: |
+    YAML ofrece el mejor balance entre legibilidad humana y estructura parseable.
+    JSON Schema proporciona validación robusta con excelente soporte de tooling.
+    La combinación es un estándar de facto en la industria (Kubernetes, GitHub Actions,
+    Docker Compose) lo que significa que los desarrolladores ya están familiarizados.
+
+  trade_offs_accepted:
+    - "Necesidad de definir y mantener schemas"
+    - "Posibles errores de indentación en YAML"
+    - "Specs existentes en Markdown necesitan migración gradual"
+
+consequences:
+  positive:
+    - "Validación automática de specs antes de implementación"
+    - "Autocompletado en IDEs con soporte de JSON Schema"
+    - "Generación automática de tareas desde specs validadas"
+    - "Consistencia forzada en todas las specs"
+    - "Documentación del formato via el schema mismo"
+
+  negative:
+    - "Curva de aprendizaje para JSON Schema"
+    - "Migración gradual de specs Markdown existentes"
+
+  neutral:
+    - "Specs en Markdown siguen funcionando (fallback)"
+    - "Se agregan archivos .yaml junto a .md existentes"
+
+  risks:
+    - description: "Schemas demasiado restrictivos bloquean trabajo"
+      probability: medium
+      impact: medium
+      mitigation: "Usar validation: warn mode durante transición, permitir override"
+    - description: "Desarrolladores ignoran validación"
+      probability: low
+      impact: low
+      mitigation: "Integrar validación en CI y pre-commit hooks"
+
+implementation:
+  steps:
+    - "Crear JSON Schemas para feature_spec, api_contract, task_spec"
+    - "Implementar comando /workflows:validate"
+    - "Configurar VSCode con schema associations"
+    - "Crear templates YAML para specs"
+    - "Documentar formato y migración"
+    - "Agregar validación a CI pipeline"
+
+  success_criteria:
+    - "Todos los schemas definidos y documentados"
+    - "/workflows:validate funciona con specs YAML"
+    - "IDE autocompletado funciona para specs"
+    - "Al menos 3 features migradas a YAML"
+
+  rollback_plan: |
+    Si YAML causa problemas, podemos revertir a Markdown
+    manteniendo los specs YAML como documentación opcional.
+
+  affected_components:
+    - "plugins/multi-agent-workflow/core/schemas/"
+    - "plugins/multi-agent-workflow/core/templates/"
+    - ".ai/project/features/*/spec.yaml"
+    - "commands/workflows/validate.md"
+
+references:
+  - title: "JSON Schema Specification"
+    url: "https://json-schema.org/specification.html"
+  - title: "YAML 1.2 Specification"
+    url: "https://yaml.org/spec/1.2/spec.html"
+  - title: "Feature Spec Schema"
+    path: "plugins/multi-agent-workflow/core/schemas/feature_spec.json"
+
+review_history:
+  - date: "2026-01-27"
+    author: "Planner Agent"
+    change: "Creación inicial"
+  - date: "2026-02-02"
+    author: "Claude"
+    change: "Migración a formato ADR formal YAML"

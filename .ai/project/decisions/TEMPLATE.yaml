@@ -1,0 +1,117 @@
+# Architecture Decision Record Template
+# Validar con: yajsv -s core/schemas/adr_spec.json ADR-XXX.yaml
+
+version: "1.0"
+
+adr:
+  id: "ADR-XXX"
+  title: "Título descriptivo de la decisión"
+  status: proposed  # proposed | accepted | deprecated | superseded
+  date: "2026-01-01"
+  deciders:
+    - "Planner Agent"
+    - "@nombre-persona"
+  feature_id: "feature-relacionada"  # Opcional
+  # supersedes: "ADR-YYY"           # Si reemplaza otro ADR
+  # superseded_by: "ADR-ZZZ"        # Si fue reemplazado
+  tags:
+    - "infrastructure"
+    - "api"
+
+context:
+  problem: |
+    Describe el problema o necesidad que motiva esta decisión.
+    Debe ser lo suficientemente detallado para que alguien externo
+    entienda por qué esta decisión era necesaria.
+
+  drivers:
+    - "Requisito técnico o de negocio que influye"
+    - "Otro driver importante"
+    - "Restricción de tiempo/recursos"
+
+  constraints:
+    - "Limitación tecnológica existente"
+    - "Requisito de compatibilidad"
+
+  assumptions:
+    - "Asunción sobre el contexto futuro"
+    - "Asunción sobre recursos disponibles"
+
+options:
+  - name: "Opción A"
+    description: |
+      Breve descripción de qué implica esta opción
+      y cómo resolvería el problema.
+    pros:
+      - "Ventaja 1"
+      - "Ventaja 2"
+    cons:
+      - "Desventaja 1"
+      - "Desventaja 2"
+    effort: medium  # low | medium | high
+    risk: low       # low | medium | high
+
+  - name: "Opción B"
+    description: |
+      Breve descripción de la alternativa.
+    pros:
+      - "Ventaja 1"
+    cons:
+      - "Desventaja 1"
+    effort: high
+    risk: medium
+
+decision:
+  chosen_option: "Opción A"
+  rationale: |
+    Explicación clara de por qué se eligió esta opción sobre las otras.
+    Debe incluir el razonamiento y los criterios de decisión principales.
+
+  trade_offs_accepted:
+    - "Trade-off 1 que aceptamos conscientemente"
+    - "Trade-off 2"
+
+consequences:
+  positive:
+    - "Beneficio 1 que resulta de esta decisión"
+    - "Beneficio 2"
+
+  negative:
+    - "Desventaja o costo que aceptamos"
+
+  neutral:
+    - "Cambio que no es ni positivo ni negativo"
+
+  risks:
+    - description: "Riesgo identificado"
+      probability: medium
+      impact: high
+      mitigation: "Cómo mitigaremos este riesgo"
+
+implementation:
+  steps:
+    - "Paso 1 para implementar esta decisión"
+    - "Paso 2"
+    - "Paso 3"
+
+  success_criteria:
+    - "Criterio medible de éxito 1"
+    - "Criterio medible de éxito 2"
+
+  rollback_plan: |
+    Descripción de cómo revertir si la decisión no funciona.
+
+  affected_components:
+    - "componente/modulo-1"
+    - "componente/modulo-2"
+
+references:
+  - title: "Documento interno relacionado"
+    path: ".ai/project/features/xxx/10_architecture.md"
+  - title: "Recurso externo"
+    url: "https://example.com/relevant-article"
+
+review_history:
+  - date: "2026-01-01"
+    author: "@autor"
+    change: "Creación inicial"

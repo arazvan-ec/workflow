@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow.local/schemas/adr_spec.json",
+  "title": "Architecture Decision Record",
+  "description": "Schema for validating Architecture Decision Record (ADR) YAML files",
+  "type": "object",
+  "required": ["version", "adr", "context", "decision", "consequences"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "description": "Schema version (e.g., '1.0')"
+    },
+    "adr": {
+      "type": "object",
+      "required": ["id", "title", "status", "date"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^ADR-\\d{3}$",
+          "description": "Unique ADR identifier (ADR-XXX)"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 150,
+          "description": "Descriptive title of the decision"
+        },
+        "status": {
+          "enum": ["proposed", "accepted", "deprecated", "superseded"],
+          "description": "Current status of the ADR"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "Decision date (YYYY-MM-DD)"
+        },
+        "deciders": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "People/roles involved in the decision"
+        },
+        "feature_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Related feature ID if applicable"
+        },
+        "supersedes": {
+          "type": "string",
+          "pattern": "^ADR-\\d{3}$",
+          "description": "ADR this decision replaces"
+        },
+        "superseded_by": {
+          "type": "string",
+          "pattern": "^ADR-\\d{3}$",
+          "description": "ADR that replaced this decision"
+        },
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Tags for categorization (e.g., 'infrastructure', 'api', 'security')"
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "required": ["problem", "drivers"],
+      "properties": {
+        "problem": {
+          "type": "string",
+          "minLength": 20,
+          "description": "Description of the problem or need that motivates this decision"
+        },
+        "drivers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "description": "Forces or requirements that influence the decision"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Constraints that limit available options"
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Assumptions made when evaluating options"
+        }
+      }
+    },
+    "options": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/option"},
+      "minItems": 2,
+      "description": "Options considered (minimum 2)"
+    },
+    "decision": {
+      "type": "object",
+      "required": ["chosen_option", "rationale"],
+      "properties": {
+        "chosen_option": {
+          "type": "string",
+          "description": "Name of the chosen option"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 20,
+          "description": "Explanation of why this option was chosen"
+        },
+        "trade_offs_accepted": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Explicit trade-offs accepted with this decision"
+        }
+      }
+    },
+    "consequences": {
+      "type": "object",
+      "required": ["positive"],
+      "properties": {
+        "positive": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "description": "Positive consequences of this decision"
+        },
+        "negative": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Negative consequences (trade-offs)"
+        },
+        "neutral": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Neutral changes resulting from this decision"
+        },
+        "risks": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/risk"},
+          "description": "Identified risks and mitigations"
+        }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "properties": {
+        "steps": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Implementation steps"
+        },
+        "success_criteria": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Criteria to validate successful implementation"
+        },
+        "rollback_plan": {
+          "type": "string",
+          "description": "How to rollback if needed"
+        },
+        "affected_components": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Components affected by this decision"
+        }
+      }
+    },
+    "references": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/reference"},
+      "description": "Related documents, discussions, or resources"
+    },
+    "review_history": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/review_entry"},
+      "description": "History of reviews and updates"
+    }
+  },
+  "$defs": {
+    "option": {
+      "type": "object",
+      "required": ["name", "description", "pros", "cons"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Option name"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief description of this option"
+        },
+        "pros": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "description": "Advantages of this option"
+        },
+        "cons": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1,
+          "description": "Disadvantages of this option"
+        },
+        "effort": {
+          "enum": ["low", "medium", "high"],
+          "description": "Implementation effort estimate"
+        },
+        "risk": {
+          "enum": ["low", "medium", "high"],
+          "description": "Risk level of this option"
+        }
+      }
+    },
+    "risk": {
+      "type": "object",
+      "required": ["description", "mitigation"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Risk description"
+        },
+        "probability": {
+          "enum": ["low", "medium", "high"]
+        },
+        "impact": {
+          "enum": ["low", "medium", "high"]
+        },
+        "mitigation": {
+          "type": "string",
+          "description": "How to mitigate this risk"
+        }
+      }
+    },
+    "reference": {
+      "type": "object",
+      "required": ["title"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Reference title"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL if external resource"
+        },
+        "path": {
+          "type": "string",
+          "description": "Path if internal document"
+        }
+      }
+    },
+    "review_entry": {
+      "type": "object",
+      "required": ["date", "author", "change"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "author": {
+          "type": "string"
+        },
+        "change": {
+          "type": "string",
+          "description": "Description of the change"
+        }
+      }
+    }
+  }
+}
