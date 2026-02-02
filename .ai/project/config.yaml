@@ -3,18 +3,18 @@
 # Last updated: 2026-01-16
 
 project:
-  name: ""                      # Project name (e.g., "sportian")
-  type: ""                      # auto-detected: symfony, laravel, node, react, etc.
-  description: ""               # Brief description
+  name: "SNAAPI"
+  type: "api-gateway"
+  description: "API Gateway that aggregates content from multiple microservices for mobile apps"
 
 # Backend configuration
 backend:
   enabled: true
-  path: "."                     # Relative path to backend (. = same project)
-  framework: ""                 # symfony, laravel, express, fastapi, etc.
-  language: ""                  # php, python, node, go, etc.
-  architecture: ""              # ddd, mvc, clean, hexagonal, etc.
-  test_framework: ""            # phpunit, jest, pytest, etc.
+  path: "./snaapi"              # Relative path to backend
+  framework: "symfony"          # Symfony 6.4
+  language: "php"               # PHP 8.1+
+  architecture: "hexagonal+cqrs" # Hexagonal + CQRS (Query side)
+  test_framework: "phpunit"     # PHPUnit 10
 
 # Frontend configuration
 frontend:
