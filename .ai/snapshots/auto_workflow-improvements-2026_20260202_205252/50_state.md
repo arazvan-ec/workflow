@@ -238,7 +238,6 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
-- /home/user/workflow/.gitignore (2026-02-02T20:54:17+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/CLAUDE.md (2026-02-02T20:51:26+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/.claude-plugin/plugin.json (2026-02-02T20:51:06+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/README.md (2026-02-02T20:50:20+00:00)
