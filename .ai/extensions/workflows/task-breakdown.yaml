@@ -58,14 +58,96 @@ stages:
     dependencies: []
     parallel_with: []
 
-  - id: architecture_design
-    name: "Diseño de Arquitectura"
+  - id: architecture_criteria
+    name: "Definición de Criterios de Arquitectura"
     role: planner
-    description: "Diseñar arquitectura y estructura de datos"
+    description: "Definir criterios explícitos para evaluar opciones arquitectónicas"
     workspace: "./.ai/project/features/{FEATURE_ID}/"
 
     inputs:
       - 00_requirements_analysis.md
+      - Developer consultation (interview)
+
+    outputs:
+      - 12_architecture_criteria.md (criterios ponderados)
+      - 12a_criteria_evaluation.md (evaluación de opciones, si hay múltiples)
+      - 12b_criteria_consultation.md (log de consulta con dev)
+      - 50_state.md (actualizado)
+
+    rules:
+      - Read: 00_requirements_analysis.md
+      - Read: plugins/multi-agent-workflow/skills/criteria-generator.md
+      - Read: plugins/multi-agent-workflow/agents/design/architecture-criteria-analyst.md
+      - Write: 12_architecture_criteria.md
+      - Write: 12a_criteria_evaluation.md (optional)
+      - Write: 12b_criteria_consultation.md
+
+    process:
+      - step: 1
+        name: "Context Analysis"
+        description: "Analizar contexto de la feature para identificar categorías de criterios relevantes"
+        actions:
+          - Identificar tipo de feature (new, refactor, integration, migration)
+          - Identificar criticidad (auth/payment → high, standard → medium)
+          - Identificar lifespan esperado (short/medium/long term)
+          - Identificar constraints (technical, business, team)
+
+      - step: 2
+        name: "Developer Consultation"
+        description: "Consultar con el dev para validar y priorizar criterios"
+        questions:
+          - "¿Cuáles son las constraints técnicas no negociables?"
+          - "¿Qué requisitos de performance existen?"
+          - "¿Qué prioridad tiene: velocidad de desarrollo vs mantenibilidad?"
+          - "¿Cuál sería el peor resultado a evitar?"
+          - "¿Quién mantendrá esto después del launch?"
+          - "¿Qué patrones conoce bien el equipo?"
+
+      - step: 3
+        name: "Criteria Selection"
+        description: "Seleccionar y ponderar criterios basados en contexto y consulta"
+        criteria_categories:
+          - Functional Fit (feature completeness, edge cases)
+          - Technical Quality (testability, debuggability, performance)
+          - Team & Process (expertise, learning curve, cognitive load)
+          - Operational (deployment, monitoring, recovery)
+          - Strategic (tech stack fit, vendor lock-in, future migration)
+
+      - step: 4
+        name: "Documentation"
+        description: "Documentar criterios con pesos y rationale"
+        template: |
+          ## Architecture Criteria: {feature-id}
+
+          | ID | Criterion | Category | Weight | Rationale |
+          |----|-----------|----------|--------|-----------|
+          | C1 | ... | ... | Critical | ... |
+
+          ### Weight Definitions
+          - Critical: Must score 4+ or option is disqualified
+          - High: Strong preference, heavily weighted
+          - Medium: Considered but not decisive
+          - Low: Tiebreaker only
+
+    completion_criteria:
+      - 12_architecture_criteria.md existe con criterios ponderados
+      - Criterios validados con stakeholder/dev
+      - Rationale documentado para cada peso
+      - Condiciones de revisión documentadas
+      - 50_state.md actualizado
+
+    dependencies: [requirements_analysis]
+    parallel_with: []
+
+  - id: architecture_design
+    name: "Diseño de Arquitectura"
+    role: planner
+    description: "Diseñar arquitectura basada en criterios definidos"
+    workspace: "./.ai/project/features/{FEATURE_ID}/"
+
+    inputs:
+      - 00_requirements_analysis.md
+      - 12_architecture_criteria.md
 
     outputs:
       - 10_architecture.md (diagrama de componentes, estructura DDD)
@@ -183,6 +265,7 @@ stages:
 validation:
   required_files:
     - 00_requirements_analysis.md
+    - 12_architecture_criteria.md
     - 10_architecture.md
     - 15_data_model.md
     - 20_api_contracts.md
