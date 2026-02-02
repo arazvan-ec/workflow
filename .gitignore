@@ -1,7 +1,16 @@
-# Session logs (auto-generated, change frequently)
-.ai/logs/audit_*.json
-.ai/logs/tool_use_*.log
-.ai/logs/session_*.log
+# Plugin temporary files
+.ai/logs/
+.ai/snapshots/
+.ai/metrics/
+
+# Context snapshots
+.ai/logs/context_snapshots/
+
+# Session-specific files
+*_session.log
+audit_*.json
+session_*.log
+tool_use_*.log
 
 # Node modules
 node_modules/

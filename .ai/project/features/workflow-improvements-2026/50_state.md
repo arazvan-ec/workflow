@@ -238,6 +238,8 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/plugins/multi-agent-workflow/core/docs/SESSION_CONTINUITY.md (2026-02-02T21:41:27+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/skills/token-advisor.md (2026-02-02T21:41:26+00:00)
 - /home/user/workflow/.gitignore (2026-02-02T20:54:17+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/CLAUDE.md (2026-02-02T20:51:26+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/.claude-plugin/plugin.json (2026-02-02T20:51:06+00:00)
