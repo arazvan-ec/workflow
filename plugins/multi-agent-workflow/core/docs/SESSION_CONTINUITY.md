@@ -18,6 +18,69 @@ This guide explains how to maintain continuity using the snapshot/restore system
 
 ---
 
+## Proactive Context Management
+
+### The 70% Rule
+
+**Don't wait for auto-compact at 95%.** When context reaches ~70% capacity:
+
+1. **Option A**: Run `/compact` to summarize and reduce context
+2. **Option B**: Create `/workflows:snapshot` and start fresh session
+
+### Signs You Need to Act
+
+| Signal | Action |
+|--------|--------|
+| Responses feel slower | Run `/context`, then `/compact` if >70% |
+| Read >15 files this session | Consider snapshot + fresh start |
+| Working >1.5 hours continuously | Create checkpoint snapshot |
+| Switching between unrelated tasks | Use `/clear` between tasks |
+| Complex debugging ahead | Check capacity first |
+
+### Quick Context Commands
+
+```bash
+/context              # Check current token usage
+/compact              # Summarize and reduce context
+/clear                # Fresh start (loses current context)
+/skill:token-advisor  # Get optimization suggestions
+```
+
+### Proactive Session Strategy
+
+```
+Session Start
+    │
+    ├── Set mental timer: 1 hour
+    │
+    ├── Every 30 min: Quick /context check
+    │
+    ├── At 70% or 1 hour:
+    │   ├── /workflows:snapshot --name="checkpoint"
+    │   └── Decision: continue or fresh start?
+    │
+    └── Before complex task:
+        └── /skill:token-advisor --quick
+```
+
+### Token-Efficient Habits
+
+**Before reading files:**
+- Use `grep` to find what you need first
+- Read specific line ranges when possible
+- Ask "do I really need the full file?"
+
+**During work:**
+- Filter command outputs (`--oneline`, `--stat`, `head`)
+- Avoid re-reading files already in context
+- Summarize findings instead of copying content
+
+**For MCP users:**
+- Disable unused MCP servers (they consume context even idle)
+- Enable servers on-demand for specific tasks
+
+---
+
 ## The Context Challenge
 
 ### Understanding Context Limits

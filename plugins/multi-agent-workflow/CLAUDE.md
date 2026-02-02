@@ -240,6 +240,40 @@ After each feature:
 - Checkpoint frequently for session resumption
 - Signal to restart: >20 files, >2 hours, >50 messages
 
+## Token Efficiency Tips
+
+Optimize token usage to extend session capacity and reduce costs.
+
+### Before Reading Files
+- **Search first**: Use `grep` to find specific content before reading entire files
+- **Specify ranges**: `Read file.ts:50-100` instead of full file when possible
+- **Check usage**: Run `/context` to see current token consumption
+
+### During Session
+- **Compact proactively**: Run `/compact` at ~70% capacity (don't wait for auto-compact at 95%)
+- **Clear between tasks**: Use `/clear` when switching to unrelated work
+- **One focus per session**: Avoid mixing unrelated features in same session
+
+### For Large Outputs
+- **Filter git output**: `git log --oneline -20` instead of `git log`
+- **Use summaries**: `git diff --stat` before full diffs
+- **Limit results**: Add `| head -50` to commands that may produce large output
+
+### MCP Optimization
+- **Disable unused servers**: Each MCP server consumes context even when idle
+- **Check consumption**: Use `/context` to identify MCP overhead
+- **Enable on-demand**: Only activate servers when needed for current task
+
+### Quick Reference
+```bash
+/context              # Check current token usage
+/compact              # Summarize and reduce context
+/clear                # Fresh start for new task
+/skill:token-advisor  # Get optimization suggestions
+```
+
+See `core/docs/SESSION_CONTINUITY.md` for detailed context management strategies.
+
 ## State Management
 
 All roles communicate via `50_state.md`:
