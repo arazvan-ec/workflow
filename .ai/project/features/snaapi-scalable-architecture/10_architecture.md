@@ -1,17 +1,30 @@
 # Architecture Specification
 
-## Architecture Style: Hexagonal + CQRS (Query Side)
+## Architecture Style: Pipeline + Symfony Normalizers
 
-### Why This Architecture?
+> **Decision Record**: See `05_architecture_decision.md` for full evaluation matrix.
+>
+> **Why this architecture?** Scored 143/155 (Pipeline) and 138/155 (Normalizers) based on SNAAPI's primary drivers: extensibility and minimal file changes.
 
-| Requirement | Solution |
-|-------------|----------|
-| Múltiples microservicios | Gateway Pattern (Ports & Adapters) |
-| Read-only API | CQRS Query Side (sin Commands) |
-| Extensibilidad | Chain of Responsibility + Service Tags |
-| Resiliencia | Circuit Breaker + Fallbacks |
-| Performance | Async Aggregation + Caching Decorators |
-| Testabilidad | Interfaces pequeñas, inyección de dependencias |
+### Architecture Selection by Criteria
+
+| Criterion | Weight | Winner | Score |
+|-----------|--------|--------|-------|
+| Extensibility (new data) | 5 | Pipeline | 5/5 |
+| Minimal file changes | 5 | Pipeline + Normalizers | 5/5 |
+| Clear responsibilities | 5 | Pipeline (1 enricher = 1 job) | 5/5 |
+| Testability | 4 | Both (isolated units) | 5/5 |
+| Resilience | 4 | Pipeline (graceful skip) | 4/5 |
+| Symfony native | 3 | Normalizers | 5/5 |
+
+### Pattern Mapping
+
+| Layer | Pattern | Reason |
+|-------|---------|--------|
+| Enrichment | **Pipeline** | Add new data = 1 file |
+| Transformation | **Symfony Normalizers** | Auto-discovery, framework-native |
+| External Services | **Gateway (Port/Adapter)** | Abstract HTTP, enable mocking |
+| Cross-cutting | **Decorator** | Cache + Circuit Breaker |
 
 ## Layer Diagram
 
