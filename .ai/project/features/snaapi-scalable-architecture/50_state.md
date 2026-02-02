@@ -59,6 +59,8 @@ None
 | 2026-02-02 | Keep existing HTTP clients | Wrap in adapters instead of rewriting |
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/07_implementation_comparison.md (2026-02-02T23:35:07+00:00)
+- /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/06_architecture_validation.md (2026-02-02T23:30:49+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/30_tasks_backend.md (2026-02-02T23:27:30+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/10_architecture.md (2026-02-02T23:22:30+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/05_architecture_decision.md (2026-02-02T23:22:17+00:00)
