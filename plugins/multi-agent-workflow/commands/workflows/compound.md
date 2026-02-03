@@ -46,9 +46,22 @@ This awareness helps future planning account for the **real complexity**, not ju
 ## Usage
 
 ```bash
-# After QA approval
+# After QA approval (includes automatic spec updates)
 /workflows:compound user-authentication
+
+# Disable automatic spec updates
+/workflows:compound user-authentication --update-specs=false
+
+# Only update specs (skip other compound steps)
+/workflows:compound user-authentication --specs-only
 ```
+
+## Flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--update-specs` | `true` | Automatically update project specs after feature completion |
+| `--specs-only` | `false` | Only perform spec updates, skip pattern capture and other compound steps |
 
 ## When to Run
 
@@ -223,11 +236,39 @@ Implemented user registration with email/password authentication.
 1. Skipping integration tests → Added to QA checklist
 2. Incomplete API contracts → Added template requirement
 
+### Specs Updated
+Records what project specifications were created or modified by this feature.
+
+#### Entities
+| Entity | Action | File |
+|--------|--------|------|
+| User | CREATED | .ai/project/specs/entities/user.md |
+| EmailVO | CREATED | .ai/project/specs/entities/email-vo.md |
+
+#### API Contracts
+| Endpoint | Action | File |
+|----------|--------|------|
+| POST /api/users | CREATED | .ai/project/specs/api-contracts/users.md |
+| GET /api/users/{id} | CREATED | .ai/project/specs/api-contracts/users.md |
+
+#### Business Rules
+| Rule ID | Action | File |
+|---------|--------|------|
+| BR-AUTH-001 | CREATED | .ai/project/specs/business-rules/authentication.md |
+| BR-AUTH-002 | CREATED | .ai/project/specs/business-rules/authentication.md |
+| BR-AUTH-003 | CREATED | .ai/project/specs/business-rules/authentication.md |
+
+#### Spec Manifest Update
+- Timestamp: 2026-01-16T14:30:00Z
+- History entry added: Yes
+- Files affected: 5
+
 ### Impact on Future Work
 - Next auth feature (password reset) can reuse:
   - Email VO ✓
   - Form pattern ✓
   - Test structure ✓
+- **Project specs now reflect**: User entity, users API, auth rules
 - Estimated time savings: 30-40%
 
 ### Questions for Future
@@ -245,6 +286,257 @@ cp .ai/project/features/user-auth/FEATURE_user-auth.md \
    .ai/workflow/templates/FEATURE_auth_template.md
 ```
 
+### Step 7: Spec Diff Analysis (NEW)
+
+Compare feature specifications with existing project specs to identify changes:
+
+```bash
+# Feature spec files to analyze
+FEATURE_SPECS=".ai/project/features/${FEATURE_ID}/12_specs.md"
+FEATURE_SOLUTIONS=".ai/project/features/${FEATURE_ID}/15_solutions.md"
+
+# Project spec directories
+PROJECT_ENTITIES=".ai/project/specs/entities/"
+PROJECT_API=".ai/project/specs/api-contracts/"
+PROJECT_RULES=".ai/project/specs/business-rules/"
+```
+
+#### Spec Diff Report Generation
+
+```markdown
+## Spec Diff Report: ${FEATURE_NAME}
+
+### New Entities Detected
+| Entity | Source File | Status |
+|--------|-------------|--------|
+| User | 12_specs.md:45 | NEW |
+| EmailVO | 15_solutions.md:23 | NEW |
+
+### Modified Entities
+| Entity | Changes | Source |
+|--------|---------|--------|
+| Account | +passwordHash field | 12_specs.md:67 |
+
+### New API Endpoints
+| Endpoint | Method | Source |
+|----------|--------|--------|
+| /api/users | POST | 15_solutions.md:89 |
+| /api/users/{id} | GET | 15_solutions.md:95 |
+
+### New Business Rules
+| Rule ID | Description | Source |
+|---------|-------------|--------|
+| BR-AUTH-001 | Email must be unique | 12_specs.md:120 |
+| BR-AUTH-002 | Password min 8 chars | 12_specs.md:125 |
+
+### New Patterns Identified
+| Pattern | Location | Reusability |
+|---------|----------|-------------|
+| Email Value Object | Domain/ValueObject | High |
+| JWT Token Strategy | Infrastructure/Auth | Medium |
+```
+
+#### Diff Analysis Process
+
+1. **Parse feature specs** (12_specs.md):
+   - Extract entity definitions
+   - Extract acceptance criteria
+   - Extract business rules
+
+2. **Parse feature solutions** (15_solutions.md):
+   - Extract implementation patterns
+   - Extract API contracts
+   - Extract architectural decisions
+
+3. **Compare with existing project specs**:
+   - Check `.ai/project/specs/entities/` for existing entities
+   - Check `.ai/project/specs/api-contracts/` for existing endpoints
+   - Check `.ai/project/specs/business-rules/` for existing rules
+
+4. **Generate diff report**:
+   - NEW: Entity/endpoint/rule not in project specs
+   - MODIFIED: Entity/endpoint/rule exists but changed
+   - UNCHANGED: Already in project specs
+
+### Step 8: Update Project Specs (NEW)
+
+Automatically update project specifications to reflect the new feature state:
+
+```bash
+# Skip if --update-specs=false
+if [[ "${UPDATE_SPECS}" == "false" ]]; then
+    echo "Skipping spec updates (--update-specs=false)"
+    exit 0
+fi
+```
+
+#### 8.1 Update Entity Specs
+
+```markdown
+# .ai/project/specs/entities/user.md (created/updated)
+
+---
+entity: User
+version: 1.0.0
+created: 2026-01-16
+last_updated: 2026-01-16
+source_feature: user-authentication
+---
+
+## Entity: User
+
+### Properties
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| id | UUID | Yes | Unique identifier |
+| email | Email (VO) | Yes | User email address |
+| passwordHash | string | Yes | Bcrypt hashed password |
+| createdAt | DateTime | Yes | Account creation timestamp |
+
+### Invariants
+- Email must be unique across all users
+- Password hash must use bcrypt with cost factor >= 12
+
+### Related Entities
+- Profile (1:1)
+- Session (1:N)
+```
+
+#### 8.2 Update API Contract Specs
+
+```markdown
+# .ai/project/specs/api-contracts/users.md (created/updated)
+
+---
+api_group: users
+version: 1.0.0
+created: 2026-01-16
+last_updated: 2026-01-16
+source_feature: user-authentication
+---
+
+## API Group: Users
+
+### POST /api/users
+**Purpose**: Create new user account
+
+**Request Body**:
+```json
+{
+  "email": "string (required)",
+  "password": "string (required, min 8 chars)"
+}
+```
+
+**Response 201**:
+```json
+{
+  "id": "uuid",
+  "email": "string",
+  "createdAt": "ISO8601"
+}
+```
+
+**Error Responses**:
+- 400: Validation error
+- 409: Email already exists
+```
+
+#### 8.3 Update Business Rules Specs
+
+```markdown
+# .ai/project/specs/business-rules/authentication.md (created/updated)
+
+---
+domain: authentication
+version: 1.0.0
+created: 2026-01-16
+last_updated: 2026-01-16
+source_feature: user-authentication
+---
+
+## Business Rules: Authentication
+
+### BR-AUTH-001: Unique Email
+- **Rule**: Each user email must be unique in the system
+- **Enforcement**: Database unique constraint + application validation
+- **Error**: "Email already registered"
+
+### BR-AUTH-002: Password Requirements
+- **Rule**: Password must be at least 8 characters
+- **Enforcement**: Application validation
+- **Error**: "Password must be at least 8 characters"
+
+### BR-AUTH-003: Password Hashing
+- **Rule**: Passwords must be hashed with bcrypt (cost >= 12)
+- **Enforcement**: Domain service
+- **Audit**: Security review required for changes
+```
+
+#### 8.4 Update Spec Manifest
+
+```yaml
+# .ai/project/specs/spec-manifest.yaml
+
+version: "1.0"
+last_updated: "2026-01-16T14:30:00Z"
+
+entities:
+  - name: User
+    file: entities/user.md
+    version: 1.0.0
+    created: 2026-01-16
+    source_feature: user-authentication
+
+api_contracts:
+  - group: users
+    file: api-contracts/users.md
+    version: 1.0.0
+    created: 2026-01-16
+    source_feature: user-authentication
+    endpoints:
+      - POST /api/users
+      - GET /api/users/{id}
+
+business_rules:
+  - domain: authentication
+    file: business-rules/authentication.md
+    version: 1.0.0
+    created: 2026-01-16
+    source_feature: user-authentication
+    rules:
+      - BR-AUTH-001
+      - BR-AUTH-002
+      - BR-AUTH-003
+
+history:
+  - date: 2026-01-16
+    feature: user-authentication
+    changes:
+      - "Added User entity"
+      - "Added users API contract"
+      - "Added authentication business rules"
+```
+
+#### Using the Spec-Merger Skill
+
+```bash
+# Invoke spec-merger skill for intelligent merging
+/workflow-skill:spec-merger \
+  --feature="${FEATURE_ID}" \
+  --source-specs=".ai/project/features/${FEATURE_ID}/12_specs.md" \
+  --source-solutions=".ai/project/features/${FEATURE_ID}/15_solutions.md" \
+  --target-dir=".ai/project/specs/" \
+  --mode=merge  # merge | overwrite | dry-run
+```
+
+The spec-merger skill:
+1. Parses feature specs and solutions
+2. Identifies new/modified specs
+3. Merges changes preserving existing content
+4. Updates manifest with timestamps
+5. Creates backup before modifications
+
 ## Compound Checklist
 
 - [ ] Analyzed git history for patterns
@@ -257,6 +549,12 @@ cp .ai/project/features/user-auth/FEATURE_user-auth.md \
 - [ ] Added entry to compound_log.md
 - [ ] Created/updated templates if applicable
 - [ ] Estimated time savings for future work
+- [ ] **Generated spec diff report** (Step 7)
+- [ ] **Updated project specs** (Step 8, unless --update-specs=false)
+  - [ ] Updated/created entity specs
+  - [ ] Updated/created API contract specs
+  - [ ] Updated/created business rules specs
+  - [ ] Updated spec-manifest.yaml with history
 
 ## Output
 
@@ -270,12 +568,81 @@ Anti-patterns documented: 2
 Rules updated: 2 files
 Templates created: 1
 
+═══════════════════════════════════════════════════════════════
+SPEC UPDATES (--update-specs=true)
+═══════════════════════════════════════════════════════════════
+
+Spec Diff Analysis:
+  New entities detected: 2
+  Modified entities: 1
+  New API endpoints: 2
+  New business rules: 3
+
+Project Specs Updated:
+  ✓ .ai/project/specs/entities/user.md (CREATED)
+  ✓ .ai/project/specs/entities/email-vo.md (CREATED)
+  ✓ .ai/project/specs/api-contracts/users.md (CREATED)
+  ✓ .ai/project/specs/business-rules/authentication.md (CREATED)
+  ✓ .ai/project/specs/spec-manifest.yaml (UPDATED)
+
+Spec Manifest History Entry:
+  - date: 2026-01-16
+  - feature: user-authentication
+  - changes: 4 files created, 1 file updated
+
+═══════════════════════════════════════════════════════════════
+
 Estimated future time savings: 30-40% on similar features
 
 Next feature recommendation:
 - Use Email VO pattern
 - Follow RegistrationForm pattern
 - Reference: .ai/project/compound_log.md
+- Reference: .ai/project/specs/ (updated specs)
+
+Compound log updated: .ai/project/compound_log.md
+```
+
+### Output with --specs-only
+
+```
+Spec-only update complete for: user-authentication
+
+═══════════════════════════════════════════════════════════════
+SPEC UPDATES
+═══════════════════════════════════════════════════════════════
+
+Spec Diff Analysis:
+  New entities detected: 2
+  Modified entities: 1
+  New API endpoints: 2
+  New business rules: 3
+
+Project Specs Updated:
+  ✓ .ai/project/specs/entities/user.md (CREATED)
+  ✓ .ai/project/specs/entities/email-vo.md (CREATED)
+  ✓ .ai/project/specs/api-contracts/users.md (CREATED)
+  ✓ .ai/project/specs/business-rules/authentication.md (CREATED)
+  ✓ .ai/project/specs/spec-manifest.yaml (UPDATED)
+
+Note: Pattern capture and other compound steps skipped (--specs-only mode)
+To run full compound: /workflows:compound user-authentication
+```
+
+### Output with --update-specs=false
+
+```
+Compound capture complete for: user-authentication
+
+Patterns captured: 3
+Anti-patterns documented: 2
+Rules updated: 2 files
+Templates created: 1
+
+Spec updates: SKIPPED (--update-specs=false)
+  To update specs manually: /workflows:compound user-authentication --specs-only
+
+Estimated future time savings: 30-40% on similar features
 
 Compound log updated: .ai/project/compound_log.md
 ```
@@ -429,3 +796,72 @@ This command integrates with:
 - `/workflows:plan` - Learnings inform future plans
 - `learnings-researcher` agent - Searches documented solutions
 - `compound_log.md` - Quick reference for patterns
+- `spec-merger` skill - Intelligent spec merging and conflict resolution
+- `.ai/project/specs/` - Project specifications (entities, API contracts, business rules)
+- `spec-manifest.yaml` - Central registry of all project specifications
+
+### Spec Update Flow
+
+```
+Feature Complete
+       │
+       ▼
+┌──────────────────┐
+│ Spec Diff        │ Compare 12_specs.md & 15_solutions.md
+│ Analysis         │ with existing project specs
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Generate Diff    │ Identify NEW, MODIFIED, UNCHANGED specs
+│ Report           │
+└────────┬─────────┘
+         │
+         ▼
+┌──────────────────┐
+│ Update Specs     │ Use spec-merger skill
+│ (if enabled)     │
+└────────┬─────────┘
+         │
+    ┌────┴────┐
+    │         │
+    ▼         ▼
+┌───────┐ ┌───────────┐
+│Entities│ │API Contracts│
+└───┬───┘ └─────┬─────┘
+    │           │
+    │     ┌─────┴─────┐
+    │     │           │
+    │     ▼           ▼
+    │ ┌───────────┐ ┌──────────┐
+    │ │Business   │ │Spec      │
+    │ │Rules      │ │Manifest  │
+    │ └───────────┘ └──────────┘
+    │
+    ▼
+┌──────────────────┐
+│ compound_log.md  │ Log specs_updated section
+│ Entry            │
+└──────────────────┘
+```
+
+### Project Specs Directory Structure
+
+After compound with spec updates:
+
+```
+.ai/project/specs/
+├── spec-manifest.yaml          # Central registry with history
+├── entities/
+│   ├── user.md                 # User entity spec
+│   ├── email-vo.md             # Email value object spec
+│   └── ...
+├── api-contracts/
+│   ├── users.md                # Users API endpoints
+│   ├── auth.md                 # Auth API endpoints
+│   └── ...
+└── business-rules/
+    ├── authentication.md       # Auth domain rules
+    ├── user-management.md      # User domain rules
+    └── ...
+```
