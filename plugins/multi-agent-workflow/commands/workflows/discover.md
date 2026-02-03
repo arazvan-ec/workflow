@@ -24,6 +24,9 @@ Analiza el proyecto en profundidad para construir un conocimiento completo que p
 | Después de cambios mayores (nueva librería, refactor) | `/workflows:discover --refresh` |
 | Ver resumen del conocimiento actual | `/workflows:discover --report` |
 | Antes de planificar feature compleja | Automático en `/workflows:plan` |
+| Update specs after domain model changes | `/workflows:discover --specs-only` |
+| Deep analysis of business rules | `/workflows:discover --specs-only --specs-depth=deep` |
+| Generate API documentation baseline | `/workflows:discover --specs-only` then review `api-contracts/` |
 
 ## Invocation
 
@@ -39,6 +42,12 @@ Analiza el proyecto en profundidad para construir un conocimiento completo que p
 
 # Por defecto: análisis inteligente (detecta qué necesita actualizar)
 /workflows:discover
+
+# Spec extraction examples
+/workflows:discover --specs-only           # Only extract specs, skip profile
+/workflows:discover --no-extract-specs     # Full discovery without spec extraction
+/workflows:discover --specs-depth=deep     # Deep spec extraction (includes invariants, lifecycle)
+/workflows:discover --full --specs-only    # Force re-extract all specs from scratch
 ```
 
 ## Execution Protocol
@@ -47,6 +56,10 @@ Analiza el proyecto en profundidad para construir un conocimiento completo que p
 
 ```bash
 mkdir -p .ai/project/intelligence
+mkdir -p .ai/project/specs/entities
+mkdir -p .ai/project/specs/api-contracts
+mkdir -p .ai/project/specs/business-rules
+mkdir -p .ai/project/specs/architectural-constraints
 ```
 
 ### Step 2: Detect Project Type and Stack
@@ -789,7 +802,7 @@ Based on this project's characteristics:
 *Profile regenerated automatically. Manual edits will be preserved in sections marked `<!-- CUSTOM -->`*
 ```
 
-### Step 9: Generate Config if Missing
+### Step 14: Generate Config if Missing (Skip if --specs-only)
 
 If `.ai/project/config.yaml` doesn't exist, create it:
 
@@ -851,7 +864,7 @@ workflow:
   session_max_messages: 50
 ```
 
-### Step 10: Display Summary
+### Step 15: Display Summary
 
 ```markdown
 ╔══════════════════════════════════════════════════════════════════════╗
@@ -874,6 +887,14 @@ workflow:
 ✅ `.ai/project/config.yaml` - Configuración del proyecto
 ✅ `.ai/project/context.md` - Contexto para agentes
 
+### Spec Files (if --extract-specs enabled)
+
+✅ `.ai/project/specs/entities/*.yaml` - Entity specifications
+✅ `.ai/project/specs/api-contracts/*.yaml` - API contract definitions
+✅ `.ai/project/specs/business-rules/*.yaml` - Business rule documentation
+✅ `.ai/project/specs/architectural-constraints/*.yaml` - Architecture constraints
+✅ `.ai/project/specs/spec-manifest.yaml` - Spec index and metadata
+
 ## Conocimiento Capturado
 
 - 📁 Estructura: [X] directorios mapeados
@@ -881,6 +902,18 @@ workflow:
 - 📦 Dependencias: [X] analizadas
 - 📝 Commits: [X] analizados
 - 🎯 Referencias: [X] archivos template identificados
+
+## Specs Extracted (if --extract-specs enabled)
+
+| Spec Type | Count | Files Generated |
+|-----------|-------|-----------------|
+| **Entities** | [X] | `.ai/project/specs/entities/` |
+| **API Contracts** | [X] | `.ai/project/specs/api-contracts/` |
+| **Business Rules** | [X] | `.ai/project/specs/business-rules/` |
+| **Architectural Constraints** | [X] | `.ai/project/specs/architectural-constraints/` |
+| **Total Specs** | [X] | See `spec-manifest.yaml` |
+
+> Specs extracted by `spec-extractor` agent. Run `/workflows:discover --specs-only` to update specs without full discovery.
 
 ## Próximos Pasos
 
@@ -900,6 +933,10 @@ workflow:
 | `--refresh` | Actualiza solo lo que cambió |
 | `--report` | Solo muestra el perfil actual sin re-escanear |
 | `--quiet` | Menos output, solo errores |
+| `--extract-specs` | Enable spec extraction (default: true) |
+| `--no-extract-specs` | Disable spec extraction |
+| `--specs-only` | Only extract specs, skip profile generation |
+| `--specs-depth=[surface\|standard\|deep]` | Depth of spec extraction (default: standard) |
 
 ## Integration with Other Commands
 
@@ -907,6 +944,19 @@ workflow:
 - **`/workflows:work`**: Usa convenciones detectadas para código consistente
 - **`/workflows:review`**: Valida contra patrones documentados
 - **`/workflows:compound`**: Actualiza perfil con nuevos aprendizajes
+
+### Spec Extraction Agent
+
+The `spec-extractor` agent is responsible for all specification extraction:
+
+| Mode | Purpose | Output |
+|------|---------|--------|
+| Entity Analysis | Extract domain entities and models | `specs/entities/*.yaml` |
+| API Analysis | Extract API contracts and endpoints | `specs/api-contracts/*.yaml` |
+| Business Rule Analysis | Extract business rules and domain logic | `specs/business-rules/*.yaml` |
+| Constraint Analysis | Extract architectural constraints | `specs/architectural-constraints/*.yaml` |
+
+The agent uses static analysis, pattern recognition, and AST parsing to extract specifications from the codebase without requiring runtime execution.
 
 ## Auto-Discovery Triggers
 

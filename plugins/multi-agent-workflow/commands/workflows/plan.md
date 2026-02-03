@@ -621,29 +621,46 @@ Each task must include SOLID requirements:
 
 Before marking planning as COMPLETED:
 
+### Step 0: Architecture Context
+- [ ] Existing specs loaded (entities, api-contracts, business-rules)
+- [ ] Architectural constraints reviewed
+- [ ] Current architecture understood
+
 ### Phase 1: Understanding
 - [ ] Problem is clearly understood and documented
 - [ ] Clarifying questions asked if needed
 - [ ] Constraints identified
+- [ ] **Context of existing architecture considered**
 
-### Phase 2: Specs (Functional)
+### Phase 2: Specs + Integration
 - [ ] All functional specs defined (testable)
 - [ ] Specs describe WHAT, not HOW
 - [ ] API endpoints fully specified
 - [ ] Success criteria clear
+- [ ] **EXTENDED entities/endpoints identified**
+- [ ] **MODIFIED entities/endpoints identified**
+- [ ] **NEW entities/endpoints identified**
+- [ ] **Conflicts with existing specs resolved**
 
-### Phase 3: Solutions (with SOLID)
+### Phase 3: Solutions + Architectural Impact
 - [ ] **SOLID baseline analyzed** (current score)
 - [ ] Each spec has a solution
 - [ ] **Patterns selected** for SOLID compliance
 - [ ] **Expected SOLID score ≥22/25**
 - [ ] Tasks include SOLID requirements
+- [ ] **Layers affected documented**
+- [ ] **Existing modules touched listed**
+- [ ] **Change scope estimated (files affected)**
+- [ ] **Risk assessment completed**
 
 ### Final Check
 - [ ] Can engineer start WITHOUT asking questions? YES
 - [ ] Is "why this pattern?" explained? YES
+- [ ] **Is integration with existing code clear? YES**
+- [ ] **Is architectural impact understood? YES**
 
 **If SOLID is not addressed in Phase 3, the plan is INCOMPLETE.**
+**If integration analysis is missing, the plan treats feature as ISOLATED (anti-pattern).**
 
 ---
 
@@ -654,7 +671,9 @@ Before marking planning as COMPLETED:
 .ai/project/features/${FEATURE_ID}/
 ├── 00_problem_statement.md    # Phase 1: Understanding
 ├── 12_specs.md                # Phase 2: Functional specs (WHAT)
+├── 13_integration_analysis.md # Phase 2: Integration with existing specs (NEW)
 ├── 15_solutions.md            # Phase 3: Solutions with SOLID (HOW)
+├── 16_architectural_impact.md # Phase 3: Layers/modules affected (NEW)
 ├── 30_tasks.md                # Task breakdown
 ├── 50_state.md                # State tracking
 └── FEATURE_${FEATURE_ID}.md   # Summary
@@ -666,8 +685,10 @@ Before marking planning as COMPLETED:
 ├── 00_problem_statement.md
 ├── 10_architecture.md
 ├── 12_specs.md                # Functional specs only
+├── 13_integration_analysis.md # Integration analysis (NEW)
 ├── 15_solutions.md            # Solutions with SOLID patterns
 ├── 15_data_model.md
+├── 16_architectural_impact.md # Architectural impact (NEW)
 ├── 20_api_contracts.md
 ├── 30_tasks_backend.md
 ├── 31_tasks_frontend.md
@@ -679,34 +700,153 @@ Before marking planning as COMPLETED:
 
 ---
 
+## Integration Analysis Output
+
+When `--show-impact=true` (default), the planning process generates a comprehensive integration analysis.
+
+### 13_integration_analysis.md Structure
+
+```markdown
+# Integration Analysis: ${FEATURE_ID}
+
+## Summary
+- Entities: X extended, Y modified, Z new
+- Endpoints: X extended, Y modified, Z new
+- Business Rules: X conflicts, Y new
+- Status: [CLEAR | CONFLICTS_DETECTED]
+
+## Entities Impact
+### Extended
+[List of existing entities that gain new properties/methods]
+
+### Modified
+[List of existing entities with changed behavior]
+
+### New
+[List of new entities created by this feature]
+
+## API Contracts Impact
+### Extended
+[Existing endpoints with new parameters/responses]
+
+### Modified
+[Existing endpoints with changed behavior]
+
+### New
+[New endpoints created by this feature]
+
+## Business Rules Impact
+### Conflicts
+[Potential conflicts with existing rules and resolutions]
+
+### New
+[New business rules added by this feature]
+
+## Compatibility Assessment
+- Backward Compatible: [YES | NO | PARTIAL]
+- Migration Required: [YES | NO]
+- Breaking Changes: [List if any]
+```
+
+### 16_architectural_impact.md Structure
+
+```markdown
+# Architectural Impact: ${FEATURE_ID}
+
+## Summary
+- Layers affected: [Domain, Application, Infrastructure, Presentation]
+- Modules touched: X existing, Y new
+- Change scope: X files to create, Y files to modify
+
+## Layer Analysis
+[Table showing each layer's impact level and changes required]
+
+## Modules Touched
+[Table of existing modules with files touched and risk level]
+
+## Change Scope
+- Files to CREATE: N
+- Files to MODIFY: N
+- Total files affected: N
+- Estimated LOC: N added, N modified
+- Complexity: [LOW | MEDIUM | HIGH]
+- Estimated effort: [time estimate]
+
+## Risk Assessment
+[Table of risks with probability, impact, and mitigation strategies]
+```
+
+---
+
 ## Example: Complete Plan
 
 ```markdown
 # Feature Plan: user-authentication
+
+## STEP 0: Architecture Context
+
+### Existing Specs Loaded
+- Entities: 5 (Product, Order, OrderItem, Category, Inventory)
+- API Contracts: 12 endpoints
+- Business Rules: 8 rules
+- Architectural Constraints: 4 constraints
+
+### Relevant to This Feature
+- No existing User entity (greenfield for auth)
+- AC-002: "Auth required for write operations" - this feature enables it
 
 ## PHASE 1: Problem Statement
 
 We need user authentication with email/password.
 Users should register, login, and logout.
 
-## PHASE 2: Specs (WHAT - Functional)
+## PHASE 2: Specs + Integration Analysis
 
-### SPEC-F01: User Registration
+### Functional Specs (WHAT)
+
+#### SPEC-F01: User Registration
 - User can register with email and password
 - Email must be unique
 - Password must be ≥8 characters
 
-### SPEC-F02: User Login
+#### SPEC-F02: User Login
 - User can login with email and password
 - Returns authentication token on success
 
-### SPEC-F03: User Logout
+#### SPEC-F03: User Logout
 - User can invalidate their token
 
-## PHASE 3: Solutions (HOW - with SOLID)
+### Integration Analysis
+
+#### Entities Impact
+| Type | Entity | Details |
+|------|--------|---------|
+| NEW | User | Core auth entity |
+| NEW | RefreshToken | Token management |
+| EXTENDED | Order | Add `user_id` foreign key |
+
+#### API Contracts Impact
+| Type | Endpoint | Details |
+|------|----------|---------|
+| NEW | POST /api/auth/register | User registration |
+| NEW | POST /api/auth/login | User login |
+| NEW | POST /api/auth/logout | User logout |
+| MODIFIED | POST /api/orders | Require auth header |
+
+#### Business Rules Impact
+| Type | Rule | Details |
+|------|------|---------|
+| NEW | BR-AUTH-01 | Email must be unique |
+| NEW | BR-AUTH-02 | Password ≥8 characters |
+| ENABLES | AC-002 | Auth now possible for write ops |
+
+#### Conflicts
+- None detected
+
+## PHASE 3: Solutions + Architectural Impact
 
 ### SOLID Baseline
-Current code: N/A (greenfield)
+Current code: N/A for auth (greenfield)
 Target score: ≥22/25
 
 ### Solution for SPEC-F01 & F02
@@ -736,19 +876,60 @@ Infrastructure/
 ```
 
 **Expected SOLID Score**: 24/25
+
+### Architectural Impact
+
+#### Layers Affected
+| Layer | Impact | Files |
+|-------|--------|-------|
+| Domain | HIGH | 5 new files |
+| Application | MEDIUM | 3 new files |
+| Infrastructure | MEDIUM | 4 new files |
+| Presentation | LOW | 1 new controller |
+
+#### Modules Touched
+| Module | Files | Risk |
+|--------|-------|------|
+| src/Auth/ (NEW) | 12 | N/A |
+| src/Order/ | 2 | LOW |
+| config/ | 2 | LOW |
+
+#### Change Scope
+- Files to CREATE: 14
+- Files to MODIFY: 4
+- Total: 18 files
+- Estimated effort: 2 days
 ```
 
 ---
 
-## Summary: Where is SOLID?
+## Summary: Architecture-First Planning
 
-| Phase | Content | SOLID? |
-|-------|---------|--------|
-| Phase 1: Understand | Problem statement | ❌ No |
-| Phase 2: Specs | Functional requirements (WHAT) | ❌ No |
-| **Phase 3: Solutions** | Technical design (HOW) | ✅ **YES - MANDATORY** |
+| Step/Phase | Content | SOLID? | Integration? |
+|------------|---------|--------|--------------|
+| **Step 0: Load Specs** | Existing architecture context | ❌ No | ✅ **YES - CONTEXT** |
+| Phase 1: Understand | Problem statement | ❌ No | ❌ No |
+| **Phase 2: Specs** | Functional requirements (WHAT) | ❌ No | ✅ **YES - ANALYSIS** |
+| **Phase 3: Solutions** | Technical design (HOW) | ✅ **YES - MANDATORY** | ✅ **YES - IMPACT** |
 
 **SOLID is a design CONSTRAINT in Phase 3, not a functional SPEC in Phase 2.**
+
+**Integration analysis ensures every feature is designed as an EXTENSION of existing architecture, not an isolated solution.**
+
+### The Integration Mindset
+
+```
+❌ WRONG: "I'll create a new User service for authentication"
+✅ RIGHT: "I'll EXTEND the existing architecture with User entity,
+          MODIFY Order to require auth, and CREATE 3 new endpoints"
+```
+
+Every planning session should answer:
+1. What EXISTING specs will this feature EXTEND?
+2. What EXISTING specs will this feature MODIFY?
+3. What NEW specs will this feature CREATE?
+4. Are there any CONFLICTS with existing specs?
+5. What is the ARCHITECTURAL IMPACT (layers, modules, files)?
 
 ---
 
@@ -756,6 +937,7 @@ Infrastructure/
 
 - `/workflow-skill:criteria-generator` - Generate functional specs
 - `/workflow-skill:solid-analyzer` - Analyze SOLID compliance
+- `/workflow-skill:spec-validator` - Validate specs and detect conflicts
 - `/workflows:work` - Execute the plan
 - `/workflows:review` - Review implementation
 
@@ -764,3 +946,21 @@ Infrastructure/
 - `core/solid-pattern-matrix.md` - Violation → Pattern mapping
 - `core/architecture-quality-criteria.md` - Quality metrics
 - `skills/workflow-skill-solid-analyzer.md` - SOLID analysis tool
+
+## Project Specs Location
+
+```
+.ai/project/specs/
+├── entities/                  # Domain entities YAML specs
+│   ├── user.yaml
+│   ├── order.yaml
+│   └── product.yaml
+├── api-contracts/             # API endpoint contracts
+│   ├── users.yaml
+│   ├── orders.yaml
+│   └── products.yaml
+├── business-rules/            # Domain logic constraints
+│   └── rules.yaml
+└── architectural-constraints/ # System boundaries
+    └── constraints.yaml
+```

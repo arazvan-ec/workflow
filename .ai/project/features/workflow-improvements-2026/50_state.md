@@ -244,6 +244,15 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/plugins/multi-agent-workflow/agents/workflow/spec-extractor.md (2026-02-03T22:05:48+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/templates/spec_manifest.yaml (2026-02-03T22:05:30+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/templates/architectural_constraint_spec.yaml (2026-02-03T22:05:29+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/templates/business_rule_spec.yaml (2026-02-03T22:05:25+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/skills/spec-merger/SKILL.md (2026-02-03T22:05:24+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/templates/api_contract_spec.yaml (2026-02-03T22:05:22+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/templates/entity_spec.yaml (2026-02-03T22:05:21+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/specs.md (2026-02-03T22:05:17+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/docs/LIVING_SPECS.md (2026-02-03T22:04:12+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/core/schemas/spec_manifest.json (2026-02-03T21:57:29+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/core/schemas/architectural_constraint_spec.json (2026-02-03T21:57:09+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/core/schemas/business_rule_spec.json (2026-02-03T21:56:47+00:00)
