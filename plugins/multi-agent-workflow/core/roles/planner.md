@@ -18,6 +18,11 @@
   - `global_rules.md`
   - `ddd_rules.md`
   - `project_specific.md`
+- **SOLID y Arquitectura** (CRÍTICO para decisiones):
+  - `core/solid-pattern-matrix.md` - Mapeo violación → patrón de diseño
+  - `core/architecture-quality-criteria.md` - Métricas de calidad
+  - `skills/solid-analyzer.md` - Análisis automático SOLID
+  - `agents/design/solid-architecture-generator.md` - Generación de arquitecturas
 - **Todos** los workflows YAML (`./.ai/workflow/workflows/*.yaml`)
 - **Todos** los estados de features:
   - `./.ai/project/features/*/50_state.md`
@@ -78,6 +83,13 @@ Durante el **planning**:
    - Dependencias entre tareas
 
 7. **Documenta decisiones** arquitectónicas importantes en `DECISIONS.md`
+
+7b. **SOLID Analysis (para refactoring/arquitectura)**:
+   - Si es refactoring: ejecutar `/skill:solid-analyzer --path=src/target`
+   - Si hay decisión arquitectónica: usar `/skill:criteria-generator --solid-rigorous`
+   - Leer `core/solid-pattern-matrix.md` para mapear violaciones → patrones
+   - Rechazar opciones con score SOLID < 18/25
+   - Documentar patrón seleccionado y por qué en DECISIONS.md
 
 8. **Actualiza `50_state.md`** del planning a `COMPLETED` cuando esté listo
 

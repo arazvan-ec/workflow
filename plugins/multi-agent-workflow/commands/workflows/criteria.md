@@ -427,9 +427,54 @@ The workflow MAY automatically suggest running criteria when:
 | Ignore team context | Theoretically good, practically bad | Weight team expertise |
 | One-size-fits-all | Different features need different criteria | Customize per feature |
 
+## SOLID-Rigorous Mode
+
+For features requiring strict SOLID compliance (refactoring, architecture decisions):
+
+```bash
+# Add SOLID principles as critical criteria
+/workflows:criteria my-feature --solid-rigorous
+
+# Or combine with interview
+/workflows:criteria my-feature --interview --solid-rigorous
+```
+
+This mode:
+1. **Adds 5 SOLID sub-criteria** (S, O, L, I, D) as Critical/High weight
+2. **Analyzes existing code** with `/skill:solid-analyzer` first
+3. **Maps violations to patterns** via `core/solid-pattern-matrix.md`
+4. **Rejects options** scoring <18/25 on SOLID automatically
+5. **Recommends corrective patterns** (Strategy, Decorator, Ports & Adapters, etc.)
+
+### When to Use SOLID-Rigorous
+
+| Scenario | Use `--solid-rigorous`? |
+|----------|------------------------|
+| Refactoring existing code | **YES** - mandatory |
+| Architecture redesign | **YES** - mandatory |
+| New feature (greenfield) | Optional (recommended for critical features) |
+| Bug fix | No (unless touches architecture) |
+
+### SOLID Evaluation Matrix (added when `--solid-rigorous`)
+
+```
+| Criterion | Weight | Option A | Option B |
+|-----------|--------|----------|----------|
+| **C-SOLID-S** | Critical | 5 | 2 ❌ |
+| **C-SOLID-O** | Critical | 5 | 3 |
+| **C-SOLID-L** | High | 4 | 4 |
+| **C-SOLID-I** | High | 5 | 5 |
+| **C-SOLID-D** | Critical | 5 | 2 ❌ |
+| SOLID Total | | 24/25 ✓ | 16/25 ❌ REJECTED |
+```
+
+See `core/solid-pattern-matrix.md` for violation → pattern mappings.
+
 ## Related Commands
 
 - `/workflows:interview` - Create feature spec
 - `/workflows:plan` - Main planning workflow
-- `/skill:criteria-generator` - Direct skill invocation
+- `/workflows:solid-refactor` - Complete SOLID refactoring workflow
+- `/skill:criteria-generator` - Direct skill invocation (supports `--solid-rigorous`)
+- `/skill:solid-analyzer` - Automated SOLID violation detection
 - `/workflows:validate` - Validate planning documents
