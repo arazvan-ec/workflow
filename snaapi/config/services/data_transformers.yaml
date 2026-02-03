@@ -1,0 +1,59 @@
+# config/services/data_transformers.yaml
+# Data Transformers - Strategy pattern for SOLID compliance
+#
+# This configuration replaces the compiler passes for data transformer registration.
+# New transformers are automatically discovered and tagged, then injected as iterables.
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # =================================================================
+    # Auto-configure transformers with tags via _instanceof
+    # =================================================================
+
+    _instanceof:
+        # Tag all BodyElementDataTransformer implementations
+        App\Application\DataTransformer\BodyElementDataTransformer:
+            tags: ['app.data_transformer']
+
+        # Tag all new Strategy interface implementations
+        App\Application\DataTransformer\Strategy\BodyElementDataTransformerStrategyInterface:
+            tags: ['app.data_transformer']
+
+        # Tag all MediaDataTransformer implementations
+        App\Application\DataTransformer\Apps\Media\MediaDataTransformer:
+            tags: ['app.media_data_transformer']
+
+        # Tag all new Strategy interface implementations
+        App\Application\DataTransformer\Strategy\MediaDataTransformerStrategyInterface:
+            tags: ['app.media_data_transformer']
+
+    # =================================================================
+    # Auto-discover Body Element Transformers
+    # =================================================================
+
+    App\Application\DataTransformer\Apps\Body\:
+        resource: '../../src/Application/DataTransformer/Apps/Body/'
+        exclude:
+            - '../../src/Application/DataTransformer/Apps/Body/Trait/'
+
+    # =================================================================
+    # Auto-discover Media Data Transformers
+    # =================================================================
+
+    App\Application\DataTransformer\Apps\Media\DataTransformers\:
+        resource: '../../src/Application/DataTransformer/Apps/Media/DataTransformers/'
+
+    # =================================================================
+    # Inject tagged transformers into handlers
+    # =================================================================
+
+    App\Application\DataTransformer\BodyElementDataTransformerHandler:
+        arguments:
+            $dataTransformers: !tagged_iterator app.data_transformer
+
+    App\Application\DataTransformer\Apps\Media\MediaDataTransformerHandler:
+        arguments:
+            $dataTransformers: !tagged_iterator app.media_data_transformer
