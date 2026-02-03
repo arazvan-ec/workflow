@@ -119,6 +119,11 @@ USER REQUEST
 | Documentation | Any | No | N/A | `/workflows:work --role=planner` |
 | Setup/Config | Any | No | N/A | Invoke consultant skill |
 
+**IMPORTANT**: All workflows that produce code MUST comply with SOLID principles:
+- **Plan phase**: SOLID is a mandatory constraint in Phase 3 (Solutions)
+- **Work phase**: SOLID is verified at each checkpoint
+- **Review phase**: SOLID score ≥18/25 required for approval
+
 ## Clarifying Questions Templates
 
 ### For Features
