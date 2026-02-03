@@ -123,11 +123,12 @@ workflow/
 
 ## Workflows (Comandos)
 
-### Comandos de Ayuda y Onboarding
+### Comandos de Setup y Onboarding
 
 | Comando | Descripción | Cuándo Usarlo |
 |---------|-------------|---------------|
-| `/workflows:onboarding` | Experiencia guiada para nuevos usuarios | Primera vez |
+| `/workflows:onboarding` | Experiencia guiada para nuevos usuarios | Primera vez usando el plugin |
+| `/workflows:discover` | Análisis profundo del proyecto | Después de instalar, para que el plugin conozca tu proyecto |
 | `/workflows:help` | Ayuda rápida y navegación | Cuando necesites orientación |
 | `/workflows:route` | Router inteligente | No sabes qué comando usar |
 
@@ -240,6 +241,10 @@ Semana 1+: Dominio
 
 | Fecha | Cambio | Archivo Afectado |
 |-------|--------|------------------|
+| 2026-02 | Nuevo comando /workflows:discover | commands/workflows/discover.md |
+| 2026-02 | Template de project profile | core/templates/project-profile-template.md |
+| 2026-02 | Skill consultant mejorado | skills/consultant/SKILL.md |
+| 2026-02 | Sistema de conocimiento documentado | GLOSSARY.md |
 | 2026-02 | Nuevo comando /workflows:onboarding | commands/workflows/onboarding.md |
 | 2026-02 | Nuevo comando /workflows:help | commands/workflows/help.md |
 | 2026-02 | Mensaje de bienvenida | WELCOME.md |

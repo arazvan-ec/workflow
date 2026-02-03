@@ -159,6 +159,15 @@ Intento 10: Si sigue fallando → BLOCKED, pedir ayuda
 
 ## Comandos
 
+### /workflows:discover
+Analiza el proyecto en profundidad y genera un perfil completo con toda la información que el plugin necesita para trabajar efectivamente.
+
+### /workflows:onboarding
+Experiencia guiada interactiva para nuevos usuarios.
+
+### /workflows:help
+Ayuda rápida y navegación entre comandos y conceptos.
+
 ### /workflows:plan
 Inicia la planificación de una feature.
 
@@ -176,6 +185,74 @@ Sincroniza estado entre sesiones.
 
 ### /workflows:status
 Muestra el estado actual.
+
+---
+
+## Sistema de Conocimiento del Proyecto
+
+### Project Profile
+**Qué es**: Documento completo con todo lo que el plugin sabe sobre tu proyecto.
+
+**Ubicación**: `.ai/project/intelligence/project-profile.md`
+
+**Contiene**:
+- Stack tecnológico completo
+- Patrones de arquitectura detectados
+- Convenciones de código
+- Archivos de referencia (templates)
+- Recomendaciones de workflow
+
+**Generado por**: `/workflows:discover`
+
+---
+
+### Project Discovery
+**Qué es**: Proceso de análisis profundo del proyecto.
+
+**7 Capas de Análisis**:
+1. Detección de stack (frameworks, lenguajes)
+2. Detección de arquitectura (DDD, MVC, etc.)
+3. Análisis de convenciones de código
+4. Descubrimiento de implementaciones de referencia
+5. Análisis de historia git
+6. Evaluación de complejidad
+7. Recomendación de workflow
+
+---
+
+### Reference Implementation
+**Qué es**: Archivo existente en el proyecto que sirve como template para nuevas implementaciones.
+
+**Ejemplo**: Si `src/domain/entities/User.ts` es tu mejor entidad, el plugin lo usará como referencia cuando cree nuevas entidades.
+
+**Por qué importa**: Mantiene consistencia en el código generado.
+
+---
+
+### config.yaml
+**Qué es**: Archivo de configuración del proyecto para el plugin.
+
+**Ubicación**: `.ai/project/config.yaml`
+
+**Contiene**:
+- Información del proyecto
+- Configuración de backend/frontend
+- Patrones de arquitectura
+- Configuración de testing
+- Convenciones detectadas
+
+---
+
+### Compound Log
+**Qué es**: Registro histórico de aprendizajes capturados después de cada feature.
+
+**Ubicación**: `.ai/project/compound_log.md`
+
+**Contiene**:
+- Patrones descubiertos
+- Anti-patrones documentados
+- Estimaciones de tiempo ahorrado
+- Reglas actualizadas
 
 ---
 

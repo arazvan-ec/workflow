@@ -244,6 +244,10 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/GLOSSARY.md (2026-02-03T21:41:24+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/skills/consultant/SKILL.md (2026-02-03T21:39:48+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/templates/project-profile-template.md (2026-02-03T21:38:53+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/discover.md (2026-02-03T21:38:23+00:00)
 - /home/user/workflow/INDEX.md (2026-02-03T21:00:03+00:00)
 - /home/user/workflow/WELCOME.md (2026-02-03T20:59:44+00:00)
 - /home/user/workflow/QUICKSTART.md (2026-02-03T20:59:16+00:00)
