@@ -4,15 +4,29 @@
 
 ---
 
+## Primera Vez? Empieza Aquí
+
+```bash
+# Opción recomendada: Onboarding interactivo
+/workflows:onboarding
+
+# O si prefieres leer documentación
+# Ver → QUICKSTART.md (5 minutos)
+```
+
+---
+
 ## Por Dónde Empezar
 
-| Tu Situación | Lee Esto |
-|--------------|----------|
-| **Nuevo aquí** | [QUICKSTART.md](./QUICKSTART.md) |
-| **Quiero un ejemplo** | [TUTORIAL.md](./TUTORIAL.md) |
-| **No entiendo un término** | [GLOSSARY.md](./GLOSSARY.md) |
-| **Quiero todo el detalle** | [README.md](./README.md) |
-| **Soy un agente Claude** | [CLAUDE.md](./CLAUDE.md) |
+| Tu Situación | Lee Esto | Comando Alternativo |
+|--------------|----------|---------------------|
+| **Primera vez con el plugin** | [WELCOME.md](./WELCOME.md) | `/workflows:onboarding` |
+| **Nuevo aquí** | [QUICKSTART.md](./QUICKSTART.md) | `/workflows:help` |
+| **Quiero un ejemplo** | [TUTORIAL.md](./TUTORIAL.md) | - |
+| **No entiendo un término** | [GLOSSARY.md](./GLOSSARY.md) | `/workflows:help concepts` |
+| **No sé qué comando usar** | - | `/workflows:route` |
+| **Quiero todo el detalle** | [README.md](./README.md) | - |
+| **Soy un agente Claude** | [CLAUDE.md](./CLAUDE.md) | - |
 
 ---
 
@@ -20,6 +34,7 @@
 
 ```
 workflow/
+├── 📄 WELCOME.md             # Mensaje de bienvenida (nuevo!)
 ├── 📄 QUICKSTART.md          # Guía de 5 minutos
 ├── 📄 TUTORIAL.md            # Ejemplo práctico completo
 ├── 📄 GLOSSARY.md            # Definiciones de términos
@@ -30,9 +45,9 @@ workflow/
 └── plugins/
     └── multi-agent-workflow/
         ├── 📁 agents/        # Agentes especializados
-        ├── 📁 workflows/     # Comandos ejecutables
+        ├── 📁 commands/      # Comandos ejecutables (incluye onboarding y help)
         ├── 📁 skills/        # Utilidades reutilizables
-        └── 📁 rules/         # Reglas del proyecto
+        └── 📁 core/          # Core del framework
 ```
 
 ---
@@ -41,11 +56,14 @@ workflow/
 
 | Archivo | Descripción | Audiencia |
 |---------|-------------|-----------|
+| [WELCOME.md](./WELCOME.md) | Mensaje de bienvenida post-instalación | Nuevos usuarios |
 | [QUICKSTART.md](./QUICKSTART.md) | Empezar en 5 minutos | Nuevos usuarios |
 | [TUTORIAL.md](./TUTORIAL.md) | Ejemplo paso a paso | Todos |
 | [GLOSSARY.md](./GLOSSARY.md) | Diccionario de términos | Todos |
 | [README.md](./README.md) | Documentación completa | Referencia |
 | [CLAUDE.md](./CLAUDE.md) | Guía técnica para IA | Agentes Claude |
+
+> **Tip**: Si es tu primera vez, usa `/workflows:onboarding` para una experiencia guiada.
 
 ---
 
@@ -105,6 +123,16 @@ workflow/
 
 ## Workflows (Comandos)
 
+### Comandos de Ayuda y Onboarding
+
+| Comando | Descripción | Cuándo Usarlo |
+|---------|-------------|---------------|
+| `/workflows:onboarding` | Experiencia guiada para nuevos usuarios | Primera vez |
+| `/workflows:help` | Ayuda rápida y navegación | Cuando necesites orientación |
+| `/workflows:route` | Router inteligente | No sabes qué comando usar |
+
+### Comandos Principales
+
 | Comando | Descripción | Cuándo Usarlo |
 |---------|-------------|---------------|
 | `/workflows:plan` | Planificar feature | Inicio de feature |
@@ -153,13 +181,38 @@ workflow/
 
 ## Flujo de Desarrollo Recomendado
 
+### Para Nuevos Usuarios
+
 ```
-1. QUICKSTART.md   → Instalación básica (5 min)
-2. TUTORIAL.md     → Ejemplo práctico (30-45 min)
-3. GLOSSARY.md     → Consultar términos confusos
-4. README.md       → Profundizar en metodologías
-5. global_rules.md → Entender reglas del proyecto
-6. Agentes         → Personalizar según necesidad
+Día 1: Onboarding
+┌─────────────────────────────────────────────────────────────────┐
+│  /workflows:onboarding  →  QUICKSTART.md  →  Primera feature   │
+│        (5 min)               (5 min)           (10 min)         │
+└─────────────────────────────────────────────────────────────────┘
+
+Día 2-3: Aprendizaje Profundo
+┌─────────────────────────────────────────────────────────────────┐
+│  TUTORIAL.md    →    GLOSSARY.md    →    Feature real          │
+│   (30-45 min)      (referencia)         (tu proyecto)          │
+└─────────────────────────────────────────────────────────────────┘
+
+Semana 1+: Dominio
+┌─────────────────────────────────────────────────────────────────┐
+│  README.md   →   Personalizar agentes   →   Contribuir mejoras │
+│  (referencia)      (según necesidad)        (opcional)         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Resumen de Progresión
+
+```
+1. /workflows:onboarding → Experiencia guiada (5 min)
+2. QUICKSTART.md         → Instalación básica (5 min)
+3. TUTORIAL.md           → Ejemplo práctico (30-45 min)
+4. GLOSSARY.md           → Consultar términos confusos
+5. README.md             → Profundizar en metodologías
+6. global_rules.md       → Entender reglas del proyecto
+7. Agentes               → Personalizar según necesidad
 ```
 
 ---
@@ -187,6 +240,10 @@ workflow/
 
 | Fecha | Cambio | Archivo Afectado |
 |-------|--------|------------------|
+| 2026-02 | Nuevo comando /workflows:onboarding | commands/workflows/onboarding.md |
+| 2026-02 | Nuevo comando /workflows:help | commands/workflows/help.md |
+| 2026-02 | Mensaje de bienvenida | WELCOME.md |
+| 2026-02 | Mejoras de onboarding | QUICKSTART.md, INDEX.md |
 | 2026-01 | Evolution Governance | global_rules.md |
 | 2026-01 | Beyond Vibe Coding | README.md |
 | 2026-01 | Spec-Driven Development | README.md |

@@ -8,6 +8,31 @@
 - Git configurado
 - Un proyecto existente o nuevo
 
+### Verificación Rápida
+
+Antes de empezar, verifica que tu entorno esté listo:
+
+```bash
+# Verificar Git
+git --version
+
+# Verificar configuración de Git
+git config user.name && git config user.email
+
+# Verificar que estás en un proyecto Git
+git status
+```
+
+Si algo falla:
+
+| Problema | Solución |
+|----------|----------|
+| Git no instalado | `brew install git` (macOS) o `apt install git` (Linux) |
+| Git no configurado | `git config --global user.name "Tu Nombre"` |
+| No es repo Git | `git init` |
+
+> **Tip**: También puedes ejecutar `/workflows:onboarding --verify` para verificación automática.
+
 ---
 
 ## Paso 1: Instalar el Plugin (30 segundos)
@@ -121,4 +146,16 @@ Consulta [GLOSSARY.md](./GLOSSARY.md)
 
 ---
 
+## Comandos de Ayuda
+
+| Comando | Cuándo usarlo |
+|---------|---------------|
+| `/workflows:onboarding` | Primera vez usando el plugin |
+| `/workflows:help` | Referencia rápida de comandos |
+| `/workflows:route` | No sabes qué comando usar |
+
+---
+
 **Tiempo total**: ~5 minutos para tu primera feature planificada.
+
+> **Nueva aquí?** Ejecuta `/workflows:onboarding` para una experiencia guiada paso a paso.
