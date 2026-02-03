@@ -116,7 +116,373 @@ Escaneando archivos de configuración...
 - Presentation Layer: [path and health]
 ```
 
-### Step 4: Scan Code Patterns
+### Step 4: Entity Specification Extraction
+
+> **Agent**: `spec-extractor` | **Mode**: Entity Analysis
+
+Extract domain entities and their specifications from the codebase:
+
+```markdown
+## Entity Specification Extraction
+
+Scanning for domain entities and models...
+
+### Detected Entities
+| Entity | Location | Type | Attributes | Relations |
+|--------|----------|------|------------|-----------|
+| [EntityName] | `src/domain/entities/` | Aggregate/Entity/VO | X attrs | X relations |
+
+### Entity Specification Format
+For each entity, generate `.ai/project/specs/entities/[entity-name].yaml`:
+
+```yaml
+entity:
+  name: "[EntityName]"
+  type: "[aggregate|entity|value-object]"
+  description: "[Purpose and business meaning]"
+
+  attributes:
+    - name: "[attr_name]"
+      type: "[type]"
+      required: true|false
+      validation: "[rules]"
+      description: "[meaning]"
+
+  relations:
+    - target: "[RelatedEntity]"
+      type: "[one-to-one|one-to-many|many-to-many]"
+      cardinality: "[0..1|1|0..*|1..*]"
+      description: "[relationship meaning]"
+
+  invariants:
+    - "[Business rule that must always hold]"
+
+  lifecycle:
+    states: ["created", "active", "archived"]
+    transitions:
+      - from: "created"
+        to: "active"
+        trigger: "[event/action]"
+
+  source_files:
+    - "[path/to/entity.ts]"
+
+  extracted_at: "[timestamp]"
+```
+
+### Extraction Depth
+- **Surface**: Class/interface names and basic types
+- **Standard**: Attributes, relations, basic validations
+- **Deep**: Invariants, lifecycle, business rules embedded in code
+```
+
+### Step 5: API Contract Extraction
+
+> **Agent**: `spec-extractor` | **Mode**: API Analysis
+
+Extract API contracts and endpoint specifications:
+
+```markdown
+## API Contract Extraction
+
+Scanning for API definitions...
+
+### Sources Analyzed
+| Source | Type | Endpoints Found |
+|--------|------|-----------------|
+| `routes/` | Express/Fastify routes | X |
+| `controllers/` | Controller methods | X |
+| `openapi.yaml` | OpenAPI spec | X |
+| `*.graphql` | GraphQL schemas | X |
+
+### Contract Specification Format
+For each API group, generate `.ai/project/specs/api-contracts/[api-name].yaml`:
+
+```yaml
+api_contract:
+  name: "[API Group Name]"
+  version: "[detected version]"
+  base_path: "/api/v1/[resource]"
+  description: "[Purpose]"
+
+  endpoints:
+    - method: "GET|POST|PUT|PATCH|DELETE"
+      path: "/[path]"
+      description: "[what it does]"
+
+      parameters:
+        - name: "[param]"
+          in: "path|query|header|body"
+          type: "[type]"
+          required: true|false
+          validation: "[rules]"
+
+      request:
+        content_type: "application/json"
+        schema:
+          $ref: "#/schemas/[RequestDTO]"
+
+      responses:
+        - status: 200
+          description: "Success"
+          schema:
+            $ref: "#/schemas/[ResponseDTO]"
+        - status: 400
+          description: "Validation error"
+        - status: 401
+          description: "Unauthorized"
+
+      authentication: "[jwt|api-key|none]"
+      rate_limit: "[if detected]"
+
+  schemas:
+    [SchemaName]:
+      type: object
+      properties:
+        [field]: { type: "[type]" }
+
+  source_files:
+    - "[path/to/controller.ts]"
+    - "[path/to/routes.ts]"
+
+  extracted_at: "[timestamp]"
+```
+
+### Detection Methods
+- Route decorator parsing (@Get, @Post, etc.)
+- OpenAPI/Swagger file parsing
+- GraphQL schema introspection
+- Express/Fastify route analysis
+- Controller method signature analysis
+```
+
+### Step 6: Business Rule Extraction
+
+> **Agent**: `spec-extractor` | **Mode**: Business Rule Analysis
+
+Extract business rules and domain logic:
+
+```markdown
+## Business Rule Extraction
+
+Analyzing domain logic for business rules...
+
+### Rule Sources
+| Source | Location | Rules Found |
+|--------|----------|-------------|
+| Domain Services | `src/domain/services/` | X |
+| Entity Methods | `src/domain/entities/` | X |
+| Validators | `src/domain/validators/` | X |
+| Specifications | `src/domain/specifications/` | X |
+| Policy Classes | `src/domain/policies/` | X |
+
+### Business Rule Specification Format
+Generate `.ai/project/specs/business-rules/[domain-area].yaml`:
+
+```yaml
+business_rules:
+  domain_area: "[Area Name]"
+  description: "[What this area covers]"
+
+  rules:
+    - id: "BR-[AREA]-001"
+      name: "[Human-readable name]"
+      description: "[What the rule enforces]"
+
+      type: "[validation|calculation|authorization|workflow|constraint]"
+
+      condition:
+        when: "[trigger condition]"
+        given: "[preconditions]"
+        then: "[expected outcome]"
+
+      implementation:
+        location: "[file path]"
+        method: "[method name]"
+        pattern: "[specification|policy|validator|guard]"
+
+      exceptions:
+        - "[when rule doesn't apply]"
+
+      related_entities:
+        - "[Entity1]"
+        - "[Entity2]"
+
+      test_coverage:
+        unit_tests: "[path to tests]"
+        scenarios_tested: X
+
+      priority: "[critical|high|medium|low]"
+
+  cross_cutting_rules:
+    - id: "BR-CROSS-001"
+      name: "[Rule spanning multiple areas]"
+      affected_areas: ["Area1", "Area2"]
+      description: "[rule description]"
+
+  source_files:
+    - "[path/to/service.ts]"
+
+  extracted_at: "[timestamp]"
+```
+
+### Rule Detection Heuristics
+- Guard clauses and validation logic
+- if/throw patterns with business messages
+- Specification pattern implementations
+- Policy class decisions
+- Domain event triggers
+```
+
+### Step 7: Architectural Constraint Extraction
+
+> **Agent**: `spec-extractor` | **Mode**: Constraint Analysis
+
+Extract architectural constraints and design decisions:
+
+```markdown
+## Architectural Constraint Extraction
+
+Analyzing codebase for architectural constraints...
+
+### Constraint Categories
+| Category | Source | Constraints Found |
+|----------|--------|-------------------|
+| Layer Dependencies | Import analysis | X |
+| Module Boundaries | Package structure | X |
+| Design Patterns | Code patterns | X |
+| Security Constraints | Auth/Authz code | X |
+| Performance Constraints | Caching/optimization | X |
+
+### Constraint Specification Format
+Generate `.ai/project/specs/architectural-constraints/[category].yaml`:
+
+```yaml
+architectural_constraints:
+  category: "[Category Name]"
+  description: "[What these constraints govern]"
+
+  layer_constraints:
+    - name: "Domain Layer Purity"
+      description: "Domain layer has no external dependencies"
+      rule: "src/domain/** cannot import from src/infrastructure/**"
+      enforcement: "[eslint-rule|architect-review|ci-check]"
+      violations_found: X
+
+    - name: "Dependency Direction"
+      description: "Dependencies point inward"
+      layers:
+        - { name: "presentation", can_depend_on: ["application"] }
+        - { name: "application", can_depend_on: ["domain"] }
+        - { name: "domain", can_depend_on: [] }
+
+  module_constraints:
+    - name: "[Module Boundary]"
+      description: "[What the boundary enforces]"
+      modules:
+        - name: "[ModuleName]"
+          public_api: "[exposed interface]"
+          internal: "[hidden implementation]"
+          dependencies: ["[allowed modules]"]
+
+  pattern_constraints:
+    - name: "Repository Pattern"
+      description: "All data access through repositories"
+      applies_to: "src/domain/**"
+      pattern: "Repository"
+      anti_patterns: ["Direct DB calls in domain"]
+
+    - name: "[Pattern Name]"
+      applies_to: "[scope]"
+      required: true|false
+
+  security_constraints:
+    - name: "[Security Constraint]"
+      description: "[What it protects]"
+      enforcement: "[how enforced]"
+      scope: "[affected areas]"
+
+  performance_constraints:
+    - name: "[Performance Constraint]"
+      description: "[What it optimizes]"
+      threshold: "[metric]"
+      implementation: "[how achieved]"
+
+  technology_constraints:
+    - name: "[Tech Constraint]"
+      description: "[Why this constraint exists]"
+      allowed: ["[tech1]", "[tech2]"]
+      forbidden: ["[tech3]"]
+      reason: "[rationale]"
+
+  source_evidence:
+    - "[path/to/architectural/decision]"
+
+  extracted_at: "[timestamp]"
+```
+
+### Detection Methods
+- Import/dependency graph analysis
+- Package.json/tsconfig path mappings
+- ESLint/architecture rules
+- ADR (Architecture Decision Records) parsing
+- Code pattern recognition
+```
+
+### Step 8: Generate Spec Manifest
+
+Create `.ai/project/specs/spec-manifest.yaml` to index all extracted specs:
+
+```yaml
+# Auto-generated spec manifest
+# Updated by /workflows:discover on [DATE]
+
+manifest:
+  version: "1.0"
+  generated_at: "[timestamp]"
+  project: "[project-name]"
+
+  statistics:
+    entities: X
+    api_contracts: X
+    business_rules: X
+    architectural_constraints: X
+    total_specs: X
+
+  entities:
+    - name: "[Entity1]"
+      file: "entities/entity1.yaml"
+      type: "aggregate"
+      last_updated: "[timestamp]"
+
+  api_contracts:
+    - name: "[API1]"
+      file: "api-contracts/api1.yaml"
+      endpoints: X
+      last_updated: "[timestamp]"
+
+  business_rules:
+    - domain_area: "[Area1]"
+      file: "business-rules/area1.yaml"
+      rules_count: X
+      critical_rules: X
+      last_updated: "[timestamp]"
+
+  architectural_constraints:
+    - category: "[Category1]"
+      file: "architectural-constraints/category1.yaml"
+      constraints_count: X
+      last_updated: "[timestamp]"
+
+  extraction_config:
+    extract_specs: true
+    depth: "standard"
+    include_tests: false
+
+  next_recommended_update: "[timestamp + 7 days]"
+```
+
+### Step 9: Scan Code Patterns (Skip if --specs-only)
 
 ```markdown
 ## Patrones de Código Detectados
@@ -146,7 +512,7 @@ Escaneando archivos de configuración...
 | E2E | Playwright/Cypress | `e2e/`, `tests/e2e/` | X% |
 ```
 
-### Step 5: Analyze Dependencies
+### Step 10: Analyze Dependencies (Skip if --specs-only)
 
 ```markdown
 ## Análisis de Dependencias
@@ -175,7 +541,7 @@ Escaneando archivos de configuración...
 - Outdated: X
 ```
 
-### Step 6: Git History Analysis
+### Step 11: Git History Analysis (Skip if --specs-only)
 
 ```markdown
 ## Análisis de Historia Git
@@ -206,7 +572,7 @@ Escaneando archivos de configuración...
 [Últimos 10 commits relevantes]
 ```
 
-### Step 7: Detect Existing Documentation
+### Step 12: Detect Existing Documentation (Skip if --specs-only)
 
 ```markdown
 ## Documentación Existente
@@ -225,7 +591,7 @@ Escaneando archivos de configuración...
 - README in key directories: X/Y
 ```
 
-### Step 8: Generate Project Profile
+### Step 13: Generate Project Profile (Skip if --specs-only)
 
 Create `.ai/project/intelligence/project-profile.md`:
 
