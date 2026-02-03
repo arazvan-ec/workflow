@@ -25,11 +25,14 @@ Comprehensive review phase using specialized review agents.
 
 | Agent | Focus | When to Use |
 |-------|-------|-------------|
-| **qa** (default) | Full review | Always |
+| **qa** (default) | Full review (includes SOLID) | Always |
+| **solid** | SOLID compliance, patterns | All features (mandatory) |
 | **security** | OWASP, vulnerabilities | Auth, payments, sensitive data |
 | **performance** | Speed, optimization | High-traffic features |
 | **ddd** | DDD compliance | Backend with business logic |
 | **code** | Code quality, patterns | All features |
+
+**Note**: SOLID review is ALWAYS included in the default `qa` review. Use `--agent=solid` for SOLID-only review.
 
 ## Philosophy
 
@@ -110,16 +113,33 @@ npm run test:e2e -- feature-name
    git log --oneline | head -20
    # Expected: test commits before implementation commits
 
-2. DDD Compliance (Backend):
+2. **SOLID Compliance (CRITICAL)**:
+   - [ ] SOLID score ≥18/25 (minimum to proceed)
+   - [ ] SOLID score ≥22/25 (recommended for approval)
+   - [ ] Patterns from 15_solutions.md correctly implemented
+
+   Verification:
+   /workflow-skill:solid-analyzer --path=src --validate
+   # Expected: Score ≥22/25
+   # If <18/25: REJECT - requires refactoring
+
+   SOLID Breakdown:
+   - [ ] **S** - SRP: Classes have single responsibility (≤200 lines, ≤7 methods)
+   - [ ] **O** - OCP: No switch/if-else by type, uses Strategy/Decorator
+   - [ ] **L** - LSP: Subtypes honor parent contracts
+   - [ ] **I** - ISP: Interfaces ≤5 methods, role-specific
+   - [ ] **D** - DIP: Domain has no Infrastructure imports
+
+3. DDD Compliance (Backend):
    - [ ] Domain layer has no infrastructure dependencies
    - [ ] Entities have behavior, not just getters
    - [ ] Value objects are immutable
 
-3. Test Coverage:
+4. Test Coverage:
    - Backend: >80% required, actual: [X]%
    - Frontend: >70% required, actual: [X]%
 
-4. Code Style:
+5. Code Style:
    - Backend: ./vendor/bin/php-cs-fixer fix --dry-run
    - Frontend: npm run lint
 ```
@@ -177,6 +197,7 @@ Criterion 3: "User redirected after registration"
 - ✅ All acceptance criteria met (with evidence)
 - ✅ No critical/major bugs (P0/P1)
 - ✅ All automated tests passing
+- ✅ **SOLID score ≥18/25** (≥22/25 recommended)
 - ✅ Code meets quality standards
 - ✅ Documentation complete
 
@@ -184,6 +205,7 @@ Criterion 3: "User redirected after registration"
 - ❌ Any acceptance criterion fails
 - ❌ Critical or major bug found
 - ❌ Automated tests failing
+- ❌ **SOLID score <18/25**
 - ❌ Security vulnerability present
 - ❌ Code quality below standards
 
@@ -205,6 +227,18 @@ Criterion 3: "User redirected after registration"
 - Unit Tests: X/Y passing (Z% coverage)
 - E2E Tests: X/Y passing
 
+## SOLID Compliance
+- **Score**: [X]/25
+- **Status**: ✅ COMPLIANT (≥22) | ⚠️ ACCEPTABLE (18-21) | ❌ REJECTED (<18)
+- **Breakdown**:
+  - S (SRP): [X]/5
+  - O (OCP): [X]/5
+  - L (LSP): [X]/5
+  - I (ISP): [X]/5
+  - D (DIP): [X]/5
+- **Patterns Verified**: [Strategy, Repository, etc.]
+- **Violations Found**: [None | List]
+
 ## Acceptance Criteria
 - [✓] Criterion 1 - Evidence: [...]
 - [✓] Criterion 2 - Evidence: [...]
@@ -213,6 +247,7 @@ Criterion 3: "User redirected after registration"
 ## Issues Found
 ### Critical (blocks approval)
 - Issue #1: [description]
+- SOLID Issue: [if score <18]
 
 ### Minor (can fix later)
 - Issue #2: [description]
@@ -220,13 +255,15 @@ Criterion 3: "User redirected after registration"
 ## Decision
 **Status**: REJECTED
 
-**Reason**: Issue #1 blocks user registration flow
+**Reason**: Issue #1 blocks user registration flow / SOLID score <18
 
 **Must fix before approval**:
 1. Fix Issue #1 (Backend)
+2. [If SOLID <18]: Refactor to use patterns from 15_solutions.md
 
 **Next steps**:
 - Backend fixes Issue #1
+- Run /workflow-skill:solid-analyzer --validate
 - Re-review after fix pushed
 ```
 
@@ -238,16 +275,18 @@ After review, update `50_state.md`:
 ## QA / Reviewer
 **Status**: APPROVED | REJECTED
 **Review Date**: 2026-01-16
+**SOLID Score**: 23/25 ✅
 **Critical Issues**: 0 | [count]
 **Minor Issues**: [count]
 
 ### Review Summary
 - Acceptance Criteria: 5/5 passed
 - Test Coverage: Backend 87%, Frontend 78%
+- **SOLID Compliance**: 23/25 (S:5, O:5, L:4, I:4, D:5)
 - Issues Found: 0 critical, 2 minor
 
 ### Decision
-APPROVED - Feature ready for merge
+APPROVED - Feature ready for merge (SOLID compliant)
 ```
 
 ## Compound Effect
