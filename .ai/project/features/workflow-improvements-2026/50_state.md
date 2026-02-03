@@ -244,6 +244,10 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/solid-refactor.md (2026-02-03T01:55:34+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/skills/solid-analyzer.md (2026-02-03T01:52:53+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/agents/design/solid-architecture-generator.md (2026-02-03T01:51:28+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/solid-pattern-matrix.md (2026-02-03T01:50:14+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/30_tasks_backend.md (2026-02-03T00:08:37+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/ADR-001-architecture-choice.md (2026-02-03T00:07:29+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/12a_criteria_evaluation.md (2026-02-03T00:06:46+00:00)
