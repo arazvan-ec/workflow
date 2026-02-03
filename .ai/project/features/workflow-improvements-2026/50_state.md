@@ -244,6 +244,11 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/.ai/project/features/solid-refactor/35_dependencies.md (2026-02-03T01:17:28+00:00)
+- /home/user/workflow/.ai/project/features/solid-refactor/30_tasks.md (2026-02-03T01:16:54+00:00)
+- /home/user/workflow/.ai/project/features/solid-refactor/12_architecture_criteria.md (2026-02-03T01:16:02+00:00)
+- /home/user/workflow/.ai/project/features/solid-refactor/00_requirements_analysis.md (2026-02-03T01:15:28+00:00)
+- /home/user/workflow/.ai/project/features/solid-refactor/FEATURE_solid-refactor.md (2026-02-03T01:14:59+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/30_tasks_backend.md (2026-02-03T00:08:37+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/ADR-001-architecture-choice.md (2026-02-03T00:07:29+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/12a_criteria_evaluation.md (2026-02-03T00:06:46+00:00)
