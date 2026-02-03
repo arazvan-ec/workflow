@@ -45,7 +45,30 @@ Si algo falla:
 
 ---
 
-## Paso 2: Tu Primera Feature (2 minutos)
+## Paso 2: Que el Plugin Conozca tu Proyecto (1 minuto)
+
+```bash
+# Análisis profundo del proyecto
+/workflows:discover --full
+```
+
+Esto analiza automáticamente:
+- Stack tecnológico (frameworks, lenguajes, bases de datos)
+- Arquitectura (DDD, MVC, Clean, etc.)
+- Convenciones de código
+- Patrones existentes
+- Archivos de referencia para usar como templates
+- **Living Specs**: Extrae especificaciones del código existente
+
+**Resultado**: Genera un perfil completo en `.ai/project/intelligence/project-profile.md` y specs en `.ai/project/specs/`
+
+> **Nota**: Las Living Specs se extraen automáticamente durante discover. Usa `/workflows:specs` para gestionar specs manualmente o detectar drift.
+
+> **Tip**: Ejecuta `/workflows:discover --refresh` después de cambios importantes (nuevas librerías, refactors, etc.)
+
+---
+
+## Paso 3: Tu Primera Feature (2 minutos)
 
 ### Planificar
 
@@ -79,7 +102,7 @@ Esto genera automáticamente:
 
 ---
 
-## Paso 3: Entender el Flujo (1 minuto)
+## Paso 4: Entender el Flujo (1 minuto)
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
@@ -97,6 +120,7 @@ Esto genera automáticamente:
 
 | Comando | Qué hace | Cuándo usarlo |
 |---------|----------|---------------|
+| `/workflows:discover` | Analiza tu proyecto | Después de instalar el plugin |
 | `/workflows:plan` | Planifica una feature | Siempre primero |
 | `/workflows:work` | Implementa código | Después de planificar |
 | `/workflows:review` | Revisa calidad | Antes de merge |
@@ -146,11 +170,12 @@ Consulta [GLOSSARY.md](./GLOSSARY.md)
 
 ---
 
-## Comandos de Ayuda
+## Comandos de Ayuda y Setup
 
 | Comando | Cuándo usarlo |
 |---------|---------------|
 | `/workflows:onboarding` | Primera vez usando el plugin |
+| `/workflows:discover` | Para que el plugin conozca tu proyecto |
 | `/workflows:help` | Referencia rápida de comandos |
 | `/workflows:route` | No sabes qué comando usar |
 
