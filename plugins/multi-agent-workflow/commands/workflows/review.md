@@ -113,22 +113,33 @@ npm run test:e2e -- feature-name
    git log --oneline | head -20
    # Expected: test commits before implementation commits
 
-2. **SOLID Compliance (CRITICAL)**:
-   - [ ] SOLID score ≥18/25 (minimum to proceed)
-   - [ ] SOLID score ≥22/25 (recommended for approval)
-   - [ ] Patterns from 15_solutions.md correctly implemented
+2. **SOLID Design Implementation (CRITICAL)**:
+
+   > QA verifica que se IMPLEMENTÓ el diseño SOLID de 15_solutions.md,
+   > NO diseña ni juzga si el diseño es correcto (eso es Phase 3).
+
+   - [ ] Patterns from 15_solutions.md were correctly implemented
+   - [ ] Class structure matches the design document
+   - [ ] SOLID score matches or exceeds expected score from design
 
    Verification:
-   /workflow-skill:solid-analyzer --path=src --validate
-   # Expected: Score ≥22/25
-   # If <18/25: REJECT - requires refactoring
+   # 1. Read expected design
+   Read: .ai/project/features/${FEATURE_ID}/15_solutions.md
 
-   SOLID Breakdown:
-   - [ ] **S** - SRP: Classes have single responsibility (≤200 lines, ≤7 methods)
-   - [ ] **O** - OCP: No switch/if-else by type, uses Strategy/Decorator
-   - [ ] **L** - LSP: Subtypes honor parent contracts
-   - [ ] **I** - ISP: Interfaces ≤5 methods, role-specific
-   - [ ] **D** - DIP: Domain has no Infrastructure imports
+   # 2. Verify implementation matches design
+   /workflow-skill:solid-analyzer --path=src --validate
+
+   # 3. Compare actual vs expected
+   # Expected from design: [X]/25
+   # Actual: [Y]/25
+   # If actual < expected: REJECT - implementation doesn't match design
+
+   SOLID Checklist (verify design was followed):
+   - [ ] **S** - SRP: Classes structured as designed in 15_solutions.md
+   - [ ] **O** - OCP: Patterns (Strategy, Decorator) implemented as specified
+   - [ ] **L** - LSP: Inheritance used as designed
+   - [ ] **I** - ISP: Interfaces match design (size, roles)
+   - [ ] **D** - DIP: Dependencies injected as specified in design
 
 3. DDD Compliance (Backend):
    - [ ] Domain layer has no infrastructure dependencies
@@ -197,7 +208,7 @@ Criterion 3: "User redirected after registration"
 - ✅ All acceptance criteria met (with evidence)
 - ✅ No critical/major bugs (P0/P1)
 - ✅ All automated tests passing
-- ✅ **SOLID score ≥18/25** (≥22/25 recommended)
+- ✅ **SOLID design was implemented** (matches 15_solutions.md)
 - ✅ Code meets quality standards
 - ✅ Documentation complete
 
@@ -205,9 +216,12 @@ Criterion 3: "User redirected after registration"
 - ❌ Any acceptance criterion fails
 - ❌ Critical or major bug found
 - ❌ Automated tests failing
-- ❌ **SOLID score <18/25**
+- ❌ **Implementation doesn't match SOLID design** (15_solutions.md)
 - ❌ Security vulnerability present
 - ❌ Code quality below standards
+
+> **Note**: QA rejects if implementation doesn't match the SOLID design.
+> If the design itself was wrong, that's a Phase 3 issue, not QA's responsibility.
 
 ## QA Report Template
 
@@ -227,17 +241,15 @@ Criterion 3: "User redirected after registration"
 - Unit Tests: X/Y passing (Z% coverage)
 - E2E Tests: X/Y passing
 
-## SOLID Compliance
-- **Score**: [X]/25
-- **Status**: ✅ COMPLIANT (≥22) | ⚠️ ACCEPTABLE (18-21) | ❌ REJECTED (<18)
-- **Breakdown**:
-  - S (SRP): [X]/5
-  - O (OCP): [X]/5
-  - L (LSP): [X]/5
-  - I (ISP): [X]/5
-  - D (DIP): [X]/5
-- **Patterns Verified**: [Strategy, Repository, etc.]
-- **Violations Found**: [None | List]
+## SOLID Design Implementation
+- **Expected Score** (from 15_solutions.md): [X]/25
+- **Actual Score**: [Y]/25
+- **Status**: ✅ MATCHES DESIGN | ❌ DOESN'T MATCH DESIGN
+- **Patterns from Design**:
+  - [ ] Strategy for [X] - Implemented: ✅/❌
+  - [ ] Repository for [Y] - Implemented: ✅/❌
+  - [ ] Value Object for [Z] - Implemented: ✅/❌
+- **Design Deviations Found**: [None | List what wasn't implemented as designed]
 
 ## Acceptance Criteria
 - [✓] Criterion 1 - Evidence: [...]
@@ -255,11 +267,11 @@ Criterion 3: "User redirected after registration"
 ## Decision
 **Status**: REJECTED
 
-**Reason**: Issue #1 blocks user registration flow / SOLID score <18
+**Reason**: Issue #1 blocks user registration flow / Implementation doesn't match design
 
 **Must fix before approval**:
 1. Fix Issue #1 (Backend)
-2. [If SOLID <18]: Refactor to use patterns from 15_solutions.md
+2. [If design not followed]: Implement patterns as specified in 15_solutions.md
 
 **Next steps**:
 - Backend fixes Issue #1
@@ -275,18 +287,19 @@ After review, update `50_state.md`:
 ## QA / Reviewer
 **Status**: APPROVED | REJECTED
 **Review Date**: 2026-01-16
-**SOLID Score**: 23/25 ✅
+**SOLID Design Match**: ✅ Implementation matches 15_solutions.md
 **Critical Issues**: 0 | [count]
 **Minor Issues**: [count]
 
 ### Review Summary
 - Acceptance Criteria: 5/5 passed
 - Test Coverage: Backend 87%, Frontend 78%
-- **SOLID Compliance**: 23/25 (S:5, O:5, L:4, I:4, D:5)
+- **SOLID Design**: Expected 24/25, Actual 23/25 ✅
+- Patterns Implemented: Strategy ✅, Repository ✅, Value Object ✅
 - Issues Found: 0 critical, 2 minor
 
 ### Decision
-APPROVED - Feature ready for merge (SOLID compliant)
+APPROVED - Feature ready for merge (design implemented correctly)
 ```
 
 ## Compound Effect
