@@ -35,7 +35,7 @@ Complete workflow for refactoring code to strict SOLID compliance. This command 
 │                    PHASE 1: ANALYSIS                         │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
-│  1. Invoke /skill:solid-analyzer --path={target}            │
+│  1. Invoke /workflow-skill:solid-analyzer --path={target}            │
 │     └─ Collect metrics for all classes                      │
 │     └─ Detect violations with severity                      │
 │     └─ Calculate baseline SOLID score                       │
@@ -130,7 +130,7 @@ Complete workflow for refactoring code to strict SOLID compliance. This command 
 │                                                              │
 │  4. Verify checkpoint                                        │
 │     └─ Run tests                                            │
-│     └─ Run /skill:solid-analyzer on changed files           │
+│     └─ Run /workflow-skill:solid-analyzer on changed files           │
 │     └─ Confirm no regressions                               │
 │                                                              │
 │  5. If --interactive: confirm before proceeding              │
@@ -147,7 +147,7 @@ Complete workflow for refactoring code to strict SOLID compliance. This command 
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  1. Final SOLID analysis                                     │
-│     └─ /skill:solid-analyzer --path={target}                │
+│     └─ /workflow-skill:solid-analyzer --path={target}                │
 │     └─ Compare with baseline                                │
 │     └─ Verify score >= min-score                            │
 │                                                              │

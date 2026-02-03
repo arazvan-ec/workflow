@@ -51,7 +51,7 @@ git log --oneline --name-only | grep -A 20 "feat:" | grep -v "^$" | wc -l
 
 > **IMPORTANTE**: Para análisis profundo de SOLID y mapeo a patrones correctivos, consultar:
 > - `core/solid-pattern-matrix.md` - Mapeo Violación → Patrón de Diseño
-> - `skills/solid-analyzer.md` - Análisis automático de SOLID
+> - `skills/workflow-skill-solid-analyzer.md` - Análisis automático de SOLID
 > - `agents/design/solid-architecture-generator.md` - Generación de arquitecturas SOLID
 
 #### S - Single Responsibility
@@ -155,7 +155,7 @@ git log --oneline --name-only | grep -A 20 "feat:" | grep -v "^$" | wc -l
 **Verificación Automática**:
 ```bash
 # Ejecutar análisis SOLID
-/skill:solid-analyzer --path=src
+/workflow-skill:solid-analyzer --path=src
 
 # Verificar score antes de aprobar PR
 # Rechazar si score < 18/25

@@ -200,7 +200,7 @@ Best for: Independent features or separate teams
 | **Workflow** | worktree-manager, commit-formatter |
 | **Compound** | changelog-generator, layer-validator |
 | **Integration** | mcp-connector (connect to external tools via MCP) |
-| **SOLID** | solid-analyzer, criteria-generator (with `--solid-rigorous`) |
+| **SOLID** | workflow-skill-solid-analyzer, workflow-skill-criteria-generator (with `--solid-rigorous`) |
 
 ## SOLID-Rigorous Architecture Decisions
 
@@ -210,13 +210,13 @@ The plugin can take **architectural decisions based on strict SOLID principles**
 
 ```bash
 # Analyze code for SOLID violations
-/skill:solid-analyzer --path=src/Service
+/workflow-skill:solid-analyzer --path=src/Service
 
 # Full SOLID-compliant refactoring workflow
 /workflows:solid-refactor --path=src/Payment
 
 # Generate architecture with SOLID criteria
-/skill:criteria-generator --feature=my-feature --solid-rigorous
+/workflow-skill:criteria-generator --feature=my-feature --solid-rigorous
 
 # Use SOLID architecture generator agent
 /agent:solid-architecture-generator --feature=my-feature
@@ -226,7 +226,7 @@ The plugin can take **architectural decisions based on strict SOLID principles**
 
 When the plugin needs to choose between architectural options, it:
 
-1. **Analyzes** current code with `/skill:solid-analyzer`
+1. **Analyzes** current code with `/workflow-skill:solid-analyzer`
 2. **Detects** SOLID violations with severity scoring
 3. **Maps** violations to corrective patterns via `solid-pattern-matrix.md`
 4. **Generates** SOLID-compliant architecture proposals
@@ -258,10 +258,10 @@ When the plugin needs to choose between architectural options, it:
 | Component | Purpose | Location |
 |-----------|---------|----------|
 | **solid-pattern-matrix.md** | Violation → Pattern mapping | `core/` |
-| **solid-analyzer.md** | Automated SOLID analysis | `skills/` |
+| **workflow-skill-solid-analyzer.md** | Automated SOLID analysis | `skills/` |
 | **solid-architecture-generator.md** | Generate SOLID architectures | `agents/design/` |
 | **solid-refactor.md** | Complete refactoring workflow | `commands/workflows/` |
-| **criteria-generator.md** | `--solid-rigorous` mode | `skills/` |
+| **workflow-skill-criteria-generator.md** | `--solid-rigorous` mode | `skills/` |
 
 ### Example: SOLID-Rigorous Decision
 

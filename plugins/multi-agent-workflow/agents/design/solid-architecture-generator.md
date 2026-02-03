@@ -41,7 +41,7 @@ required_context:
    → Read: plugins/multi-agent-workflow/core/solid-pattern-matrix.md
 
 2. ANALYZE current code (if refactoring)
-   → Use: /skill:solid-analyzer --path=<target>
+   → Use: /workflow-skill:solid-analyzer --path=<target>
 
 3. IDENTIFY violations and their types
    → Map each violation to SOLID principle
@@ -368,7 +368,7 @@ Before finalizing any architecture, verify:
 This agent is automatically invoked when:
 - `/workflows:plan` detects architectural decisions needed
 - `/workflows:solid-refactor` is executed
-- `/skill:criteria-generator` evaluates SOLID criterion
+- `/workflow-skill:criteria-generator` evaluates SOLID criterion
 - Architecture criteria score < 80% on SOLID
 
 ### Output Artifacts
@@ -400,6 +400,6 @@ Generates files in `.ai/project/features/{feature-id}/`:
 ## Related
 
 - `core/solid-pattern-matrix.md` - Pattern selection reference
-- `skills/solid-analyzer.md` - Automated SOLID analysis
-- `skills/criteria-generator.md` - Architecture criteria
+- `skills/workflow-skill-solid-analyzer.md` - Automated SOLID analysis
+- `skills/workflow-skill-criteria-generator.md` - Architecture criteria
 - `commands/workflows/solid-refactor.md` - Refactoring workflow

@@ -55,7 +55,7 @@ Read: rules/project_specific.md
 
 Before designing architecture, define evaluation criteria:
 ```bash
-/skill:criteria-generator --feature=${FEATURE_ID} --interview
+/workflow-skill:criteria-generator --feature=${FEATURE_ID} --interview
 ```
 
 This ensures:
@@ -64,16 +64,16 @@ This ensures:
 - Trade-offs documented upfront
 - "Why this architecture and not others?" is answered
 
-### Step 3b: SOLID Analysis (Automatic for Refactoring/Architecture)
+### Step 3b: SOLID Analysis (MANDATORY for ALL tasks)
 
-**When the feature involves refactoring or architectural decisions**, automatically run SOLID analysis:
+**SOLID compliance is required for ALL tasks**, not just refactoring:
 
 ```bash
-# If modifying existing code, analyze SOLID compliance first
-/skill:solid-analyzer --path=src/relevant-path
+# Always run SOLID analysis before designing
+/workflow-skill:solid-analyzer --path=src/relevant-path
 
-# For architecture decisions, use SOLID-rigorous mode
-/skill:criteria-generator --feature=${FEATURE_ID} --solid-rigorous
+# Use SOLID-rigorous criteria for architecture decisions
+/workflow-skill:criteria-generator --feature=${FEATURE_ID} --solid-rigorous
 ```
 
 This ensures:
@@ -82,27 +82,29 @@ This ensures:
 - **Architecture options evaluated** with SOLID score (reject if <18/25)
 - **Best patterns selected** for each violation
 
-#### When to Trigger SOLID Analysis
+#### SOLID is NON-NEGOTIABLE
 
 | Feature Type | SOLID Analysis |
 |--------------|----------------|
-| New feature (greenfield) | Optional (use `--solid-rigorous` for critical features) |
-| Refactoring existing code | **MANDATORY** - run `/skill:solid-analyzer` first |
+| New feature (greenfield) | **MANDATORY** - design with SOLID from start |
+| Refactoring existing code | **MANDATORY** - analyze and fix violations |
 | Architecture redesign | **MANDATORY** - use `--solid-rigorous` mode |
-| Bug fix | Optional (unless touches architecture) |
-| Adding to existing module | Recommended - check existing SOLID score |
+| Bug fix | **MANDATORY** - ensure fix doesn't violate SOLID |
+| Adding to existing module | **MANDATORY** - maintain or improve SOLID score |
 
-#### SOLID-Rigorous Workflow Integration
+#### SOLID Workflow Integration
 
-For features requiring strict SOLID compliance:
+For ALL features:
 
 ```
-1. /skill:solid-analyzer --path=src/target          # Baseline analysis
-2. Read: core/solid-pattern-matrix.md               # Load pattern mappings
-3. /skill:criteria-generator --solid-rigorous       # Generate SOLID criteria
-4. Design architecture using recommended patterns   # Apply patterns
-5. /skill:solid-analyzer --validate                 # Verify score ≥22/25
+1. /workflow-skill:solid-analyzer --path=src/target    # Baseline analysis
+2. Read: core/solid-pattern-matrix.md                  # Load pattern mappings
+3. /workflow-skill:criteria-generator --solid-rigorous # Generate SOLID criteria
+4. Design architecture using recommended patterns      # Apply patterns
+5. /workflow-skill:solid-analyzer --validate           # Verify score ≥22/25
 ```
+
+**No feature can proceed to implementation with SOLID score <18/25.**
 
 See `core/solid-pattern-matrix.md` for violation → pattern mappings.
 

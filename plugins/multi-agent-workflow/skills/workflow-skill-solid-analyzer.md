@@ -1,6 +1,6 @@
 ---
-name: solid-analyzer
-description: "Analyzes code for SOLID principle violations with automated detection and severity scoring. Use before refactoring or when evaluating architecture quality. <example>Context: Need to check SOLID compliance.\\nuser: \"Check if our code follows SOLID\"\\nassistant: \"I'll use solid-analyzer to detect any SOLID violations\"</example>"
+name: workflow-skill-solid-analyzer
+description: "Analyzes code for SOLID principle violations with automated detection and severity scoring. MANDATORY for ALL tasks - use before any implementation. <example>Context: Need to check SOLID compliance.\\nuser: \"Check if our code follows SOLID\"\\nassistant: \"I'll use workflow-skill-solid-analyzer to detect any SOLID violations\"</example>"
 model: inherit
 ---
 
@@ -21,22 +21,22 @@ This skill provides **objective, measurable** SOLID compliance analysis, not sub
 
 ```bash
 # Analyze specific path
-/skill:solid-analyzer --path=src/services
+/workflow-skill:solid-analyzer --path=src/services
 
 # Analyze with severity threshold
-/skill:solid-analyzer --path=src --min-severity=high
+/workflow-skill:solid-analyzer --path=src --min-severity=high
 
 # Analyze and output to file
-/skill:solid-analyzer --path=src --output=.ai/solid-report.md
+/workflow-skill:solid-analyzer --path=src --output=.ai/solid-report.md
 
 # Quick summary only
-/skill:solid-analyzer --path=src --summary
+/workflow-skill:solid-analyzer --path=src --summary
 
 # Focus on specific principle
-/skill:solid-analyzer --path=src --principle=SRP
+/workflow-skill:solid-analyzer --path=src --principle=SRP
 
 # Full analysis with pattern recommendations
-/skill:solid-analyzer --path=src --recommend-patterns
+/workflow-skill:solid-analyzer --path=src --recommend-patterns
 ```
 
 ## Analysis Process
@@ -502,7 +502,7 @@ solid-check:
   steps:
     - name: SOLID Analysis
       run: |
-        /skill:solid-analyzer --path=src --min-severity=high --output=solid-report.md
+        /workflow-skill:solid-analyzer --path=src --min-severity=high --output=solid-report.md
 
     - name: Check Score
       run: |

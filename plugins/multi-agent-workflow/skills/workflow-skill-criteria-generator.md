@@ -1,6 +1,6 @@
 ---
-name: criteria-generator
-description: "Generates and evaluates architecture criteria for features. Use before architectural decisions to ensure the right architecture is chosen. <example>Context: Planning a new feature that could have multiple implementations.\\nuser: \"Let's design the payment system\"\\nassistant: \"Let me use criteria-generator to define evaluation criteria first\"</example>"
+name: workflow-skill-criteria-generator
+description: "Generates and evaluates architecture criteria for features. MANDATORY for ALL tasks - use before ANY architectural decisions. <example>Context: Planning a new feature that could have multiple implementations.\\nuser: \"Let's design the payment system\"\\nassistant: \"Let me use workflow-skill-criteria-generator to define evaluation criteria first\"</example>"
 model: inherit
 ---
 
@@ -63,16 +63,16 @@ If an architecture option violates these limits, it scores LOW on invasivity.
 
 ```bash
 # Generate criteria for a feature (includes base criteria automatically)
-/skill:criteria-generator --feature=<feature-id>
+/workflow-skill:criteria-generator --feature=<feature-id>
 
 # Evaluate options against existing criteria
-/skill:criteria-generator --evaluate --feature=<feature-id>
+/workflow-skill:criteria-generator --evaluate --feature=<feature-id>
 
 # Quick criteria generation with auto-suggest
-/skill:criteria-generator --quick --feature=<feature-id>
+/workflow-skill:criteria-generator --quick --feature=<feature-id>
 
 # Generate criteria interactively (consult with dev)
-/skill:criteria-generator --interview --feature=<feature-id>
+/workflow-skill:criteria-generator --interview --feature=<feature-id>
 ```
 
 ## Criteria Structure
@@ -415,7 +415,7 @@ Do you want to adjust any criteria weights? (y/n)
 /workflows:plan my-feature
 
 # With criteria first (recommended for complex features)
-/skill:criteria-generator --interview --feature=my-feature
+/workflow-skill:criteria-generator --interview --feature=my-feature
 /workflows:plan my-feature  # Now informed by criteria
 ```
 
@@ -453,10 +453,10 @@ When SOLID compliance is critical (refactoring, new architecture), use strict SO
 
 ```bash
 # Enable SOLID-rigorous evaluation
-/skill:criteria-generator --feature=<id> --solid-rigorous
+/workflow-skill:criteria-generator --feature=<id> --solid-rigorous
 
 # SOLID analysis before criteria generation
-/skill:criteria-generator --feature=<id> --solid-first
+/workflow-skill:criteria-generator --feature=<id> --solid-first
 ```
 
 ### SOLID as Non-Negotiable Criterion
@@ -558,10 +558,10 @@ PaymentProcessor
 
 ```bash
 # Automatic SOLID analysis of existing code before criteria generation
-/skill:criteria-generator --feature=my-feature --solid-first
+/workflow-skill:criteria-generator --feature=my-feature --solid-first
 
 # This will:
-# 1. Run /skill:solid-analyzer on relevant code paths
+# 1. Run /workflow-skill:solid-analyzer on relevant code paths
 # 2. Include SOLID baseline in context
 # 3. Generate criteria that address existing SOLID violations
 # 4. Evaluate options with SOLID-rigorous scoring
@@ -622,7 +622,7 @@ PaymentProcessor
 ### SOLID-Rigorous Workflow
 
 ```
-1. ANALYZE existing code with /skill:solid-analyzer
+1. ANALYZE existing code with /workflow-skill:solid-analyzer
    └─ Get SOLID baseline score
 
 2. IDENTIFY violations requiring architectural fix
@@ -650,5 +650,5 @@ PaymentProcessor
 - `10_architecture.md` - Architecture design document
 - `agents/roles/planner.md` - Planner role context
 - `agents/design/solid-architecture-generator.md` - SOLID architecture generation
-- `skills/solid-analyzer.md` - Automated SOLID analysis
+- `skills/workflow-skill-solid-analyzer.md` - Automated SOLID analysis
 - `core/solid-pattern-matrix.md` - Violation → Pattern mapping

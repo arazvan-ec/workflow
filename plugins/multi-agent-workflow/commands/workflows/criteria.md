@@ -441,7 +441,7 @@ For features requiring strict SOLID compliance (refactoring, architecture decisi
 
 This mode:
 1. **Adds 5 SOLID sub-criteria** (S, O, L, I, D) as Critical/High weight
-2. **Analyzes existing code** with `/skill:solid-analyzer` first
+2. **Analyzes existing code** with `/workflow-skill:solid-analyzer` first
 3. **Maps violations to patterns** via `core/solid-pattern-matrix.md`
 4. **Rejects options** scoring <18/25 on SOLID automatically
 5. **Recommends corrective patterns** (Strategy, Decorator, Ports & Adapters, etc.)
@@ -475,6 +475,6 @@ See `core/solid-pattern-matrix.md` for violation → pattern mappings.
 - `/workflows:interview` - Create feature spec
 - `/workflows:plan` - Main planning workflow
 - `/workflows:solid-refactor` - Complete SOLID refactoring workflow
-- `/skill:criteria-generator` - Direct skill invocation (supports `--solid-rigorous`)
-- `/skill:solid-analyzer` - Automated SOLID violation detection
+- `/workflow-skill:criteria-generator` - Direct skill invocation (supports `--solid-rigorous`)
+- `/workflow-skill:solid-analyzer` - Automated SOLID violation detection
 - `/workflows:validate` - Validate planning documents
