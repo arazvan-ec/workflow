@@ -1,0 +1,35 @@
+# config/services/response_creators.yaml
+# Response Creators - Strategy pattern for SOLID compliance
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # Auto-configure BodyElement creators with tag
+    _instanceof:
+        App\Application\Factory\Response\Creator\BodyElement\BodyElementResponseCreatorInterface:
+            tags: ['app.body_element_response_creator']
+
+        App\Application\Factory\Response\Creator\Multimedia\MultimediaResponseCreatorInterface:
+            tags: ['app.multimedia_response_creator']
+
+    # Auto-discover all creators
+    App\Application\Factory\Response\Creator\BodyElement\:
+        resource: '../../src/Application/Factory/Response/Creator/BodyElement/'
+        exclude:
+            - '../../src/Application/Factory/Response/Creator/BodyElement/*Interface.php'
+
+    App\Application\Factory\Response\Creator\Multimedia\:
+        resource: '../../src/Application/Factory/Response/Creator/Multimedia/'
+        exclude:
+            - '../../src/Application/Factory/Response/Creator/Multimedia/*Interface.php'
+
+    # Inject tagged creators into factories
+    App\Application\Factory\Response\BodyElementResponseFactory:
+        arguments:
+            $creators: !tagged_iterator app.body_element_response_creator
+
+    App\Application\Factory\Response\MultimediaResponseFactory:
+        arguments:
+            $creators: !tagged_iterator app.multimedia_response_creator
