@@ -244,6 +244,11 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/INDEX.md (2026-02-03T21:00:03+00:00)
+- /home/user/workflow/WELCOME.md (2026-02-03T20:59:44+00:00)
+- /home/user/workflow/QUICKSTART.md (2026-02-03T20:59:16+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/help.md (2026-02-03T20:58:59+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/onboarding.md (2026-02-03T20:57:55+00:00)
 - /home/user/workflow/snaapi/docs/SOLID_ARCHITECTURE.md (2026-02-03T01:28:36+00:00)
 - /home/user/workflow/snaapi/config/services.yaml (2026-02-03T01:27:57+00:00)
 - /home/user/workflow/snaapi/config/services/solid.yaml (2026-02-03T01:27:45+00:00)
