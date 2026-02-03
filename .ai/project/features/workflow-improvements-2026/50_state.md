@@ -244,6 +244,7 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/plugins/multi-agent-workflow/core/templates/spec-template.md (2026-02-03T02:52:28+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/skills/workflow-skill-criteria-generator.md (2026-02-03T02:06:44+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/skills/workflow-skill-solid-analyzer.md (2026-02-03T02:05:18+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/core/roles/planner.md (2026-02-03T02:00:23+00:00)

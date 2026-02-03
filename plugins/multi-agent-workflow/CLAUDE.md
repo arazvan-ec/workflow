@@ -202,36 +202,64 @@ Best for: Independent features or separate teams
 | **Integration** | mcp-connector (connect to external tools via MCP) |
 | **SOLID** | workflow-skill-solid-analyzer, workflow-skill-criteria-generator (with `--solid-rigorous`) |
 
-## SOLID-Rigorous Architecture Decisions
+## The 3-Phase Planning Process
 
-The plugin can take **architectural decisions based on strict SOLID principles** using design patterns.
+The plugin follows a structured 3-phase process to ensure high-quality solutions:
 
-### Quick Start: SOLID Refactoring
-
-```bash
-# Analyze code for SOLID violations
-/workflow-skill:solid-analyzer --path=src/Service
-
-# Full SOLID-compliant refactoring workflow
-/workflows:solid-refactor --path=src/Payment
-
-# Generate architecture with SOLID criteria
-/workflow-skill:criteria-generator --feature=my-feature --solid-rigorous
-
-# Use SOLID architecture generator agent
-/agent:solid-architecture-generator --feature=my-feature
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    PHASE 1: UNDERSTAND                          │
+│  Analyze request → Ask clarifying questions → Document problem  │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                    PHASE 2: SPECS                               │
+│  Define acceptance criteria:                                    │
+│  ├── Task-specific specs (functional requirements)              │
+│  └── **MANDATORY SPEC: SOLID Compliance** (always required)     │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                    PHASE 3: PLAN WITH SOLUTIONS                 │
+│  For each spec, propose solution:                               │
+│  ├── Functional solutions (how to implement each requirement)   │
+│  └── SOLID solutions (patterns + practices to ensure quality)   │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### SOLID Decision Framework
+### SOLID as MANDATORY Spec
 
-When the plugin needs to choose between architectural options, it:
+> **"El código de alta calidad cumple SOLID de forma rigurosa"**
 
-1. **Analyzes** current code with `/workflow-skill:solid-analyzer`
-2. **Detects** SOLID violations with severity scoring
-3. **Maps** violations to corrective patterns via `solid-pattern-matrix.md`
-4. **Generates** SOLID-compliant architecture proposals
-5. **Evaluates** options with SOLID-rigorous criteria (reject if score <18/25)
-6. **Selects** the highest-scoring SOLID-compliant option
+**SOLID is NOT just a quality check—it's a MANDATORY SPECIFICATION** that applies to ALL tasks.
+
+Every solution proposed by the plugin MUST:
+1. Comply with all 5 SOLID principles
+2. Use appropriate design patterns
+3. Score ≥18/25 to proceed, ≥22/25 to approve
+
+### Quick Start
+
+```bash
+# Plan a feature (includes SOLID as mandatory spec)
+/workflows:plan user-authentication
+
+# Analyze SOLID compliance
+/workflow-skill:solid-analyzer --path=src/Service
+
+# Generate specs with SOLID criteria
+/workflow-skill:criteria-generator --feature=my-feature --interview
+```
+
+### How the Plugin Creates Solutions
+
+1. **UNDERSTAND**: Analyzes the request, asks questions if needed
+2. **SPECS**: Defines functional specs + SOLID spec (always mandatory)
+3. **PLAN**: For each spec, proposes a solution with:
+   - Implementation approach
+   - **Design patterns** to ensure SOLID compliance
+   - Class design showing SOLID principles
+   - Expected SOLID score
 
 ### SOLID Score Thresholds
 

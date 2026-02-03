@@ -15,279 +15,440 @@ The planning phase is the foundation of compound engineering. Invest 80% of effo
 /workflows:plan payment-system --workflow=task-breakdown
 ```
 
-## Arguments
-
-- `feature-name`: Name for the feature (kebab-case)
-- `--workflow`: (optional) Planning depth
-  - `default` - Standard planning with API contracts and task breakdown
-  - `task-breakdown` - Exhaustive planning (10 documents) for complex features
-
 ## Philosophy
 
 > "Each unit of engineering work should make subsequent units easier—not harder"
 
+> "El código de alta calidad cumple SOLID de forma rigurosa"
+
 Good planning means:
 - Engineers can start WITHOUT asking questions
+- **Solutions are designed with SOLID compliance from the start**
 - API contracts are complete enough to mock
-- References to existing code patterns provided
 - Every task has clear "definition of done"
 
-## What This Command Does
+---
 
-### Step 1: Create Feature Workspace
+## The 3-Phase Planning Process
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    PHASE 1: UNDERSTAND                          │
+│  Analyze request → Ask clarifying questions → Document problem  │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                    PHASE 2: SPECS                               │
+│  Define acceptance criteria:                                    │
+│  ├── Task-specific specs (functional requirements)              │
+│  └── **MANDATORY SPEC: SOLID Compliance** (always required)     │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                    PHASE 3: PLAN WITH SOLUTIONS                 │
+│  For each spec, propose solution:                               │
+│  ├── Functional solutions (how to implement each requirement)   │
+│  └── SOLID solutions (patterns + practices to ensure quality)   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## PHASE 1: UNDERSTAND (Entender el Problema)
+
+### Step 1.1: Analyze the Request
+
+```markdown
+## Request Analysis
+
+**Original Request**: [user's exact words]
+**Request Type**: [feature | refactor | bugfix | architecture | investigation]
+**Affected Areas**: [modules/services involved]
+**Confidence Level**: [0-100%]
+```
+
+### Step 1.2: Ask Clarifying Questions (if confidence < 60%)
+
+Before proceeding, ensure you understand:
+
+| Question Category | Example Questions |
+|-------------------|-------------------|
+| **Functional Scope** | ¿Qué debe hacer exactamente? ¿Qué NO debe hacer? |
+| **Users/Actors** | ¿Quién usará esta funcionalidad? |
+| **Integration** | ¿Se conecta con APIs externas? ¿Qué sistemas afecta? |
+| **Constraints** | ¿Hay restricciones de tiempo/tecnología/rendimiento? |
+| **Success Criteria** | ¿Cómo sabremos que está completo y funciona? |
+
+### Step 1.3: Document the Understood Problem
+
+```markdown
+## Problem Statement
+
+### What We're Building
+[Clear description of the feature/task]
+
+### Why It's Needed
+[Business justification]
+
+### Who Benefits
+[Users/stakeholders]
+
+### Constraints
+- Technical: [stack, performance, integrations]
+- Business: [timeline, budget, compliance]
+- Team: [skills, availability]
+
+### Success Criteria
+1. [Measurable criterion 1]
+2. [Measurable criterion 2]
+```
+
+---
+
+## PHASE 2: SPECS (Definir Criterios de Aceptación)
+
+Every task has TWO types of specs:
+
+### A. Task-Specific Specs (Functional Requirements)
+
+These are unique to each task:
+
+```markdown
+## Functional Specs: ${FEATURE_ID}
+
+### SPEC-F01: [Functional Requirement 1]
+**Description**: [What it must do]
+**Acceptance Criteria**:
+- [ ] [Testable criterion]
+- [ ] [Testable criterion]
+**Verification**: [How to test]
+
+### SPEC-F02: [Functional Requirement 2]
+...
+```
+
+### B. MANDATORY SPEC: SOLID Compliance (Always Required)
+
+**THIS SPEC APPLIES TO ALL TASKS, ALWAYS.**
+
+```markdown
+## MANDATORY SPEC: SOLID-COMPLIANCE
+
+**This spec is NON-NEGOTIABLE. All code must comply.**
+
+### SPEC-SOLID: Code Quality via SOLID Principles
+
+**Description**: All proposed/created code MUST comply with SOLID principles
+using appropriate design patterns and best practices.
+
+**Acceptance Criteria**:
+- [ ] **S** - Single Responsibility: Each class has ONE reason to change
+- [ ] **O** - Open/Closed: Extensible via composition, not modification
+- [ ] **L** - Liskov Substitution: Subtypes honor parent contracts
+- [ ] **I** - Interface Segregation: Interfaces are role-specific (≤5 methods)
+- [ ] **D** - Dependency Inversion: High-level modules depend on abstractions
+
+**Minimum Score**: 18/25 to proceed, 22/25 to approve
+**Verification**: `/workflow-skill:solid-analyzer --validate`
+
+### Required Design Patterns
+
+Based on the task, these patterns MUST be considered:
+
+| If You Need... | Use Pattern | SOLID Principles Addressed |
+|----------------|-------------|---------------------------|
+| Multiple behaviors | Strategy | OCP, SRP |
+| Add functionality | Decorator | OCP, SRP |
+| Object creation | Factory Method | DIP, OCP |
+| External integrations | Adapter / Ports & Adapters | DIP, OCP |
+| Data access | Repository | SRP, DIP |
+| Processing chains | Chain of Responsibility | SRP, OCP |
+
+See `core/solid-pattern-matrix.md` for complete mapping.
+```
+
+### How to Generate Specs
 
 ```bash
-FEATURE_ID="$ARGUMENTS"
-WORKSPACE=".ai/project/features/${FEATURE_ID}"
-mkdir -p "${WORKSPACE}"
-```
-
-### Step 2: Load Planner Context
-
-```
-Read: agents/roles/planner.md
-Read: rules/global_rules.md
-Read: rules/ddd_rules.md
-Read: rules/project_specific.md
-```
-
-### Step 3: Define Architecture Criteria (Recommended)
-
-Before designing architecture, define evaluation criteria:
-```bash
+# Generate functional specs interactively
 /workflow-skill:criteria-generator --feature=${FEATURE_ID} --interview
+
+# This ALWAYS includes SOLID as mandatory spec
+# Output: .ai/project/features/${FEATURE_ID}/12_specs.md
 ```
 
-This ensures:
-- Explicit criteria for choosing architecture
-- Developer consultation on priorities
-- Trade-offs documented upfront
-- "Why this architecture and not others?" is answered
+---
 
-### Step 3b: SOLID Analysis (MANDATORY for ALL tasks)
+## PHASE 3: PLAN WITH SOLUTIONS
 
-**SOLID compliance is required for ALL tasks**, not just refactoring:
+The plan MUST detail HOW to achieve each spec.
+
+### Step 3.1: Load Context
+
+```
+Read: core/roles/planner.md
+Read: core/solid-pattern-matrix.md
+Read: .ai/extensions/rules/project_rules.md
+```
+
+### Step 3.2: Analyze Existing Code (for SOLID baseline)
 
 ```bash
-# Always run SOLID analysis before designing
-/workflow-skill:solid-analyzer --path=src/relevant-path
+# Get current SOLID score of affected areas
+/workflow-skill:solid-analyzer --path=src/relevant-module
 
-# Use SOLID-rigorous criteria for architecture decisions
-/workflow-skill:criteria-generator --feature=${FEATURE_ID} --solid-rigorous
+# Output shows:
+# - Current SOLID score
+# - Violations found
+# - Recommended patterns to fix
 ```
 
-This ensures:
-- **SOLID violations detected** before design begins
-- **Corrective patterns identified** (Strategy, Decorator, Ports & Adapters, etc.)
-- **Architecture options evaluated** with SOLID score (reject if <18/25)
-- **Best patterns selected** for each violation
+### Step 3.3: Design Solutions
 
-#### SOLID is NON-NEGOTIABLE
-
-| Feature Type | SOLID Analysis |
-|--------------|----------------|
-| New feature (greenfield) | **MANDATORY** - design with SOLID from start |
-| Refactoring existing code | **MANDATORY** - analyze and fix violations |
-| Architecture redesign | **MANDATORY** - use `--solid-rigorous` mode |
-| Bug fix | **MANDATORY** - ensure fix doesn't violate SOLID |
-| Adding to existing module | **MANDATORY** - maintain or improve SOLID score |
-
-#### SOLID Workflow Integration
-
-For ALL features:
-
-```
-1. /workflow-skill:solid-analyzer --path=src/target    # Baseline analysis
-2. Read: core/solid-pattern-matrix.md                  # Load pattern mappings
-3. /workflow-skill:criteria-generator --solid-rigorous # Generate SOLID criteria
-4. Design architecture using recommended patterns      # Apply patterns
-5. /workflow-skill:solid-analyzer --validate           # Verify score ≥22/25
-```
-
-**No feature can proceed to implementation with SOLID score <18/25.**
-
-See `core/solid-pattern-matrix.md` for violation → pattern mappings.
-
-### Step 4: Analyze Existing Patterns
-
-Before planning, analyze the codebase:
-- Find similar features to use as reference
-- Identify existing code patterns
-- Understand technical constraints
-
-### Step 5: Create Planning Documents
-
-**For `default` workflow:**
-1. `FEATURE_${FEATURE_ID}.md` - Feature definition with:
-   - Objective and context
-   - Acceptance criteria (testable)
-   - API contracts (complete)
-   - Task breakdown by role
-
-2. `50_state.md` - State tracking for all roles
-
-3. `30_tasks.md` - Detailed task breakdown
-
-**For `task-breakdown` workflow (10 documents):**
-1. `00_requirements_analysis.md`
-2. `12_architecture_criteria.md` (NEW: criteria for architecture decisions)
-3. `10_architecture.md`
-4. `15_data_model.md`
-5. `20_api_contracts.md`
-6. `30_tasks_backend.md`
-7. `31_tasks_frontend.md`
-8. `32_tasks_qa.md`
-9. `35_dependencies.md`
-10. `FEATURE_${FEATURE_ID}.md`
-11. `50_state.md`
-
-### Step 6: Initialize State File
+For EACH spec, propose a solution:
 
 ```markdown
-# Feature State: ${FEATURE_ID}
+## Solutions: ${FEATURE_ID}
 
-## Overview
-**Feature**: ${FEATURE_ID}
-**Workflow**: ${WORKFLOW_TYPE}
-**Created**: $(date -Iseconds)
-**Status**: PLANNING
+### Solution for SPEC-F01: [Functional Requirement]
+**Approach**: [How to implement]
+**Files to Create/Modify**: [List]
+**Reference Pattern**: [Existing code to follow]
 
----
+### Solution for SPEC-F02: [Functional Requirement]
+...
 
-## Planner / Architect
-**Status**: IN_PROGRESS
-**Notes**: Planning feature
+### Solution for SPEC-SOLID: SOLID Compliance
 
----
+**Current SOLID Score**: [X/25] (from analyzer)
+**Target SOLID Score**: ≥22/25
 
-## Backend Engineer
-**Status**: PENDING
-**Notes**: Waiting for planning to complete
+#### Patterns Selected:
 
----
+| Violation/Need | Pattern | Implementation |
+|----------------|---------|----------------|
+| [God class detected] | Strategy + Extract Class | Split `BigService` into `XStrategy`, `YStrategy` |
+| [Switch by type] | Strategy | Create `ProcessorInterface` with implementations |
+| [Concrete dependencies] | Dependency Injection | Inject interfaces, not classes |
+| [Layer violation] | Ports & Adapters | Create Port interface in Domain |
 
-## Frontend Engineer
-**Status**: PENDING
-**Notes**: Waiting for planning to complete
+#### Class Design (SOLID-Compliant):
 
----
-
-## QA / Reviewer
-**Status**: PENDING
-**Notes**: Waiting for implementation to complete
+```
+┌─────────────────────────────────────────┐
+│ Domain Layer (no external dependencies) │
+├─────────────────────────────────────────┤
+│ ├── Entity/                             │
+│ │   └── User.php (SRP: only user data)  │
+│ ├── ValueObject/                        │
+│ │   └── Email.php (SRP: email rules)    │
+│ ├── Repository/                         │
+│ │   └── UserRepositoryInterface (DIP)   │
+│ └── Service/                            │
+│     └── UserDomainService (SRP)         │
+└─────────────────────────────────────────┘
+          ↑ depends on abstractions (DIP)
+┌─────────────────────────────────────────┐
+│ Infrastructure Layer                    │
+├─────────────────────────────────────────┤
+│ └── Persistence/                        │
+│     └── DoctrineUserRepository (DIP)    │
+│         implements UserRepositoryInterface
+└─────────────────────────────────────────┘
 ```
 
-## Planning Checklist
+#### Why These Patterns?
 
-Before marking planning as COMPLETED, verify:
+| Pattern | Why Selected | SOLID Score Impact |
+|---------|--------------|-------------------|
+| Strategy | Avoid switch statements, enable new behaviors without modification | OCP +5, SRP +3 |
+| Repository Interface | Decouple domain from persistence | DIP +5, SRP +2 |
+| Value Objects | Encapsulate validation rules | SRP +3 |
 
-- [ ] Feature objective is clear and measurable
-- [ ] All acceptance criteria defined (testable)
-- [ ] All API endpoints fully specified (request/response/errors)
-- [ ] References to existing patterns provided
-- [ ] Tasks broken down by role (backend, frontend, qa)
-- [ ] Each task has "done" definition
-- [ ] Dependencies identified
-- [ ] All questions answered (no "TBD" or "unclear")
-
-## Self-Review Questions
-
-- Can backend engineer start WITHOUT asking questions? YES/NO
-- Can frontend engineer start WITHOUT asking questions? YES/NO
-- Does QA know exactly what to test? YES/NO
-- Are API contracts complete enough to mock? YES/NO
-- Are there references to existing code patterns? YES/NO
-
-**If any NO, plan is incomplete. Add missing details.**
-
-## API Contract Template
-
-Every endpoint must be fully specified:
-
-```markdown
-### Endpoint: POST /api/users
-
-**Purpose**: Create new user account
-**Authentication**: Public
-
-**Request**:
-{
-  "email": "string, required, valid email",
-  "name": "string, required, 2-50 chars",
-  "password": "string, required, min 8 chars"
-}
-
-**Success Response (201)**:
-{
-  "id": "uuid",
-  "email": "string",
-  "name": "string",
-  "created_at": "ISO 8601 datetime"
-}
-
-**Error Responses**:
-- 400: Validation failed (with details)
-- 409: Email already exists
+**Expected SOLID Score After Implementation**: 24/25
 ```
 
-## Task Template
+### Step 3.4: Create Task Breakdown
 
-Each task must include:
+Each task references the solution and SOLID requirements:
 
 ```markdown
 ### Task BE-001: Create User Entity
 
 **Role**: Backend Engineer
-**Reference**: src/Domain/Entity/Order.php
 **Methodology**: TDD (Red-Green-Refactor)
-**Max Iterations**: 10
 
-**Requirements**:
+**Functional Requirements**:
 - User entity with id, email, name, password
-- Email value object with validation
-- Follow DDD principles
+- Email as Value Object
+
+**SOLID Requirements**:
+- SRP: Entity only holds data, no business logic
+- DIP: No infrastructure imports in Entity
+- Pattern: Value Object for Email
 
 **Tests to Write FIRST**:
 - [ ] test_user_can_be_created_with_valid_data()
-- [ ] test_user_rejects_invalid_email()
+- [ ] test_email_value_object_validates_format()
 
 **Acceptance Criteria**:
-- [ ] Entity exists in src/Domain/Entity/
-- [ ] Tests pass with >80% coverage
-- [ ] No Doctrine annotations in Domain
+- [ ] Entity in src/Domain/Entity/
+- [ ] Value Object in src/Domain/ValueObject/
+- [ ] SOLID score ≥4/5 for SRP
+- [ ] No Doctrine imports in Domain
 
-**Verification**:
-php bin/phpunit tests/Unit/Domain/Entity/UserTest.php
-
-**Escape Hatch**: If blocked after 10 iterations, document in DECISIONS.md
+**Reference**: src/Domain/Entity/Order.php (existing pattern)
 ```
 
-## Output
+---
 
-After successful planning:
+## Complete Planning Workflow
 
+```bash
+# 1. Create workspace
+FEATURE_ID="user-authentication"
+mkdir -p .ai/project/features/${FEATURE_ID}
+
+# 2. PHASE 1: Understand
+# - Analyze request
+# - Ask clarifying questions if needed
+# - Document problem statement
+
+# 3. PHASE 2: Specs
+/workflow-skill:criteria-generator --feature=${FEATURE_ID} --interview
+# Output: 12_specs.md (includes SOLID as mandatory spec)
+
+# 4. PHASE 3: Plan with Solutions
+/workflow-skill:solid-analyzer --path=src/relevant-path  # Get baseline
+# Design solutions with patterns
+# Create task breakdown
+
+# 5. Validate plan completeness
+# - All specs have solutions
+# - All solutions include SOLID patterns
+# - Expected SOLID score ≥22/25
 ```
-Feature workspace created: .ai/project/features/${FEATURE_ID}/
 
-Planning documents:
-- FEATURE_${FEATURE_ID}.md (definition)
-- 50_state.md (state tracking)
-- 30_tasks.md (task breakdown)
+---
 
-Next steps:
-1. Review the plan for completeness
-2. Start implementation:
-   /workflows:work --mode=roles --role=backend ${FEATURE_ID}
-   /workflows:work --mode=layers --layer=domain ${FEATURE_ID}
+## Planning Checklist
 
-3. Or start all roles in parallel (Tilix terminal):
-   ./workflow start ${FEATURE_ID} --parallel
+Before marking planning as COMPLETED:
+
+### Functional Completeness
+- [ ] Problem is clearly understood and documented
+- [ ] All functional specs defined (testable)
+- [ ] All API endpoints fully specified
+- [ ] Tasks broken down by role
+
+### SOLID Completeness (MANDATORY)
+- [ ] **SOLID baseline analyzed** (current score documented)
+- [ ] **Patterns selected** for each SOLID requirement
+- [ ] **Class design** shows SOLID compliance
+- [ ] **Expected SOLID score** ≥22/25 documented
+- [ ] **Each task** includes SOLID requirements
+
+### Quality Checks
+- [ ] Can engineer start WITHOUT asking questions? YES
+- [ ] Are patterns and references provided? YES
+- [ ] Is "why this pattern?" explained? YES
+
+**If SOLID is not addressed in the plan, the plan is INCOMPLETE.**
+
+---
+
+## Output Files
+
+### For `default` workflow:
+```
+.ai/project/features/${FEATURE_ID}/
+├── 00_problem_statement.md    # Phase 1 output
+├── 12_specs.md                # Phase 2 output (includes SOLID)
+├── 15_solutions.md            # Phase 3 solutions with patterns
+├── 30_tasks.md                # Task breakdown
+├── 50_state.md                # State tracking
+└── FEATURE_${FEATURE_ID}.md   # Summary document
 ```
 
-## Compound Effect
+### For `task-breakdown` workflow (complete):
+```
+.ai/project/features/${FEATURE_ID}/
+├── 00_problem_statement.md
+├── 10_architecture.md
+├── 12_specs.md                # Includes SOLID spec
+├── 15_solutions.md            # Includes SOLID patterns
+├── 15_data_model.md
+├── 20_api_contracts.md
+├── 30_tasks_backend.md
+├── 31_tasks_frontend.md
+├── 32_tasks_qa.md
+├── 35_dependencies.md
+├── 50_state.md
+└── FEATURE_${FEATURE_ID}.md
+```
 
-Good planning compounds:
-- Clear specs reduce back-and-forth
-- Patterns become templates for future features
-- Decisions documented prevent repeated debates
-- API contracts enable parallel development
+---
+
+## Example: Complete Plan with SOLID
+
+```markdown
+# Feature Plan: user-authentication
+
+## PHASE 1: Problem Statement
+
+We need to implement user authentication with email/password.
+Users should be able to register, login, and logout.
+
+## PHASE 2: Specs
+
+### SPEC-F01: User Registration
+- User can register with email and password
+- Email must be unique
+- Password must be ≥8 characters
+
+### SPEC-F02: User Login
+- User can login with email and password
+- Returns JWT token on success
+
+### SPEC-SOLID: SOLID Compliance (MANDATORY)
+- All code must score ≥22/25
+- Must use appropriate design patterns
+
+## PHASE 3: Solutions
+
+### Solution SPEC-F01 & F02: Authentication Flow
+- Create User entity with Email value object
+- Create AuthenticationService
+
+### Solution SPEC-SOLID: Design Patterns
+
+| Need | Pattern | Why |
+|------|---------|-----|
+| Password hashing strategies | Strategy | OCP - add new hashers without modifying |
+| Token generation | Factory Method | DIP - abstract token creation |
+| User persistence | Repository | DIP - decouple from Doctrine |
+
+**Class Design**:
+- `Domain/Entity/User` - only user data (SRP)
+- `Domain/ValueObject/Email` - email validation (SRP)
+- `Domain/Service/AuthenticationService` - auth logic only (SRP)
+- `Domain/Repository/UserRepositoryInterface` - abstraction (DIP)
+- `Infrastructure/Repository/DoctrineUserRepository` - implementation
+
+**Expected SOLID Score**: 24/25
+```
+
+---
+
+## Related Commands
+
+- `/workflow-skill:criteria-generator` - Generate specs interactively
+- `/workflow-skill:solid-analyzer` - Analyze SOLID compliance
+- `/workflows:work` - Execute the plan
+- `/workflows:review` - Review implementation
+
+## Related Documentation
+
+- `core/solid-pattern-matrix.md` - Violation → Pattern mapping
+- `core/architecture-quality-criteria.md` - Quality metrics
+- `skills/workflow-skill-solid-analyzer.md` - SOLID analysis tool
