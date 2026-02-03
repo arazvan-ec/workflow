@@ -30,7 +30,7 @@ Every architectural decision should be:
 
 ```
 Read: plugins/multi-agent-workflow/core/architecture-quality-criteria.md
-Read: plugins/multi-agent-workflow/skills/criteria-generator.md
+Read: plugins/multi-agent-workflow/skills/workflow-skill-criteria-generator.md
 ```
 
 ## Base Criteria (Non-Negotiable)
@@ -296,10 +296,10 @@ This decision should be reconsidered if:
 ```bash
 # Recommended flow for complex features
 1. /workflows:interview feature        # Define feature spec
-2. /skill:criteria-generator --interview --feature=my-feature
+2. /workflow-skill:criteria-generator --interview --feature=my-feature
 3. /workflows:plan my-feature          # Plan with criteria in mind
 4. # Architecture options emerge during planning
-5. /skill:criteria-generator --evaluate --feature=my-feature
+5. /workflow-skill:criteria-generator --evaluate --feature=my-feature
 6. # Final architecture documented with rationale
 ```
 
@@ -337,7 +337,7 @@ Before finalizing criteria:
 
 ## Related
 
-- `/skill:criteria-generator` - Automated criteria generation
+- `/workflow-skill:criteria-generator` - Automated criteria generation
 - `/workflows:criteria` - Criteria workflow command
 - `/workflows:plan` - Main planning workflow
 - `10_architecture.md` - Architecture design document

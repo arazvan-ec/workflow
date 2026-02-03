@@ -49,17 +49,30 @@ git log --oneline --name-only | grep -A 20 "feat:" | grep -v "^$" | wc -l
 
 **Definición**: Los 5 principios SOLID se respetan en el diseño.
 
+> **IMPORTANTE**: Para análisis profundo de SOLID y mapeo a patrones correctivos, consultar:
+> - `core/solid-pattern-matrix.md` - Mapeo Violación → Patrón de Diseño
+> - `skills/workflow-skill-solid-analyzer.md` - Análisis automático de SOLID
+> - `agents/design/solid-architecture-generator.md` - Generación de arquitecturas SOLID
+
 #### S - Single Responsibility
 
 | Indicador | Bueno | Aceptable | Malo |
 |-----------|-------|-----------|------|
 | Líneas por clase/módulo | ≤200 | 201-400 | >400 |
 | Métodos públicos por clase | ≤7 | 8-12 | >12 |
+| Dependencias en constructor | ≤7 | 8-10 | >10 |
 | Razones para cambiar | 1 | 2 | >2 |
 
 **Test Rápido**: "¿Puedo describir esta clase en UNA frase sin usar 'y'?"
 - ✅ "Gestiona la persistencia de usuarios"
 - ❌ "Gestiona usuarios y envía emails y valida permisos"
+
+**Patrones Correctivos** (si viola SRP):
+| Violación | Patrón | SOLID Score |
+|-----------|--------|-------------|
+| God Class | Strategy + Extract Class | 25/25 |
+| Mixed Concerns | Repository + Service Layer | 24/25 |
+| Cross-cutting en métodos | Decorator | 25/25 |
 
 #### O - Open/Closed
 
@@ -67,8 +80,16 @@ git log --oneline --name-only | grep -A 20 "feat:" | grep -v "^$" | wc -l
 |-----------|-------|------|
 | Añadir comportamiento | Crear nueva clase | Modificar clase existente |
 | Switch/if-else por tipo | 0 | >0 (usar polimorfismo) |
+| instanceof chains | 0 | >0 (usar Strategy) |
 
 **Test Rápido**: "¿Puedo añadir un nuevo tipo de X sin modificar código existente?"
+
+**Patrones Correctivos** (si viola OCP):
+| Violación | Patrón | SOLID Score |
+|-----------|--------|-------------|
+| Type switching | Strategy | 25/25 |
+| Modify to extend | Decorator | 25/25 |
+| Hardcoded types | Factory Method | 23/25 |
 
 #### L - Liskov Substitution
 
@@ -76,8 +97,16 @@ git log --oneline --name-only | grep -A 20 "feat:" | grep -v "^$" | wc -l
 |-----------|-------|------|
 | Subclase reemplaza a padre | Sin sorpresas | Comportamiento diferente |
 | Override de métodos | Mantiene contrato | Rompe expectativas |
+| Excepciones en override | Mismas que padre | Nuevas excepciones |
 
 **Test Rápido**: "¿Puedo usar cualquier implementación donde se espera la interfaz?"
+
+**Patrones Correctivos** (si viola LSP):
+| Violación | Patrón | SOLID Score |
+|-----------|--------|-------------|
+| Contract breaking | Composition over Inheritance | 25/25 |
+| Incompatible interface | Adapter | 24/25 |
+| Null returns | Null Object | 21/25 |
 
 #### I - Interface Segregation
 
@@ -85,8 +114,16 @@ git log --oneline --name-only | grep -A 20 "feat:" | grep -v "^$" | wc -l
 |-----------|-------|-----------|------|
 | Métodos por interfaz | ≤5 | 6-8 | >8 |
 | Implementaciones que usan todo | 100% | >80% | <80% |
+| Métodos vacíos/NotImplemented | 0 | 0 | >0 |
 
 **Test Rápido**: "¿Alguna implementación tiene métodos vacíos o `throw NotImplemented`?"
+
+**Patrones Correctivos** (si viola ISP):
+| Violación | Patrón | SOLID Score |
+|-----------|--------|-------------|
+| Fat interface | Role Interfaces | 25/25 |
+| Partial implementation | Adapter | 24/25 |
+| Complex interface | Facade | 21/25 |
 
 #### D - Dependency Inversion
 
@@ -94,8 +131,35 @@ git log --oneline --name-only | grep -A 20 "feat:" | grep -v "^$" | wc -l
 |-----------|-------|------|
 | Dependencias en Domain | Solo abstracciones | Clases concretas de infra |
 | Constructores | Reciben interfaces | Instancian dependencias |
+| `new ConcreteClass()` en Domain | 0 | >0 |
+| Static calls en Domain | 0 | >0 |
 
 **Test Rápido**: "¿El Domain layer importa algo de Infrastructure?"
+
+**Patrones Correctivos** (si viola DIP):
+| Violación | Patrón | SOLID Score |
+|-----------|--------|-------------|
+| Concrete dependency | Dependency Injection | 25/25 |
+| Layer violation | Ports & Adapters | 25/25 |
+| Missing interface | Abstract Factory | 23/25 |
+
+#### SOLID Score Total
+
+| Score | Grade | Acción |
+|-------|-------|--------|
+| 22-25/25 | A - SOLID Compliant | Aprobar |
+| 18-21/25 | B - Acceptable | Aprobar con notas |
+| 14-17/25 | C - Needs Work | Refactorizar antes de merge |
+| <14/25 | F - Rejected | Rediseñar arquitectura |
+
+**Verificación Automática**:
+```bash
+# Ejecutar análisis SOLID
+/workflow-skill:solid-analyzer --path=src
+
+# Verificar score antes de aprobar PR
+# Rechazar si score < 18/25
+```
 
 ---
 

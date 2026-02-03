@@ -200,6 +200,127 @@ Best for: Independent features or separate teams
 | **Workflow** | worktree-manager, commit-formatter |
 | **Compound** | changelog-generator, layer-validator |
 | **Integration** | mcp-connector (connect to external tools via MCP) |
+| **SOLID** | workflow-skill-solid-analyzer, workflow-skill-criteria-generator (with `--solid-rigorous`) |
+
+## The 3-Phase Planning Process
+
+The plugin follows a structured 3-phase process to ensure high-quality solutions:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    PHASE 1: UNDERSTAND                          │
+│  Analyze request → Ask clarifying questions → Document problem  │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                    PHASE 2: SPECS (Functional Requirements)     │
+│  Define WHAT the system must do:                                │
+│  └── Task-specific specs (user requirements, acceptance criteria│
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                    PHASE 3: PLAN WITH SOLUTIONS                 │
+│  Design HOW to implement each spec:                             │
+│  ├── Functional solutions (implementation approach)             │
+│  └── **CONSTRAINT: SOLID** (patterns + quality = mandatory)     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Key Distinction: SPECS vs SOLUTIONS
+
+| Phase 2: SPECS | Phase 3: SOLUTIONS |
+|----------------|-------------------|
+| **QUÉ** debe hacer | **CÓMO** hacerlo |
+| Requisitos funcionales | Diseño técnico |
+| "User can register" | "Use Strategy pattern" |
+| Del usuario/negocio | Del arquitecto |
+
+**SOLID es un CONSTRAINT de diseño en Fase 3, no una spec funcional.**
+
+### SOLID as Design CONSTRAINT
+
+> **"El código de alta calidad cumple SOLID de forma rigurosa"**
+
+**SOLID is a MANDATORY CONSTRAINT** that applies when designing solutions in Phase 3.
+
+Every solution proposed by the plugin MUST:
+1. Comply with all 5 SOLID principles
+2. Use appropriate design patterns
+3. Score ≥18/25 to proceed, ≥22/25 to approve
+
+### Quick Start
+
+```bash
+# Plan a feature (SOLID applied in Phase 3)
+/workflows:plan user-authentication
+
+# Analyze SOLID compliance
+/workflow-skill:solid-analyzer --path=src/Service
+
+# Generate functional specs (Phase 2)
+/workflow-skill:criteria-generator --feature=my-feature --interview
+```
+
+### How the Plugin Creates Solutions
+
+1. **UNDERSTAND**: Analyzes the request, asks questions if needed
+2. **SPECS**: Defines functional requirements (WHAT the system must do)
+3. **PLAN**: For each spec, designs a solution with:
+   - Implementation approach
+   - **SOLID compliance** (mandatory constraint)
+   - **Design patterns** to ensure quality
+   - Expected SOLID score ≥22/25
+
+### SOLID Score Thresholds
+
+| Score | Grade | Action |
+|-------|-------|--------|
+| 22-25/25 | A - SOLID Compliant | Approve |
+| 18-21/25 | B - Acceptable | Approve with notes |
+| 14-17/25 | C - Needs Work | Refactor before merge |
+| <14/25 | F - Rejected | Redesign architecture |
+
+### Violation → Pattern Mapping (Quick Reference)
+
+| Violation | Pattern | SOLID Score |
+|-----------|---------|-------------|
+| God Class (SRP) | Strategy + Extract Class | 25/25 |
+| Switch by type (OCP) | Strategy | 25/25 |
+| Concrete dependencies (DIP) | Dependency Injection | 25/25 |
+| Layer violation (DIP) | Ports & Adapters | 25/25 |
+| Fat interface (ISP) | Role Interfaces | 25/25 |
+| Contract breaking (LSP) | Composition over Inheritance | 25/25 |
+
+### SOLID Components
+
+| Component | Purpose | Location |
+|-----------|---------|----------|
+| **solid-pattern-matrix.md** | Violation → Pattern mapping | `core/` |
+| **workflow-skill-solid-analyzer.md** | Automated SOLID analysis | `skills/` |
+| **solid-architecture-generator.md** | Generate SOLID architectures | `agents/design/` |
+| **solid-refactor.md** | Complete refactoring workflow | `commands/workflows/` |
+| **workflow-skill-criteria-generator.md** | `--solid-rigorous` mode | `skills/` |
+
+### Example: SOLID-Rigorous Decision
+
+```markdown
+## Architecture Decision: Payment Module
+
+**Options Evaluated**:
+- Option A: Service + Strategy pattern
+- Option B: God Class (current)
+- Option C: Simple refactor
+
+**SOLID Scores**:
+- Option A: 24/25 (A) ✅
+- Option B: 12/25 (F) ❌ Rejected
+- Option C: 16/25 (C) ❌ Rejected
+
+**Selected**: Option A
+**Reason**: Highest SOLID compliance, uses Strategy pattern for OCP
+```
+
+See `core/solid-pattern-matrix.md` for complete violation-to-pattern mapping.
 
 ## Key Patterns
 

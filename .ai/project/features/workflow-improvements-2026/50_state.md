@@ -244,6 +244,14 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/plugins/multi-agent-workflow/core/templates/spec-template.md (2026-02-03T02:52:28+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/skills/workflow-skill-criteria-generator.md (2026-02-03T02:06:44+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/skills/workflow-skill-solid-analyzer.md (2026-02-03T02:05:18+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/roles/planner.md (2026-02-03T02:00:23+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/solid-refactor.md (2026-02-03T01:55:34+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/skills/solid-analyzer.md (2026-02-03T01:52:53+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/agents/design/solid-architecture-generator.md (2026-02-03T01:51:28+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/solid-pattern-matrix.md (2026-02-03T01:50:14+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/30_tasks_backend.md (2026-02-03T00:08:37+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/ADR-001-architecture-choice.md (2026-02-03T00:07:29+00:00)
 - /home/user/workflow/.ai/project/features/snaapi-scalable-architecture/12a_criteria_evaluation.md (2026-02-03T00:06:46+00:00)
@@ -269,3 +277,6 @@ See `DECISIONS.md` for full decision log.
 - /home/user/workflow/plugins/multi-agent-workflow/agents/review/pattern-recognition-specialist.md (2026-02-02T20:46:31+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/agents/review/code-simplicity-reviewer.md (2026-02-02T20:46:31+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/agents/review/agent-native-reviewer.md (2026-02-02T20:46:30+00:00)
+
+### Test Runs (Auto-tracked)
+- 2026-02-03T01:25:40+00:00: find /home/user/workflow -type f -name "package.json" -o -name "tsconfig.json" -o -name ".eslintrc*" -o -name "jest.config.*" 2>/dev/null | head -20
