@@ -186,6 +186,9 @@ Sincroniza estado entre sesiones.
 ### /workflows:status
 Muestra el estado actual.
 
+### /workflows:specs
+Gestiona Living Specs del proyecto. Extrae specs del código existente, detecta drift, y mantiene especificaciones sincronizadas.
+
 ---
 
 ## Sistema de Conocimiento del Proyecto
@@ -253,6 +256,63 @@ Muestra el estado actual.
 - Anti-patrones documentados
 - Estimaciones de tiempo ahorrado
 - Reglas actualizadas
+
+---
+
+## Living Specs System
+
+### Living Specs
+**Qué es**: Especificaciones que se mantienen sincronizadas automáticamente con el código fuente.
+
+**Por qué importa**: Las especificaciones tradicionales se desactualizan rápidamente. Living Specs evolucionan con el código.
+
+**Ubicación**: `.ai/project/specs/`
+
+---
+
+### Spec Extraction
+**Qué es**: Proceso de analizar código existente y generar especificaciones automáticamente.
+
+**Cuándo ocurre**: Durante `/workflows:discover` o `/workflows:specs --extract`.
+
+**Resultado**: Specs estructuradas que documentan la realidad actual del código.
+
+---
+
+### Spec Drift
+**Qué es**: Cuando las especificaciones documentadas divergen del comportamiento real del código.
+
+**Problema**: Causa confusión y errores cuando la IA trabaja con specs desactualizadas.
+
+**Solución**: Living Specs con detección automática de drift via `/workflows:specs --check`.
+
+---
+
+### Architecture-First Planning
+**Qué es**: Metodología donde se definen las especificaciones y arquitectura ANTES de escribir código.
+
+**Flujo**:
+```
+1. Definir specs de la feature
+2. Validar contra arquitectura existente
+3. Planificar implementación
+4. Implementar siguiendo specs
+```
+
+**Beneficio**: Reduce retrabajo y mantiene consistencia arquitectónica.
+
+---
+
+### Spec Manifest
+**Qué es**: Archivo índice que lista todas las specs del proyecto y su estado.
+
+**Ubicación**: `.ai/project/specs/manifest.yaml`
+
+**Contiene**:
+- Lista de specs por dominio
+- Estado de cada spec (draft, approved, implemented)
+- Fecha de última sincronización
+- Relaciones entre specs
 
 ---
 

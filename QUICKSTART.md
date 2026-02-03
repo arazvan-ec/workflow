@@ -58,8 +58,11 @@ Esto analiza automáticamente:
 - Convenciones de código
 - Patrones existentes
 - Archivos de referencia para usar como templates
+- **Living Specs**: Extrae especificaciones del código existente
 
-**Resultado**: Genera un perfil completo en `.ai/project/intelligence/project-profile.md`
+**Resultado**: Genera un perfil completo en `.ai/project/intelligence/project-profile.md` y specs en `.ai/project/specs/`
+
+> **Nota**: Las Living Specs se extraen automáticamente durante discover. Usa `/workflows:specs` para gestionar specs manualmente o detectar drift.
 
 > **Tip**: Ejecuta `/workflows:discover --refresh` después de cambios importantes (nuevas librerías, refactors, etc.)
 
