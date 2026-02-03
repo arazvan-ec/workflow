@@ -269,3 +269,6 @@ See `DECISIONS.md` for full decision log.
 - /home/user/workflow/plugins/multi-agent-workflow/agents/review/pattern-recognition-specialist.md (2026-02-02T20:46:31+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/agents/review/code-simplicity-reviewer.md (2026-02-02T20:46:31+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/agents/review/agent-native-reviewer.md (2026-02-02T20:46:30+00:00)
+
+### Test Runs (Auto-tracked)
+- 2026-02-03T01:25:40+00:00: find /home/user/workflow -type f -name "package.json" -o -name "tsconfig.json" -o -name ".eslintrc*" -o -name "jest.config.*" 2>/dev/null | head -20
