@@ -99,14 +99,25 @@ Read: .ai/project/features/${FEATURE_ID}/30_tasks.md
 - Application: Domain should be COMPLETED (or mock)
 - Infrastructure: Application should be COMPLETED
 
-### Step 5: Execute with TDD
+### Step 5: Execute with TDD + SOLID
 
-Follow the TDD cycle for each task:
+Follow the TDD cycle for each task, ensuring SOLID compliance:
 
 ```
 1. 🔴 RED: Write test FIRST (must fail)
 2. 🟢 GREEN: Write minimum code to pass
 3. 🔵 REFACTOR: Improve while keeping tests green
+4. ✅ SOLID: Verify code follows SOLID patterns from 15_solutions.md
+```
+
+**SOLID Verification During Implementation**:
+
+```bash
+# After each logical unit, verify SOLID compliance
+/workflow-skill:solid-analyzer --path=src/modified-path
+
+# Must match expected score from 15_solutions.md
+# If score < expected, refactor before proceeding
 ```
 
 ### Step 6: Auto-Correction Loop (Ralph Wiggum Pattern)
@@ -128,13 +139,26 @@ else:
     mark_blocked()
 ```
 
-### Step 7: Checkpoint
+### Step 7: Checkpoint (includes SOLID verification)
 
 After each logical unit:
 
 ```bash
+# 1. Verify SOLID score
+/workflow-skill:solid-analyzer --path=src/modified-path
+
+# 2. Only checkpoint if SOLID score meets expected
 /workflows:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
 ```
+
+**Checkpoint SOLID Requirements**:
+
+| Checkpoint Type | SOLID Requirement |
+|-----------------|-------------------|
+| Domain layer | SRP, DIP must score ≥4/5 |
+| Application layer | SRP, OCP must score ≥4/5 |
+| Infrastructure | DIP must score ≥4/5 |
+| Full feature | Total score must be ≥18/25 |
 
 ## Role-Specific Workflows
 
@@ -145,20 +169,28 @@ Checkpoint 1: Domain Layer
 - Entities, Value Objects
 - Verification: php bin/phpunit tests/Unit/Domain/
 - Coverage: >80%
+- **SOLID**: SRP ≥4/5, DIP ≥4/5 (no infrastructure imports)
+- Run: /workflow-skill:solid-analyzer --path=src/Domain
 
 Checkpoint 2: Application Layer
 - Use Cases, DTOs
 - Verification: php bin/phpunit tests/Unit/Application/
 - Coverage: >80%
+- **SOLID**: SRP ≥4/5, OCP ≥4/5
+- Run: /workflow-skill:solid-analyzer --path=src/Application
 
 Checkpoint 3: Infrastructure Layer
 - Repositories, Controllers
 - Verification: php bin/phpunit tests/Integration/
 - Schema validation
+- **SOLID**: DIP ≥4/5 (implements interfaces from Domain)
+- Run: /workflow-skill:solid-analyzer --path=src/Infrastructure
 
 Checkpoint 4: API Endpoints
 - REST endpoints
 - Verification: curl tests, API contract validation
+- **SOLID Total**: Must achieve ≥18/25 overall
+- Run: /workflow-skill:solid-analyzer --path=src --validate
 ```
 
 ### Frontend Workflow
@@ -195,6 +227,7 @@ Update `50_state.md` at each checkpoint:
 **Checkpoint**: Domain layer complete
 **Timestamp**: 2026-01-16T14:30:00Z
 **Tests**: 15/15 passing, 92% coverage
+**SOLID Score**: 21/25 (SRP: 5, OCP: 4, LSP: 4, ISP: 4, DIP: 4)
 **Iterations**: 3
 
 ### Resume Information
@@ -203,6 +236,7 @@ Update `50_state.md` at each checkpoint:
 - **Files to Read on Resume**:
   - 30_tasks.md (Task BE-005)
   - src/Domain/Entity/User.php
+- **SOLID Notes**: DIP verified - no infrastructure imports in Domain
 ```
 
 ## Escape Hatch

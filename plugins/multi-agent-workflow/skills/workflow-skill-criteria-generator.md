@@ -1,6 +1,6 @@
 ---
-name: criteria-generator
-description: "Generates and evaluates architecture criteria for features. Use before architectural decisions to ensure the right architecture is chosen. <example>Context: Planning a new feature that could have multiple implementations.\\nuser: \"Let's design the payment system\"\\nassistant: \"Let me use criteria-generator to define evaluation criteria first\"</example>"
+name: workflow-skill-criteria-generator
+description: "Generates and evaluates architecture criteria for features. MANDATORY for ALL tasks - use before ANY architectural decisions. <example>Context: Planning a new feature that could have multiple implementations.\\nuser: \"Let's design the payment system\"\\nassistant: \"Let me use workflow-skill-criteria-generator to define evaluation criteria first\"</example>"
 model: inherit
 ---
 
@@ -63,16 +63,16 @@ If an architecture option violates these limits, it scores LOW on invasivity.
 
 ```bash
 # Generate criteria for a feature (includes base criteria automatically)
-/skill:criteria-generator --feature=<feature-id>
+/workflow-skill:criteria-generator --feature=<feature-id>
 
 # Evaluate options against existing criteria
-/skill:criteria-generator --evaluate --feature=<feature-id>
+/workflow-skill:criteria-generator --evaluate --feature=<feature-id>
 
 # Quick criteria generation with auto-suggest
-/skill:criteria-generator --quick --feature=<feature-id>
+/workflow-skill:criteria-generator --quick --feature=<feature-id>
 
 # Generate criteria interactively (consult with dev)
-/skill:criteria-generator --interview --feature=<feature-id>
+/workflow-skill:criteria-generator --interview --feature=<feature-id>
 ```
 
 ## Criteria Structure
@@ -415,7 +415,7 @@ Do you want to adjust any criteria weights? (y/n)
 /workflows:plan my-feature
 
 # With criteria first (recommended for complex features)
-/skill:criteria-generator --interview --feature=my-feature
+/workflow-skill:criteria-generator --interview --feature=my-feature
 /workflows:plan my-feature  # Now informed by criteria
 ```
 
@@ -445,9 +445,210 @@ The planner should automatically invoke criteria-generator when:
 | Ignoring team context | Perfect architecture team can't build | Weight team expertise highly |
 | One-size-fits-all | Same criteria for all features | Customize per feature context |
 
+## SOLID-Rigorous Mode
+
+When SOLID compliance is critical (refactoring, new architecture), use strict SOLID evaluation:
+
+### Invocation
+
+```bash
+# Enable SOLID-rigorous evaluation
+/workflow-skill:criteria-generator --feature=<id> --solid-rigorous
+
+# SOLID analysis before criteria generation
+/workflow-skill:criteria-generator --feature=<id> --solid-first
+```
+
+### SOLID as Non-Negotiable Criterion
+
+In SOLID-rigorous mode, the **C-BASE-02: SOLID Compliance** criterion is expanded to 5 sub-criteria:
+
+| ID | Sub-Criterion | Weight | Pass Threshold |
+|----|---------------|--------|----------------|
+| C-SOLID-S | Single Responsibility | Critical | Score ≥4/5 |
+| C-SOLID-O | Open/Closed | Critical | Score ≥4/5 |
+| C-SOLID-L | Liskov Substitution | High | Score ≥3/5 |
+| C-SOLID-I | Interface Segregation | High | Score ≥4/5 |
+| C-SOLID-D | Dependency Inversion | Critical | Score ≥4/5 |
+
+**Any option scoring <4 on Critical SOLID principles is automatically rejected.**
+
+### SOLID Evaluation Matrix
+
+For each architecture option, evaluate:
+
+```markdown
+## SOLID Evaluation: {Option Name}
+
+### S - Single Responsibility
+| Question | Answer | Score |
+|----------|--------|-------|
+| Can every class be described in ONE phrase without "and"? | Yes/No | /5 |
+| Are all classes ≤200 lines? | Yes/No | /5 |
+| Are all classes ≤7 public methods? | Yes/No | /5 |
+| Does each class have ONE reason to change? | Yes/No | /5 |
+**SRP Score**: {avg}/5
+
+### O - Open/Closed
+| Question | Answer | Score |
+|----------|--------|-------|
+| Can new types be added without modifying existing code? | Yes/No | /5 |
+| Are there zero switch/if-else chains by type? | Yes/No | /5 |
+| Is the design extensible via composition/inheritance? | Yes/No | /5 |
+**OCP Score**: {avg}/5
+
+### L - Liskov Substitution
+| Question | Answer | Score |
+|----------|--------|-------|
+| Can any implementation replace another safely? | Yes/No | /5 |
+| Do subtypes honor parent contracts? | Yes/No | /5 |
+| Are there zero unexpected exceptions in overrides? | Yes/No | /5 |
+**LSP Score**: {avg}/5
+
+### I - Interface Segregation
+| Question | Answer | Score |
+|----------|--------|-------|
+| Are all interfaces ≤5 methods? | Yes/No | /5 |
+| Do all implementations use 100% of interface methods? | Yes/No | /5 |
+| Are interfaces role-based? | Yes/No | /5 |
+**ISP Score**: {avg}/5
+
+### D - Dependency Inversion
+| Question | Answer | Score |
+|----------|--------|-------|
+| Do all high-level modules depend on abstractions? | Yes/No | /5 |
+| Does Domain have zero Infrastructure imports? | Yes/No | /5 |
+| Are all dependencies injected (not instantiated)? | Yes/No | /5 |
+**DIP Score**: {avg}/5
+
+### Total SOLID Score: {sum}/25
+
+| Threshold | Result |
+|-----------|--------|
+| ≥22/25 | SOLID-COMPLIANT |
+| 18-21/25 | ACCEPTABLE (minor issues) |
+| 14-17/25 | NEEDS WORK (refactor before approval) |
+| <14/25 | REJECTED (violates SOLID) |
+```
+
+### Automatic Pattern Recommendation
+
+When an option scores low on a SOLID principle, automatically recommend patterns:
+
+```markdown
+## SOLID Improvement Recommendations
+
+### Option B scored 2/5 on OCP
+
+**Detected Issue**: Switch statement by payment type in PaymentProcessor
+**Recommended Pattern**: Strategy
+**Implementation**:
+```
+PaymentProcessor
+  → PaymentStrategyInterface
+    → CreditCardStrategy
+    → PayPalStrategy
+    → BankTransferStrategy
+```
+
+**After applying pattern, expected OCP score**: 5/5
+```
+
+### Integration with solid-analyzer
+
+```bash
+# Automatic SOLID analysis of existing code before criteria generation
+/workflow-skill:criteria-generator --feature=my-feature --solid-first
+
+# This will:
+# 1. Run /workflow-skill:solid-analyzer on relevant code paths
+# 2. Include SOLID baseline in context
+# 3. Generate criteria that address existing SOLID violations
+# 4. Evaluate options with SOLID-rigorous scoring
+```
+
+### SOLID-Rigorous Output Template
+
+```markdown
+## Architecture Criteria: {feature-id} (SOLID-Rigorous)
+
+**Mode**: SOLID-Rigorous (no option with SOLID <18/25 will be accepted)
+
+### SOLID Baseline Analysis
+**Current Code Score**: {X}/25
+**Violations Found**: {count}
+**Critical Violations**: {list}
+
+### Criteria Matrix (SOLID-Weighted)
+
+| ID | Criterion | Category | Weight | Notes |
+|----|-----------|----------|--------|-------|
+| C-SOLID-S | Single Responsibility | SOLID | Critical | Must score ≥4/5 |
+| C-SOLID-O | Open/Closed | SOLID | Critical | Must score ≥4/5 |
+| C-SOLID-L | Liskov Substitution | SOLID | High | Must score ≥3/5 |
+| C-SOLID-I | Interface Segregation | SOLID | High | Must score ≥4/5 |
+| C-SOLID-D | Dependency Inversion | SOLID | Critical | Must score ≥4/5 |
+| C-FEAT-01 | {Feature criterion} | Functional | {weight} | {notes} |
+| ... | ... | ... | ... | ... |
+
+### Evaluation Matrix (SOLID-First)
+
+| Criterion | Weight | Option A | Option B | Option C |
+|-----------|--------|----------|----------|----------|
+| **SOLID-S** | 5 | 5 (25) | 3 (15) | 4 (20) |
+| **SOLID-O** | 5 | 5 (25) | 2 (10) | 5 (25) |
+| **SOLID-L** | 4 | 4 (16) | 4 (16) | 4 (16) |
+| **SOLID-I** | 4 | 5 (20) | 5 (20) | 3 (12) |
+| **SOLID-D** | 5 | 5 (25) | 3 (15) | 5 (25) |
+| SOLID Subtotal | | **111** | **76** ❌ | **98** |
+| {Other criteria} | | ... | ... | ... |
+| **TOTAL** | | **156** | **REJECTED** | **143** |
+
+### Decision
+
+**Winner**: Option A
+**SOLID Score**: 24/25 (SOLID-COMPLIANT)
+**Reason**: Highest SOLID compliance + best overall score
+
+**Option B Rejected**: SOLID score 15/25 (below 18 threshold)
+- OCP violation: switch by type
+- DIP violation: concrete dependencies
+
+**Option C Considered**: SOLID score 21/25 (ACCEPTABLE)
+- ISP minor issue: one interface with 6 methods
+- Recommendation: Split interface before implementation
+```
+
+### SOLID-Rigorous Workflow
+
+```
+1. ANALYZE existing code with /workflow-skill:solid-analyzer
+   └─ Get SOLID baseline score
+
+2. IDENTIFY violations requiring architectural fix
+   └─ Map to patterns via solid-pattern-matrix.md
+
+3. GENERATE architecture options that FIX violations
+   └─ Use solid-architecture-generator agent
+
+4. EVALUATE options with SOLID-rigorous criteria
+   └─ Reject any option with SOLID <18/25
+
+5. SELECT highest-scoring SOLID-compliant option
+   └─ Document why others rejected
+
+6. VALIDATE final architecture
+   └─ Re-run solid-analyzer on proposed design
+   └─ Must score ≥22/25 to approve
+```
+
 ## Related
 
 - `/workflows:plan` - Main planning workflow
 - `/workflows:interview` - Feature specification interview
+- `/workflows:solid-refactor` - SOLID-focused refactoring workflow
 - `10_architecture.md` - Architecture design document
 - `agents/roles/planner.md` - Planner role context
+- `agents/design/solid-architecture-generator.md` - SOLID architecture generation
+- `skills/workflow-skill-solid-analyzer.md` - Automated SOLID analysis
+- `core/solid-pattern-matrix.md` - Violation → Pattern mapping
