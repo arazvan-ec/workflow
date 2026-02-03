@@ -200,6 +200,89 @@ Best for: Independent features or separate teams
 | **Workflow** | worktree-manager, commit-formatter |
 | **Compound** | changelog-generator, layer-validator |
 | **Integration** | mcp-connector (connect to external tools via MCP) |
+| **SOLID** | solid-analyzer, criteria-generator (with `--solid-rigorous`) |
+
+## SOLID-Rigorous Architecture Decisions
+
+The plugin can take **architectural decisions based on strict SOLID principles** using design patterns.
+
+### Quick Start: SOLID Refactoring
+
+```bash
+# Analyze code for SOLID violations
+/skill:solid-analyzer --path=src/Service
+
+# Full SOLID-compliant refactoring workflow
+/workflows:solid-refactor --path=src/Payment
+
+# Generate architecture with SOLID criteria
+/skill:criteria-generator --feature=my-feature --solid-rigorous
+
+# Use SOLID architecture generator agent
+/agent:solid-architecture-generator --feature=my-feature
+```
+
+### SOLID Decision Framework
+
+When the plugin needs to choose between architectural options, it:
+
+1. **Analyzes** current code with `/skill:solid-analyzer`
+2. **Detects** SOLID violations with severity scoring
+3. **Maps** violations to corrective patterns via `solid-pattern-matrix.md`
+4. **Generates** SOLID-compliant architecture proposals
+5. **Evaluates** options with SOLID-rigorous criteria (reject if score <18/25)
+6. **Selects** the highest-scoring SOLID-compliant option
+
+### SOLID Score Thresholds
+
+| Score | Grade | Action |
+|-------|-------|--------|
+| 22-25/25 | A - SOLID Compliant | Approve |
+| 18-21/25 | B - Acceptable | Approve with notes |
+| 14-17/25 | C - Needs Work | Refactor before merge |
+| <14/25 | F - Rejected | Redesign architecture |
+
+### Violation → Pattern Mapping (Quick Reference)
+
+| Violation | Pattern | SOLID Score |
+|-----------|---------|-------------|
+| God Class (SRP) | Strategy + Extract Class | 25/25 |
+| Switch by type (OCP) | Strategy | 25/25 |
+| Concrete dependencies (DIP) | Dependency Injection | 25/25 |
+| Layer violation (DIP) | Ports & Adapters | 25/25 |
+| Fat interface (ISP) | Role Interfaces | 25/25 |
+| Contract breaking (LSP) | Composition over Inheritance | 25/25 |
+
+### SOLID Components
+
+| Component | Purpose | Location |
+|-----------|---------|----------|
+| **solid-pattern-matrix.md** | Violation → Pattern mapping | `core/` |
+| **solid-analyzer.md** | Automated SOLID analysis | `skills/` |
+| **solid-architecture-generator.md** | Generate SOLID architectures | `agents/design/` |
+| **solid-refactor.md** | Complete refactoring workflow | `commands/workflows/` |
+| **criteria-generator.md** | `--solid-rigorous` mode | `skills/` |
+
+### Example: SOLID-Rigorous Decision
+
+```markdown
+## Architecture Decision: Payment Module
+
+**Options Evaluated**:
+- Option A: Service + Strategy pattern
+- Option B: God Class (current)
+- Option C: Simple refactor
+
+**SOLID Scores**:
+- Option A: 24/25 (A) ✅
+- Option B: 12/25 (F) ❌ Rejected
+- Option C: 16/25 (C) ❌ Rejected
+
+**Selected**: Option A
+**Reason**: Highest SOLID compliance, uses Strategy pattern for OCP
+```
+
+See `core/solid-pattern-matrix.md` for complete violation-to-pattern mapping.
 
 ## Key Patterns
 
