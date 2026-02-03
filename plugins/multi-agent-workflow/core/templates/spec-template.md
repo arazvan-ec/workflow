@@ -1,27 +1,33 @@
 # Specification Template
 
-This template defines the structure for all feature specifications.
-**SOLID compliance is ALWAYS included as a mandatory spec.**
+This template defines the structure for **functional specifications** (Phase 2).
+
+**SOLID is NOT a spec** - it's a design CONSTRAINT applied in Phase 3 (Solutions).
 
 ---
 
-## Template: 12_specs.md
+## Template: 12_specs.md (Phase 2 Output)
 
 ```markdown
-# Specifications: ${FEATURE_ID}
+# Functional Specifications: ${FEATURE_ID}
 
 **Created**: ${DATE}
 **Status**: DRAFT | VALIDATED | APPROVED
 
 ---
 
-## Section A: Functional Specifications
+## About This Document
 
-These specs are unique to this feature.
+This document defines **WHAT** the system must do (functional requirements).
+**HOW** to implement (including SOLID compliance) is defined in `15_solutions.md`.
+
+---
+
+## Functional Specifications
 
 ### SPEC-F01: [Requirement Name]
 
-**Description**: [What the system must do]
+**Description**: [What the system must do - from user perspective]
 
 **Acceptance Criteria**:
 - [ ] [Testable criterion 1]
@@ -47,96 +53,26 @@ These specs are unique to this feature.
 
 ---
 
-## Section B: MANDATORY SPEC - SOLID Compliance
+### SPEC-F03: [Requirement Name]
 
-> ⚠️ **THIS SECTION IS REQUIRED FOR ALL FEATURES**
->
-> All code created/modified MUST comply with SOLID principles.
-> This is NON-NEGOTIABLE regardless of feature type.
-
-### SPEC-SOLID: Code Quality via SOLID Principles
-
-**Description**: All proposed and created code MUST comply with SOLID principles
-using appropriate design patterns and best practices.
+**Description**: [What the system must do]
 
 **Acceptance Criteria**:
+- [ ] [Testable criterion]
 
-#### S - Single Responsibility Principle
-- [ ] Each class has ONE and only ONE reason to change
-- [ ] Class can be described in one phrase without "and"
-- [ ] Class has ≤200 lines of code
-- [ ] Class has ≤7 public methods
-- [ ] No "God classes" or "Manager" classes
+**Verification Method**: [How to verify]
 
-#### O - Open/Closed Principle
-- [ ] Classes are open for extension, closed for modification
-- [ ] No switch/if-else chains based on type
-- [ ] New behaviors can be added without modifying existing code
-- [ ] Uses Strategy, Decorator, or similar patterns where needed
-
-#### L - Liskov Substitution Principle
-- [ ] Subtypes can replace parent types without breaking behavior
-- [ ] No exceptions thrown that parent doesn't declare
-- [ ] Preconditions not strengthened in subtypes
-- [ ] Postconditions not weakened in subtypes
-
-#### I - Interface Segregation Principle
-- [ ] Interfaces have ≤5 methods
-- [ ] No "fat" interfaces forcing unused implementations
-- [ ] Interfaces are role-specific
-- [ ] Clients only depend on methods they use
-
-#### D - Dependency Inversion Principle
-- [ ] High-level modules depend on abstractions
-- [ ] Domain layer has ZERO infrastructure imports
-- [ ] All dependencies are injected, not instantiated
-- [ ] Concrete classes depend on interfaces
-
-**Minimum Score**:
-- 18/25 to proceed to implementation
-- 22/25 to approve for merge
-
-**Verification Method**:
-```bash
-/workflow-skill:solid-analyzer --path=src/affected-path --validate
-```
-
-**Required Patterns** (select applicable):
-
-| Need | Pattern | Addresses |
-|------|---------|-----------|
-| Multiple behaviors/strategies | Strategy | OCP, SRP |
-| Adding functionality dynamically | Decorator | OCP, SRP |
-| Creating objects without specifying class | Factory Method | DIP, OCP |
-| Integrating with external systems | Adapter / Ports & Adapters | DIP, OCP |
-| Abstracting data persistence | Repository | SRP, DIP |
-| Processing in sequence | Chain of Responsibility | SRP, OCP |
-| Complex object construction | Builder | SRP |
-| Single instance guarantee | Singleton (use sparingly) | - |
-
-**Priority**: Critical (MANDATORY)
+**Priority**: Critical | High | Medium | Low
 
 ---
 
-## Section C: Quality Specifications (Optional but Recommended)
+## Quality Specifications (Optional)
 
-### SPEC-Q01: Testability
+These are non-functional requirements that affect HOW we build.
 
-**Description**: Code must be testable with high coverage
+### SPEC-Q01: Performance (if applicable)
 
-**Acceptance Criteria**:
-- [ ] Unit test coverage ≥80%
-- [ ] All public methods have tests
-- [ ] Edge cases are tested
-- [ ] Dependencies are mockable
-
-**Verification Method**: `./vendor/bin/phpunit --coverage`
-
----
-
-### SPEC-Q02: Performance (if applicable)
-
-**Description**: Code must meet performance requirements
+**Description**: Performance requirements
 
 **Acceptance Criteria**:
 - [ ] Response time < [X]ms for [operation]
@@ -147,23 +83,45 @@ using appropriate design patterns and best practices.
 
 ---
 
+### SPEC-Q02: Testability
+
+**Description**: Code must be testable
+
+**Acceptance Criteria**:
+- [ ] Unit test coverage ≥80%
+- [ ] All public methods have tests
+
+**Verification Method**: `./vendor/bin/phpunit --coverage`
+
+---
+
 ## Specification Summary
 
 | ID | Name | Type | Priority | Status |
 |----|------|------|----------|--------|
 | SPEC-F01 | [Name] | Functional | [Priority] | [ ] |
 | SPEC-F02 | [Name] | Functional | [Priority] | [ ] |
-| **SPEC-SOLID** | **SOLID Compliance** | **Mandatory** | **Critical** | [ ] |
-| SPEC-Q01 | Testability | Quality | High | [ ] |
+| SPEC-F03 | [Name] | Functional | [Priority] | [ ] |
+| SPEC-Q01 | Performance | Quality | Medium | [ ] |
+| SPEC-Q02 | Testability | Quality | High | [ ] |
+
+---
+
+## What's NOT in This Document
+
+❌ **SOLID compliance** - This is a design CONSTRAINT applied in Phase 3
+❌ **Design patterns** - These are selected when designing solutions
+❌ **Class structure** - This is part of the technical solution
+❌ **Implementation details** - HOW belongs in `15_solutions.md`
 
 ---
 
 ## Approval
 
 - [ ] Product Owner approved functional specs
-- [ ] Tech Lead approved SOLID compliance approach
-- [ ] Patterns for SOLID selected and documented
-- [ ] Ready for solution design (Phase 3)
+- [ ] Specs describe WHAT, not HOW
+- [ ] All specs are testable
+- [ ] Ready for Phase 3 (Solutions)
 
 **Approved By**: _______________
 **Date**: _______________
@@ -171,26 +129,118 @@ using appropriate design patterns and best practices.
 
 ---
 
-## Usage
+## Template: 15_solutions.md (Phase 3 Output)
 
-When running `/workflow-skill:criteria-generator --feature=${FEATURE_ID}`, this template
-is used to generate the `12_specs.md` file.
+This is where SOLID becomes mandatory:
 
-The SOLID section is **automatically included** and cannot be removed.
+```markdown
+# Solutions: ${FEATURE_ID}
 
-## Integration with Plan
+**Created**: ${DATE}
+**Status**: DRAFT | VALIDATED | APPROVED
 
-The Plan (Phase 3) must provide solutions for EVERY spec in this document:
+---
 
+## SOLID Constraint (MANDATORY)
+
+> ⚠️ All solutions MUST comply with SOLID principles.
+
+**SOLID Baseline** (from `/workflow-skill:solid-analyzer`):
+- Current code score: [X/25 or N/A if greenfield]
+- Violations found: [list or none]
+
+**Target Score**: ≥22/25
+
+---
+
+## Solution for SPEC-F01: [Requirement Name]
+
+**Approach**: [How to implement]
+
+**SOLID Compliance**:
+
+| Principle | How It's Addressed | Pattern Used |
+|-----------|-------------------|--------------|
+| **S** - SRP | [How this solution respects SRP] | [Pattern or N/A] |
+| **O** - OCP | [How this solution respects OCP] | [Pattern or N/A] |
+| **L** - LSP | [How this solution respects LSP] | [Pattern or N/A] |
+| **I** - ISP | [How this solution respects ISP] | [Pattern or N/A] |
+| **D** - DIP | [How this solution respects DIP] | [Pattern or N/A] |
+
+**Files to Create/Modify**:
+- `path/to/File1.php` (Principle: SRP reason)
+- `path/to/File2.php` (Principle: DIP reason)
+
+**Expected SOLID Score**: [X/25]
+
+---
+
+## Solution for SPEC-F02: [Requirement Name]
+
+**Approach**: [How to implement]
+
+**SOLID Compliance**:
+
+| Principle | How It's Addressed | Pattern Used |
+|-----------|-------------------|--------------|
+| ... | ... | ... |
+
+**Files to Create/Modify**:
+- ...
+
+**Expected SOLID Score**: [X/25]
+
+---
+
+## Overall SOLID Score
+
+| Solution | Score | Status |
+|----------|-------|--------|
+| SPEC-F01 | [X/25] | ✅/❌ |
+| SPEC-F02 | [X/25] | ✅/❌ |
+| **Total Expected** | **[X/25]** | **[Status]** |
+
+**Threshold**: ≥18/25 to proceed, ≥22/25 to approve
+
+---
+
+## Patterns Used Summary
+
+| Pattern | Used For | SOLID Addressed |
+|---------|----------|-----------------|
+| Strategy | [What need] | OCP, SRP |
+| Repository | [What need] | DIP, SRP |
+| Value Object | [What need] | SRP |
+| ... | ... | ... |
+
+---
+
+## Approval
+
+- [ ] All specs have solutions
+- [ ] **SOLID compliance documented for each solution**
+- [ ] **Expected SOLID score ≥22/25**
+- [ ] Patterns justified with "why"
+- [ ] Ready for task breakdown
+
+**Approved By**: _______________
+**Date**: _______________
 ```
-12_specs.md (this file)     →    15_solutions.md
-├── SPEC-F01                →    Solution for F01
-├── SPEC-F02                →    Solution for F02
-└── SPEC-SOLID (mandatory)  →    Solution with patterns
-```
+
+---
+
+## Summary: Phase 2 vs Phase 3
+
+| Document | Phase | Contains | SOLID? |
+|----------|-------|----------|--------|
+| `12_specs.md` | Phase 2 | WHAT (functional requirements) | ❌ No |
+| `15_solutions.md` | Phase 3 | HOW (technical design) | ✅ **YES** |
+
+---
 
 ## Related
 
-- `/workflows:plan` - Uses this template in Phase 2
-- `/workflow-skill:criteria-generator` - Generates specs from this template
-- `core/solid-pattern-matrix.md` - Pattern recommendations for SOLID
+- `/workflows:plan` - Uses these templates
+- `/workflow-skill:criteria-generator` - Generates 12_specs.md
+- `/workflow-skill:solid-analyzer` - Validates SOLID in 15_solutions.md
+- `core/solid-pattern-matrix.md` - Pattern recommendations

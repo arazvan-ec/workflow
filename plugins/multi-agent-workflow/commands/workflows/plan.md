@@ -38,19 +38,29 @@ Good planning means:
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 2: SPECS                               │
-│  Define acceptance criteria:                                    │
-│  ├── Task-specific specs (functional requirements)              │
-│  └── **MANDATORY SPEC: SOLID Compliance** (always required)     │
+│                    PHASE 2: SPECS (Functional Requirements)     │
+│  Define WHAT the system must do:                                │
+│  └── Task-specific specs (user requirements, acceptance criteria│
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │                    PHASE 3: PLAN WITH SOLUTIONS                 │
-│  For each spec, propose solution:                               │
-│  ├── Functional solutions (how to implement each requirement)   │
-│  └── SOLID solutions (patterns + practices to ensure quality)   │
+│  Design HOW to implement each spec:                             │
+│  ├── Functional solutions (implementation approach)             │
+│  └── **CONSTRAINT: SOLID** (patterns + quality = mandatory)     │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+### Key Distinction
+
+| Phase 2: SPECS | Phase 3: SOLUTIONS |
+|----------------|-------------------|
+| **QUÉ** debe hacer | **CÓMO** hacerlo |
+| Requisitos funcionales | Diseño técnico |
+| "User can register" | "Use Strategy pattern for validators" |
+| Del usuario/negocio | Del desarrollador/arquitecto |
+
+**SOLID es un CONSTRAINT de diseño en Fase 3, no una spec funcional en Fase 2.**
 
 ---
 
@@ -105,67 +115,42 @@ Before proceeding, ensure you understand:
 
 ---
 
-## PHASE 2: SPECS (Definir Criterios de Aceptación)
+## PHASE 2: SPECS (Requisitos Funcionales)
 
-Every task has TWO types of specs:
+Phase 2 defines **WHAT** the system must do - the functional requirements from the user's perspective.
 
-### A. Task-Specific Specs (Functional Requirements)
-
-These are unique to each task:
+### Functional Specs Only
 
 ```markdown
 ## Functional Specs: ${FEATURE_ID}
 
 ### SPEC-F01: [Functional Requirement 1]
-**Description**: [What it must do]
+**Description**: [What it must do - from user perspective]
 **Acceptance Criteria**:
 - [ ] [Testable criterion]
 - [ ] [Testable criterion]
 **Verification**: [How to test]
 
 ### SPEC-F02: [Functional Requirement 2]
+**Description**: [What it must do]
+**Acceptance Criteria**:
+- [ ] [Testable criterion]
+**Verification**: [How to test]
+
+### SPEC-F03: [Functional Requirement 3]
 ...
 ```
 
-### B. MANDATORY SPEC: SOLID Compliance (Always Required)
+### Examples of Good Specs (Functional)
 
-**THIS SPEC APPLIES TO ALL TASKS, ALWAYS.**
+| Good Spec (QUÉ) | Bad Spec (CÓMO) |
+|-----------------|-----------------|
+| "User can register with email and password" | "Use Strategy pattern" |
+| "System validates email format" | "Create EmailValidator class" |
+| "Login returns authentication token" | "Implement Repository pattern" |
+| "Password must be ≥8 characters" | "Use DIP for dependencies" |
 
-```markdown
-## MANDATORY SPEC: SOLID-COMPLIANCE
-
-**This spec is NON-NEGOTIABLE. All code must comply.**
-
-### SPEC-SOLID: Code Quality via SOLID Principles
-
-**Description**: All proposed/created code MUST comply with SOLID principles
-using appropriate design patterns and best practices.
-
-**Acceptance Criteria**:
-- [ ] **S** - Single Responsibility: Each class has ONE reason to change
-- [ ] **O** - Open/Closed: Extensible via composition, not modification
-- [ ] **L** - Liskov Substitution: Subtypes honor parent contracts
-- [ ] **I** - Interface Segregation: Interfaces are role-specific (≤5 methods)
-- [ ] **D** - Dependency Inversion: High-level modules depend on abstractions
-
-**Minimum Score**: 18/25 to proceed, 22/25 to approve
-**Verification**: `/workflow-skill:solid-analyzer --validate`
-
-### Required Design Patterns
-
-Based on the task, these patterns MUST be considered:
-
-| If You Need... | Use Pattern | SOLID Principles Addressed |
-|----------------|-------------|---------------------------|
-| Multiple behaviors | Strategy | OCP, SRP |
-| Add functionality | Decorator | OCP, SRP |
-| Object creation | Factory Method | DIP, OCP |
-| External integrations | Adapter / Ports & Adapters | DIP, OCP |
-| Data access | Repository | SRP, DIP |
-| Processing chains | Chain of Responsibility | SRP, OCP |
-
-See `core/solid-pattern-matrix.md` for complete mapping.
-```
+**Note**: SOLID, patterns, and technical decisions belong in Phase 3, not here.
 
 ### How to Generate Specs
 
@@ -173,7 +158,6 @@ See `core/solid-pattern-matrix.md` for complete mapping.
 # Generate functional specs interactively
 /workflow-skill:criteria-generator --feature=${FEATURE_ID} --interview
 
-# This ALWAYS includes SOLID as mandatory spec
 # Output: .ai/project/features/${FEATURE_ID}/12_specs.md
 ```
 
@@ -181,124 +165,120 @@ See `core/solid-pattern-matrix.md` for complete mapping.
 
 ## PHASE 3: PLAN WITH SOLUTIONS
 
-The plan MUST detail HOW to achieve each spec.
+Phase 3 defines **HOW** to implement each spec. This is where **SOLID becomes mandatory**.
 
-### Step 3.1: Load Context
+### The SOLID Constraint
 
-```
-Read: core/roles/planner.md
-Read: core/solid-pattern-matrix.md
-Read: .ai/extensions/rules/project_rules.md
-```
+> ⚠️ **MANDATORY CONSTRAINT**: All solutions MUST comply with SOLID principles.
+>
+> This is NOT optional. Every solution designed in Phase 3 must:
+> 1. Be analyzed for SOLID compliance
+> 2. Use appropriate design patterns
+> 3. Achieve score ≥18/25 to proceed, ≥22/25 to approve
 
-### Step 3.2: Analyze Existing Code (for SOLID baseline)
+### Step 3.1: Analyze Existing Code (SOLID Baseline)
+
+Before designing solutions, understand the current state:
 
 ```bash
-# Get current SOLID score of affected areas
+# Get SOLID score of affected areas
 /workflow-skill:solid-analyzer --path=src/relevant-module
 
-# Output shows:
-# - Current SOLID score
-# - Violations found
-# - Recommended patterns to fix
+# Output:
+# - Current SOLID score: X/25
+# - Violations found: [list]
+# - Recommended patterns: [list]
 ```
 
-### Step 3.3: Design Solutions
+### Step 3.2: Design Solutions with SOLID
 
-For EACH spec, propose a solution:
+For EACH functional spec, propose a solution that complies with SOLID:
 
 ```markdown
 ## Solutions: ${FEATURE_ID}
 
-### Solution for SPEC-F01: [Functional Requirement]
-**Approach**: [How to implement]
-**Files to Create/Modify**: [List]
-**Reference Pattern**: [Existing code to follow]
+---
 
-### Solution for SPEC-F02: [Functional Requirement]
-...
+### Solution for SPEC-F01: User Registration
 
-### Solution for SPEC-SOLID: SOLID Compliance
+**Approach**: Create User entity with email validation
 
-**Current SOLID Score**: [X/25] (from analyzer)
-**Target SOLID Score**: ≥22/25
+**SOLID Compliance**:
+| Principle | How It's Addressed | Pattern Used |
+|-----------|-------------------|--------------|
+| **S** - SRP | User entity only holds data, validation in ValueObject | Value Object |
+| **O** - OCP | New validators can be added without modifying User | Strategy |
+| **L** - LSP | N/A for this solution | - |
+| **I** - ISP | Small, focused interfaces | - |
+| **D** - DIP | Repository interface in Domain | Repository |
 
-#### Patterns Selected:
+**Files to Create**:
+- `Domain/Entity/User.php` (SRP: only user data)
+- `Domain/ValueObject/Email.php` (SRP: email rules)
+- `Domain/Repository/UserRepositoryInterface.php` (DIP: abstraction)
+- `Infrastructure/Repository/DoctrineUserRepository.php` (DIP: implementation)
 
-| Violation/Need | Pattern | Implementation |
-|----------------|---------|----------------|
-| [God class detected] | Strategy + Extract Class | Split `BigService` into `XStrategy`, `YStrategy` |
-| [Switch by type] | Strategy | Create `ProcessorInterface` with implementations |
-| [Concrete dependencies] | Dependency Injection | Inject interfaces, not classes |
-| [Layer violation] | Ports & Adapters | Create Port interface in Domain |
+**Expected SOLID Score**: 24/25
 
-#### Class Design (SOLID-Compliant):
+---
 
-```
-┌─────────────────────────────────────────┐
-│ Domain Layer (no external dependencies) │
-├─────────────────────────────────────────┤
-│ ├── Entity/                             │
-│ │   └── User.php (SRP: only user data)  │
-│ ├── ValueObject/                        │
-│ │   └── Email.php (SRP: email rules)    │
-│ ├── Repository/                         │
-│ │   └── UserRepositoryInterface (DIP)   │
-│ └── Service/                            │
-│     └── UserDomainService (SRP)         │
-└─────────────────────────────────────────┘
-          ↑ depends on abstractions (DIP)
-┌─────────────────────────────────────────┐
-│ Infrastructure Layer                    │
-├─────────────────────────────────────────┤
-│ └── Persistence/                        │
-│     └── DoctrineUserRepository (DIP)    │
-│         implements UserRepositoryInterface
-└─────────────────────────────────────────┘
+### Solution for SPEC-F02: User Login
+
+**Approach**: Authentication service with token generation
+
+**SOLID Compliance**:
+| Principle | How It's Addressed | Pattern Used |
+|-----------|-------------------|--------------|
+| **S** - SRP | Auth logic separate from token generation | Extract Class |
+| **O** - OCP | Token strategies can be added | Strategy |
+| **D** - DIP | Inject token generator interface | DI |
+
+**Files to Create**:
+- `Application/Service/AuthenticationService.php`
+- `Domain/Service/TokenGeneratorInterface.php`
+- `Infrastructure/Service/JwtTokenGenerator.php`
+
+**Expected SOLID Score**: 23/25
 ```
 
-#### Why These Patterns?
+### Step 3.3: Pattern Selection Guide
 
-| Pattern | Why Selected | SOLID Score Impact |
-|---------|--------------|-------------------|
-| Strategy | Avoid switch statements, enable new behaviors without modification | OCP +5, SRP +3 |
-| Repository Interface | Decouple domain from persistence | DIP +5, SRP +2 |
-| Value Objects | Encapsulate validation rules | SRP +3 |
+When designing solutions, select patterns based on the need:
 
-**Expected SOLID Score After Implementation**: 24/25
+| If You Need... | Use Pattern | SOLID Addressed |
+|----------------|-------------|-----------------|
+| Multiple behaviors/algorithms | **Strategy** | OCP, SRP |
+| Add functionality without modification | **Decorator** | OCP, SRP |
+| Abstract object creation | **Factory Method** | DIP, OCP |
+| Integrate external systems | **Adapter / Ports & Adapters** | DIP, OCP |
+| Abstract data persistence | **Repository** | SRP, DIP |
+| Chain of processing steps | **Chain of Responsibility** | SRP, OCP |
+| Encapsulate validation rules | **Value Object** | SRP |
+| Decouple layers | **Dependency Injection** | DIP |
+
+See `core/solid-pattern-matrix.md` for complete mapping.
+
+### Step 3.4: Verify SOLID Score
+
+Before finalizing the plan:
+
+```bash
+# Validate proposed design achieves SOLID score
+/workflow-skill:solid-analyzer --validate --design=15_solutions.md
+
+# Must achieve:
+# - ≥18/25 to proceed to implementation
+# - ≥22/25 to approve for merge
 ```
 
-### Step 3.4: Create Task Breakdown
+### SOLID Score Thresholds
 
-Each task references the solution and SOLID requirements:
-
-```markdown
-### Task BE-001: Create User Entity
-
-**Role**: Backend Engineer
-**Methodology**: TDD (Red-Green-Refactor)
-
-**Functional Requirements**:
-- User entity with id, email, name, password
-- Email as Value Object
-
-**SOLID Requirements**:
-- SRP: Entity only holds data, no business logic
-- DIP: No infrastructure imports in Entity
-- Pattern: Value Object for Email
-
-**Tests to Write FIRST**:
-- [ ] test_user_can_be_created_with_valid_data()
-- [ ] test_email_value_object_validates_format()
-
-**Acceptance Criteria**:
-- [ ] Entity in src/Domain/Entity/
-- [ ] Value Object in src/Domain/ValueObject/
-- [ ] SOLID score ≥4/5 for SRP
-- [ ] No Doctrine imports in Domain
-
-**Reference**: src/Domain/Entity/Order.php (existing pattern)
-```
+| Score | Grade | Action |
+|-------|-------|--------|
+| 22-25/25 | A - SOLID Compliant | ✅ Approve |
+| 18-21/25 | B - Acceptable | ✅ Proceed with notes |
+| 14-17/25 | C - Needs Work | ❌ Redesign before implementation |
+| <14/25 | F - Rejected | ❌ Complete redesign required |
 
 ---
 
@@ -313,20 +293,54 @@ mkdir -p .ai/project/features/${FEATURE_ID}
 # - Analyze request
 # - Ask clarifying questions if needed
 # - Document problem statement
+# Output: 00_problem_statement.md
 
-# 3. PHASE 2: Specs
+# 3. PHASE 2: Specs (functional only)
 /workflow-skill:criteria-generator --feature=${FEATURE_ID} --interview
-# Output: 12_specs.md (includes SOLID as mandatory spec)
+# Output: 12_specs.md (WHAT the system must do)
 
-# 4. PHASE 3: Plan with Solutions
+# 4. PHASE 3: Solutions with SOLID
 /workflow-skill:solid-analyzer --path=src/relevant-path  # Get baseline
-# Design solutions with patterns
-# Create task breakdown
+# Design solutions using patterns
+# Verify SOLID score ≥22/25
+# Output: 15_solutions.md (HOW with SOLID)
 
-# 5. Validate plan completeness
-# - All specs have solutions
-# - All solutions include SOLID patterns
-# - Expected SOLID score ≥22/25
+# 5. Create task breakdown
+# Each task includes SOLID requirements
+# Output: 30_tasks.md
+```
+
+---
+
+## Task Template (includes SOLID)
+
+Each task must include SOLID requirements:
+
+```markdown
+### Task BE-001: Create User Entity
+
+**Role**: Backend Engineer
+**Methodology**: TDD (Red-Green-Refactor)
+
+**Functional Requirement** (from SPEC-F01):
+- User entity with id, email, name, password
+
+**SOLID Requirements** (from solution design):
+- **SRP**: Entity only holds data, no business logic
+- **DIP**: No infrastructure imports in Entity
+- **Pattern**: Value Object for Email
+
+**Tests to Write FIRST**:
+- [ ] test_user_can_be_created_with_valid_data()
+- [ ] test_email_value_object_validates_format()
+
+**Acceptance Criteria**:
+- [ ] Entity in src/Domain/Entity/
+- [ ] Value Object in src/Domain/ValueObject/
+- [ ] **SOLID score ≥4/5 for SRP**
+- [ ] No Doctrine imports in Domain
+
+**Reference**: src/Domain/Entity/Order.php (existing pattern)
 ```
 
 ---
@@ -335,25 +349,29 @@ mkdir -p .ai/project/features/${FEATURE_ID}
 
 Before marking planning as COMPLETED:
 
-### Functional Completeness
+### Phase 1: Understanding
 - [ ] Problem is clearly understood and documented
+- [ ] Clarifying questions asked if needed
+- [ ] Constraints identified
+
+### Phase 2: Specs (Functional)
 - [ ] All functional specs defined (testable)
-- [ ] All API endpoints fully specified
-- [ ] Tasks broken down by role
+- [ ] Specs describe WHAT, not HOW
+- [ ] API endpoints fully specified
+- [ ] Success criteria clear
 
-### SOLID Completeness (MANDATORY)
-- [ ] **SOLID baseline analyzed** (current score documented)
-- [ ] **Patterns selected** for each SOLID requirement
-- [ ] **Class design** shows SOLID compliance
-- [ ] **Expected SOLID score** ≥22/25 documented
-- [ ] **Each task** includes SOLID requirements
+### Phase 3: Solutions (with SOLID)
+- [ ] **SOLID baseline analyzed** (current score)
+- [ ] Each spec has a solution
+- [ ] **Patterns selected** for SOLID compliance
+- [ ] **Expected SOLID score ≥22/25**
+- [ ] Tasks include SOLID requirements
 
-### Quality Checks
+### Final Check
 - [ ] Can engineer start WITHOUT asking questions? YES
-- [ ] Are patterns and references provided? YES
 - [ ] Is "why this pattern?" explained? YES
 
-**If SOLID is not addressed in the plan, the plan is INCOMPLETE.**
+**If SOLID is not addressed in Phase 3, the plan is INCOMPLETE.**
 
 ---
 
@@ -362,21 +380,21 @@ Before marking planning as COMPLETED:
 ### For `default` workflow:
 ```
 .ai/project/features/${FEATURE_ID}/
-├── 00_problem_statement.md    # Phase 1 output
-├── 12_specs.md                # Phase 2 output (includes SOLID)
-├── 15_solutions.md            # Phase 3 solutions with patterns
+├── 00_problem_statement.md    # Phase 1: Understanding
+├── 12_specs.md                # Phase 2: Functional specs (WHAT)
+├── 15_solutions.md            # Phase 3: Solutions with SOLID (HOW)
 ├── 30_tasks.md                # Task breakdown
 ├── 50_state.md                # State tracking
-└── FEATURE_${FEATURE_ID}.md   # Summary document
+└── FEATURE_${FEATURE_ID}.md   # Summary
 ```
 
-### For `task-breakdown` workflow (complete):
+### For `task-breakdown` workflow:
 ```
 .ai/project/features/${FEATURE_ID}/
 ├── 00_problem_statement.md
 ├── 10_architecture.md
-├── 12_specs.md                # Includes SOLID spec
-├── 15_solutions.md            # Includes SOLID patterns
+├── 12_specs.md                # Functional specs only
+├── 15_solutions.md            # Solutions with SOLID patterns
 ├── 15_data_model.md
 ├── 20_api_contracts.md
 ├── 30_tasks_backend.md
@@ -389,17 +407,17 @@ Before marking planning as COMPLETED:
 
 ---
 
-## Example: Complete Plan with SOLID
+## Example: Complete Plan
 
 ```markdown
 # Feature Plan: user-authentication
 
 ## PHASE 1: Problem Statement
 
-We need to implement user authentication with email/password.
-Users should be able to register, login, and logout.
+We need user authentication with email/password.
+Users should register, login, and logout.
 
-## PHASE 2: Specs
+## PHASE 2: Specs (WHAT - Functional)
 
 ### SPEC-F01: User Registration
 - User can register with email and password
@@ -408,41 +426,63 @@ Users should be able to register, login, and logout.
 
 ### SPEC-F02: User Login
 - User can login with email and password
-- Returns JWT token on success
+- Returns authentication token on success
 
-### SPEC-SOLID: SOLID Compliance (MANDATORY)
-- All code must score ≥22/25
-- Must use appropriate design patterns
+### SPEC-F03: User Logout
+- User can invalidate their token
 
-## PHASE 3: Solutions
+## PHASE 3: Solutions (HOW - with SOLID)
 
-### Solution SPEC-F01 & F02: Authentication Flow
-- Create User entity with Email value object
-- Create AuthenticationService
+### SOLID Baseline
+Current code: N/A (greenfield)
+Target score: ≥22/25
 
-### Solution SPEC-SOLID: Design Patterns
+### Solution for SPEC-F01 & F02
 
-| Need | Pattern | Why |
-|------|---------|-----|
-| Password hashing strategies | Strategy | OCP - add new hashers without modifying |
-| Token generation | Factory Method | DIP - abstract token creation |
-| User persistence | Repository | DIP - decouple from Doctrine |
+**Patterns Selected**:
+| Need | Pattern | SOLID |
+|------|---------|-------|
+| Email validation rules | Value Object | SRP |
+| Password hashing strategies | Strategy | OCP |
+| User persistence | Repository | DIP |
+| Token generation | Factory Method | DIP |
 
 **Class Design**:
-- `Domain/Entity/User` - only user data (SRP)
-- `Domain/ValueObject/Email` - email validation (SRP)
-- `Domain/Service/AuthenticationService` - auth logic only (SRP)
-- `Domain/Repository/UserRepositoryInterface` - abstraction (DIP)
-- `Infrastructure/Repository/DoctrineUserRepository` - implementation
+```
+Domain/
+├── Entity/User.php           (SRP: data only)
+├── ValueObject/Email.php     (SRP: validation)
+├── Repository/UserRepositoryInterface.php (DIP)
+└── Service/PasswordHasherInterface.php (DIP)
+
+Application/
+└── Service/AuthenticationService.php (SRP)
+
+Infrastructure/
+├── Repository/DoctrineUserRepository.php
+└── Service/BcryptPasswordHasher.php
+```
 
 **Expected SOLID Score**: 24/25
 ```
 
 ---
 
+## Summary: Where is SOLID?
+
+| Phase | Content | SOLID? |
+|-------|---------|--------|
+| Phase 1: Understand | Problem statement | ❌ No |
+| Phase 2: Specs | Functional requirements (WHAT) | ❌ No |
+| **Phase 3: Solutions** | Technical design (HOW) | ✅ **YES - MANDATORY** |
+
+**SOLID is a design CONSTRAINT in Phase 3, not a functional SPEC in Phase 2.**
+
+---
+
 ## Related Commands
 
-- `/workflow-skill:criteria-generator` - Generate specs interactively
+- `/workflow-skill:criteria-generator` - Generate functional specs
 - `/workflow-skill:solid-analyzer` - Analyze SOLID compliance
 - `/workflows:work` - Execute the plan
 - `/workflows:review` - Review implementation

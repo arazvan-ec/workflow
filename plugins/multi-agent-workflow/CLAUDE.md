@@ -213,25 +213,35 @@ The plugin follows a structured 3-phase process to ensure high-quality solutions
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 2: SPECS                               │
-│  Define acceptance criteria:                                    │
-│  ├── Task-specific specs (functional requirements)              │
-│  └── **MANDATORY SPEC: SOLID Compliance** (always required)     │
+│                    PHASE 2: SPECS (Functional Requirements)     │
+│  Define WHAT the system must do:                                │
+│  └── Task-specific specs (user requirements, acceptance criteria│
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │                    PHASE 3: PLAN WITH SOLUTIONS                 │
-│  For each spec, propose solution:                               │
-│  ├── Functional solutions (how to implement each requirement)   │
-│  └── SOLID solutions (patterns + practices to ensure quality)   │
+│  Design HOW to implement each spec:                             │
+│  ├── Functional solutions (implementation approach)             │
+│  └── **CONSTRAINT: SOLID** (patterns + quality = mandatory)     │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### SOLID as MANDATORY Spec
+### Key Distinction: SPECS vs SOLUTIONS
+
+| Phase 2: SPECS | Phase 3: SOLUTIONS |
+|----------------|-------------------|
+| **QUÉ** debe hacer | **CÓMO** hacerlo |
+| Requisitos funcionales | Diseño técnico |
+| "User can register" | "Use Strategy pattern" |
+| Del usuario/negocio | Del arquitecto |
+
+**SOLID es un CONSTRAINT de diseño en Fase 3, no una spec funcional.**
+
+### SOLID as Design CONSTRAINT
 
 > **"El código de alta calidad cumple SOLID de forma rigurosa"**
 
-**SOLID is NOT just a quality check—it's a MANDATORY SPECIFICATION** that applies to ALL tasks.
+**SOLID is a MANDATORY CONSTRAINT** that applies when designing solutions in Phase 3.
 
 Every solution proposed by the plugin MUST:
 1. Comply with all 5 SOLID principles
@@ -241,25 +251,25 @@ Every solution proposed by the plugin MUST:
 ### Quick Start
 
 ```bash
-# Plan a feature (includes SOLID as mandatory spec)
+# Plan a feature (SOLID applied in Phase 3)
 /workflows:plan user-authentication
 
 # Analyze SOLID compliance
 /workflow-skill:solid-analyzer --path=src/Service
 
-# Generate specs with SOLID criteria
+# Generate functional specs (Phase 2)
 /workflow-skill:criteria-generator --feature=my-feature --interview
 ```
 
 ### How the Plugin Creates Solutions
 
 1. **UNDERSTAND**: Analyzes the request, asks questions if needed
-2. **SPECS**: Defines functional specs + SOLID spec (always mandatory)
-3. **PLAN**: For each spec, proposes a solution with:
+2. **SPECS**: Defines functional requirements (WHAT the system must do)
+3. **PLAN**: For each spec, designs a solution with:
    - Implementation approach
-   - **Design patterns** to ensure SOLID compliance
-   - Class design showing SOLID principles
-   - Expected SOLID score
+   - **SOLID compliance** (mandatory constraint)
+   - **Design patterns** to ensure quality
+   - Expected SOLID score ≥22/25
 
 ### SOLID Score Thresholds
 
