@@ -244,6 +244,11 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/plugins/multi-agent-workflow/core/schemas/spec_manifest.json (2026-02-03T21:57:29+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/schemas/architectural_constraint_spec.json (2026-02-03T21:57:09+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/schemas/business_rule_spec.json (2026-02-03T21:56:47+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/schemas/entity_spec.json (2026-02-03T21:56:30+00:00)
+- /home/user/workflow/docs/plans/LIVING_SPECS_PLAN.md (2026-02-03T21:56:02+00:00)
 - /home/user/workflow/GLOSSARY.md (2026-02-03T21:41:24+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/skills/consultant/SKILL.md (2026-02-03T21:39:48+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/core/templates/project-profile-template.md (2026-02-03T21:38:53+00:00)
