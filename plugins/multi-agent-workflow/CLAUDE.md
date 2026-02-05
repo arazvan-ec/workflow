@@ -288,7 +288,7 @@ Heavy skills and review agents run with `context: fork` — they execute in isol
 - **Fork heavy analysis**: Skills with `context: fork` don't consume parent context
 - **Use `/skill:token-advisor`** when session feels slow
 
-See `core/docs/SESSION_CONTINUITY.md` for detailed strategies.
+See `core/docs/SESSION_CONTINUITY.md` for detailed strategies and `core/docs/CONTEXT_ENGINEERING.md` for the full reference on context isolation, portable governance, and the Queen Agent pattern.
 
 ## State Management
 

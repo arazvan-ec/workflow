@@ -263,6 +263,8 @@ No context yet - feature not started.
 | 2026-01-16 | - | - | - | Updated to new completion signal format |
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/plugins/multi-agent-workflow/core/docs/CONTEXT_ENGINEERING.md (2026-02-05T21:12:42+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/README.md (2026-02-05T21:10:01+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/.claude-plugin/plugin.json (2026-02-05T21:04:27+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/CLAUDE.md (2026-02-05T21:03:01+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/route.md (2026-02-05T21:01:50+00:00)
