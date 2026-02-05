@@ -2,6 +2,7 @@
 name: token-advisor
 description: "Analyzes current session and suggests token optimization strategies. Use when session feels slow, before long tasks, or to proactively manage context. <example>Context: Mid-session, working on complex feature.\\nuser: \"Session feels slow\"\\nassistant: \"Let me analyze with token-advisor\"</example>"
 model: inherit
+context: fork
 ---
 
 # Token Advisor Skill

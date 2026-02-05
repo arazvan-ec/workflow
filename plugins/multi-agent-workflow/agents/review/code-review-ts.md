@@ -1,3 +1,13 @@
+---
+name: code-review-ts
+description: "Reviews TypeScript/React code for type safety, hook patterns, component design, state management, and test coverage."
+model: inherit
+context: fork
+hooks:
+  Stop:
+    - command: "echo '[code-review-ts] TypeScript review complete.'"
+---
+
 # Agent: TypeScript Code Review
 
 Specialized agent for TypeScript/React code quality review.

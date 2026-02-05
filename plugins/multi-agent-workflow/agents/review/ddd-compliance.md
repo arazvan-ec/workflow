@@ -1,3 +1,16 @@
+---
+name: ddd-compliance
+description: "Verifies DDD layer separation, dependency direction, entity design, aggregate boundaries, and repository patterns."
+model: inherit
+context: fork
+hooks:
+  PreToolUse:
+    - matcher: Bash
+      command: "echo '[ddd-compliance] Checking layer violations...'"
+  Stop:
+    - command: "echo '[ddd-compliance] DDD compliance review complete.'"
+---
+
 # Agent: DDD Compliance Review
 
 Specialized agent for Domain-Driven Design compliance verification.

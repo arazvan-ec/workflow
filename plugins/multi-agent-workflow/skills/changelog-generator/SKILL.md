@@ -1,3 +1,9 @@
+---
+name: changelog-generator
+description: "Generates changelogs from git history for compound learning, release notes, and sprint retrospectives."
+context: fork
+---
+
 # Changelog Generator Skill
 
 Generate changelogs from git history for compound learning.

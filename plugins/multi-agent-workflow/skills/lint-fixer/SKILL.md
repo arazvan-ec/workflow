@@ -1,3 +1,14 @@
+---
+name: lint-fixer
+description: "Automatically fixes code style violations using PHP CS Fixer, ESLint, and Prettier."
+hooks:
+  PostToolUse:
+    - matcher: Bash
+      command: "echo '[lint-fixer] Lint fix step completed'"
+  Stop:
+    - command: "echo '[lint-fixer] All lint fixes applied.'"
+---
+
 # Lint Fixer Skill
 
 Automatically fix code style violations.

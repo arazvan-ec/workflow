@@ -1,3 +1,17 @@
+---
+name: layer-validator
+description: "Validates DDD layer dependencies automatically. Detects forbidden imports between Domain, Application, and Infrastructure layers."
+hooks:
+  PreToolUse:
+    - matcher: Bash
+      command: "echo '[layer-validator] Running DDD layer dependency check...'"
+  PostToolUse:
+    - matcher: Bash
+      command: "echo '[layer-validator] Layer check step completed'"
+  Stop:
+    - command: "echo '[layer-validator] Layer validation report finalized'"
+---
+
 # Layer Validator Skill
 
 Validate DDD layer dependencies automatically.

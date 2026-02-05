@@ -1,3 +1,13 @@
+---
+name: consultant
+description: "Intelligent project analysis to build comprehensive project knowledge and recommend optimal workflows. Runs 7-layer deep analysis. Use via /workflows:discover or directly."
+model: opus
+context: fork
+hooks:
+  Stop:
+    - command: "echo '[consultant] Analysis complete. Results saved to .ai/project/intelligence/'"
+---
+
 # AI Consultant Skill
 
 Intelligent project analysis to build comprehensive project knowledge and recommend optimal workflows.

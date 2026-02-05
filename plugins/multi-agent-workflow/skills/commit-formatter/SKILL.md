@@ -1,3 +1,12 @@
+---
+name: commit-formatter
+description: "Ensures commits follow conventional commit format with type(scope): subject pattern."
+hooks:
+  PreToolUse:
+    - matcher: Bash
+      command: "echo '[commit-formatter] Validating commit message format...'"
+---
+
 # Commit Formatter Skill
 
 Ensure commits follow conventional commit format.

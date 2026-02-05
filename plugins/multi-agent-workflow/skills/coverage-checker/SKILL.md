@@ -1,3 +1,15 @@
+---
+name: coverage-checker
+description: "Validates test coverage meets project requirements. Generates detailed coverage reports and blocks progression if thresholds are not met."
+context: fork
+hooks:
+  PostToolUse:
+    - matcher: Bash
+      command: "echo '[coverage-checker] Coverage analysis step completed'"
+  Stop:
+    - command: "echo '[coverage-checker] Coverage report finalized'"
+---
+
 # Coverage Checker Skill
 
 Validate test coverage meets project requirements.

@@ -1,3 +1,14 @@
+---
+name: checkpoint
+description: "Creates blocking checkpoints with auto-correction loops (Ralph Wiggum pattern) for quality-gated development."
+hooks:
+  PreToolUse:
+    - matcher: Write
+      command: "echo '[checkpoint] Updating state file...'"
+  Stop:
+    - command: "echo '[checkpoint] Checkpoint saved to 50_state.md'"
+---
+
 # Checkpoint Skill
 
 Create blocking checkpoints with auto-correction loops for quality-gated development.
