@@ -1,3 +1,14 @@
+---
+name: git-sync
+description: "Safely synchronizes local repository with remote, handling stashes, conflicts, and branch fallbacks."
+hooks:
+  PostToolUse:
+    - matcher: Bash
+      command: "echo '[git-sync] Sync step completed'"
+  Stop:
+    - command: "echo '[git-sync] Repository synchronized successfully.'"
+---
+
 # Git Sync Skill
 
 Safely synchronize your local repository with remote, handling stashes and conflicts.

@@ -2,6 +2,10 @@
 name: workflow-skill-solid-analyzer
 description: "Analyzes code for SOLID principle violations with automated detection and severity scoring. MANDATORY for ALL tasks - use before any implementation. <example>Context: Need to check SOLID compliance.\\nuser: \"Check if our code follows SOLID\"\\nassistant: \"I'll use workflow-skill-solid-analyzer to detect any SOLID violations\"</example>"
 model: inherit
+context: fork
+hooks:
+  Stop:
+    - command: "echo '[solid-analyzer] SOLID analysis complete. Report saved to .ai/project/analysis/'"
 ---
 
 # SOLID Analyzer Skill

@@ -1,3 +1,13 @@
+---
+name: performance-review
+description: "Reviews code for N+1 queries, missing indexes, bundle size, caching opportunities, and API response time issues."
+model: inherit
+context: fork
+hooks:
+  Stop:
+    - command: "echo '[performance-review] Performance analysis complete.'"
+---
+
 # Agent: Performance Review
 
 Specialized agent for performance analysis and optimization recommendations.

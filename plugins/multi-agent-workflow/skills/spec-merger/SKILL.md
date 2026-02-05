@@ -1,3 +1,12 @@
+---
+name: spec-merger
+description: "Merges feature specifications into project-level specs after completion. Handles ADD, MODIFY, CONFLICT, and SKIP strategies with manifest tracking."
+context: fork
+hooks:
+  Stop:
+    - command: "echo '[spec-merger] Spec merge complete. Review spec-manifest.yaml for changes.'"
+---
+
 # Spec Merger Skill
 
 Merge feature specifications into project-level specifications after feature completion.

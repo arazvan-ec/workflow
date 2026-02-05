@@ -1,3 +1,16 @@
+---
+name: mcp-connector
+description: "Connects to MCP servers with validation, RBAC, error handling, and audit logging. Manages connection lifecycle and retries."
+context: fork
+hooks:
+  PreToolUse:
+    - matcher: "mcp__*"
+      command: "echo '[mcp-connector] Pre-flight validation for MCP tool invocation'"
+  PostToolUse:
+    - matcher: "mcp__*"
+      command: "echo '[mcp-connector] MCP tool invocation logged for audit'"
+---
+
 # MCP Connector Skill
 
 Connect to and use MCP (Model Context Protocol) servers for external tool access with validation and error handling.

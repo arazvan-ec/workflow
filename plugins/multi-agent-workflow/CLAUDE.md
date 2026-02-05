@@ -204,123 +204,21 @@ Best for: Independent features or separate teams
 
 ## The 3-Phase Planning Process
 
-The plugin follows a structured 3-phase process to ensure high-quality solutions:
-
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 1: UNDERSTAND                          │
-│  Analyze request → Ask clarifying questions → Document problem  │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 2: SPECS (Functional Requirements)     │
-│  Define WHAT the system must do:                                │
-│  └── Task-specific specs (user requirements, acceptance criteria│
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│                    PHASE 3: PLAN WITH SOLUTIONS                 │
-│  Design HOW to implement each spec:                             │
-│  ├── Functional solutions (implementation approach)             │
-│  └── **CONSTRAINT: SOLID** (patterns + quality = mandatory)     │
-└─────────────────────────────────────────────────────────────────┘
+PHASE 1: UNDERSTAND → Ask questions → Document problem
+PHASE 2: SPECS      → Define WHAT (functional requirements)
+PHASE 3: SOLUTIONS  → Design HOW (SOLID mandatory constraint)
 ```
 
-### Key Distinction: SPECS vs SOLUTIONS
-
-| Phase 2: SPECS | Phase 3: SOLUTIONS |
-|----------------|-------------------|
-| **QUÉ** debe hacer | **CÓMO** hacerlo |
-| Requisitos funcionales | Diseño técnico |
-| "User can register" | "Use Strategy pattern" |
-| Del usuario/negocio | Del arquitecto |
-
-**SOLID es un CONSTRAINT de diseño en Fase 3, no una spec funcional.**
-
-### SOLID as Design CONSTRAINT
-
-> **"El código de alta calidad cumple SOLID de forma rigurosa"**
-
-**SOLID is a MANDATORY CONSTRAINT** that applies when designing solutions in Phase 3.
-
-Every solution proposed by the plugin MUST:
-1. Comply with all 5 SOLID principles
-2. Use appropriate design patterns
-3. Score ≥18/25 to proceed, ≥22/25 to approve
-
-### Quick Start
+**SOLID is a MANDATORY CONSTRAINT** in Phase 3. Score ≥18/25 to proceed, ≥22/25 to approve.
 
 ```bash
-# Plan a feature (SOLID applied in Phase 3)
-/workflows:plan user-authentication
-
-# Analyze SOLID compliance
-/workflow-skill:solid-analyzer --path=src/Service
-
-# Generate functional specs (Phase 2)
-/workflow-skill:criteria-generator --feature=my-feature --interview
+/workflows:plan user-authentication          # Full 3-phase process
+/workflow-skill:solid-analyzer --path=src     # SOLID compliance check
+/workflow-skill:criteria-generator --feature=my-feature --interview  # Generate specs
 ```
 
-### How the Plugin Creates Solutions
-
-1. **UNDERSTAND**: Analyzes the request, asks questions if needed
-2. **SPECS**: Defines functional requirements (WHAT the system must do)
-3. **PLAN**: For each spec, designs a solution with:
-   - Implementation approach
-   - **SOLID compliance** (mandatory constraint)
-   - **Design patterns** to ensure quality
-   - Expected SOLID score ≥22/25
-
-### SOLID Score Thresholds
-
-| Score | Grade | Action |
-|-------|-------|--------|
-| 22-25/25 | A - SOLID Compliant | Approve |
-| 18-21/25 | B - Acceptable | Approve with notes |
-| 14-17/25 | C - Needs Work | Refactor before merge |
-| <14/25 | F - Rejected | Redesign architecture |
-
-### Violation → Pattern Mapping (Quick Reference)
-
-| Violation | Pattern | SOLID Score |
-|-----------|---------|-------------|
-| God Class (SRP) | Strategy + Extract Class | 25/25 |
-| Switch by type (OCP) | Strategy | 25/25 |
-| Concrete dependencies (DIP) | Dependency Injection | 25/25 |
-| Layer violation (DIP) | Ports & Adapters | 25/25 |
-| Fat interface (ISP) | Role Interfaces | 25/25 |
-| Contract breaking (LSP) | Composition over Inheritance | 25/25 |
-
-### SOLID Components
-
-| Component | Purpose | Location |
-|-----------|---------|----------|
-| **solid-pattern-matrix.md** | Violation → Pattern mapping | `core/` |
-| **workflow-skill-solid-analyzer.md** | Automated SOLID analysis | `skills/` |
-| **solid-architecture-generator.md** | Generate SOLID architectures | `agents/design/` |
-| **solid-refactor.md** | Complete refactoring workflow | `commands/workflows/` |
-| **workflow-skill-criteria-generator.md** | `--solid-rigorous` mode | `skills/` |
-
-### Example: SOLID-Rigorous Decision
-
-```markdown
-## Architecture Decision: Payment Module
-
-**Options Evaluated**:
-- Option A: Service + Strategy pattern
-- Option B: God Class (current)
-- Option C: Simple refactor
-
-**SOLID Scores**:
-- Option A: 24/25 (A) ✅
-- Option B: 12/25 (F) ❌ Rejected
-- Option C: 16/25 (C) ❌ Rejected
-
-**Selected**: Option A
-**Reason**: Highest SOLID compliance, uses Strategy pattern for OCP
-```
-
-See `core/solid-pattern-matrix.md` for complete violation-to-pattern mapping.
+See `core/solid-pattern-matrix.md` for violation→pattern mapping and `skills/workflow-skill-solid-analyzer.md` for detailed scoring.
 
 ## Key Patterns
 
@@ -361,39 +259,36 @@ After each feature:
 - Checkpoint frequently for session resumption
 - Signal to restart: >20 files, >2 hours, >50 messages
 
-## Token Efficiency Tips
+## Context Engineering (Fowler Principles)
 
-Optimize token usage to extend session capacity and reduce costs.
+> *"Curating what the model sees so that you get a better result"* — Martin Fowler
 
-### Before Reading Files
-- **Search first**: Use `grep` to find specific content before reading entire files
-- **Specify ranges**: `Read file.ts:50-100` instead of full file when possible
-- **Check usage**: Run `/context` to see current token consumption
+### Context Activation Model
 
-### During Session
-- **Compact proactively**: Run `/compact` at ~70% capacity (don't wait for auto-compact at 95%)
-- **Clear between tasks**: Use `/clear` when switching to unrelated work
-- **One focus per session**: Avoid mixing unrelated features in same session
+| Content Type | Activation | When Loaded |
+|---|---|---|
+| **Critical rules** (this file) | Always | Every session |
+| **Role definitions** (`core/roles/`) | LLM-determined | When role is active |
+| **Skills** (`skills/`) | Human-triggered (`/skill:X`) | On invocation |
+| **Review agents** (`agents/review/`) | Human-triggered | During `/workflows:review` |
+| **Project hooks** (`.ai/hooks/`) | Software-determined | Automatic on tool events |
 
-### For Large Outputs
-- **Filter git output**: `git log --oneline -20` instead of `git log`
-- **Use summaries**: `git diff --stat` before full diffs
-- **Limit results**: Add `| head -50` to commands that may produce large output
+### Context Isolation (Claude Code 2.1+)
 
-### MCP Optimization
-- **Disable unused servers**: Each MCP server consumes context even when idle
-- **Check consumption**: Use `/context` to identify MCP overhead
-- **Enable on-demand**: Only activate servers when needed for current task
+Heavy skills and review agents run with `context: fork` — they execute in isolated context windows and return only summaries. This prevents context pollution from large analysis outputs.
 
-### Quick Reference
-```bash
-/context              # Check current token usage
-/compact              # Summarize and reduce context
-/clear                # Fresh start for new task
-/skill:token-advisor  # Get optimization suggestions
-```
+**Forked skills**: consultant, token-advisor, coverage-checker, solid-analyzer, spec-merger, changelog-generator, mcp-connector
+**Forked agents**: All 7 review agents (security, performance, DDD, code-ts, agent-native, simplicity, pattern-recognition)
 
-See `core/docs/SESSION_CONTINUITY.md` for detailed context management strategies.
+### Token Efficiency
+
+- **Search before reading**: `grep` first, then targeted reads
+- **Compact proactively**: `/compact` at ~70% capacity
+- **One focus per session**: Avoid mixing unrelated features
+- **Fork heavy analysis**: Skills with `context: fork` don't consume parent context
+- **Use `/skill:token-advisor`** when session feels slow
+
+See `core/docs/SESSION_CONTINUITY.md` for detailed strategies and `core/docs/CONTEXT_ENGINEERING.md` for the full reference on context isolation, portable governance, and the Queen Agent pattern.
 
 ## State Management
 
@@ -534,105 +429,20 @@ See `core/docs/METRICS.md` for details.
 
 ## Project Structure
 
-The plugin separates **core framework** (immutable) from **project extensions** (customizable).
-
-### Plugin Core (DO NOT MODIFY)
-
-```
-plugins/multi-agent-workflow/
-├── .claude-plugin/
-│   └── plugin.json          # Plugin metadata
-├── core/                    # Framework core
-│   ├── rules/               # Framework rules (immutable)
-│   │   └── framework_rules.md
-│   ├── roles/               # Base role definitions
-│   │   ├── planner.md
-│   │   ├── backend.md
-│   │   ├── frontend.md
-│   │   └── qa.md
-│   ├── schemas/             # JSON validation schemas
-│   │   ├── feature_spec.json
-│   │   ├── task_spec.json
-│   │   └── api_contract.json
-│   ├── templates/           # YAML templates
-│   └── docs/                # Methodology docs
-│       ├── COMPREHENSION_DEBT.md
-│       ├── PAIRING_PATTERNS.md
-│       └── GIT_WORKFLOW.md
-├── agents/                  # Specialized agents
-│   ├── review/              # 7 review agents
-│   ├── research/            # 5 research agents
-│   ├── workflow/            # 4 workflow agents
-│   └── design/              # 2 design agents
-├── commands/
-│   └── workflows/           # Executable commands
-├── skills/                  # Shared skills
-├── CLAUDE.md
-└── README.md
-```
-
-### Project Extensions (CUSTOMIZE HERE)
-
-```
-.ai/
-├── project/                 # Project specs
-│   ├── config.yaml          # Project configuration
-│   ├── context.md           # Project context
-│   ├── features/            # Feature specifications
-│   │   └── [feature-name]/
-│   │       ├── FEATURE.md
-│   │       ├── 50_state.md
-│   │       └── ...
-│   └── sessions/            # Checkpoints
-├── hooks/                   # Lifecycle hooks (NEW)
-│   └── lifecycle/
-│       ├── pre_tool_use.sh  # Trust enforcement
-│       ├── post_tool_use.sh # State sync & audit
-│       ├── stop.sh          # Auto-checkpoint
-│       └── pre_compact.sh   # Context preservation
-├── snapshots/               # Session snapshots (NEW)
-│   └── [snapshot-name]/
-├── metrics/                 # Performance data (NEW)
-│   └── *.json
-└── extensions/              # Project extensions
-    ├── rules/               # Project-specific rules
-    │   ├── project_rules.md # Stack, conventions
-    │   └── ddd_rules.md     # DDD rules (if applicable)
-    ├── workflows/           # Custom workflows
-    │   ├── default.yaml
-    │   └── *.yaml
-    ├── trust/               # Trust configuration
-    │   └── trust_model.yaml
-    ├── mcp/                 # MCP configuration (NEW)
-    │   ├── servers.yaml     # Server definitions
-    │   └── README.md        # Setup guide
-    ├── metrics/             # Metrics configuration (NEW)
-    │   ├── schema.yaml      # Data schema
-    │   └── collector.md     # Collection skill
-    ├── scripts/             # Utility scripts
-    │   ├── git/
-    │   ├── enforcement/
-    │   ├── harness/
-    │   └── tools/
-    ├── templates/           # Markdown templates
-    └── proposals/           # Workflow proposals
-```
-
-### Key Separation
+**Immutable** (DO NOT MODIFY): `plugins/multi-agent-workflow/core/`, `plugins/multi-agent-workflow/agents/`, `commands/`, `skills/`
+**Customizable**: `.ai/project/`, `.ai/hooks/`, `.ai/extensions/`, `.ai/snapshots/`
 
 | Component | Location | Modifiable |
 |-----------|----------|------------|
 | Framework Rules | `plugins/.../core/rules/` | NO |
 | Project Rules | `.ai/extensions/rules/` | YES |
 | Base Roles | `plugins/.../core/roles/` | NO |
-| Workflows | `.ai/extensions/workflows/` | YES |
-| Trust Model | `.ai/extensions/trust/` | YES |
-| Features | `.ai/project/features/` | YES |
-| Scripts | `.ai/extensions/scripts/` | YES |
+| Features & State | `.ai/project/features/` | YES |
 | Lifecycle Hooks | `.ai/hooks/lifecycle/` | YES |
 | MCP Servers | `.ai/extensions/mcp/` | YES |
-| Metrics Config | `.ai/extensions/metrics/` | YES |
-| Snapshots | `.ai/snapshots/` | AUTO |
+| Trust Model | `.ai/extensions/trust/` | YES |
+
+See `README.md` for full directory structure details.
 
 ## Best Practices
 
@@ -672,10 +482,21 @@ This plugin works best with:
 
 ---
 
-**Version**: 2.3.0
-**Aligned with**: Compound Engineering + Karpathy Principles + Claude Agent SDK
-**Last updated**: 2026-02-02
-**Inspired by**: [EveryInc/compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin)
+**Version**: 2.4.0
+**Aligned with**: Compound Engineering + Karpathy Principles + Claude Agent SDK + Context Engineering (Fowler)
+**Last updated**: 2026-02-05
+**Inspired by**: [EveryInc/compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin), [Fowler: Context Engineering for Coding Agents](https://martinfowler.com/articles/exploring-gen-ai/context-engineering-coding-agents.html), [Hightower: Build Agent Skills Faster](https://medium.com/@richardhightower/build-agent-skills-faster-with-claude-code-2-1-release-6d821d5b8179)
+
+**v2.4.0 Changes** (Context Engineering & Claude Code 2.1+ Integration):
+- Added `context: fork` to all heavy skills (consultant, token-advisor, coverage-checker, solid-analyzer, spec-merger, changelog-generator, mcp-connector) for context isolation
+- Added `context: fork` to all 7 review agents for isolated analysis without context pollution
+- Added scoped lifecycle hooks in YAML frontmatter to 13 skills/agents (layer-validator, test-runner, checkpoint, lint-fixer, commit-formatter, git-sync, worktree-manager, security-review, performance-review, ddd-compliance, code-review-ts, coverage-checker, mcp-connector)
+- Added Queen Agent pattern to `/workflows:route` with forked sub-agent parallel analysis
+- Added `/workflows:skill-dev` command for hot-reload skill development workflow
+- Calibrated CLAUDE.md context loading: moved detailed catalogs to reference files, added Context Engineering section based on Fowler's activation model
+- Added YAML frontmatter to all skills and agents that were missing it
+- Reduced CLAUDE.md from ~700 to ~500 lines (context efficiency)
+- Updated from 24 to 25 workflow commands
 
 **v2.3.0 Changes**:
 - Added 3 new review agents: `agent-native-reviewer`, `code-simplicity-reviewer`, `pattern-recognition-specialist`
@@ -688,14 +509,6 @@ This plugin works best with:
 - Updated from 21 to 24 workflow commands
 
 **v2.2.0 Changes**:
-- Integrated Karpathy-inspired coding principles (Think Before Coding, Simplicity First, Surgical Changes, Goal-Driven Execution)
-- Added `KARPATHY_PRINCIPLES.md` detailed guidance document
-- Enhanced Self-Review Checklist with Karpathy principles
-- Updated router with assumptions and success criteria steps
+- Integrated Karpathy-inspired coding principles
 - Added lifecycle hooks (PreToolUse, PostToolUse, Stop, PreCompact)
-- Added MCP server integration for external tools
-- Added session snapshot/restore for context continuity
-- Added workflow metrics and analytics
-- Added `/workflows:reload` for skill hot-reload
-- Added `/workflows:snapshot`, `/workflows:restore`, `/workflows:metrics` commands
-- Added `mcp-connector` skill
+- Added MCP server integration, session snapshot/restore, workflow metrics

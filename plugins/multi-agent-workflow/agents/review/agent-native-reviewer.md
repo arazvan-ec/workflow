@@ -2,6 +2,7 @@
 name: agent-native-reviewer
 description: "Use this agent to verify that features are agent-native - ensuring any action a user can take, an agent can also take, and anything a user can see, an agent can see. This enforces action and context parity between humans and AI agents. <example>Context: User added a new feature.\\nuser: \"I just implemented email filtering\"\\nassistant: \"I'll verify this feature is agent-accessible using the agent-native-reviewer\"</example>"
 model: inherit
+context: fork
 ---
 
 # Agent-Native Architecture Reviewer

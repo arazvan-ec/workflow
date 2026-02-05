@@ -1,3 +1,13 @@
+---
+name: security-review
+description: "Reviews code for OWASP Top 10 vulnerabilities, authentication flows, authorization patterns, input validation, and secrets management."
+model: inherit
+context: fork
+hooks:
+  Stop:
+    - command: "echo '[security-review] Security audit complete. Check report for vulnerabilities.'"
+---
+
 # Agent: Security Review
 
 Specialized agent for security auditing and vulnerability detection.

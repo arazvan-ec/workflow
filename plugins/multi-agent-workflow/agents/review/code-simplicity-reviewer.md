@@ -2,6 +2,7 @@
 name: code-simplicity-reviewer
 description: "Use this agent for a final review pass to ensure code changes are as simple and minimal as possible. Invoke after implementation is complete but before finalizing, to identify simplification opportunities and ensure YAGNI principles. <example>Context: Implementation complete.\\nuser: \"I've finished the auth system\"\\nassistant: \"Let me review for simplicity using the code-simplicity-reviewer\"</example>"
 model: inherit
+context: fork
 ---
 
 # Code Simplicity Reviewer

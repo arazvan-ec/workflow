@@ -2,6 +2,7 @@
 name: pattern-recognition-specialist
 description: "Use this agent to analyze code for design patterns, anti-patterns, naming conventions, and code duplication. Excels at identifying architectural patterns, detecting code smells, and ensuring consistency across the codebase. <example>Context: User wants pattern analysis.\\nuser: \"Check our codebase for patterns and anti-patterns\"\\nassistant: \"I'll use the pattern-recognition-specialist to analyze patterns and code quality\"</example>"
 model: inherit
+context: fork
 ---
 
 # Code Pattern Recognition Specialist

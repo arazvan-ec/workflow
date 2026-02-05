@@ -1,3 +1,14 @@
+---
+name: test-runner
+description: "Executes test suites (PHPUnit, Jest, Cypress) and reports results for quality validation. Supports TDD Red-Green-Refactor workflow."
+hooks:
+  PostToolUse:
+    - matcher: Bash
+      command: "echo '[test-runner] Test execution step completed'"
+  Stop:
+    - command: "echo '[test-runner] Test run complete. Results reported.'"
+---
+
 # Test Runner Skill
 
 Execute test suites and report results for quality validation.

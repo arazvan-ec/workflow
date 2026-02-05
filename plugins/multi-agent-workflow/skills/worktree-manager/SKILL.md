@@ -1,3 +1,12 @@
+---
+name: worktree-manager
+description: "Manages git worktrees for parallel multi-role development with isolated working directories."
+hooks:
+  PostToolUse:
+    - matcher: Bash
+      command: "echo '[worktree-manager] Worktree operation completed'"
+---
+
 # Worktree Manager Skill
 
 Manage git worktrees for parallel development.

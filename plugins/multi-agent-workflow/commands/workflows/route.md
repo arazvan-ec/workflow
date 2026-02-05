@@ -386,6 +386,129 @@ Before completing routing, verify:
 
 ---
 
+## Queen Agent Pattern (Claude Code 2.1+)
+
+The router can leverage forked sub-agents for intelligent parallel analysis before routing decisions. This transforms the router from a static decision tree into a dynamic "Queen Agent" that orchestrates analysis workers.
+
+### How It Works
+
+```
+┌──────────────────────────────────────────────────────┐
+│                    QUEEN AGENT (route)                │
+│                                                      │
+│  User Request → Spawn parallel analysis workers      │
+│                                                      │
+│  ┌─────────────┐  ┌─────────────┐  ┌──────────────┐ │
+│  │  consultant  │  │ spec-analyzer│  │ git-historian │ │
+│  │ (fork)       │  │ (fork)       │  │ (fork)       │ │
+│  │             │  │             │  │             │ │
+│  │ Quick stack │  │ Check specs │  │ Recent      │ │
+│  │ analysis    │  │ exist?      │  │ changes in  │ │
+│  │             │  │             │  │ area?       │ │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬───────┘ │
+│         │                │                │         │
+│         ▼                ▼                ▼         │
+│  ┌──────────────────────────────────────────────┐   │
+│  │          Aggregate Results                    │   │
+│  │  → Complexity assessment                      │   │
+│  │  → Existing specs status                      │   │
+│  │  → Change history context                     │   │
+│  └──────────────────────────────────────────────┘   │
+│                        │                             │
+│                        ▼                             │
+│              Informed Routing Decision                │
+│              (with evidence, not just heuristics)     │
+└──────────────────────────────────────────────────────┘
+```
+
+### When to Activate Queen Pattern
+
+| Condition | Use Queen Pattern? | Reason |
+|-----------|-------------------|--------|
+| Clear simple request | No | Overhead not justified |
+| Ambiguous request | **Yes** | Parallel analysis resolves ambiguity |
+| Complex multi-layer feature | **Yes** | Needs stack + spec + history context |
+| Sensitive area (auth/payment) | **Yes** | Trust + security pre-analysis |
+| Continuing previous work | No | Context already established |
+
+### Forked Sub-Agent Roles
+
+#### 1. Consultant (Quick Mode)
+```yaml
+skill: consultant
+context: fork
+purpose: Quick stack detection and complexity estimate
+output: { stack, complexity, architecture_pattern }
+```
+
+#### 2. Spec Analyzer
+```yaml
+skill: spec-analyzer
+context: fork
+purpose: Check if specs exist for requested feature area
+output: { specs_exist, coverage_gaps, related_features }
+```
+
+#### 3. Git Historian
+```yaml
+agent: git-historian
+context: fork
+purpose: Analyze recent changes in relevant code areas
+output: { recent_changes, hotspots, active_contributors }
+```
+
+### Hooks as Inter-Agent Event Bus
+
+Forked sub-agents emit hooks that the Queen Agent can observe:
+
+```yaml
+# Sub-agent hook emissions (in forked context)
+hooks:
+  Stop:
+    - command: "echo '[sub-agent-name] Analysis complete: {summary}'"
+
+# Queen agent observes via PostToolUse on Task tool
+# Aggregates results without context pollution
+```
+
+**Key benefit**: The Queen Agent's context stays clean. Each forked sub-agent does heavy analysis in isolation, returning only a summary. This follows Fowler's principle of "strategic context calibration" - the router sees summaries, not raw data.
+
+### Example: Queen Agent Routing Flow
+
+```markdown
+## Queen Agent Analysis: "Necesito agregar pagos con Stripe"
+
+### Sub-Agent Results (parallel, forked):
+
+**Consultant (0.8s)**:
+- Stack: Symfony 6.4 + PHP 8.3
+- Architecture: DDD + Hexagonal
+- Complexity: HIGH (payment integration)
+
+**Spec Analyzer (0.5s)**:
+- No existing payment specs found
+- Related: user-authentication has auth patterns to follow
+- Gap: No payment domain entities exist
+
+**Git Historian (0.6s)**:
+- No recent changes in payment area (greenfield)
+- Auth area stable (good foundation)
+- 3 hotspots in Infrastructure/ layer
+
+### Informed Routing Decision:
+
+Based on aggregated evidence:
+- **Workflow**: task-breakdown (HIGH complexity + no existing specs)
+- **Trust level**: LOW (payment = sensitive)
+- **Required reviews**: security-review + performance-review
+- **Parallelization**: By layer (DDD) recommended
+- **Estimated phases**: Plan (extended) → Backend → Frontend → QA
+
+This decision is evidence-based, not heuristic-based.
+```
+
+---
+
 ## Summary
 
 The `/workflows:route` command ensures:
