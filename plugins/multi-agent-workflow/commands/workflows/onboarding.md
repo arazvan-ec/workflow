@@ -38,12 +38,12 @@ Display this welcome banner:
 ```
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
-║   🎯 Multi-Agent Workflow v2.3.1                                 ║
+║   🎯 Multi-Agent Workflow v2.4.0                                 ║
 ║   ─────────────────────────────────────                          ║
-║   Compound Engineering Framework                                 ║
+║   Compound Engineering + Context Engineering                     ║
 ║                                                                  ║
 ║   21 agentes especializados                                      ║
-║   24 comandos de workflow                                        ║
+║   25 comandos de workflow                                        ║
 ║   12 skills reutilizables                                        ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
@@ -107,6 +107,29 @@ git config --global user.email "tu@email.com"
 ```bash
 git init
 ```
+```
+
+### Step 2.5: What's New in v2.4.0
+
+```markdown
+## Novedades en v2.4.0
+
+### Context Engineering (influenciado por Martin Fowler)
+El plugin ahora aplica principios de **Context Engineering**: curar exactamente
+qué información ve el modelo en cada momento, reduciendo ruido y mejorando resultados.
+
+### context: fork (influenciado por Kelsey Hightower / Claude Code 2.1)
+Los agentes de review y skills pesados ahora se ejecutan en **contextos aislados**
+(fork). Esto protege tu ventana de contexto principal de contaminación.
+
+### Hooks Portables
+Cada skill y agente puede definir sus propios hooks de gobernanza
+(PreToolUse, PostToolUse, Stop) directamente en su YAML frontmatter.
+
+### Nuevo Comando: /workflows:skill-dev
+Crea, edita, valida y prueba skills con hot-reload sin reiniciar sesión.
+
+> Para detalles técnicos: Ver `core/docs/CONTEXT_ENGINEERING.md`
 ```
 
 ### Step 3: Explain Core Concepts (30 seconds)
