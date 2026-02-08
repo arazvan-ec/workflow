@@ -80,13 +80,19 @@ Exception: continuing an already-routed task with valid `50_state.md` context.
 
 Heavy skills and all 7 review agents run with `context: fork` — isolated context windows returning summaries only. See `core/docs/CONTEXT_ENGINEERING.md`.
 
+## Capability Providers
+
+The plugin is **model-agnostic**. It abstracts capabilities (parallelization, context management, fork strategy) behind providers that auto-detect the running model and select the best implementation. Configuration in `core/providers.yaml`, detection logic in `core/docs/CAPABILITY_PROVIDERS.md`.
+
+When `providers.yaml` is set to `auto` (default), resolve providers using the Detection Protocol before executing provider-dependent commands (`/workflows:parallel`, `/workflows:snapshot`, fork decisions).
+
 ## Key Patterns
 
 - **Karpathy Principles**: Think before coding, simplicity first, surgical changes, goal-driven execution. Details in `core/docs/KARPATHY_PRINCIPLES.md`.
 - **Ralph Wiggum Loop**: Auto-correct up to 10 iterations, then mark BLOCKED. Details in `core/rules/framework_rules.md`.
 - **Compound Capture**: After each feature, extract patterns and update rules via `/workflows:compound`.
 - **SOLID Constraint**: Phase 3 solutions target score ≥22/25. See `core/solid-pattern-matrix.md`.
-- **Context as Resource**: Compact at ~70%, snapshot before breaks, one focus per session. Details in `core/docs/SESSION_CONTINUITY.md`.
+- **Context as Resource**: Thresholds adapt to provider (compaction-aware or manual-snapshots). Details in `core/docs/SESSION_CONTINUITY.md`.
 
 ## State Management
 
@@ -112,6 +118,8 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 
 | Topic | Location |
 |-------|----------|
+| Capability providers & detection | `core/docs/CAPABILITY_PROVIDERS.md` |
+| Provider configuration | `core/providers.yaml` |
 | Routing details & question templates | `core/docs/ROUTING_REFERENCE.md` |
 | Karpathy principles | `core/docs/KARPATHY_PRINCIPLES.md` |
 | Context engineering & fork model | `core/docs/CONTEXT_ENGINEERING.md` |
@@ -127,4 +135,4 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 
 ---
 
-**Version**: 2.5.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler)
+**Version**: 2.6.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers

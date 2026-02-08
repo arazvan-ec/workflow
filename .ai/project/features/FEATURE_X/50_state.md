@@ -263,6 +263,10 @@ No context yet - feature not started.
 | 2026-01-16 | - | - | - | Updated to new completion signal format |
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/.ai/project/config.yaml (2026-02-08T23:24:35+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/rules/framework_rules.md (2026-02-08T23:24:21+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/docs/CAPABILITY_PROVIDERS.md (2026-02-08T23:23:29+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/providers.yaml (2026-02-08T23:22:23+00:00)
 - /home/user/workflow/.ai/project/features/context-engineering-v2/30_tasks.md (2026-02-08T20:39:55+00:00)
 - /home/user/workflow/.ai/project/features/context-engineering-v2/15_solutions.md (2026-02-08T20:39:46+00:00)
 - /home/user/workflow/.ai/project/features/context-engineering-v2/12_specs.md (2026-02-08T20:39:13+00:00)
