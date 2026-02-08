@@ -3,7 +3,7 @@
 ```
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
-║   Multi-Agent Workflow v2.4.0                                    ║
+║   Multi-Agent Workflow v2.5.0                                    ║
 ║   Compound Engineering + Context Engineering                     ║
 ║                                                                  ║
 ║   Instalación completada con éxito!                              ║
@@ -41,13 +41,13 @@ Ideal si ya conoces el workflow o quieres explorar por tu cuenta.
 12 skills reutilizables    →  Automatización inteligente
 ```
 
-### Novedades v2.4.0
+### Novedades v2.5.0
 
 ```
-Context Engineering   →  Información precisa al modelo, sin ruido
-context: fork         →  Agentes aislados protegen tu contexto
-Hooks portables       →  Gobernanza integrada en cada skill/agente
-/workflows:skill-dev  →  Crea y prueba skills con hot-reload
+Scoped Rules          →  Reglas que se cargan solo cuando son relevantes
+CLAUDE.md slim        →  130 líneas (antes 514), contexto más eficiente
+Routing Reference     →  Templates y decision matrix bajo demanda
+Urgency calibration   →  Lenguaje claro sin fatiga de urgencia
 ```
 
 ### El Flujo en 4 Fases

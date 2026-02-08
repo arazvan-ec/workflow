@@ -684,18 +684,28 @@ Este proyecto puede instalarse como **plugin de Claude Code**, permitiendo usarl
 ```
 plugins/multi-agent-workflow/
 ├── .claude-plugin/
-│   └── plugin.json          # Manifest del plugin (v2.0.0)
+│   └── plugin.json          # Manifest del plugin (v2.5.0)
 ├── agents/
 │   ├── roles/               # 4 roles core (planner, backend, frontend, qa)
-│   ├── review/              # 4 agentes de review
-│   ├── research/            # 3 agentes de investigación
-│   ├── workflow/            # 3 agentes de proceso
+│   ├── review/              # 7 agentes de review (context: fork)
+│   ├── research/            # 5 agentes de investigación
+│   ├── workflow/            # 5 agentes de proceso
 │   └── design/              # 2 agentes de diseño
-├── commands/workflows/      # 7 comandos de workflow
-├── skills/                  # 10 skills reutilizables
-├── rules/                   # Reglas (global, DDD, project-specific)
-├── CLAUDE.md               # Documentación para Claude
-└── README.md               # Esta documentación
+├── commands/workflows/      # 25 comandos de workflow
+├── skills/                  # 15 skills reutilizables
+├── core/
+│   ├── rules/
+│   │   ├── framework_rules.md   # Reglas operacionales core (always-loaded)
+│   │   ├── testing-rules.md     # TDD, coverage, Ralph Wiggum (scoped)
+│   │   ├── security-rules.md    # Trust model, seguridad (scoped)
+│   │   └── git-rules.md         # Branching, commits (scoped)
+│   └── docs/
+│       ├── ROUTING_REFERENCE.md     # Templates routing (on-demand)
+│       ├── CONTEXT_ENGINEERING.md   # Context engineering reference
+│       ├── KARPATHY_PRINCIPLES.md   # Coding principles
+│       └── SESSION_CONTINUITY.md    # Snapshots, metrics
+├── CLAUDE.md               # Guidance para Claude (~130 líneas)
+└── README.md               # Documentación del plugin
 ```
 
 ---

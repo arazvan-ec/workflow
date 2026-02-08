@@ -38,7 +38,7 @@ Display this welcome banner:
 ```
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
-║   🎯 Multi-Agent Workflow v2.4.0                                 ║
+║   🎯 Multi-Agent Workflow v2.5.0                                 ║
 ║   ─────────────────────────────────────                          ║
 ║   Compound Engineering + Context Engineering                     ║
 ║                                                                  ║
@@ -109,25 +109,27 @@ git init
 ```
 ```
 
-### Step 2.5: What's New in v2.4.0
+### Step 2.5: What's New in v2.5.0
 
 ```markdown
-## Novedades en v2.4.0
+## Novedades en v2.5.0
 
-### Context Engineering (influenciado por Martin Fowler)
-El plugin ahora aplica principios de **Context Engineering**: curar exactamente
-qué información ve el modelo en cada momento, reduciendo ruido y mejorando resultados.
+### Scoped Rules (reglas con alcance)
+Las reglas ahora se cargan solo cuando son relevantes:
+- `testing-rules.md` → al editar archivos de test
+- `security-rules.md` → al tocar código de auth/seguridad/pagos
+- `git-rules.md` → durante operaciones git
 
-### context: fork (influenciado por Kelsey Hightower / Claude Code 2.1)
-Los agentes de review y skills pesados ahora se ejecutan en **contextos aislados**
-(fork). Esto protege tu ventana de contexto principal de contaminación.
+### CLAUDE.md Slim (~130 líneas)
+El contexto always-loaded se redujo un 70%. Los detalles se cargan bajo demanda
+desde docs de referencia (ROUTING_REFERENCE.md, SESSION_CONTINUITY.md, etc.)
 
-### Hooks Portables
-Cada skill y agente puede definir sus propios hooks de gobernanza
-(PreToolUse, PostToolUse, Stop) directamente en su YAML frontmatter.
+### Routing Reference
+Templates de preguntas y decision matrix ahora en `core/docs/ROUTING_REFERENCE.md`,
+cargados solo cuando se necesitan para routing complejo.
 
-### Nuevo Comando: /workflows:skill-dev
-Crea, edita, valida y prueba skills con hot-reload sin reiniciar sesión.
+### Urgency Calibration
+Lenguaje claro y directo sin fatiga de urgencia (eliminados MANDATORY/CRITICAL en mayúsculas).
 
 > Para detalles técnicos: Ver `core/docs/CONTEXT_ENGINEERING.md`
 ```
