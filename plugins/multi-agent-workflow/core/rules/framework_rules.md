@@ -1,423 +1,152 @@
 # Framework Rules - Multi-Agent Workflow
 
-**Framework Version**: 2.1.0
-**Last Updated**: 2026-02-01
+**Framework Version**: 2.5.0
+**Last Updated**: 2026-02-08
 
 ---
 
 ## Purpose
 
-These are the **fundamental rules** of the Multi-Agent Workflow framework. They apply to ALL projects using this plugin and should NOT be modified per-project. Project-specific rules go in `.ai/extensions/rules/`.
+These are the fundamental operational rules of the Multi-Agent Workflow framework. They apply to all projects using this plugin. Project-specific rules go in `.ai/extensions/rules/`.
 
-**Note**: This framework integrates Karpathy-inspired coding principles. See `core/docs/KARPATHY_PRINCIPLES.md` for detailed guidance.
+For additional scoped rules see: `testing-rules.md`, `security-rules.md`, `git-rules.md` in this directory.
 
 ---
 
 ## Core Principles
 
-### 0. Mandatory Routing - Ask Before Acting (HIGHEST PRIORITY)
+### 1. Route Before Acting
 
-**Rule**: Every interaction MUST pass through the workflow router before executing any work.
+Every interaction passes through the workflow router before work begins. See `CLAUDE.md` for the routing protocol and `core/docs/ROUTING_REFERENCE.md` for question templates.
 
-```
-USER REQUEST → ROUTING → CLARIFICATION (if needed) → WORKFLOW SELECTION → EXECUTION
-```
+### 2. Karpathy Principles — Apply to All Work
 
-#### Routing Protocol
+Four principles that prevent common AI failure modes. Apply them at every stage:
 
-1. **Analyze** the user's request immediately
-2. **Classify** the work type:
-   - Feature (new functionality)
-   - Bug (fix existing)
-   - Refactor (improve without changing behavior)
-   - Investigation (research/analysis)
-   - Documentation
-   - Review
-   - Other
-3. **Calculate confidence** (0-100%):
-   - Clear keywords: +20
-   - File references: +15
-   - Action verbs: +15
-   - Expected behavior described: +20
-   - Vague language: -25
-4. **If confidence < 60%**: ASK clarifying questions
-5. **If confidence >= 60%**: Propose workflow and confirm
+- **Think Before Coding**: State assumptions and clarify ambiguities before writing code
+- **Simplicity First**: Implement only what is explicitly requested
+- **Surgical Changes**: Touch only the code essential to the task
+- **Goal-Driven Execution**: Transform vague requests into testable success criteria
 
-#### Clarifying Questions (When to Ask)
+See `core/docs/KARPATHY_PRINCIPLES.md` for detailed guidance with examples.
+
+### 3. Explicit Context — No Implicit Memory
+
+All shared knowledge lives in files. Never assume implicit context.
 
 ```
-MUST ASK when:
-- Request is vague or ambiguous
-- Multiple workflows could apply
-- Scope is unclear
-- Sensitive areas (auth, payments, security) may be touched
-- User says "just do it" without specifications
-- First-time interaction in session
+Avoid: "Remember we said earlier that..."
+Prefer: "Read `.ai/project/features/FEATURE_X/50_state.md`"
 ```
 
-#### Self-Correction Protocol
+### 4. Immutable Roles
 
-If you realize you started work without proper routing:
-
-```markdown
-## Self-Correction
-
-STOP - I started work without proper routing.
-
-1. Pause current work
-2. Ask clarifying questions NOW
-3. Confirm workflow selection with user
-4. Then continue with proper context
-```
-
-#### Prohibitions
-
-- **NEVER** assume what the user wants without clarification
-- **NEVER** pick a workflow without explaining why
-- **NEVER** skip routing because "it seems obvious"
-- **NEVER** proceed when confidence is low
-
----
-
-### 0.1 Karpathy Principles (CRITICAL - Apply to ALL work)
-
-These four principles address common AI failure modes. Apply them at every stage.
-
-#### Think Before Coding
-
-**Rule**: Before writing ANY code, state assumptions and clarify ambiguities.
-
-```markdown
-## Pre-Implementation Assumptions
-
-**My Assumptions**:
-1. [Assumption about scope]
-2. [Assumption about inputs/outputs]
-3. [Assumption about edge cases]
-
-**Questions** (if any): [Ask before proceeding]
-```
-
-- State assumptions even when confidence is HIGH
-- Present multiple interpretations when ambiguous
-- Push back on suboptimal approaches
-- STOP and ask when confused - never proceed blindly
-
-#### Simplicity First
-
-**Rule**: Implement ONLY what is explicitly requested.
-
-- Don't add "nice to have" features
-- Don't create interfaces for single implementations
-- Don't add parameters "just in case"
-- If it can be 50 lines, don't write 200
-
-**Simplicity Check**: Before commit, ask:
-- Did I implement ONLY what was requested?
-- Is every abstraction necessary?
-- Can I delete anything and still meet requirements?
-
-#### Surgical Changes
-
-**Rule**: Touch ONLY the code essential to the task.
-
-- Change only what's necessary
-- Match existing style conventions exactly
-- If you find unrelated issues: REPORT them, don't fix them
-- Only remove code that YOUR changes made orphan
-
-**Red Flags**:
-- "Drive-by" improvements to unrelated code
-- Reformatting unchanged files
-- Deleting code you didn't orphan
-
-#### Goal-Driven Execution
-
-**Rule**: Transform vague requests into testable success criteria.
-
-| Vague Request | Testable Goal |
-|---------------|---------------|
-| "Fix the bug" | "Write test that reproduces bug, make it pass" |
-| "Make it faster" | "Reduce response time from Xms to Yms" |
-| "Add login" | "User authenticates with email/password, receives JWT" |
-
-```markdown
-## Success Criteria
-
-1. [ ] [Specific, testable criterion]
-2. [ ] [Verification command: `npm test`]
-3. [ ] [Expected output: all tests pass]
-```
-
----
-
-### 1. Explicit Context - No Implicit Memory
-
-**Rule**: All shared knowledge must be explicitly in files. Never assume implicit context.
-
-```
-NO: "Remember we said earlier that..."
-YES: "Read the file `.ai/project/features/FEATURE_X/50_state.md`"
-```
-
-### 2. Immutable Roles
-
-**Rule**: One Claude instance = one fixed role during the entire session.
+One Claude instance = one fixed role during the entire session.
 
 - Don't switch from Backend to Frontend mid-task
 - Don't implement code if you're QA
 - Don't make design decisions if you're Backend/Frontend
 
-### 3. Workflow is Law
+### 5. Workflow Sequence
 
-**Rule**: Follow the defined YAML workflow without skipping stages.
+Follow the defined workflow without skipping stages.
 
 - Don't implement before Planning is `COMPLETED`
 - Don't QA before Implementation is `COMPLETED`
 - If you need to change workflow, document why in `DECISIONS.md`
 
-### 4. Synchronized State
+### 6. Synchronized State
 
-**Rule**: Use `50_state.md` to communicate state between roles.
+Use `50_state.md` to communicate state between roles.
 
-- Update your `50_state.md` frequently
-- Read `50_state.md` from other roles before starting
+- Update `50_state.md` frequently
+- Read other roles' state before starting
 - Use standard states: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, `APPROVED`, `REJECTED`
-
-### 5. Git as Synchronization
-
-**Rule**: Git is the synchronization mechanism between instances.
-
-- `git pull` before starting work
-- `git push` after completing tasks
-- Clear and descriptive commits
-- Don't force push unless absolutely necessary
 
 ---
 
 ## Context Window Management
 
-**Rule**: Manage context as a limited resource. Treat memory like a Commodore 64.
+Treat context as a limited resource.
 
-### Context Management Principles
-
-```
-Context Window ~ 100k tokens (approximately)
-   - Code read
-   - Conversation history
-   - Tool results
-   - Errors and outputs
-
-Warning Signs of Full Context:
-   - Slower responses
-   - "Forgetting" recent information
-   - Incomplete or cut-off responses
-   - Reference errors to previous code
-```
-
-### Signals to Restart Session
-
-- Read more than 20 files in the session
-- Been in the same session for more than 2 hours
-- Conversation has more than 50 messages
+### Signs to Restart Session
+- Read more than 20 files
+- Session longer than 2 hours
+- More than 50 messages
 - Forgetting things discussed earlier
-- Responses becoming slower or incomplete
 
 ### Session Restart Protocol
-
 1. Save current state in `50_state.md`
 2. Commit all work with checkpoint message
 3. Document resume point (last checkpoint, next task, relevant files)
 4. Start new session reading: role.md, 50_state.md, relevant files
 
+See `core/docs/SESSION_CONTINUITY.md` for detailed strategies.
+
 ---
 
-## Comprehension Debt Management (The 80% Problem)
+## Comprehension Debt (The 80% Problem)
 
-**Source**: Addy Osmani, "The 80% Problem in Agentic Coding" (2026)
+Code generation speed should not exceed comprehension speed.
 
-**Rule**: Code generation speed must NOT exceed comprehension speed.
-
-> *"It's trivially easy to review code you could no longer write from scratch."* - Addy Osmani
-
-### Comprehension Debt Indicators
+### Indicators
 
 | Level | Indicator | Action |
 |-------|-----------|--------|
-| CRITICAL | "Works but I don't know why" | STOP - Understand before continuing |
-| CRITICAL | Can't predict behavior for new inputs | Write more tests, study edge cases |
-| HIGH | Need to re-read file for every change | Document key concepts |
-| MEDIUM | Copy patterns without understanding why | Study the pattern first |
-| LOW | Can explain code from memory | Healthy state |
+| Critical | "Works but I don't know why" | Stop and understand before continuing |
+| High | Need to re-read file for every change | Document key concepts |
+| Medium | Copy patterns without understanding why | Study the pattern first |
+| Healthy | Can explain code from memory | Continue |
 
-### Mandatory Comprehension Checkpoints
+### Before Marking COMPLETED
 
-Before marking COMPLETED, verify:
-
-```markdown
-## Comprehension Checkpoint
-
-- [ ] Can explain what code does WITHOUT looking at it
-- [ ] Could rewrite it if necessary
-- [ ] Understand ALL abstractions used
-- [ ] No "magic" code without explanation
-- [ ] Could explain this to a new team member
-- [ ] Decisions documented with "why"
-
-**Score**: [1-5] (minimum 3 to continue)
-```
-
-### Mandatory Self-Review (Karpathy-Enhanced)
-
-Before completing code, the agent must critique their own work:
-
-```markdown
-## Self-Review Checklist
-
-### Think Before Coding
-- [ ] Did I state my assumptions before coding?
-- [ ] Did I ask clarifying questions when uncertain?
-- [ ] Did I push back on suboptimal approaches?
-- [ ] No blind assumptions were made?
-
-### Simplicity First
-- [ ] Did I implement ONLY what was requested?
-- [ ] Are there features I added that weren't asked for?
-- [ ] Is every abstraction necessary?
-- [ ] Can I delete anything and still meet requirements?
-- [ ] Could this be 50% shorter doing the same thing?
-
-### Surgical Changes
-- [ ] Every changed line is necessary for this task?
-- [ ] No "drive-by" improvements or cleanups?
-- [ ] Existing style conventions preserved?
-- [ ] Only MY orphaned code was removed?
-
-### Goal-Driven Execution
-- [ ] Success criteria were defined before coding?
-- [ ] All success criteria are now met?
-- [ ] Verification command runs successfully?
-- [ ] No regressions in existing tests?
-
-### Comprehension Check
-- [ ] Can explain code WITHOUT looking at it?
-- [ ] Could rewrite it if necessary?
-- [ ] No "magic" code without explanation?
-```
-
----
-
-## Trust Model (Supervision Calibration)
-
-**Source**: Addy Osmani, "Beyond Vibe Coding" (2026)
-
-**Rule**: Amount of supervision depends on three factors: Familiarity, Trust, Control.
-
-```
-FAMILIARITY ──> TRUST ──> CONTROL
-
-Do you know the      Has it delivered    How much supervision
-technology/task?     well before?        does it need?
-```
-
-### Control Levels
-
-| Level | When to Apply | What It Means |
-|-------|---------------|---------------|
-| HIGH | New technology, critical code (auth, payments), first feature of a type | Review each step, frequent checkpoints, pair review |
-| MEDIUM | Known technology, established patterns | Review at main checkpoints, mandatory tests |
-| LOW | Features similar to previous ones, high confidence | Final review, trust automated tests |
-
-### Decision Matrix
-
-| Situation | Familiarity | Control |
-|-----------|-------------|---------|
-| First auth feature | Low | HIGH |
-| Second auth feature (same pattern) | High | MEDIUM |
-| Tenth similar CRUD | High | LOW |
-| New external API | Low | HIGH |
-| Refactor of known code | High | LOW |
-| Feature with security requirements | Variable | HIGH always |
-
-### The 70% Problem Awareness
-
-> "AI helps you get to 70% fast, but the remaining 30% is where the real complexity is."
-
-**Implication for Trust Model:**
-- Initial 70% can have LOW CONTROL
-- Final 30% (edge cases, security, integration) needs HIGH CONTROL
-- Adjust supervision as feature progresses
+Verify you can:
+- Explain what the code does without looking at it
+- Rewrite it if necessary
+- Explain all abstractions used
+- Explain decisions to a new team member
 
 ---
 
 ## Workflow Evolution (Governance)
 
-**IMPERATIVE Rule**: No new functionality, trend, tool, or refactor can be implemented without exhaustive prior analysis.
+The workflow evolves deliberately, not by fashion. Every addition demonstrates value before implementation.
 
-### Fundamental Principle
+### Evaluation Criteria
 
-> *"The workflow evolves deliberately, not by fashion. Every addition must demonstrate value before implementation."*
+| Criterion | Weight |
+|----------|--------|
+| Solves a real problem we have | 30% |
+| Proven in production by others | 20% |
+| Integrates with our system | 20% |
+| Benefit justifies complexity | 15% |
+| Maintainable long-term | 15% |
 
-### Mandatory Validation Process
+Minimum threshold: weighted score ≥ 3.5/5 to proceed.
 
-Before implementing ANY workflow change:
-
-```
-EVOLUTION VALIDATION GATE
-
-1. ANALYSIS ──> 2. EVALUATION ──> 3. PROOF ──> 4. DECISION
-
-NO validation = Don't implement
-WITH validation = Proceed with implementation
-```
-
-### Evaluation Scoring
-
-| Criterion | Weight | Score (1-5) |
-|----------|--------|-------------|
-| **Real Problem** - Does it solve a problem we have? | 30% | |
-| **Maturity** - Is it proven in production by others? | 20% | |
-| **Compatibility** - Does it integrate with our system? | 20% | |
-| **Complexity** - Does benefit justify complexity? | 15% | |
-| **Maintainability** - Can we maintain it long-term? | 15% | |
-
-**Minimum threshold**: Score >= 3.5 to proceed
-
-### Prohibitions
-
-- Implementing trends "because they're fashionable"
-- Adding tools without concrete use case
-- Major refactors without impact analysis
-- Adopting technology just because "everyone uses it"
-- Implementing features "just in case we need them"
+Avoid: implementing trends because they're fashionable, adding tools without concrete use cases, major refactors without impact analysis.
 
 ---
 
-## Permissions and Restrictions
+## Permissions
 
-### Reading
-
-Each role can read:
-- Their own role markdown (`.md`)
-- All project rules (`rules/*.md`)
-- Workflow YAMLs
+### Reading — Each role can read:
+- Their own role definition
+- All rules files
+- Workflow definitions
 - Feature states (`50_state.md`)
 - Code relevant to their role
 
-### Writing
-
-Each role can only write to:
+### Writing — Each role can only write to:
 - Their assigned code area
 - Their section of `50_state.md`
-- Report/tasks files assigned to their role
+- Files assigned to their role
 
-**IMPORTANT**: Only **Planner** can modify project rules (with justification in `DECISIONS.md`).
+Only the Planner role can modify project rules (with justification in `DECISIONS.md`).
 
 ---
 
 ## Global Prohibitions
-
-All roles are **prohibited** from:
 
 1. Committing code without tests
 2. Pushing with failing tests
@@ -430,33 +159,13 @@ All roles are **prohibited** from:
 
 ---
 
-## Conflict Management
+## Scoped Rules Reference
 
-### Git Conflicts
-
-1. `git pull` before working
-2. If conflict: stash, pull, stash pop, resolve manually
-3. Never use `--force` without consulting
-
-### Design Conflicts
-
-1. Report in `50_state.md` with `BLOCKED` status
-2. Planner makes the decision
-3. Decision documented in `DECISIONS.md`
-
----
-
-## Documentation File Locations
-
-| Type | Location | Description |
-|------|----------|-------------|
-| Framework Rules | `plugins/.../core/rules/` | These rules (don't modify) |
-| Project Rules | `.ai/extensions/rules/` | Project-specific rules |
-| Role Definitions | `plugins/.../core/roles/` | Base role definitions |
-| Workflows | `.ai/extensions/workflows/` | Project workflows |
-| Trust Model | `.ai/extensions/trust/` | Project trust configuration |
-| Features | `.ai/project/features/` | Feature specifications |
-| Scripts | `.ai/extensions/scripts/` | Utility scripts |
+| Rule File | Applies To | Content |
+|-----------|-----------|---------|
+| `testing-rules.md` | Test files (`*Test.php`, `*.test.ts`, etc.) | TDD workflow, coverage, Ralph Wiggum loop |
+| `security-rules.md` | Auth, security, payment paths | Trust model, supervision calibration, security prohibitions |
+| `git-rules.md` | Git operations | Branching, commits, conflict management, multi-agent sync |
 
 ---
 
