@@ -1,7 +1,7 @@
 # Session Continuity Guide
 
-**Version**: 1.0
-**Last Updated**: 2026-02-01
+**Version**: 2.0 (Provider-aware)
+**Last Updated**: 2026-02-08
 
 ---
 
@@ -9,33 +9,49 @@
 
 Session continuity is the practice of preserving and restoring context across Claude sessions. This is essential because:
 
-1. **Context windows are finite** - Claude can only hold limited information
-2. **Sessions end unexpectedly** - Timeouts, crashes, or natural breaks
-3. **Work spans multiple sessions** - Complex features take days or weeks
-4. **Multiple agents collaborate** - Handoffs between roles require context transfer
+1. **Context windows are finite** — even with 1M tokens (Opus 4.6 beta), sessions eventually fill
+2. **Sessions end unexpectedly** — Timeouts, crashes, or natural breaks
+3. **Work spans multiple sessions** — Complex features take days or weeks
+4. **Multiple agents collaborate** — Handoffs between roles require context transfer
 
-This guide explains how to maintain continuity using the snapshot/restore system.
+This guide explains how to maintain continuity. Thresholds adapt to the active context_management provider (see `core/providers.yaml`).
 
 ---
 
 ## Proactive Context Management
 
-### The 70% Rule
+### Provider-Aware Thresholds
 
-**Don't wait for auto-compact at 95%.** When context reaches ~70% capacity:
+Thresholds depend on the active context_management provider:
+
+| Signal | Manual Snapshots (standard) | Compaction-Aware (advanced) |
+|--------|----------------------------|----------------------------|
+| Compact at capacity | 70% | 85% |
+| Max files read | 20 | 50 |
+| Max session duration | 2 hours | 4 hours |
+| Max messages | 50 | 150 |
+| Snapshot frequency | Every 30-45 min | At milestones only |
+
+**Provider detection**: Read `core/providers.yaml` → `providers.context_management`. If `auto`, detect tier from model identity (advanced = Opus 4.6+, standard = everything else).
+
+### The Capacity Rule
+
+**Don't wait for auto-compact at 95%.** When context reaches the threshold for your provider:
 
 1. **Option A**: Run `/compact` to summarize and reduce context
 2. **Option B**: Create `/workflows:snapshot` and start fresh session
 
+With the **compaction-aware provider** (Opus 4.6+), the Compaction API auto-summarizes server-side, so snapshots are primarily for role handoffs and session boundaries, not context exhaustion.
+
 ### Signs You Need to Act
 
-| Signal | Action |
-|--------|--------|
-| Responses feel slower | Run `/context`, then `/compact` if >70% |
-| Read >15 files this session | Consider snapshot + fresh start |
-| Working >1.5 hours continuously | Create checkpoint snapshot |
-| Switching between unrelated tasks | Use `/clear` between tasks |
-| Complex debugging ahead | Check capacity first |
+| Signal | Standard (Opus 4.5) | Advanced (Opus 4.6+) |
+|--------|---------------------|----------------------|
+| Responses feel slower | `/compact` if >70% | `/compact` if >85% |
+| Files read threshold | >15 files → snapshot | >40 files → snapshot |
+| Duration threshold | >1.5 hours → checkpoint | >3 hours → checkpoint |
+| Switching tasks | `/clear` between tasks | `/clear` between tasks |
+| Complex debugging ahead | Check capacity first | Check capacity first |
 
 ### Quick Context Commands
 

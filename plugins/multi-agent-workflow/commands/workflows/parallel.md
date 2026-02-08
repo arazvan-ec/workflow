@@ -1,40 +1,160 @@
 ---
 name: workflows:parallel
-description: "Launch multiple agents in parallel with git worktree isolation"
-argument_hint: <feature-id> [--roles=backend,frontend,qa] [--cleanup]
+description: "Launch multiple agents in parallel. Auto-detects provider: Agent Teams (Opus 4.6+) or worktrees+tmux (fallback)."
+argument_hint: <feature-id> [--roles=backend,frontend,qa] [--provider=auto|agent-teams|worktrees] [--cleanup]
 ---
 
 # Multi-Agent Workflow: Parallel
 
-Launch multiple AI agents working in parallel, each in an isolated git worktree environment.
+Launch multiple AI agents working in parallel on a feature. The command auto-resolves the best parallelization provider based on the running model and available tools.
 
 ## Usage
 
 ```bash
-# Launch with default roles (backend, frontend, qa)
-/workflows:parallel user-authentication
+# Standard (auto-detects provider)
+/workflows:parallel user-authentication --roles=backend,frontend,qa
 
-# Launch specific roles
-/workflows:parallel payment-system --roles=backend,frontend
-
-# Launch only backend and qa
-/workflows:parallel api-refactor --roles=backend,qa
+# Force a specific provider
+/workflows:parallel user-authentication --provider=agent-teams
+/workflows:parallel user-authentication --provider=worktrees
 
 # Cleanup after completion
 /workflows:parallel user-authentication --cleanup
 ```
 
-## What This Command Does
+## Provider Resolution
 
-### 1. Creates Git Worktrees
+Before launching agents, resolve the parallelization provider:
 
-For each role, creates an isolated working directory:
+```
+1. READ core/providers.yaml → providers.parallelization
+
+2. IF "auto":
+   ├── Is TeammateTool available in your tool list?
+   │   YES → provider = agent-teams
+   │   NO  → provider = worktrees
+   │
+   └── Log: "Resolved parallelization provider: {provider}"
+
+3. IF explicit → use that provider directly
+
+4. IF --provider flag passed → override config (session only)
+```
+
+## Provider: Agent Teams
+
+**Available when**: TeammateTool is in the tool list (Opus 4.6+ with `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`)
+
+### How It Works
+
+```
+┌──────────────────────────────────────────────────────────┐
+│              ORCHESTRATOR (current session)                │
+│                                                          │
+│  1. Load feature context from 50_state.md                │
+│  2. Parse task assignments per role from 30_tasks.md     │
+│  3. Spawn teammates via TeammateTool                     │
+│                                                          │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐     │
+│  │  Teammate:   │  │  Teammate:   │  │  Teammate:   │     │
+│  │  BACKEND     │  │  FRONTEND    │  │  QA           │     │
+│  │             │  │             │  │             │     │
+│  │  Reads:      │  │  Reads:      │  │  Reads:      │     │
+│  │  - backend.md│  │  - frontend  │  │  - qa.md     │     │
+│  │  - 50_state  │  │  - 50_state  │  │  - 50_state  │     │
+│  │  - tasks_be  │  │  - tasks_fe  │  │  - tasks_qa  │     │
+│  │             │  │             │  │             │     │
+│  │  Writes:     │  │  Writes:     │  │  Writes:     │     │
+│  │  - src/      │  │  - frontend/ │  │  - tests/    │     │
+│  │  - tests/    │  │  - tests/    │  │  - 50_state  │     │
+│  │  - 50_state  │  │  - 50_state  │  │             │     │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘     │
+│         │                │                │             │
+│         └────────┬───────┘────────────────┘             │
+│                  ▼                                       │
+│  4. Monitor progress via shared task list               │
+│  5. Synchronize 50_state.md on completion               │
+│  6. Report results                                       │
+└──────────────────────────────────────────────────────────┘
+```
+
+### Orchestrator Prompt for Each Teammate
+
+When spawning a teammate, provide this context:
+
+```markdown
+You are the {ROLE} agent for feature "{FEATURE_ID}".
+
+## Your Role
+Read: plugins/multi-agent-workflow/core/roles/{role}.md
+
+## Feature Context
+Read: .ai/project/features/{feature}/50_state.md
+Read: .ai/project/features/{feature}/FEATURE_*.md
+
+## Your Tasks
+Read: .ai/project/features/{feature}/30_tasks_{role}.md
+
+## Rules
+Read: plugins/multi-agent-workflow/core/rules/framework_rules.md
+Read: plugins/multi-agent-workflow/core/rules/testing-rules.md
+
+## Coordination
+- Update your section in 50_state.md after each checkpoint
+- Follow TDD: Red → Green → Refactor
+- SOLID score must meet thresholds at each checkpoint
+- If blocked after 10 iterations, mark BLOCKED in 50_state.md
+```
+
+### Cleanup (Agent Teams)
+
+```bash
+/workflows:parallel user-auth --cleanup
+# Agent Teams cleanup is automatic — no filesystem artifacts
+# Just verify 50_state.md is synchronized
+```
+
+---
+
+## Provider: Worktrees + tmux
+
+**Available when**: Always (fallback provider)
+
+**Prerequisites**: tmux >= 3.0, git >= 2.30
+
+### How It Works
+
+```
+┌──────────────────────────────────────────────────────────┐
+│              TMUX SESSION: workflow-{feature}              │
+│                                                          │
+│  ┌──────────────────────┬──────────────────────┐        │
+│  │                      │                      │        │
+│  │     BACKEND           │     FRONTEND          │        │
+│  │     :3001             │     :3002             │        │
+│  │                      │                      │        │
+│  │  Worktree:            │  Worktree:            │        │
+│  │  .worktrees/backend/  │  .worktrees/frontend/ │        │
+│  │                      │                      │        │
+│  ├──────────────────────┴──────────────────────┤        │
+│  │                                              │        │
+│  │                    QA                         │        │
+│  │                   :3003                       │        │
+│  │  Worktree: .worktrees/qa/                    │        │
+│  │                                              │        │
+│  └──────────────────────────────────────────────┘        │
+└──────────────────────────────────────────────────────────┘
+```
+
+### Step 1: Create Git Worktrees
+
+For each role, create an isolated working directory:
 
 ```
 .worktrees/
-├── backend/   (branch: feature/user-authentication-backend)
-├── frontend/  (branch: feature/user-authentication-frontend)
-└── qa/        (branch: feature/user-authentication-qa)
+├── backend/   (branch: feature/{feature}-backend)
+├── frontend/  (branch: feature/{feature}-frontend)
+└── qa/        (branch: feature/{feature}-qa)
 ```
 
 Each worktree:
@@ -43,9 +163,7 @@ Each worktree:
 - Can run its own dev server
 - Shares git history with main repo
 
-### 2. Allocates Ports
-
-Each agent gets a dedicated port for dev servers:
+### Step 2: Allocate Ports
 
 | Role | Port |
 |------|------|
@@ -53,121 +171,25 @@ Each agent gets a dedicated port for dev servers:
 | frontend | 3002 |
 | qa | 3003 |
 
-### 3. Launches tmux Session
-
-Creates a tmux session with panes for each agent:
-
-```
-┌─────────────────────┬─────────────────────┐
-│                     │                     │
-│     BACKEND         │     FRONTEND        │
-│     :3001           │     :3002           │
-│                     │                     │
-├─────────────────────┴─────────────────────┤
-│                                           │
-│                    QA                     │
-│                   :3003                   │
-│                                           │
-└───────────────────────────────────────────┘
-```
-
-### 4. Sets Up Environment
-
-Each pane has:
-- `AGENT_ROLE` - Current role (backend/frontend/qa)
-- `AGENT_PORT` - Allocated port
-- `FEATURE_ID` - Feature being worked on
-- Working directory set to worktree
-
-## Output
-
-```
-╔════════════════════════════════════════════════════════════╗
-║          PARALLEL SESSION CREATED                           ║
-╚════════════════════════════════════════════════════════════╝
-
-Session: workflow-user-authentication
-Feature: user-authentication
-
-Agents launched:
-  [0] backend    @ .worktrees/backend                    :3001
-  [1] frontend   @ .worktrees/frontend                   :3002
-  [2] qa         @ .worktrees/qa                         :3003
-
-Attach with:
-  tmux attach -t workflow-user-authentication
-
-Tmux shortcuts:
-  Ctrl+b d       - Detach from session
-  Ctrl+b arrow   - Navigate between panes
-  Ctrl+b z       - Zoom current pane
-```
-
-## tmux Navigation
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+b d` | Detach from session (keeps running) |
-| `Ctrl+b arrow` | Move between panes |
-| `Ctrl+b z` | Zoom/unzoom current pane |
-| `Ctrl+b [` | Enter scroll mode (q to exit) |
-| `Ctrl+b "` | Split pane horizontally |
-| `Ctrl+b %` | Split pane vertically |
-
-## Workflow Example
-
-```bash
-# 1. Plan the feature first
-/workflows:plan user-profile
-
-# 2. Launch parallel agents
-/workflows:parallel user-profile --roles=backend,frontend
-
-# 3. Attach to the session
-tmux attach -t workflow-user-profile
-
-# 4. Work in each pane
-#    - Backend pane: implement API
-#    - Frontend pane: implement UI
-
-# 5. Each agent commits to its branch
-#    Backend: feature/user-profile-backend
-#    Frontend: feature/user-profile-frontend
-
-# 6. When done, cleanup
-/workflows:parallel user-profile --cleanup
-```
-
-## Benefits
-
-1. **No Conflicts**: Each agent has isolated filesystem
-2. **Independent Builds**: One agent can break build without affecting others
-3. **Easy Review**: Each worktree has clean diff of one role's work
-4. **Parallel Progress**: Backend and frontend work simultaneously
-5. **Clear Boundaries**: Each role stays in its lane
-
-## Implementation
-
-This command executes:
+### Step 3: Launch tmux Session
 
 ```bash
 PARALLEL_DIR=".ai/workflow/parallel"
-
 source "${PARALLEL_DIR}/tmux_orchestrator.sh"
-
-if [[ "$ARGUMENTS" == *"--cleanup"* ]]; then
-    tmux_kill_session "workflow-${FEATURE_ID}"
-else
-    tmux_create_session "workflow-${FEATURE_ID}" "${ROLES}" "${FEATURE_ID}"
-fi
+tmux_create_session "workflow-${FEATURE_ID}" "${ROLES}" "${FEATURE_ID}"
 ```
 
-## Cleanup
+### Step 4: Set Up Environment
 
-When development is complete:
+Each pane has:
+- `AGENT_ROLE` — Current role (backend/frontend/qa)
+- `AGENT_PORT` — Allocated port
+- `FEATURE_ID` — Feature being worked on
+- Working directory set to worktree
+
+### Cleanup (Worktrees)
 
 ```bash
-# Cleanup session and worktrees
 /workflows:parallel user-auth --cleanup
 
 # This will:
@@ -176,9 +198,39 @@ When development is complete:
 # 3. Release allocated ports
 ```
 
+---
+
+## Output
+
+Both providers produce the same output format:
+
+```
+╔════════════════════════════════════════════════════════════╗
+║          PARALLEL SESSION CREATED                          ║
+╚════════════════════════════════════════════════════════════╝
+
+Provider: {agent-teams | worktrees}
+Session: workflow-{feature}
+Feature: {feature}
+
+Agents launched:
+  [0] backend    {provider-specific details}
+  [1] frontend   {provider-specific details}
+  [2] qa         {provider-specific details}
+
+State file: .ai/project/features/{feature}/50_state.md
+
+Next steps:
+  - Each agent works on assigned tasks from 30_tasks.md
+  - Progress tracked in 50_state.md
+  - Quality gates enforced at each checkpoint
+```
+
+---
+
 ## Merging Work
 
-After parallel development:
+After parallel development (same for both providers):
 
 1. Each agent pushes their branch
 2. Create PRs for each branch
@@ -191,27 +243,44 @@ git merge feature/user-auth-backend
 git merge feature/user-auth-frontend
 ```
 
-## Requirements
+---
 
-- **tmux** >= 3.0: `apt install tmux` or `brew install tmux`
-- **git** >= 2.30: For worktree support
+## Provider Comparison
+
+| Aspect | Agent Teams | Worktrees + tmux |
+|--------|------------|------------------|
+| **Communication** | Direct (shared task list) | File-based (50_state.md + git) |
+| **Isolation** | Context window per agent | Filesystem per agent |
+| **Setup** | Automatic | tmux + git worktree commands |
+| **Cleanup** | Automatic | Manual (--cleanup) |
+| **Visibility** | Orchestrator monitors | tmux panes |
+| **Model requirement** | Opus 4.6+ | Any |
+| **External deps** | None | tmux, git worktree |
+
+Both providers:
+- Use `50_state.md` for persistent state
+- Enforce role definitions (one role per agent)
+- Apply quality gates (TDD, SOLID, checkpoints)
+- Support the same `/workflows:parallel` interface
+
+---
 
 ## Tips
 
 1. **Plan first**: Clear specs reduce conflicts between agents
 2. **Define contracts**: API contracts let frontend mock while backend implements
 3. **Regular syncs**: Merge main periodically to avoid drift
-4. **One role per worktree**: Don't mix responsibilities
+4. **One role per agent**: Don't mix responsibilities
 
 ## Related Commands
 
-- `/workflows:plan` - Plan feature before parallel work
-- `/workflows:status` - Check all agent status
-- `/workflows:progress` - Track session progress
-- `/workflows:sync` - Sync state between agents
+- `/workflows:plan` — Plan feature before parallel work
+- `/workflows:work` — Execute tasks for a specific role
+- `/workflows:status` — Check all agent status
+- `/workflows:sync` — Sync state between agents
 
-## Source
+## Sources
 
-Inspired by:
-- [workmux](https://github.com/raine/workmux) - Git worktrees + tmux
-- [uzi](https://github.com/devflowinc/uzi) - Parallel coding agents
+- [Claude Code Agent Teams](https://www.anthropic.com/news/claude-opus-4-6) — Native parallel agents (Opus 4.6+)
+- [workmux](https://github.com/raine/workmux) — Git worktrees + tmux
+- [uzi](https://github.com/devflowinc/uzi) — Parallel coding agents

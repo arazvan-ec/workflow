@@ -1,6 +1,6 @@
 ---
 name: worktree-manager
-description: "Manages git worktrees for parallel multi-role development with isolated working directories."
+description: "Manages git worktrees for parallel multi-role development. This is the fallback provider for parallelization when Agent Teams is not available. Use directly only when you need fine-grained worktree control outside of /workflows:parallel."
 hooks:
   PostToolUse:
     - matcher: Bash
@@ -9,14 +9,26 @@ hooks:
 
 # Worktree Manager Skill
 
-Manage git worktrees for parallel development.
+Manage git worktrees for parallel development. This skill is the **worktrees provider implementation** for the parallelization capability.
 
-## What This Skill Does
+## Provider Role
 
-- Create isolated worktrees for parallel work
-- Enable multiple roles to work simultaneously
-- Manage worktree lifecycle
-- Facilitate parallel development
+```
+/workflows:parallel
+    │
+    ├── provider: agent-teams → TeammateTool (Opus 4.6+)
+    │
+    └── provider: worktrees → THIS SKILL (fallback, any model)
+```
+
+When `/workflows:parallel` resolves to the `worktrees` provider, it delegates to this skill. You can also invoke it directly for fine-grained worktree control.
+
+## When to Use Directly
+
+- You need worktrees outside of the parallel workflow
+- You want to manage worktrees for non-standard configurations
+- You're debugging worktree issues
+- `/workflows:parallel` is not needed (single extra worktree)
 
 ## Why Worktrees?
 
@@ -38,13 +50,8 @@ With Worktrees: Multiple working directories
 ### Create Worktree
 
 ```bash
-# Create worktree for a feature
 git worktree add ../project-backend feature/user-auth
-
-# Create worktree for specific role
 git worktree add ../project-frontend feature/user-auth
-
-# Create from specific branch
 git worktree add ../project-qa main
 ```
 
@@ -52,21 +59,13 @@ git worktree add ../project-qa main
 
 ```bash
 git worktree list
-
-# Output:
-# /home/user/project          abc1234 [main]
-# /home/user/project-backend  def5678 [feature/user-auth]
-# /home/user/project-frontend ghi9012 [feature/user-auth]
 ```
 
 ### Remove Worktree
 
 ```bash
-# Remove worktree (after merging)
 git worktree remove ../project-backend
-
-# Force remove (if dirty)
-git worktree remove --force ../project-backend
+git worktree remove --force ../project-backend  # if dirty
 ```
 
 ### Prune Stale Worktrees
@@ -76,8 +75,6 @@ git worktree prune
 ```
 
 ## Parallel Development Setup
-
-### Setup for Feature
 
 ```bash
 # 1. Create feature branch
@@ -89,15 +86,13 @@ git worktree add ../project-frontend feature/user-auth
 
 # 3. Start services in each worktree
 # Terminal 1 (Backend):
-cd ../project-backend
-php -S localhost:8000 -t public/
+cd ../project-backend && php -S localhost:8000 -t public/
 
 # Terminal 2 (Frontend):
-cd ../project-frontend
-npm run dev
+cd ../project-frontend && npm run dev
 ```
 
-### Directory Structure
+## Directory Structure
 
 ```
 /home/user/
@@ -109,66 +104,14 @@ npm run dev
     └── .git → ../project/.git
 ```
 
-## Multi-Role Workflow
-
-```bash
-# Planner (main repo)
-cd /home/user/project
-/workflows:plan user-auth
-
-# Backend (worktree 1)
-cd /home/user/project-backend
-/workflows:work user-auth --mode=roles --role=backend
-
-# Frontend (worktree 2)
-cd /home/user/project-frontend
-/workflows:work user-auth --mode=roles --role=frontend
-
-# QA (main repo, after implementation)
-cd /home/user/project
-/workflows:review user-auth
-```
-
-## Synchronization
-
-```bash
-# In any worktree, pull latest changes
-git pull origin feature/user-auth
-
-# Push from any worktree
-git push origin feature/user-auth
-
-# All worktrees see the same commits
-```
-
 ## Cleanup After Feature
 
 ```bash
-# After feature merged
-git checkout main
-git pull
-
-# Remove worktrees
+git checkout main && git pull
 git worktree remove ../project-backend
 git worktree remove ../project-frontend
-
-# Prune any stale references
 git worktree prune
-
-# Delete feature branch
 git branch -d feature/user-auth
-```
-
-## Integration with Workflow
-
-```bash
-# Create worktrees for feature
-/multi-agent-workflow:setup-worktrees user-auth
-
-# Internally:
-# 1. git worktree add ../project-backend feature/user-auth
-# 2. git worktree add ../project-frontend feature/user-auth
-# 3. Report paths for parallel development
 ```
 
 ## Best Practices

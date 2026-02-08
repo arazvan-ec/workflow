@@ -1,7 +1,7 @@
 # Context Engineering for Multi-Agent Workflows
 
-**Version**: 2.0.0
-**Added in**: Plugin v2.4.0, updated in v2.5.0
+**Version**: 3.0.0
+**Added in**: Plugin v2.4.0, updated in v2.5.0, provider-aware fork strategy in v2.6.0
 **Based on**: [Fowler: Context Engineering for Coding Agents](https://martinfowler.com/articles/exploring-gen-ai/context-engineering-coding-agents.html), [Hightower: Build Agent Skills Faster with Claude Code 2.1](https://medium.com/@richardhightower/build-agent-skills-faster-with-claude-code-2-1-release-6d821d5b8179)
 
 ---
@@ -108,13 +108,55 @@ Parent Context                    Forked Context
 └─────────────┘                  └──────────────────┘
 ```
 
+### Fork Strategy Providers
+
+The fork decision depends on the active provider (see `core/providers.yaml` → `fork_strategy`):
+
+#### Aggressive Fork (standard tier — Opus 4.5, Sonnet, Haiku)
+
+Fork everything marked with `context: fork`. This protects the limited context window.
+
 **Forked skills** (7): consultant, token-advisor, coverage-checker, solid-analyzer, spec-merger, changelog-generator, mcp-connector
 
 **Forked agents** (7): security-review, performance-review, ddd-compliance, code-review-ts, agent-native-reviewer, code-simplicity-reviewer, pattern-recognition-specialist
 
-**When to fork a skill**:
-- It reads more than 10 files
-- It generates output longer than 200 lines
+**When to fork**: Always, if declared with `context: fork`.
+
+#### Selective Fork (advanced tier — Opus 4.6+ with 200K-1M context)
+
+With larger context windows, fork only when isolation is truly needed:
+
+**Always fork** (regardless of tier):
+- consultant (7-layer deep analysis, always heavy)
+- security-review (sensitive — isolation is a security feature, not just a space optimization)
+- mcp-connector (external services — isolation prevents side effects)
+
+**Fork only when heavy** (convert to inline when focused):
+- coverage-checker: Fork when full project scan, inline when single module
+- changelog-generator: Typically lightweight (reads git log), inline by default
+- token-advisor: Quick context check, inline by default
+- spec-merger: Fork when merging multiple specs, inline for single spec
+
+**Fork decision thresholds** (selective mode):
+- Reads > 30 files → fork
+- Generates > 500 lines of output → fork
+- Cross-codebase analysis → fork
+- Connects to external services → fork
+- Single-domain, focused analysis → inline
+
+#### Detection
+
+```
+1. READ core/providers.yaml → providers.fork_strategy
+2. IF "auto" → detect tier from model identity
+3. advanced tier → selective fork
+4. standard/lightweight tier → aggressive fork
+```
+
+### When to fork a skill (general guidelines)
+
+- It reads more than 10 files (aggressive) or 30 files (selective)
+- It generates output longer than 200 lines (aggressive) or 500 lines (selective)
 - It performs cross-codebase analysis
 - It connects to external services
 - Its output is consumed as a summary, not line-by-line

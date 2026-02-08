@@ -43,9 +43,9 @@ if iterations >= 10:
 
 - **Completing a logical unit**: Domain layer, component, endpoint
 - **After multiple fix iterations**: Tests finally passing
-- **Context feels heavy**: Responses slowing down
+- **Context feels heavy**: Responses slowing down (check provider thresholds in `core/providers.yaml`)
 - **Before breaks**: End of session, lunch, etc.
-- **Every 1-2 hours**: Good practice
+- **Time-based**: Every 1-2 hours (standard provider) or every 2-4 hours (advanced provider)
 
 ## How to Use
 
