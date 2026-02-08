@@ -76,8 +76,10 @@ workflow/
 
 | Archivo | Propósito | Cuándo Consultarlo |
 |---------|-----------|-------------------|
-| [global_rules.md](./plugins/multi-agent-workflow/rules/global_rules.md) | Reglas universales | Siempre |
-| [ddd_rules.md](./plugins/multi-agent-workflow/rules/ddd_rules.md) | Arquitectura DDD | Backend |
+| [framework_rules.md](./plugins/multi-agent-workflow/core/rules/framework_rules.md) | Reglas operacionales core | Siempre (always-loaded) |
+| [testing-rules.md](./plugins/multi-agent-workflow/core/rules/testing-rules.md) | TDD, coverage, Ralph Wiggum | Al editar tests (scoped) |
+| [security-rules.md](./plugins/multi-agent-workflow/core/rules/security-rules.md) | Trust model, seguridad | Al tocar auth/security/payment (scoped) |
+| [git-rules.md](./plugins/multi-agent-workflow/core/rules/git-rules.md) | Branching, commits, conflictos | Durante operaciones git (scoped) |
 
 ---
 
@@ -243,10 +245,22 @@ Semana 1+: Dominio
 
 ---
 
+## Documentación de Referencia (On-Demand)
+
+| Archivo | Descripción | Cuándo Se Carga |
+|---------|-------------|-----------------|
+| [ROUTING_REFERENCE.md](./plugins/multi-agent-workflow/core/docs/ROUTING_REFERENCE.md) | Templates de preguntas, decision matrix | Routing complejo |
+| [CONTEXT_ENGINEERING.md](./plugins/multi-agent-workflow/core/docs/CONTEXT_ENGINEERING.md) | Context isolation, fork model, Queen Agent | Referencia técnica |
+| [KARPATHY_PRINCIPLES.md](./plugins/multi-agent-workflow/core/docs/KARPATHY_PRINCIPLES.md) | Principios de coding con IA | Referencia de principios |
+| [SESSION_CONTINUITY.md](./plugins/multi-agent-workflow/core/docs/SESSION_CONTINUITY.md) | Snapshots, metrics, context management | Sesiones largas |
+
+---
+
 ## Actualizaciones Recientes
 
 | Fecha | Cambio | Archivo Afectado |
 |-------|--------|------------------|
+| 2026-02 | v2.5.0: Scoped rules, slim CLAUDE.md, ROUTING_REFERENCE.md | core/rules/, core/docs/, CLAUDE.md |
 | 2026-02 | Sistema Living Specs | GLOSSARY.md, commands/workflows/specs.md |
 | 2026-02 | Nuevo comando /workflows:discover | commands/workflows/discover.md |
 | 2026-02 | Template de project profile | core/templates/project-profile-template.md |

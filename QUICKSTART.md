@@ -135,8 +135,9 @@ Esto genera automáticamente:
 | Concepto | Significado |
 |----------|-------------|
 | **Compound Engineering** | Cada tarea hace las siguientes más fáciles |
-| **Context Engineering** | Curar qué ve el modelo en cada momento (v2.4.0) |
-| **context: fork** | Agentes aislados que no contaminan tu contexto (v2.4.0) |
+| **Context Engineering** | Curar qué ve el modelo en cada momento |
+| **context: fork** | Agentes aislados que no contaminan tu contexto |
+| **Scoped Rules** | Reglas que se cargan solo al editar archivos relevantes |
 | **50_state.md** | Archivo con el estado actual (fuente de verdad) |
 | **Ralph Wiggum Loop** | Auto-corrección automática (máx 10 intentos) |
 | **TDD** | Tests primero, código después |

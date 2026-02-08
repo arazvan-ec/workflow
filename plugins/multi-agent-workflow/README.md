@@ -14,7 +14,15 @@ A **compound engineering** framework for Claude Code that coordinates multiple A
 - **Quality Gates**: Blocking checkpoints with auto-correction loops
 - **Compound Learning**: Capture insights from each feature
 
-### v2.4.0 New Features (Context Engineering & Claude Code 2.1+)
+### v2.5.0 New Features (Context Engineering v2)
+- **Scoped Rules**: 3 rule files (`testing-rules.md`, `security-rules.md`, `git-rules.md`) that load only when matching file types are edited
+- **Slim CLAUDE.md**: Reduced from ~514 to ~130 lines (~75% reduction). Detailed content moved to on-demand reference docs
+- **Routing Reference**: Question templates and decision matrix in `core/docs/ROUTING_REFERENCE.md` (loaded on-demand)
+- **Zero Duplication**: Single source of truth between CLAUDE.md and framework_rules.md
+- **Urgency Calibration**: Clear guidance language — no uppercase MANDATORY/CRITICAL/MUST/NEVER
+- **Combined always-loaded context**: ~300 lines (down from ~980, ~70% reduction)
+
+### v2.4.0 Features (Context Engineering & Claude Code 2.1+)
 - **Context Isolation**: Heavy skills and all review agents run with `context: fork` — isolated context windows that prevent pollution of the parent session
 - **Portable Governance**: Scoped lifecycle hooks (PreToolUse, PostToolUse, Stop) embedded in skill YAML frontmatter — governance travels with the skill
 - **Queen Agent Pattern**: `/workflows:route` can spawn forked sub-agents for parallel analysis before routing decisions
@@ -126,7 +134,7 @@ Backend complete + Frontend complete (parallel)
 ### Core Commands
 | Command | Description |
 |---------|-------------|
-| `/workflows:route` | **MANDATORY** entry point - routes to appropriate workflow |
+| `/workflows:route` | Primary entry point - routes to appropriate workflow |
 | `/workflows:role <role> <feature>` | Work as a specific role |
 | `/workflows:sync <feature>` | Synchronize state |
 | `/workflows:status <feature>` | View all roles' status |
@@ -369,10 +377,17 @@ plugins/multi-agent-workflow/
 │   ├── commit-formatter/
 │   ├── changelog-generator/
 │   └── layer-validator/
-├── rules/
-│   ├── global_rules.md
-│   ├── ddd_rules.md
-│   └── project_specific.md
+├── core/
+│   ├── rules/
+│   │   ├── framework_rules.md     # Core operational rules (~172 lines)
+│   │   ├── testing-rules.md       # v2.5.0: TDD, coverage, Ralph Wiggum (scoped)
+│   │   ├── security-rules.md      # v2.5.0: Trust model, supervision (scoped)
+│   │   └── git-rules.md           # v2.5.0: Branching, commits, conflicts (scoped)
+│   └── docs/
+│       ├── ROUTING_REFERENCE.md   # v2.5.0: Question templates, decision matrix
+│       ├── CONTEXT_ENGINEERING.md  # Context engineering reference
+│       ├── KARPATHY_PRINCIPLES.md  # Coding principles
+│       └── SESSION_CONTINUITY.md   # Snapshots, metrics
 ├── CLAUDE.md
 └── README.md
 ```
@@ -515,6 +530,6 @@ See `core/docs/CONTEXT_ENGINEERING.md` for the full reference document.
 
 ---
 
-**Version**: 2.4.0
+**Version**: 2.5.0
 **Aligned with**: Compound Engineering + Karpathy Principles + Claude Agent SDK + Context Engineering (Fowler) + Agent Skills Architecture (Hightower)
-**Changelog**: See CLAUDE.md for version history
+**Changelog**: See CLAUDE.md and CONTEXT_ENGINEERING.md for version history
