@@ -63,6 +63,7 @@ Proporciona ayuda rápida, navegación y referencia para el plugin Multi-Agent W
 | Continuar trabajo            | `/workflows:status` + `/workflows:work` |
 | Revisar antes de merge       | `/workflows:review`           |
 | No sabes qué comando usar    | `/workflows:route`            |
+| Crear o editar un skill      | `/workflows:skill-dev`        |
 | Primera vez con el plugin    | `/workflows:onboarding`       |
 | Entender un término          | Ver GLOSSARY.md               |
 | Ver todos los comandos       | `/workflows:help commands`    |
@@ -133,6 +134,12 @@ Topics: commands, agents, concepts, troubleshooting
 | `/workflows:metrics` | Ver métricas del proyecto | Análisis |
 | `/workflows:interview` | Entrevista de requisitos | Requisitos complejos |
 | `/workflows:comprehension` | Verificar comprensión | Evitar malentendidos |
+
+### Desarrollo de Skills
+
+| Comando | Descripción | Cuándo usar |
+|---------|-------------|-------------|
+| `/workflows:skill-dev` | Crear, editar, validar y probar skills | Desarrollo de skills |
 
 ### Utilidades
 
@@ -214,6 +221,8 @@ Topics: commands, agents, concepts, troubleshooting
 | Concepto | Qué es | Por qué importa |
 |----------|--------|-----------------|
 | **Compound Engineering** | Cada tarea hace las siguientes más fáciles | Efecto bola de nieve positivo |
+| **Context Engineering** | Curar qué información ve el modelo | Menos ruido, mejores resultados (v2.4.0) |
+| **context: fork** | Agentes aislados en contextos separados | Protege ventana de contexto principal (v2.4.0) |
 | **Ralph Wiggum Loop** | Auto-corrección hasta 10 intentos | Menos intervención manual |
 | **80/20 Rule** | 80% planificar, 20% ejecutar | Previene 80% de bugs |
 | **TDD** | Tests antes que código | Código más confiable |

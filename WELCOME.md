@@ -3,8 +3,8 @@
 ```
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
-║   Multi-Agent Workflow v2.3.1                                    ║
-║   Compound Engineering Framework                                 ║
+║   Multi-Agent Workflow v2.4.0                                    ║
+║   Compound Engineering + Context Engineering                     ║
 ║                                                                  ║
 ║   Instalación completada con éxito!                              ║
 ║                                                                  ║
@@ -37,8 +37,17 @@ Ideal si ya conoces el workflow o quieres explorar por tu cuenta.
 
 ```
 21 agentes especializados  →  Cada uno experto en su área
-24 comandos de workflow    →  Flujo completo de desarrollo
+25 comandos de workflow    →  Flujo completo de desarrollo
 12 skills reutilizables    →  Automatización inteligente
+```
+
+### Novedades v2.4.0
+
+```
+Context Engineering   →  Información precisa al modelo, sin ruido
+context: fork         →  Agentes aislados protegen tu contexto
+Hooks portables       →  Gobernanza integrada en cada skill/agente
+/workflows:skill-dev  →  Crea y prueba skills con hot-reload
 ```
 
 ### El Flujo en 4 Fases

@@ -264,6 +264,10 @@ No context yet - feature not started.
 
 ### Modified Files (Auto-tracked)
 - /home/user/workflow/docs/solid-design-patterns-guide.md (2026-02-06T02:57:19+00:00)
+- /home/user/workflow/QUICKSTART.md (2026-02-05T21:20:33+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/help.md (2026-02-05T21:20:14+00:00)
+- /home/user/workflow/WELCOME.md (2026-02-05T21:20:08+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/onboarding.md (2026-02-05T21:20:07+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/core/docs/CONTEXT_ENGINEERING.md (2026-02-05T21:12:42+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/README.md (2026-02-05T21:10:01+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/.claude-plugin/plugin.json (2026-02-05T21:04:27+00:00)
