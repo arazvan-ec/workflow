@@ -1,7 +1,7 @@
 # Context Engineering for Multi-Agent Workflows
 
-**Version**: 1.0.0
-**Added in**: Plugin v2.4.0
+**Version**: 2.0.0
+**Added in**: Plugin v2.4.0, updated in v2.5.0
 **Based on**: [Fowler: Context Engineering for Coding Agents](https://martinfowler.com/articles/exploring-gen-ai/context-engineering-coding-agents.html), [Hightower: Build Agent Skills Faster with Claude Code 2.1](https://medium.com/@richardhightower/build-agent-skills-faster-with-claude-code-2-1-release-6d821d5b8179)
 
 ---
@@ -33,7 +33,8 @@ Content enters the agent's context through different mechanisms:
 
 | Method | Who Decides | When | Examples |
 |--------|------------|------|----------|
-| **Always loaded** | System | Every session start | `CLAUDE.md`, `core/rules/framework_rules.md` |
+| **Always loaded** | System | Every session start | `CLAUDE.md` (~130 lines), `core/rules/framework_rules.md` (~173 lines) |
+| **Scoped rules** | System | When matching file types are edited | `core/rules/testing-rules.md`, `security-rules.md`, `git-rules.md` |
 | **LLM-determined** | The model | When it judges content is relevant | Role definitions (`core/roles/backend.md`) loaded when adopting a role |
 | **Human-triggered** | The user | On explicit invocation | Slash commands (`/workflows:plan`), skills (`/skill:consultant`) |
 | **Software-determined** | The system | Automatic on events | Lifecycle hooks (PreToolUse, PostToolUse, Stop) |
@@ -52,14 +53,23 @@ How content interacts with the parent context:
 ### Always-Loaded Content (Minimal, Critical)
 
 The `CLAUDE.md` file contains only what every session needs:
-- Mandatory routing rules (`/workflows:route`)
-- Self-check protocol
-- Core workflow references (plan, work, review, compound)
-- Agent/skill catalogs (names and categories only, not full docs)
-- Context Engineering activation model
-- Key patterns (Karpathy, Ralph Wiggum, Compound)
+- Routing protocol (compact 5-step version)
+- Command/agent/skill catalogs (names and categories only)
+- Context Activation Model table
+- Key patterns (one-liner references with doc pointers)
+- Best practices (numbered list, no explanations)
 
-**Design decision**: CLAUDE.md was reduced from ~700 to ~500 lines in v2.4.0. Detailed catalogs, SOLID score tables, and project structure trees were moved to reference files. This follows Fowler's principle of loading only what's critical.
+**Design decision**: CLAUDE.md was reduced from ~700 lines (v2.3) to ~500 (v2.4.0) to ~130 lines (v2.5.0). Content moved to on-demand reference docs:
+- Routing question templates and decision matrix → `core/docs/ROUTING_REFERENCE.md`
+- SOLID scoring tables and pattern details → `core/solid-pattern-matrix.md`
+- MCP server details → `core/docs/MCP_INTEGRATION.md`
+- Snapshot/metrics workflow → `core/docs/SESSION_CONTINUITY.md`
+- Lifecycle hooks details → `core/docs/LIFECYCLE_HOOKS.md`
+- Trust model and security → `core/rules/security-rules.md`
+- TDD and Ralph Wiggum loop → `core/rules/testing-rules.md`
+- Git workflow and conflicts → `core/rules/git-rules.md`
+
+Additionally, `framework_rules.md` was reduced from ~464 to ~173 lines by extracting domain-specific content into scoped rule files and eliminating duplication with CLAUDE.md. Combined always-loaded context dropped from ~980 to ~300 lines (~70% reduction).
 
 ### On-Demand Content (Skills & Commands)
 
