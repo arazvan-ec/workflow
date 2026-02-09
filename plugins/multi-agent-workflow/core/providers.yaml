@@ -1,5 +1,5 @@
 # Capability Providers Configuration
-# Version: 1.0.0
+# Version: 1.1.0
 # Purpose: Model-agnostic provider abstraction for workflow capabilities
 #
 # This file defines which implementation to use for each capability.
@@ -19,14 +19,50 @@ providers:
   #   - Direct inter-agent communication via shared task list
   #   - TeammateTool for spawning teammates
   #   - Orchestrator coordinates work
+  #   - No external dependencies
   #
-  # worktrees: Git worktrees + tmux (any model)
+  # worktrees: Git worktrees + terminal multiplexer (any model)
   #   - Filesystem-level isolation via git worktrees
-  #   - tmux panes for visual separation
+  #   - Terminal multiplexer for visual session management
   #   - Manual coordination via 50_state.md + git sync
-  #   - Requires: tmux >= 3.0, git >= 2.30
+  #   - Requires: git >= 2.30 + terminal multiplexer (see terminal_orchestrator)
   #
   parallelization: auto  # auto | agent-teams | worktrees
+
+  # --- Terminal Orchestrator ---
+  # Which terminal multiplexer to use with the worktrees provider.
+  # Only applies when parallelization resolves to "worktrees".
+  #
+  # auto: Detects first available in order: tmux → screen → zellij → none
+  #
+  # tmux: (recommended default)
+  #   - Mature, scriptable, widely available
+  #   - Supports panes, windows, sessions
+  #   - Detach/reattach for persistence
+  #   - Requires: tmux >= 3.0
+  #   - Install: apt install tmux / brew install tmux
+  #
+  # screen: (universal fallback)
+  #   - Pre-installed on most Unix systems
+  #   - Simpler than tmux, fewer features
+  #   - Good for minimal/headless environments
+  #   - Requires: screen >= 4.0
+  #   - Install: apt install screen / brew install screen
+  #
+  # zellij: (modern alternative)
+  #   - Rust-based, modern UX, plugin system
+  #   - Better defaults, floating panes, WebAssembly plugins
+  #   - Less mature ecosystem, smaller community
+  #   - Requires: zellij >= 0.40
+  #   - Install: cargo install zellij / brew install zellij
+  #
+  # none: (worktrees only, no multiplexer)
+  #   - Creates git worktrees but does NOT launch a multiplexer
+  #   - User manages terminals manually (separate tabs/windows)
+  #   - Useful when: SSH without multiplexer, IDE terminals, CI/CD
+  #   - Zero external dependencies beyond git
+  #
+  terminal_orchestrator: auto  # auto | tmux | screen | zellij | none
 
   # --- Context Management ---
   # How context window exhaustion is handled

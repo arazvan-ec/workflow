@@ -1,7 +1,7 @@
 ---
 name: workflows:parallel
-description: "Launch multiple agents in parallel. Auto-detects provider: Agent Teams (Opus 4.6+) or worktrees+tmux (fallback)."
-argument_hint: <feature-id> [--roles=backend,frontend,qa] [--provider=auto|agent-teams|worktrees] [--cleanup]
+description: "Launch multiple agents in parallel. Auto-detects provider: Agent Teams (Opus 4.6+) or worktrees+multiplexer (fallback). Terminal orchestrator auto-detects tmux/screen/zellij."
+argument_hint: <feature-id> [--roles=backend,frontend,qa] [--provider=auto|agent-teams|worktrees] [--terminal=auto|tmux|screen|zellij|none] [--cleanup]
 ---
 
 # Multi-Agent Workflow: Parallel
@@ -11,12 +11,17 @@ Launch multiple AI agents working in parallel on a feature. The command auto-res
 ## Usage
 
 ```bash
-# Standard (auto-detects provider)
+# Standard (auto-detects everything)
 /workflows:parallel user-authentication --roles=backend,frontend,qa
 
-# Force a specific provider
+# Force parallelization provider
 /workflows:parallel user-authentication --provider=agent-teams
 /workflows:parallel user-authentication --provider=worktrees
+
+# Force terminal multiplexer (only with --provider=worktrees)
+/workflows:parallel user-authentication --provider=worktrees --terminal=screen
+/workflows:parallel user-authentication --provider=worktrees --terminal=zellij
+/workflows:parallel user-authentication --provider=worktrees --terminal=none
 
 # Cleanup after completion
 /workflows:parallel user-authentication --cleanup
@@ -39,6 +44,12 @@ Before launching agents, resolve the parallelization provider:
 3. IF explicit → use that provider directly
 
 4. IF --provider flag passed → override config (session only)
+
+5. IF provider = worktrees:
+   ├── READ core/providers.yaml → providers.terminal_orchestrator
+   ├── IF "auto" → detect first available: tmux → screen → zellij → none
+   ├── IF --terminal flag passed → override config (session only)
+   └── Log: "Resolved terminal orchestrator: {terminal}"
 ```
 
 ## Provider: Agent Teams
@@ -116,32 +127,27 @@ Read: plugins/multi-agent-workflow/core/rules/testing-rules.md
 
 ---
 
-## Provider: Worktrees + tmux
+## Provider: Worktrees + Terminal Orchestrator
 
 **Available when**: Always (fallback provider)
 
-**Prerequisites**: tmux >= 3.0, git >= 2.30
+**Prerequisites**: git >= 2.30 + terminal multiplexer (optional)
 
 ### How It Works
 
+Two layers: **worktrees** provide filesystem isolation, a **terminal orchestrator** provides session management.
+
 ```
 ┌──────────────────────────────────────────────────────────┐
-│              TMUX SESSION: workflow-{feature}              │
+│         TERMINAL ORCHESTRATOR (tmux/screen/zellij)        │
 │                                                          │
 │  ┌──────────────────────┬──────────────────────┐        │
-│  │                      │                      │        │
 │  │     BACKEND           │     FRONTEND          │        │
 │  │     :3001             │     :3002             │        │
-│  │                      │                      │        │
-│  │  Worktree:            │  Worktree:            │        │
 │  │  .worktrees/backend/  │  .worktrees/frontend/ │        │
-│  │                      │                      │        │
 │  ├──────────────────────┴──────────────────────┤        │
-│  │                                              │        │
-│  │                    QA                         │        │
-│  │                   :3003                       │        │
-│  │  Worktree: .worktrees/qa/                    │        │
-│  │                                              │        │
+│  │                    QA  :3003                   │        │
+│  │  .worktrees/qa/                               │        │
 │  └──────────────────────────────────────────────┘        │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -171,17 +177,95 @@ Each worktree:
 | frontend | 3002 |
 | qa | 3003 |
 
-### Step 3: Launch tmux Session
+### Step 3: Resolve Terminal Orchestrator
 
-```bash
-PARALLEL_DIR=".ai/workflow/parallel"
-source "${PARALLEL_DIR}/tmux_orchestrator.sh"
-tmux_create_session "workflow-${FEATURE_ID}" "${ROLES}" "${FEATURE_ID}"
+```
+READ core/providers.yaml → providers.terminal_orchestrator
+
+IF "auto":
+  which tmux   && terminal = tmux
+  which screen && terminal = screen
+  which zellij && terminal = zellij
+  else            terminal = none
+
+IF --terminal flag → override
 ```
 
-### Step 4: Set Up Environment
+### Step 4: Launch Session
 
-Each pane has:
+The orchestrator launches differently depending on the resolved terminal:
+
+#### tmux (default, recommended)
+
+```bash
+tmux new-session -d -s "workflow-${FEATURE_ID}"
+tmux split-window -h -t "workflow-${FEATURE_ID}"
+tmux split-window -v -t "workflow-${FEATURE_ID}"
+# Send cd + env setup to each pane
+tmux send-keys -t "workflow-${FEATURE_ID}:0.0" "cd .worktrees/backend && export AGENT_ROLE=backend" Enter
+tmux send-keys -t "workflow-${FEATURE_ID}:0.1" "cd .worktrees/frontend && export AGENT_ROLE=frontend" Enter
+tmux send-keys -t "workflow-${FEATURE_ID}:0.2" "cd .worktrees/qa && export AGENT_ROLE=qa" Enter
+```
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+b d` | Detach (session keeps running) |
+| `Ctrl+b arrow` | Navigate panes |
+| `Ctrl+b z` | Zoom/unzoom pane |
+
+#### GNU Screen
+
+```bash
+screen -dmS "workflow-${FEATURE_ID}"
+screen -S "workflow-${FEATURE_ID}" -X screen -t backend
+screen -S "workflow-${FEATURE_ID}" -X screen -t frontend
+screen -S "workflow-${FEATURE_ID}" -X screen -t qa
+# Send cd + env setup to each window
+screen -S "workflow-${FEATURE_ID}" -p backend -X stuff "cd .worktrees/backend && export AGENT_ROLE=backend\n"
+screen -S "workflow-${FEATURE_ID}" -p frontend -X stuff "cd .worktrees/frontend && export AGENT_ROLE=frontend\n"
+screen -S "workflow-${FEATURE_ID}" -p qa -X stuff "cd .worktrees/qa && export AGENT_ROLE=qa\n"
+```
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+a d` | Detach (session keeps running) |
+| `Ctrl+a n` / `Ctrl+a p` | Next/previous window |
+| `Ctrl+a "` | List windows |
+
+#### zellij
+
+```bash
+zellij --session "workflow-${FEATURE_ID}" --layout .ai/workflow/parallel/zellij_layout.kdl
+# Or manually:
+zellij --session "workflow-${FEATURE_ID}"
+# zellij uses its own pane management (Alt+n for new pane, Alt+arrow to navigate)
+```
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl+o d` | Detach |
+| `Alt+arrow` | Navigate panes |
+| `Alt+n` | New pane |
+
+#### none (worktrees only)
+
+```bash
+# Only creates worktrees, no multiplexer session
+git worktree add .worktrees/backend "feature/${FEATURE_ID}-backend"
+git worktree add .worktrees/frontend "feature/${FEATURE_ID}-frontend"
+git worktree add .worktrees/qa "feature/${FEATURE_ID}-qa"
+
+echo "Worktrees created. Open separate terminals and cd into each:"
+echo "  Terminal 1: cd .worktrees/backend"
+echo "  Terminal 2: cd .worktrees/frontend"
+echo "  Terminal 3: cd .worktrees/qa"
+```
+
+Use this when: SSH without multiplexer, IDE integrated terminals, CI/CD pipelines, or when you prefer your own terminal setup.
+
+### Step 5: Set Up Environment
+
+Each session/pane has:
 - `AGENT_ROLE` — Current role (backend/frontend/qa)
 - `AGENT_PORT` — Allocated port
 - `FEATURE_ID` — Feature being worked on
@@ -193,10 +277,23 @@ Each pane has:
 /workflows:parallel user-auth --cleanup
 
 # This will:
-# 1. Kill tmux session
+# 1. Kill multiplexer session (if running)
 # 2. Remove worktrees (if clean)
 # 3. Release allocated ports
 ```
+
+### Terminal Orchestrator Comparison
+
+| Aspect | tmux | screen | zellij | none |
+|--------|------|--------|--------|------|
+| **Availability** | Most systems | Pre-installed | Install required | Always |
+| **Maturity** | Since 2009 | Since 1987 | Since 2021 | N/A |
+| **Pane layout** | Flexible splits | Windows (no splits) | Floating + tiles | Manual |
+| **Scriptability** | Excellent | Good | Good | N/A |
+| **Persistence** | Detach/attach | Detach/attach | Detach/attach | No |
+| **Modern UX** | Good | Basic | Best | N/A |
+| **Plugin system** | No | No | Yes (WASM) | N/A |
+| **Config** | `.tmux.conf` | `.screenrc` | `config.kdl` | N/A |
 
 ---
 
@@ -210,6 +307,7 @@ Both providers produce the same output format:
 ╚════════════════════════════════════════════════════════════╝
 
 Provider: {agent-teams | worktrees}
+Terminal: {tmux | screen | zellij | none | n/a}
 Session: workflow-{feature}
 Feature: {feature}
 
@@ -247,15 +345,15 @@ git merge feature/user-auth-frontend
 
 ## Provider Comparison
 
-| Aspect | Agent Teams | Worktrees + tmux |
-|--------|------------|------------------|
-| **Communication** | Direct (shared task list) | File-based (50_state.md + git) |
-| **Isolation** | Context window per agent | Filesystem per agent |
-| **Setup** | Automatic | tmux + git worktree commands |
-| **Cleanup** | Automatic | Manual (--cleanup) |
-| **Visibility** | Orchestrator monitors | tmux panes |
-| **Model requirement** | Opus 4.6+ | Any |
-| **External deps** | None | tmux, git worktree |
+| Aspect | Agent Teams | Worktrees + Multiplexer | Worktrees (none) |
+|--------|------------|------------------------|-------------------|
+| **Communication** | Direct (shared task list) | File-based (50_state.md + git) | File-based |
+| **Isolation** | Context window per agent | Filesystem + terminal | Filesystem only |
+| **Setup** | Automatic | Multiplexer + worktree | Worktree only |
+| **Cleanup** | Automatic | `--cleanup` | `--cleanup` |
+| **Visibility** | Orchestrator monitors | Panes/windows | Separate terminals |
+| **Model requirement** | Opus 4.6+ | Any | Any |
+| **External deps** | None | tmux/screen/zellij + git | git only |
 
 Both providers:
 - Use `50_state.md` for persistent state
