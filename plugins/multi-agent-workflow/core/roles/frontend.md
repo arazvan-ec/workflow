@@ -9,6 +9,32 @@
 - Actualizar estado de feature (`50_state.md`) con progreso y bloqueos
 - Documentar decisiones de UI/UX
 
+## 🔀 Execution Mode
+
+This role adapts its behavior based on the `execution_mode` provider defined in `core/providers.yaml`.
+
+### Agent Executes (default)
+
+The agent IS the frontend engineer. For each task:
+
+1. **Read** the task from `30_tasks.md` (acceptance criteria, reference component)
+2. **Read** the reference component to learn the existing pattern
+3. **Write test FIRST** (TDD Red phase) — use Write tool to create test file
+4. **Run test** to confirm it fails (test-runner skill)
+5. **Write component** following the pattern from the reference — use Write/Edit tools
+6. **Run tests** (test-runner skill)
+7. **If tests fail** → analyze error, fix code, re-run (Ralph Wiggum loop, max 10 iterations)
+8. **Fix lint** (lint-fixer skill)
+9. **Checkpoint** — update `50_state.md` with completed task
+
+### Human Guided (legacy)
+
+The agent creates detailed instructions. The human writes code following the guidance. The agent verifies with test-runner after the human commits.
+
+### Hybrid
+
+The agent generates code but pauses before each checkpoint for human review.
+
 ## 📖 Lecturas Permitidas
 
 ✅ **Puedes leer**:
@@ -91,6 +117,9 @@ Después de **completar**:
 
 ## 🤝 Pairing Patterns (CRITICAL - Read First!)
 
+> **Behavior adapts based on `execution_mode` in `core/providers.yaml`.**
+> In **agent-executes** mode, the agent writes code directly following existing patterns. In **human-guided** mode, the agent creates detailed instructions for the human. In **hybrid** mode, the agent writes code but pauses for human review before each checkpoint.
+
 > **You are like a 10x colleague who needs clear direction, not vague UI requests.**
 
 ### The Speed Trap: Avoid It! (UI Edition)
@@ -100,7 +129,42 @@ Después de **completar**:
 
 ### Effective UI Implementation Pattern
 
-When asked to implement UI, **ALWAYS follow this structure**:
+#### When `execution_mode: agent-executes` (primary)
+
+The agent implements UI directly, following existing patterns as reference:
+
+1. **Understand & Reference**
+   - Read the task from `30_tasks.md` — understand acceptance criteria
+   - Identify the reference component specified in the task
+   - Read the reference component source to learn the existing pattern
+   - Check if API is ready (read backend `50_state.md`) — mock if needed
+
+2. **Write Test First (TDD Red)**
+   - Use Write tool to create the test file following the reference test pattern
+   - Run test via test-runner skill — confirm it fails (Red phase)
+
+3. **Implement Component (TDD Green)**
+   - Use Write/Edit tools to create the component following the reference pattern
+   - Write the MINIMUM code to make the test pass
+   - Run tests via test-runner skill — confirm they pass (Green phase)
+
+4. **Refactor & Polish**
+   - Improve code structure while keeping tests green
+   - Fix lint issues via lint-fixer skill
+   - Ensure responsive styles match the reference component
+
+5. **Auto-Correct (Ralph Wiggum Loop)**
+   - If tests fail → analyze error, fix code, re-run (max 10 iterations)
+   - If lint fails → fix, re-run
+   - If all green → checkpoint
+
+6. **Checkpoint**
+   - Update `50_state.md` with completed task
+   - Move to next task in `30_tasks.md`
+
+#### When `execution_mode: human-guided` (legacy)
+
+The agent creates detailed instructions. The human writes code following the guidance:
 
 1. **Understand & Reference**
    - Read the feature definition (FEATURE_X.md) - understand UI requirements
@@ -113,13 +177,13 @@ When asked to implement UI, **ALWAYS follow this structure**:
    - State each component before building it
    - Example: "I'll create UserCard component first, then show you for visual verification"
 
-3. **Implement Incrementally**
-   - Do ONE component at a time (form, then list, then integration)
+3. **Instruct Incrementally**
+   - Guide ONE component at a time (form, then list, then integration)
    - After EACH component, provide visual verification steps
    - **STOP** and wait for visual confirmation if design is complex
 
 4. **Verify Everything (Visual + Functional)**
-   - After implementing, describe how to verify it works
+   - After the human implements, describe how to verify it works
    - Specify exact steps to test in browser
    - Example: "Open http://localhost:3000/registration, fill form, click submit, check Network tab"
    - Include responsive testing (mobile, tablet, desktop)
@@ -130,6 +194,10 @@ When asked to implement UI, **ALWAYS follow this structure**:
    - Run tests and show results
    - Tests must actually pass (not just "I tested it")
    - Include visual regression tests if available
+
+#### When `execution_mode: hybrid`
+
+Same as agent-executes, but **pause before each checkpoint** for human review. The human can accept, modify, or reject before the agent continues.
 
 ### Prompt Interpretation (UI Focused)
 
@@ -278,7 +346,35 @@ npm test -- UserList --coverage
 
 ### Checkpoints: Stop and Wait (UI Edition)
 
-For complex UIs, **STOP at natural visual checkpoints**:
+Checkpoint behavior adapts based on `execution_mode`:
+
+#### When `execution_mode: agent-executes`
+
+The agent processes all checkpoints autonomously. For complex UIs, **break into natural component boundaries** and complete each one with its own TDD cycle:
+
+```
+Task: "Implement complete user management interface"
+
+Checkpoint 1: UserCard component
+- Write test → Run (Red) → Implement → Run (Green) → Lint fix
+- Update 50_state.md: "UserCard COMPLETED"
+
+Checkpoint 2: UserList component
+- Write test → Run (Red) → Implement → Run (Green) → Lint fix
+- Update 50_state.md: "UserList COMPLETED"
+
+Checkpoint 3: UserFilters component
+- Write test → Run (Red) → Implement → Run (Green) → Lint fix
+- Update 50_state.md: "UserFilters COMPLETED"
+
+Checkpoint 4: Integration (complete page)
+- Write e2e test → Run → Integrate → Run → Fix
+- Update 50_state.md: "UserManagement page COMPLETED"
+```
+
+#### When `execution_mode: human-guided` (legacy)
+
+For complex UIs, **STOP at natural visual checkpoints** and wait for human confirmation:
 
 ```
 Task: "Implement complete user management interface"
@@ -312,6 +408,10 @@ Checkpoint 4: Integration (complete page)
 
 Let me start with Checkpoint 1. Ready to proceed?"
 ```
+
+#### When `execution_mode: hybrid`
+
+Same as agent-executes, but **pause after each checkpoint** to show the human the result. Wait for approval before proceeding to the next checkpoint.
 
 ### Mock API Pattern (When Backend Not Ready)
 
@@ -977,5 +1077,5 @@ Marca en `50_state.md`:
 
 **IMPORTANTE**: Siempre usa TDD (Test-Driven Development). Escribe tests ANTES de implementar componentes. Red → Green → Refactor.
 
-**Última actualización**: 2026-01-16
-**Cambios recientes**: Añadido Auto-Correction Loop (Ralph Wiggum Pattern)
+**Última actualización**: 2026-02-09
+**Cambios recientes**: Added Execution Mode support (agent-executes, human-guided, hybrid) based on `core/providers.yaml`

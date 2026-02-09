@@ -1,5 +1,5 @@
 # Capability Providers Configuration
-# Version: 1.1.0
+# Version: 1.2.0
 # Purpose: Model-agnostic provider abstraction for workflow capabilities
 #
 # This file defines which implementation to use for each capability.
@@ -113,6 +113,35 @@ providers:
   #   - /workflows:sync for explicit state sharing
   #
   coordination: auto  # auto | native-plus-state | state-plus-git
+
+  # --- Execution Mode ---
+  # Whether the agent generates code or guides a human to write it.
+  #
+  # agent-executes: The agent IS the engineer — generates code, runs tests, iterates
+  #   - Reads existing patterns as reference (codebase-analyzer)
+  #   - Generates code using Write/Edit tools following the plan
+  #   - Writes tests FIRST (TDD), then implementation
+  #   - Runs tests via test-runner skill
+  #   - Auto-corrects via Ralph Wiggum loop (up to 10 iterations)
+  #   - Validates SOLID via solid-analyzer skill
+  #   - Checkpoints on success, marks BLOCKED on failure
+  #   - Best for: well-defined tasks with existing patterns to follow
+  #
+  # human-guided: The agent plans and guides — human writes code (legacy behavior)
+  #   - Creates detailed task specs with acceptance criteria
+  #   - Points to reference files and patterns
+  #   - Human writes code following the guidance
+  #   - Agent verifies with test-runner and solid-analyzer
+  #   - Best for: novel architectures, security-critical code, learning
+  #
+  # hybrid: Agent generates, human reviews before each checkpoint
+  #   - Agent generates code and tests
+  #   - Pauses before checkpoint for human review
+  #   - Human can accept, modify, or reject
+  #   - Agent continues with human's changes
+  #   - Best for: teams building trust with agent execution
+  #
+  execution_mode: auto  # auto | agent-executes | human-guided | hybrid
 
 # --- Thresholds ---
 # Override default thresholds based on your model's capabilities.

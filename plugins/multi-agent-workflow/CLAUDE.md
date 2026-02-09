@@ -82,7 +82,7 @@ Heavy skills and all 7 review agents run with `context: fork` — isolated conte
 
 ## Capability Providers
 
-The plugin is **model-agnostic**. It abstracts capabilities (parallelization, context management, fork strategy) behind providers that auto-detect the running model and select the best implementation. Configuration in `core/providers.yaml`, detection logic in `core/docs/CAPABILITY_PROVIDERS.md`.
+The plugin is **model-agnostic** and **execution-agnostic**. It abstracts capabilities (parallelization, context management, fork strategy, execution mode) behind providers that auto-detect the running model and select the best implementation. The execution_mode provider determines whether the agent generates code autonomously (`agent-executes`), guides a human (`human-guided`), or generates with human review gates (`hybrid`). Configuration in `core/providers.yaml`, detection logic in `core/docs/CAPABILITY_PROVIDERS.md`.
 
 When `providers.yaml` is set to `auto` (default), resolve providers using the Detection Protocol before executing provider-dependent commands (`/workflows:parallel`, `/workflows:snapshot`, fork decisions).
 
@@ -135,4 +135,4 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 
 ---
 
-**Version**: 2.6.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers
+**Version**: 2.7.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers

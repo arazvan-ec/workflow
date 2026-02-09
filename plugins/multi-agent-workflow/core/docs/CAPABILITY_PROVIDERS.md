@@ -328,6 +328,75 @@ providers:
 
 ---
 
+## Provider: Execution Mode
+
+### Interface (What Users See)
+
+```bash
+# Always the same command
+/workflows:work user-auth --role=backend
+
+# Force execution mode
+/workflows:work user-auth --role=backend --exec=agent
+/workflows:work user-auth --role=backend --exec=human
+/workflows:work user-auth --role=backend --exec=hybrid
+```
+
+### Implementation: Agent Executes (tier: any model)
+
+The agent IS the engineer. For each task in `30_tasks.md`:
+
+```
+EXECUTION LOOP (per task):
+  1. READ task definition (acceptance criteria, SOLID requirements)
+  2. READ pattern reference file (from task's "Reference" field)
+  3. GENERATE test file FIRST (TDD Red phase)
+  4. RUN tests → confirm they fail (expected)
+  5. GENERATE implementation following pattern reference
+  6. RUN tests (test-runner skill)
+  7. IF tests fail → analyze error + fix (Ralph Wiggum loop, max 10)
+  8. CHECK SOLID compliance (solid-analyzer skill)
+  9. IF SOLID < threshold → refactor + re-run tests
+  10. FIX lint issues (lint-fixer skill)
+  11. CHECKPOINT (update 50_state.md)
+  12. → Next task
+```
+
+**Key principle**: The agent uses Claude Code's native Write/Edit tools to generate code. No scaffolding engine needed — Claude already knows how to write code. The plugin provides the **structure** (what to write, in what order, following what patterns).
+
+**Pattern Learning**: Before generating, the agent reads an existing file as reference (e.g., `src/Domain/Entity/Order.php` when creating `User.php`). This is specified in each task's "Reference" field in `30_tasks.md`.
+
+### Implementation: Human Guided (legacy)
+
+The agent creates detailed task specs and guidance. The human writes code. The agent verifies with test-runner and solid-analyzer. This is the pre-v2.7.0 behavior.
+
+### Implementation: Hybrid
+
+The agent generates code AND tests, but pauses before each checkpoint for human review. The human can:
+- **Accept**: Agent continues to next task
+- **Modify**: Agent incorporates changes and re-runs tests
+- **Reject**: Agent re-generates following human's feedback
+
+### Detection
+
+```
+1. READ core/providers.yaml → providers.execution_mode
+2. IF "auto":
+   │
+   ├── Is the task in a LOW trust area (auth/, security/, payment/)?
+   │   YES → hybrid (agent generates but human reviews)
+   │
+   ├── Does the task have a "Reference" file in 30_tasks.md?
+   │   YES → agent-executes (pattern exists to follow)
+   │
+   └── OTHERWISE → agent-executes (default for well-planned tasks)
+
+3. IF explicit → use that mode directly
+4. IF --exec flag passed → override (session only)
+```
+
+---
+
 ## What the Plugin CANNOT Abstract
 
 These are API-level settings controlled by whoever calls the Claude API, not by the plugin:
