@@ -1,13 +1,35 @@
 ---
 name: token-advisor
-description: "Analyzes current session and suggests token optimization strategies. Use when session feels slow, before long tasks, or to proactively manage context. <example>Context: Mid-session, working on complex feature.\\nuser: \"Session feels slow\"\\nassistant: \"Let me analyze with token-advisor\"</example>"
+description: "Analyzes current session and suggests token optimization strategies. Provider-aware: adapts thresholds based on model tier (compaction-aware for Opus 4.6+, strict for standard). <example>Context: Mid-session, working on complex feature.\\nuser: \"Session feels slow\"\\nassistant: \"Let me analyze with token-advisor\"</example>"
 model: inherit
 context: fork
 ---
 
 # Token Advisor Skill
 
-Analyzes session patterns and provides actionable recommendations to optimize token usage.
+Analyzes session patterns and provides actionable recommendations to optimize token usage. Adapts thresholds based on the active context_management provider.
+
+## Provider Awareness
+
+Before analyzing, resolve the context_management provider:
+
+```
+1. READ core/providers.yaml → providers.context_management
+2. IF "auto" → detect tier from model identity
+3. Apply thresholds for resolved provider
+```
+
+| Metric | Standard Thresholds | Advanced Thresholds |
+|--------|--------------------|--------------------|
+| Capacity 🟢 | < 50% | < 60% |
+| Capacity 🟡 | 50-70% | 60-85% |
+| Capacity 🔴 | > 70% | > 85% |
+| Files 🟢 | < 10 | < 25 |
+| Files 🟡 | 10-15 | 25-40 |
+| Files 🔴 | > 15 | > 40 |
+| Duration 🟢 | < 1h | < 2h |
+| Duration 🟡 | 1-2h | 2-4h |
+| Duration 🔴 | > 2h | > 4h |
 
 ## When to Use
 
@@ -15,7 +37,7 @@ Analyzes session patterns and provides actionable recommendations to optimize to
 - Working on a complex, multi-file task
 - Planning to continue for another hour+
 - Before starting a new major task
-- Proactively every 30-45 minutes on long sessions
+- Proactively every 30-45 minutes (standard) or every 1-2 hours (advanced)
 
 ## Invocation
 
@@ -47,10 +69,10 @@ Evaluate current session state:
 | Session duration | Xh Xm | 🟢/🟡/🔴 |
 | Task switches | N | 🟢/🟡/🔴 |
 
-### Status Legend
-- 🟢 Healthy (< 50% / < 10 files / < 1h / < 2 switches)
-- 🟡 Monitor (50-70% / 10-15 files / 1-2h / 2-3 switches)
-- 🔴 Action needed (> 70% / > 15 files / > 2h / > 3 switches)
+### Status Legend (thresholds from provider resolution above)
+- 🟢 Healthy — below provider thresholds
+- 🟡 Monitor — approaching provider thresholds
+- 🔴 Action needed — exceeding provider thresholds
 ```
 
 ### Step 2: Pattern Detection

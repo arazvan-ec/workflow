@@ -9,6 +9,33 @@
 - Actualizar estado de feature (`50_state.md`) con progreso y bloqueos
 - Documentar decisiones técnicas importantes
 
+## 🔀 Execution Mode
+
+This role adapts its behavior based on the `execution_mode` provider (see `core/providers.yaml`).
+
+### Agent Executes (default)
+
+The agent IS the backend engineer. For each task:
+
+1. **Read** the task from `30_tasks.md` (acceptance criteria, SOLID requirements, reference file)
+2. **Read** the reference file to learn the existing pattern
+3. **Write test FIRST** (TDD Red phase) — use Write tool to create test file
+4. **Run test** to confirm it fails (test-runner skill)
+5. **Write implementation** following the pattern from the reference file — use Write/Edit tools
+6. **Run tests** (test-runner skill)
+7. **If tests fail** → analyze error, fix code, re-run (Ralph Wiggum loop, max 10 iterations)
+8. **Check SOLID** (solid-analyzer skill) — must meet task thresholds
+9. **Fix lint** (lint-fixer skill)
+10. **Checkpoint** — update `50_state.md` with completed task
+
+### Human Guided (legacy)
+
+The agent creates detailed instructions. The human writes code following the guidance. The agent verifies with test-runner and solid-analyzer after the human commits.
+
+### Hybrid
+
+The agent generates code but pauses before each checkpoint for human review. The human accepts, modifies, or rejects.
+
 ## 📖 Lecturas Permitidas
 
 ✅ **Puedes leer**:
@@ -95,7 +122,44 @@ Después de **completar**:
 
 ### Effective Implementation Pattern
 
-When asked to implement something, **ALWAYS follow this structure**:
+The implementation pattern adapts based on the `execution_mode` provider (see `core/providers.yaml`).
+
+#### When `agent-executes` (default)
+
+The agent performs all implementation steps autonomously:
+
+1. **Understand & Reference**
+   - Read the task from `30_tasks.md` (acceptance criteria, SOLID requirements, reference file)
+   - Read the reference file to learn the existing pattern
+   - Identify the DDD layer and Symfony conventions that apply
+
+2. **Write Test FIRST (TDD Red)**
+   - Use Write tool to create the test file following the reference pattern
+   - Run the test via test-runner skill — confirm it **fails** (Red phase)
+   - If the test passes immediately, the test is not testing new behavior — revise it
+
+3. **Write Implementation (TDD Green)**
+   - Use Write/Edit tools to create the minimum code that makes the test pass
+   - Follow the pattern from the reference file exactly (same structure, naming, layer placement)
+   - Run tests via test-runner skill — confirm they **pass** (Green phase)
+
+4. **Auto-Correct (Ralph Wiggum Loop)**
+   - If tests fail → analyze error, fix code, re-run (max 10 iterations)
+   - Do NOT modify the test to make it pass — fix the implementation
+   - If still failing after 10 iterations → mark BLOCKED in `50_state.md`
+
+5. **Refactor (TDD Refactor)**
+   - Improve code quality while keeping tests green
+   - Check SOLID via solid-analyzer skill — must meet task thresholds
+   - Fix lint via lint-fixer skill
+
+6. **Checkpoint**
+   - Update `50_state.md` with completed task
+   - Move to next task only when current checkpoint is fully green
+
+#### When `human-guided` (legacy)
+
+The agent creates detailed instructions. The human writes code following the guidance:
 
 1. **Understand & Reference**
    - Read the feature definition (FEATURE_X.md)
@@ -122,6 +186,10 @@ When asked to implement something, **ALWAYS follow this structure**:
    - Write tests BEFORE marking as complete
    - Run tests and show results
    - Tests must actually pass (not just "I tested it")
+
+#### When `hybrid`
+
+The agent generates code and tests (same as `agent-executes`), but **pauses before each checkpoint** for human review. The human can accept, modify, or reject. The agent then continues with the human's changes incorporated.
 
 ### Prompt Interpretation
 
@@ -656,5 +724,5 @@ Edge case in email validation for non-standard formats
 
 **IMPORTANTE**: Siempre usa TDD (Test-Driven Development). Escribe tests ANTES de implementar código. Red → Green → Refactor.
 
-**Última actualización**: 2026-01-16
-**Cambios recientes**: Añadido Auto-Correction Loop (Ralph Wiggum Pattern)
+**Última actualización**: 2026-02-09
+**Cambios recientes**: Added Execution Mode support (agent-executes, human-guided, hybrid) via `core/providers.yaml`

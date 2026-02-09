@@ -1,7 +1,7 @@
 ---
 name: workflows:work
-description: "Execute implementation with configurable parallelization modes (roles, layers, or stacks)."
-argument_hint: <feature-name> --mode=<roles|layers|stacks> [--role=<role>] [--layer=<layer>]
+description: "Execute implementation with configurable parallelization modes and execution mode (agent-executes, human-guided, or hybrid)."
+argument_hint: <feature-name> --mode=<roles|layers|stacks> [--role=<role>] [--layer=<layer>] [--exec=auto|agent|human|hybrid]
 ---
 
 # Multi-Agent Workflow: Work
@@ -24,6 +24,60 @@ Execute implementation with the compound engineering principle: make each unit o
 /workflows:work user-auth --mode=stacks --stack=backend
 /workflows:work user-auth --mode=stacks --stack=frontend
 ```
+
+## Execution Mode Resolution
+
+Before executing tasks, resolve the execution mode:
+
+` ` `
+1. READ core/providers.yaml → providers.execution_mode
+
+2. IF "auto":
+   ├── Is the task in a LOW trust area (auth/, security/, payment/)?
+   │   YES → hybrid (agent generates, human reviews)
+   │
+   ├── Does the task have a "Reference" file in 30_tasks.md?
+   │   YES → agent-executes (pattern exists to follow)
+   │
+   └── OTHERWISE → agent-executes (default)
+
+3. IF --exec flag passed → override (session only)
+` ` `
+
+### Agent Executes (default)
+
+The agent generates code following the plan. For each task in `30_tasks.md`:
+
+` ` `
+TASK EXECUTION LOOP:
+  1. READ task (acceptance criteria, SOLID requirements, reference file)
+  2. READ reference file to learn existing pattern
+  3. WRITE test FIRST (TDD Red) — Write tool creates test file
+  4. RUN tests → confirm failure (test-runner)
+  5. WRITE implementation following pattern — Write/Edit tools
+  6. RUN tests (test-runner)
+  7. IF fail → analyze + fix (Ralph Wiggum, max 10 iterations)
+  8. CHECK SOLID (solid-analyzer) — must meet task thresholds
+  9. FIX lint (lint-fixer)
+  10. CHECKPOINT → update 50_state.md
+  11. → Next task
+` ` `
+
+### Human Guided
+
+The agent presents each task with detailed instructions. The human implements. The agent verifies with test-runner and solid-analyzer.
+
+### Hybrid
+
+Same as agent-executes, but pauses before each checkpoint:
+` ` `
+After step 9 (lint fixed, tests passing):
+  → Present generated code to human
+  → Wait for: [Accept] [Modify] [Reject]
+  → Accept: proceed to checkpoint
+  → Modify: incorporate changes, re-run tests
+  → Reject: regenerate with human feedback
+` ` `
 
 ## Parallelization Modes
 
@@ -101,7 +155,15 @@ Read: .ai/project/features/${FEATURE_ID}/30_tasks.md
 
 ### Step 5: Execute with TDD + SOLID
 
-Follow the TDD cycle for each task, ensuring SOLID compliance:
+Execution behavior depends on the resolved execution mode (see Execution Mode Resolution above).
+
+**In `agent-executes` mode** (default), the agent performs all steps autonomously following the Task Execution Loop. The TDD cycle is executed directly by the agent using Write, Edit, and tool invocations.
+
+**In `human-guided` mode**, the agent presents each task with detailed instructions, acceptance criteria, and reference patterns. The human engineer performs the TDD cycle manually. The agent verifies results with test-runner and solid-analyzer after each task.
+
+**In `hybrid` mode**, the agent executes autonomously but pauses before each checkpoint for human review (Accept / Modify / Reject).
+
+Regardless of mode, follow the TDD cycle for each task, ensuring SOLID compliance:
 
 ```
 1. 🔴 RED: Write test FIRST (must fail)

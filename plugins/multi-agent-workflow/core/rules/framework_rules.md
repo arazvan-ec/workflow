@@ -1,6 +1,6 @@
 # Framework Rules - Multi-Agent Workflow
 
-**Framework Version**: 2.5.0
+**Framework Version**: 2.7.0
 **Last Updated**: 2026-02-08
 
 ---
@@ -47,7 +47,17 @@ One Claude instance = one fixed role during the entire session.
 - Don't implement code if you're QA
 - Don't make design decisions if you're Backend/Frontend
 
-### 5. Workflow Sequence
+### 5. Execution Mode Awareness
+
+The agent's execution behavior depends on the resolved execution_mode provider:
+
+- **agent-executes**: Generate code following patterns, run tests, iterate autonomously
+- **human-guided**: Create instructions, human implements, agent verifies
+- **hybrid**: Generate code, pause for human review at checkpoints
+
+Resolve execution_mode from `core/providers.yaml` before starting any task. In `auto` mode, low-trust paths (auth/, security/, payment/) default to `hybrid`.
+
+### 6. Workflow Sequence
 
 Follow the defined workflow without skipping stages.
 
@@ -55,7 +65,7 @@ Follow the defined workflow without skipping stages.
 - Don't QA before Implementation is `COMPLETED`
 - If you need to change workflow, document why in `DECISIONS.md`
 
-### 6. Synchronized State
+### 7. Synchronized State
 
 Use `50_state.md` to communicate state between roles.
 
@@ -67,13 +77,20 @@ Use `50_state.md` to communicate state between roles.
 
 ## Context Window Management
 
-Treat context as a limited resource.
+Treat context as a resource. Thresholds depend on the active provider (see `core/providers.yaml`).
 
 ### Signs to Restart Session
-- Read more than 20 files
-- Session longer than 2 hours
-- More than 50 messages
-- Forgetting things discussed earlier
+
+Resolve the context_management provider first, then apply thresholds:
+
+| Signal | Manual Snapshots (standard) | Compaction-Aware (advanced) |
+|--------|----------------------------|----------------------------|
+| Files read | > 20 | > 50 |
+| Session duration | > 2 hours | > 4 hours |
+| Messages | > 50 | > 150 |
+| Context capacity | > 70% | > 85% |
+
+If provider is `auto`, detect tier per `core/docs/CAPABILITY_PROVIDERS.md` Detection Protocol.
 
 ### Session Restart Protocol
 1. Save current state in `50_state.md`

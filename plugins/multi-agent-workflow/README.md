@@ -14,6 +14,21 @@ A **compound engineering** framework for Claude Code that coordinates multiple A
 - **Quality Gates**: Blocking checkpoints with auto-correction loops
 - **Compound Learning**: Capture insights from each feature
 
+### v2.7.0 New Features (Agent-Native Execution)
+- **Execution Mode Provider**: `/workflows:work` now supports `agent-executes` (agent generates code), `human-guided` (legacy), and `hybrid` (agent generates, human reviews) modes
+- **Autonomous Code Generation**: In `agent-executes` mode, the agent reads existing patterns, generates TDD tests first, implements code, auto-corrects failures, validates SOLID, and checkpoints — all autonomously
+- **Trust-Aware Detection**: `auto` mode routes sensitive areas (auth, security, payment) to `hybrid` automatically
+- **Pattern-Following Generation**: Agent reads reference files from `30_tasks.md` to learn existing code style before generating new code
+- **Same Workflow, New Capability**: `/workflows:plan` → `/workflows:work` → `/workflows:review` → `/workflows:compound` — the workflow doesn't change, but now the agent can execute the plan
+
+### v2.6.0 New Features (Capability Providers)
+- **Model-Agnostic Providers**: Abstraction layer that auto-detects model capabilities and selects the best implementation. Plugin works with Opus 4.5 and 4.6 without limiting either
+- **Parallelization Provider**: `/workflows:parallel` auto-resolves to Agent Teams (Opus 4.6+ with TeammateTool) or worktrees+tmux (fallback). Same interface, different backends
+- **Context Management Provider**: Thresholds adapt to model tier — relaxed for compaction-aware (Opus 4.6+), strict for manual-snapshots (standard)
+- **Selective Fork Strategy**: With 200K-1M context windows (Opus 4.6+), only fork truly heavy operations. Inline lighter analysis for better integration
+- **Provider Configuration**: `core/providers.yaml` — set to `auto` for detection or force specific providers
+- **API Recommendations**: Documents optimal API settings (effort, speed, thinking) per workflow phase
+
 ### v2.5.0 New Features (Context Engineering v2)
 - **Scoped Rules**: 3 rule files (`testing-rules.md`, `security-rules.md`, `git-rules.md`) that load only when matching file types are edited
 - **Slim CLAUDE.md**: Reduced from ~514 to ~130 lines (~75% reduction). Detailed content moved to on-demand reference docs
@@ -530,6 +545,6 @@ See `core/docs/CONTEXT_ENGINEERING.md` for the full reference document.
 
 ---
 
-**Version**: 2.5.0
-**Aligned with**: Compound Engineering + Karpathy Principles + Claude Agent SDK + Context Engineering (Fowler) + Agent Skills Architecture (Hightower)
+**Version**: 2.7.0
+**Aligned with**: Compound Engineering + Karpathy Principles + Claude Agent SDK + Context Engineering (Fowler) + Agent Skills Architecture (Hightower) + Capability Providers + Agent-Native Execution
 **Changelog**: See CLAUDE.md and CONTEXT_ENGINEERING.md for version history

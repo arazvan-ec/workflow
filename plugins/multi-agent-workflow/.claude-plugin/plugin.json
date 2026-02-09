@@ -1,7 +1,7 @@
 {
   "name": "multi-agent-workflow",
-  "version": "2.5.0",
-  "description": "Compound engineering framework for multi-agent AI development with context engineering, scoped rules, forked sub-agents, and portable governance. 21 specialized agents, 25 workflow commands, 15 skills. Slim always-loaded context (~130 lines CLAUDE.md) with on-demand reference docs.",
+  "version": "2.7.0",
+  "description": "Compound engineering framework for multi-agent AI development. Model-agnostic provider system with autonomous code generation (agent-executes mode), quality-gated TDD workflow, and multi-agent coordination. 21 specialized agents, 25 workflow commands, 15 skills.",
   "author": {
     "name": "arazvan-ec",
     "url": "https://github.com/arazvan-ec"
@@ -28,7 +28,11 @@
     "hot-reload",
     "queen-agent-pattern",
     "scoped-rules",
-    "urgency-calibration"
+    "urgency-calibration",
+    "capability-providers",
+    "model-agnostic",
+    "agent-teams",
+    "agent-native"
   ],
   "commands": "./commands/",
   "agents": "./agents/",

@@ -38,6 +38,12 @@ workflow:
   parallel_execution: true      # Enable backend/frontend parallel work
   api_mocking: true             # Enable API mocking when backend not ready
 
+# Capability providers (auto-detect model and select best implementation)
+# See: plugins/multi-agent-workflow/core/providers.yaml for full configuration
+# See: plugins/multi-agent-workflow/core/docs/CAPABILITY_PROVIDERS.md for documentation
+providers:
+  config_path: "plugins/multi-agent-workflow/core/providers.yaml"
+
 # Git configuration
 git:
   main_branch: "main"
