@@ -35,6 +35,28 @@
     "agent-native"
   ],
   "commands": "./commands/",
-  "agents": "./agents/",
+  "agents": [
+    "./agents/design/api-designer.md",
+    "./agents/design/architecture-criteria-analyst.md",
+    "./agents/design/solid-architecture-generator.md",
+    "./agents/design/ui-verifier.md",
+    "./agents/research/best-practices-researcher.md",
+    "./agents/research/codebase-analyzer.md",
+    "./agents/research/dependency-auditor.md",
+    "./agents/research/git-historian.md",
+    "./agents/research/learnings-researcher.md",
+    "./agents/review/agent-native-reviewer.md",
+    "./agents/review/code-review-ts.md",
+    "./agents/review/code-simplicity-reviewer.md",
+    "./agents/review/ddd-compliance.md",
+    "./agents/review/pattern-recognition-specialist.md",
+    "./agents/review/performance-review.md",
+    "./agents/review/security-review.md",
+    "./agents/workflow/bug-reproducer.md",
+    "./agents/workflow/comprehension-guardian.md",
+    "./agents/workflow/spec-analyzer.md",
+    "./agents/workflow/spec-extractor.md",
+    "./agents/workflow/style-enforcer.md"
+  ],
   "skills": "./skills/"
 }
