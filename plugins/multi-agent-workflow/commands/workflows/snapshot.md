@@ -6,6 +6,8 @@ argument_hint: --name="checkpoint-name" [--feature=<feature-name>]
 
 # Multi-Agent Workflow: Snapshot
 
+> **Tier 3 (Automatic)**: This command is triggered automatically by `/workflows:work` when context usage exceeds ~70%. Only invoke manually before breaks or risky operations.
+
 Create a complete snapshot of the current session state for preservation and later restoration. Essential for managing context window limits and enabling session continuity.
 
 ## Usage

@@ -43,6 +43,23 @@ Feature Timeline:
 
 This awareness helps future planning account for the **real complexity**, not just the easy 70%.
 
+## Flow Guard (prerequisite check)
+
+Before executing, verify the flow has been followed:
+
+```
+PREREQUISITE CHECK:
+  1. Does 50_state.md exist for this feature?
+     - NO: STOP. This feature has not been through the workflow.
+
+  2. Is QA status = APPROVED in 50_state.md?
+     - NO (REJECTED): STOP. Review was rejected. Fix issues and re-review first.
+     - NO (other): STOP. Review has not been completed. Run /workflows:review first.
+     - YES: Proceed with compound capture.
+
+  If either check fails, do NOT proceed.
+```
+
 ## Usage
 
 ```bash

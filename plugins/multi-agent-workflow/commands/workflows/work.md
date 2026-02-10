@@ -8,6 +8,41 @@ argument_hint: <feature-name> --mode=<roles|layers|stacks> [--role=<role>] [--la
 
 Execute implementation with the compound engineering principle: make each unit of work easier.
 
+## Flow Guard (prerequisite check)
+
+Before executing, verify the flow has been followed:
+
+```
+PREREQUISITE CHECK:
+  1. Does 50_state.md exist for this feature?
+     - NO: STOP. Run /workflows:plan first.
+
+  2. Is planner status = COMPLETED in 50_state.md?
+     - NO (PENDING or IN_PROGRESS): STOP. Planning not finished. Run /workflows:plan.
+     - NO (BLOCKED): STOP. Planning is blocked. Resolve blocker first.
+     - YES: Continue to work.
+
+  3. Does the role's status allow starting work?
+     - PENDING: OK, start work (set to IN_PROGRESS)
+     - IN_PROGRESS: OK, resume work from last checkpoint
+     - COMPLETED: Work already done. Confirm re-work with user.
+     - BLOCKED: Show blocker details, ask user how to proceed.
+
+  If checks 1 or 2 fail, do NOT proceed. Plan first.
+```
+
+## Automatic Operations (built into this command)
+
+The following are executed automatically as part of `/workflows:work`:
+- **Git sync** (Step 2) -- pulls latest changes before starting
+- **TDD enforcement** (Step 5) -- Red-Green-Refactor cycle
+- **SOLID verification** (Step 7) -- checks score at each checkpoint
+- **Ralph Wiggum Loop** (Step 6) -- auto-corrects up to 10 iterations
+- **Checkpoint** (Step 7) -- saves progress + commits after each logical unit
+- **Snapshot** -- triggered when context exceeds 70% capacity
+
+You do NOT need to invoke these separately.
+
 ## Usage
 
 ```bash

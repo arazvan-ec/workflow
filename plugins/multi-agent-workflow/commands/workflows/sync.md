@@ -6,6 +6,8 @@ argument_hint: <feature-name>
 
 # Multi-Agent Workflow: Sync
 
+> **Tier 3 (Automatic)**: Git sync runs automatically at the start of `/workflows:plan` and `/workflows:work`. Only invoke manually when you need to pull changes mid-session.
+
 Pull latest changes from the remote repository to synchronize with other roles.
 
 ## Usage

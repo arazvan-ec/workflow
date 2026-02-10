@@ -6,6 +6,8 @@ argument_hint: "[--feature=name] [--role=name] [--period=7d]"
 
 # Multi-Agent Workflow: Metrics
 
+> **Tier 3 (Automatic)**: Metrics are collected automatically and analyzed as part of `/workflows:compound`. Only invoke this command manually for standalone performance analysis.
+
 Analyze workflow performance to identify bottlenecks, patterns, and improvement opportunities.
 
 ## Usage

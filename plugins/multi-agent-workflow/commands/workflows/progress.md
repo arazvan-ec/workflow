@@ -6,6 +6,8 @@ argument_hint: [--show | --update <task> <status> | --note <text> | --file <path
 
 # Multi-Agent Workflow: Progress
 
+> **Tier 3 (Automatic)**: Progress is tracked automatically via `50_state.md` updates inside `/workflows:work`. Use `/workflows:status` to view progress. Only invoke this command manually for fine-grained task tracking in long sessions.
+
 Track and manage session progress across context windows using the Agent Harness pattern.
 
 ## Usage

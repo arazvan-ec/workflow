@@ -6,6 +6,8 @@ argument_hint: <role> <feature-name>
 
 # Multi-Agent Workflow: Role
 
+> **Tier 3 (Automatic)**: Role assignment is handled automatically by `/workflows:work --role=X`. Only invoke this command manually when you need to assume a role outside the normal work flow.
+
 Assume a specialized role for feature development with complete context loading.
 
 ## Usage

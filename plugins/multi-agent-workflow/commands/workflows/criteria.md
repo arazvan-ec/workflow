@@ -6,6 +6,8 @@ argument_hint: <feature-id> [--interview | --evaluate | --quick | --review]
 
 # Multi-Agent Workflow: Criteria
 
+> **Tier 3 (Automatic)**: Criteria evaluation runs automatically inside `/workflows:plan` (Phase 3: SOLID constraint). Only invoke this command manually for standalone architecture decision records.
+
 Generate, evaluate, and document architecture decision criteria. Good criteria lead to good architecture choices.
 
 ## Usage

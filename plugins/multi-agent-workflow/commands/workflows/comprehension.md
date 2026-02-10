@@ -6,6 +6,8 @@ argument_hint: <feature-name> [--mode=<check|report|self-review>]
 
 # Multi-Agent Workflow: Comprehension
 
+> **Tier 3 (Automatic)**: Comprehension checks run automatically inside `/workflows:review` (quality gates). Only invoke this command manually for standalone comprehension audits.
+
 Evaluates comprehension debt to ensure sustainable development velocity.
 
 > *"It's trivially easy to review code that you can no longer write from scratch."* - Addy Osmani

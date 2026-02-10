@@ -6,6 +6,8 @@ model: inherit
 
 # /workflows:solid-refactor
 
+> **Tier 3 (Automatic)**: SOLID refactoring is triggered automatically by `/workflows:review` when the score is below 18/25. Only invoke this command manually for standalone SOLID refactoring of existing code.
+
 Complete workflow for refactoring code to strict SOLID compliance. This command orchestrates analysis, pattern selection, architecture generation, and implementation guidance.
 
 ## Synopsis
