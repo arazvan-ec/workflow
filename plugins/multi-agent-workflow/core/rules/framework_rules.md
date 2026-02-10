@@ -1,7 +1,7 @@
 # Framework Rules - Multi-Agent Workflow
 
-**Framework Version**: 2.7.0
-**Last Updated**: 2026-02-08
+**Framework Version**: 2.8.0
+**Last Updated**: 2026-02-10
 
 ---
 
@@ -57,18 +57,36 @@ The agent's execution behavior depends on the resolved execution_mode provider:
 
 Resolve execution_mode from `core/providers.yaml` before starting any task. In `auto` mode, low-trust paths (auth/, security/, payment/) default to `hybrid`.
 
-### 6. Workflow Sequence
+### 6. Workflow Sequence and Flow Guards
 
-Follow the defined workflow without skipping stages.
+Follow the defined workflow without skipping stages. Each core command enforces prerequisites:
+
+- **`plan`** requires: request routed via `/workflows:route`
+- **`work`** requires: planner status = `COMPLETED` in `50_state.md`
+- **`review`** requires: implementation status = `COMPLETED` in `50_state.md`
+- **`compound`** requires: QA status = `APPROVED` in `50_state.md`
+
+If a prerequisite is not met, STOP and complete the missing step first.
 
 - For complex or unclear features, Shape before Planning (`/workflows:shape` → `/workflows:plan`)
 - Don't implement before Planning is `COMPLETED`
 - Don't QA before Implementation is `COMPLETED`
 - If you need to change workflow, document why in `DECISIONS.md`
 
-**Full sequence**: Shape (optional) → Plan → Work → Review → Compound
+**Full sequence**: Route → Shape (optional) → Plan → Work → Review → Compound
 
-### 7. Synchronized State
+### 7. Command Tiers
+
+Commands are organized in tiers. Only Tier 1 and Tier 2 commands should be invoked directly by users:
+
+- **Tier 1 (Core Flow)**: `route`, `shape`, `plan`, `work`, `review`, `compound`
+- **Tier 2 (Support)**: `status`, `help`, `specs`, `discover`
+- **Tier 3 (Automatic)**: Operations handled automatically by Tier 1 commands (sync, checkpoint, snapshot, tdd, trust, validate, comprehension, criteria, parallel, progress, monitor, solid-refactor, role, metrics, restore)
+- **Tier 4 (Developer-Only)**: Plugin development tools (`skill-dev`, `heal-skill`, `reload`)
+
+Tier 3 commands exist for edge cases but should NOT be part of the normal flow.
+
+### 8. Synchronized State
 
 Use `50_state.md` to communicate state between roles.
 

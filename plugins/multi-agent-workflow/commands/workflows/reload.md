@@ -6,6 +6,8 @@ argument_hint: --skill=<name> | --agent=<name> | --all
 
 # Multi-Agent Workflow: Reload
 
+> **Tier 4 (Developer-Only)**: This command is for plugin development, not for feature work. Use it to hot-reload modified skill/agent definitions mid-session.
+
 Hot-reload workflow components (skills, agents, workflow configurations) without losing current state or conversation context.
 
 ## Usage

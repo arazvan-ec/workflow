@@ -7,6 +7,8 @@ allowed-tools: [Read, Edit, Bash(ls:*), Bash(git:*)]
 
 # Heal Skill
 
+> **Tier 4 (Developer-Only)**: This command is for plugin development, not for feature work. Use it to fix broken skill definitions.
+
 Update a skill's SKILL.md and related files based on corrections discovered during execution.
 
 ## Purpose

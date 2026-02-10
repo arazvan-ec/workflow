@@ -6,6 +6,8 @@ argument_hint: <feature-id> [--roles=backend,frontend,qa] [--provider=auto|agent
 
 # Multi-Agent Workflow: Parallel
 
+> **Tier 3 (Automatic)**: Parallelization is handled automatically by `/workflows:work --mode=roles`. Only invoke this command manually when you need explicit control over the parallel execution setup.
+
 Launch multiple AI agents working in parallel on a feature. The command auto-resolves the best parallelization provider based on the running model and available tools.
 
 ## Usage

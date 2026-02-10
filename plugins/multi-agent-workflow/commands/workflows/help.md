@@ -1,28 +1,27 @@
 ---
 name: workflows:help
-description: "Quick help and navigation for the Multi-Agent Workflow plugin. Shows available commands, concepts, and resources."
+description: "Quick help and navigation for the Multi-Agent Workflow plugin. Shows the flow, available commands by tier, and resources."
 argument_hint: [topic]
 ---
 
-# /workflows:help - Ayuda Rápida y Navegación
+# /workflows:help - Quick Help and Navigation
 
-**Version**: 1.0.0
+**Version**: 2.0.0
 **Category**: Reference
-**Priority**: High utility command
 
 ---
 
 ## Purpose
 
-Proporciona ayuda rápida, navegación y referencia para el plugin Multi-Agent Workflow. Diseñado para acceso rápido cuando el usuario necesita orientación.
+Quick reference for the Multi-Agent Workflow plugin. Shows the core flow, command tiers, and resources.
 
 ## Invocation
 
 ```bash
-# Ayuda general
+# General help
 /workflows:help
 
-# Ayuda sobre tema específico
+# Help on specific topic
 /workflows:help commands
 /workflows:help agents
 /workflows:help concepts
@@ -33,337 +32,246 @@ Proporciona ayuda rápida, navegación y referencia para el plugin Multi-Agent W
 
 ### Default (No Arguments): Show Quick Reference Card
 
+Display this card:
+
 ```markdown
-╔══════════════════════════════════════════════════════════════════════╗
-║              Multi-Agent Workflow - Ayuda Rápida                     ║
-╚══════════════════════════════════════════════════════════════════════╝
+## Multi-Agent Workflow - Quick Reference
 
-## Comandos Más Usados
+### The Flow
 
-| Comando             | Descripción                    | Ejemplo                    |
-|---------------------|--------------------------------|----------------------------|
-| `/workflows:plan`   | Planificar una feature         | `/workflows:plan user-auth`|
-| `/workflows:work`   | Implementar código             | `/workflows:work user-auth --role=backend` |
-| `/workflows:review` | Revisar calidad                | `/workflows:review user-auth` |
-| `/workflows:status` | Ver estado actual              | `/workflows:status user-auth` |
-| `/workflows:route`  | ¿No sabes qué hacer? Pregunta  | `/workflows:route "necesito..."` |
+  ROUTE --> SHAPE --> PLAN --> WORK --> REVIEW --> COMPOUND
+  (entry)  (optional)  (80%)   (15%)     (4%)       (1%)
 
-## Flujo Básico
+### Core Commands (use these)
 
-```
-/workflows:plan → /workflows:work → /workflows:review → /workflows:compound
-      80%              15%               4%                   1%
-```
+| # | Command             | Purpose                            |
+|---|---------------------|------------------------------------|
+| 0 | /workflows:route    | Entry point: classify and route    |
+| 1 | /workflows:shape    | Pre-planning for complex features  |
+| 2 | /workflows:plan     | Architecture-first planning        |
+| 3 | /workflows:work     | Execute implementation (TDD)       |
+| 4 | /workflows:review   | Multi-agent quality review         |
+| 5 | /workflows:compound | Capture learnings                  |
 
-## ¿Qué Necesitas?
+### What Do You Need?
 
-| Si quieres...                | Usa...                        |
-|------------------------------|-------------------------------|
-| Empezar algo nuevo           | `/workflows:plan`             |
-| Continuar trabajo            | `/workflows:status` + `/workflows:work` |
-| Revisar antes de merge       | `/workflows:review`           |
-| No sabes qué comando usar    | `/workflows:route`            |
-| Crear o editar un skill      | `/workflows:skill-dev`        |
-| Primera vez con el plugin    | `/workflows:onboarding`       |
-| Entender un término          | Ver GLOSSARY.md               |
-| Ver todos los comandos       | `/workflows:help commands`    |
-| Ver todos los agentes        | `/workflows:help agents`      |
+| If you want to...                | Use...                            |
+|----------------------------------|-----------------------------------|
+| Start something new              | /workflows:route "description"    |
+| Check progress                   | /workflows:status feature-name    |
+| Analyze a new project            | /workflows:discover               |
+| Manage specifications            | /workflows:specs                  |
+| First time with the plugin       | /workflows:help concepts          |
 
-## Recursos
+### Resources
 
-| Recurso | Descripción |
-|---------|-------------|
-| [QUICKSTART.md](../../QUICKSTART.md) | Inicio en 5 minutos |
-| [TUTORIAL.md](../../TUTORIAL.md) | Ejemplo completo paso a paso |
-| [GLOSSARY.md](../../GLOSSARY.md) | Definiciones de términos |
-| [INDEX.md](../../INDEX.md) | Mapa del repositorio |
-| [README.md](../../README.md) | Documentación completa |
+| Resource      | Description              |
+|---------------|--------------------------|
+| QUICKSTART.md | Get started in 5 minutes |
+| TUTORIAL.md   | Full step-by-step example|
+| GLOSSARY.md   | Term definitions         |
 
----
-Para más detalles: `/workflows:help [topic]`
+For more: /workflows:help [topic]
 Topics: commands, agents, concepts, troubleshooting
 ```
 
 ### Topic: commands
 
+Display the tiered command structure:
+
 ```markdown
-## Todos los Comandos Disponibles
+## All Commands by Tier
 
-### Core Workflow (usa estos principalmente)
+### Tier 1: Core Flow (use these in order)
 
-| Comando | Descripción | Cuándo usar |
-|---------|-------------|-------------|
-| `/workflows:plan` | Planificar feature completa | Inicio de cualquier feature |
-| `/workflows:work` | Implementar código | Después de planificar |
-| `/workflows:review` | Revisión de calidad | Antes de merge |
-| `/workflows:compound` | Capturar learnings | Después de aprobar |
+| # | Command              | Purpose                           | Prerequisite          |
+|---|----------------------|-----------------------------------|-----------------------|
+| 0 | /workflows:route     | Classify and route request        | None (always first)   |
+| 1 | /workflows:shape     | Problem/solution separation       | Routed (optional)     |
+| 2 | /workflows:plan      | Architecture-first planning       | Routed                |
+| 3 | /workflows:work      | Execute with TDD + Ralph Wiggum   | Plan = COMPLETED      |
+| 4 | /workflows:review    | Multi-agent quality review        | Work = COMPLETED      |
+| 5 | /workflows:compound  | Capture learnings                 | Review = APPROVED     |
 
-### Coordinación
+### Tier 2: Support (use during the flow when needed)
 
-| Comando | Descripción | Cuándo usar |
-|---------|-------------|-------------|
-| `/workflows:route` | Router inteligente | No sabes qué hacer |
-| `/workflows:role` | Trabajar como rol específico | Desarrollo enfocado |
-| `/workflows:status` | Ver estado actual | Verificar progreso |
-| `/workflows:sync` | Sincronizar estado | Entre sesiones |
+| Command              | Purpose                              |
+|----------------------|--------------------------------------|
+| /workflows:status    | View all roles' progress             |
+| /workflows:help      | This help                            |
+| /workflows:specs     | Manage living specifications         |
+| /workflows:discover  | Auto-analyze project architecture    |
 
-### Sesión y Estado
+### Tier 3: Automatic (handled by core commands, manual override only)
 
-| Comando | Descripción | Cuándo usar |
-|---------|-------------|-------------|
-| `/workflows:checkpoint` | Guardar progreso | Antes de pausa |
-| `/workflows:snapshot` | Captura completa del estado | Sesiones largas |
-| `/workflows:restore` | Restaurar estado | Nueva sesión |
-| `/workflows:reload` | Recargar contexto | Contexto corrupto |
+These run automatically inside the core flow. Only invoke manually for edge cases:
 
-### Calidad
+| Operation           | Auto-triggered by              | Manual command          |
+|---------------------|--------------------------------|-------------------------|
+| Git sync            | plan, work                     | /workflows:sync         |
+| Save progress       | work (at checkpoints)          | /workflows:checkpoint   |
+| Session snapshot    | work (context > 70%)           | /workflows:snapshot     |
+| Restore session     | Session start + 50_state.md    | /workflows:restore      |
+| TDD enforcement     | work (TDD cycle)               | /workflows:tdd          |
+| Trust evaluation    | route (routing logic)          | /workflows:trust        |
+| Spec validation     | plan (Phase 2)                 | /workflows:validate     |
+| Comprehension check | review (quality gates)         | /workflows:comprehension|
+| Criteria evaluation | plan (Phase 3: SOLID)          | /workflows:criteria     |
+| Parallelization     | work --mode=roles              | /workflows:parallel     |
+| Progress tracking   | work (50_state.md updates)     | /workflows:progress     |
+| Monitoring          | work (parallel mode)           | /workflows:monitor      |
+| SOLID refactoring   | review (when score < 18/25)    | /workflows:solid-refactor|
+| Role assignment     | work --role=X                  | /workflows:role         |
+| Metrics collection  | compound (analysis)            | /workflows:metrics      |
 
-| Comando | Descripción | Cuándo usar |
-|---------|-------------|-------------|
-| `/workflows:validate` | Validar contra specs | Verificar implementación |
-| `/workflows:tdd` | Modo Test-Driven | Desarrollo con tests primero |
-| `/workflows:criteria` | Ver criterios de aceptación | Revisar requisitos |
-| `/workflows:solid-refactor` | Refactorizar para SOLID | Mejorar arquitectura |
+### Tier 4: Developer-Only (plugin development)
 
-### Avanzados
-
-| Comando | Descripción | Cuándo usar |
-|---------|-------------|-------------|
-| `/workflows:parallel` | Trabajo paralelo multi-agente | Features complejas |
-| `/workflows:monitor` | Monitorear progreso | Supervisión |
-| `/workflows:metrics` | Ver métricas del proyecto | Análisis |
-| `/workflows:interview` | Entrevista de requisitos | Requisitos complejos |
-| `/workflows:comprehension` | Verificar comprensión | Evitar malentendidos |
-
-### Desarrollo de Skills
-
-| Comando | Descripción | Cuándo usar |
-|---------|-------------|-------------|
-| `/workflows:skill-dev` | Crear, editar, validar y probar skills | Desarrollo de skills |
-
-### Utilidades
-
-| Comando | Descripción |
-|---------|-------------|
-| `/workflows:help` | Esta ayuda |
-| `/workflows:onboarding` | Experiencia de primera vez |
-| `/workflows:progress` | Progreso detallado |
-| `/workflows:trust` | Nivel de confianza por archivo |
-| `/workflows:deepen-plan` | Profundizar planificación |
-| `/workflows:heal-skill` | Reparar skills |
+| Command              | Purpose                              |
+|----------------------|--------------------------------------|
+| /workflows:skill-dev | Create/edit/test plugin skills       |
+| /workflows:heal-skill| Fix broken skill definitions         |
+| /workflows:reload    | Hot-reload skills/agents mid-session |
 ```
 
 ### Topic: agents
 
 ```markdown
-## Agentes Disponibles
+## Agents
 
-### Roles Principales (4)
+### Role Agents (4) -- invoked by plan, work, review
 
-| Agente | Función | Cuándo se activa |
-|--------|---------|------------------|
-| **Planner** | Planifica y diseña features | `/workflows:plan` |
-| **Backend** | Implementa APIs y servidor | `/workflows:work --role=backend` |
-| **Frontend** | Implementa UI y componentes | `/workflows:work --role=frontend` |
-| **QA** | Testing y validación | `/workflows:review` |
+| Agent       | Function                         |
+|-------------|----------------------------------|
+| Planner     | Architecture and specification   |
+| Backend     | API and server implementation    |
+| Frontend    | UI and component implementation  |
+| QA          | Testing and validation           |
 
-### Agentes de Review (7)
+### Review Agents (7) -- invoked by /workflows:review (context: fork)
 
-| Agente | Especialidad |
-|--------|--------------|
-| Security Review | OWASP, vulnerabilidades |
-| Performance Review | N+1, memory leaks, optimización |
-| DDD Compliance | Arquitectura Domain-Driven |
-| Code Review TS | Estándares TypeScript |
-| Agent-Native Reviewer | Código compatible con IA |
-| Code Simplicity Reviewer | Simplicidad y legibilidad |
-| Pattern Recognition | Detecta anti-patterns |
+| Agent                       | Speciality                  |
+|-----------------------------|-----------------------------|
+| Security Review             | OWASP, vulnerabilities      |
+| Performance Review          | N+1, memory leaks           |
+| DDD Compliance              | Domain-Driven architecture  |
+| Code Review TS              | TypeScript standards        |
+| Agent-Native Reviewer       | AI-compatible code          |
+| Code Simplicity Reviewer    | Simplicity and readability  |
+| Pattern Recognition         | Anti-pattern detection      |
 
-### Agentes de Research (5)
+### Research Agents (5) -- invoked by route, plan (context: fork)
 
-| Agente | Especialidad |
-|--------|--------------|
-| Codebase Analyzer | Análisis de estructura |
-| Git Historian | Historia y decisiones |
-| Dependency Auditor | Seguridad de dependencias |
-| Learnings Researcher | Patrones exitosos previos |
-| Best Practices Researcher | Mejores prácticas externas |
+| Agent                       | Speciality                  |
+|-----------------------------|-----------------------------|
+| Codebase Analyzer           | Structure analysis          |
+| Git Historian               | History and decisions       |
+| Dependency Auditor          | Dependency security         |
+| Learnings Researcher        | Past successful patterns    |
+| Best Practices Researcher   | External best practices     |
 
-### Agentes de Workflow (4)
+### Workflow Agents (5) -- invoked by work, review
 
-| Agente | Especialidad |
-|--------|--------------|
-| Bug Reproducer | Reproducir y documentar bugs |
-| Spec Analyzer | Validar vs especificaciones |
-| Style Enforcer | Estándares de código |
-| Comprehension Guardian | Evitar malentendidos |
+| Agent                       | Speciality                  |
+|-----------------------------|-----------------------------|
+| Bug Reproducer              | Reproduce and document bugs |
+| Spec Analyzer               | Validate vs specifications  |
+| Spec Extractor              | Extract specs from code     |
+| Style Enforcer              | Code standards              |
+| Comprehension Guardian      | Prevent misunderstandings   |
 
-### Agentes de Design (4)
+### Design Agents (2) -- invoked by plan, review
 
-| Agente | Especialidad |
-|--------|--------------|
-| API Designer | Contratos RESTful |
-| UI Verifier | Validación UI/UX |
-| SOLID Architecture Generator | Diseño SOLID |
-| Architecture Criteria Analyst | Evaluación arquitectónica |
+| Agent                       | Speciality                  |
+|-----------------------------|-----------------------------|
+| API Designer                | RESTful contracts           |
+| UI Verifier                 | UI/UX validation            |
 
-> Los agentes se invocan automáticamente según el workflow.
-> Normalmente no necesitas invocarlos directamente.
+All agents are invoked automatically by the core commands.
+You rarely need to invoke them directly.
 ```
 
 ### Topic: concepts
 
 ```markdown
-## Conceptos Clave
+## Key Concepts
 
-### Metodologías
+### The Flow
 
-| Concepto | Qué es | Por qué importa |
-|----------|--------|-----------------|
-| **Compound Engineering** | Cada tarea hace las siguientes más fáciles | Efecto bola de nieve positivo |
-| **Context Engineering** | Curar qué información ve el modelo | Menos ruido, mejores resultados (v2.4.0) |
-| **context: fork** | Agentes aislados en contextos separados | Protege ventana de contexto principal (v2.4.0) |
-| **Ralph Wiggum Loop** | Auto-corrección hasta 10 intentos | Menos intervención manual |
-| **80/20 Rule** | 80% planificar, 20% ejecutar | Previene 80% de bugs |
-| **TDD** | Tests antes que código | Código más confiable |
-| **DDD** | Diseño guiado por dominio | Arquitectura escalable |
+  ROUTE --> SHAPE --> PLAN --> WORK --> REVIEW --> COMPOUND
+  (entry)  (optional)  (80%)   (15%)     (4%)       (1%)
 
-### Archivos Importantes
+Every request follows this flow. Stages cannot be skipped.
 
-| Archivo | Propósito | Ubicación |
-|---------|-----------|-----------|
-| `50_state.md` | Estado actual (fuente de verdad) | `.ai/project/features/{feature}/` |
-| `20_api_contracts.md` | Contratos de API | `.ai/project/features/{feature}/` |
-| `30_tasks_*.md` | Tareas por rol | `.ai/project/features/{feature}/` |
-| `FEATURE_*.md` | Definición de feature | `.ai/project/features/{feature}/` |
+### Core Ideas
 
-### Estados de Tareas
+| Concept                   | What it means                                  |
+|---------------------------|------------------------------------------------|
+| Compound Engineering      | Each task makes the next one easier            |
+| 80/20 Rule                | 80% planning, 20% execution                   |
+| Ralph Wiggum Loop         | Auto-correct up to 10 times, then BLOCKED      |
+| TDD                       | Tests before code (Red-Green-Refactor)         |
+| DDD                       | Domain-Driven Design architecture              |
+| SOLID Constraint          | Phase 3 solutions must score >= 22/25          |
+| Context Engineering       | Curate what information the model sees         |
+| context: fork             | Isolated agents returning summaries only       |
 
-```
-PENDING → IN_PROGRESS → COMPLETED → APPROVED
-              ↓                        ↓
-           BLOCKED                 REJECTED
-              ↓                        ↓
-         [resolver]              [arreglar y re-review]
-```
+### Important Files
 
-### Flujo de 4 Fases
+| File            | Purpose                        | Location                              |
+|-----------------|--------------------------------|---------------------------------------|
+| 50_state.md     | Source of truth for progress   | .ai/project/features/{feature}/       |
+| 30_tasks.md     | Task breakdown by role         | .ai/project/features/{feature}/       |
+| FEATURE_*.md    | Feature definition             | .ai/project/features/{feature}/       |
+| 15_solutions.md | Technical design with SOLID    | .ai/project/features/{feature}/       |
 
-```
-┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐
-│  PLAN   │───▶│  WORK   │───▶│ REVIEW  │───▶│COMPOUND │
-│  80%    │    │  15%    │    │   4%    │    │   1%    │
-└─────────┘    └─────────┘    └─────────┘    └─────────┘
-  Planner      Backend/FE        QA          Learnings
-```
+### Task States
 
-> Ver [GLOSSARY.md](../../GLOSSARY.md) para definiciones completas.
+  PENDING --> IN_PROGRESS --> COMPLETED --> APPROVED
+                  |                          |
+               BLOCKED                    REJECTED
+                  |                          |
+             [resolve]              [fix and re-review]
+
+See GLOSSARY.md for full definitions.
 ```
 
 ### Topic: troubleshooting
 
 ```markdown
-## Solución de Problemas Comunes
+## Common Issues
 
-### "No sé por dónde empezar"
+### "I don't know where to start"
+/workflows:route "describe what you need"
 
-```bash
-# Opción 1: Onboarding guiado
-/workflows:onboarding
+### "Context window is getting heavy"
+The plugin auto-snapshots at ~70% capacity.
+If manual action needed:
+1. /workflows:snapshot
+2. Start new Claude session
+3. /workflows:restore
 
-# Opción 2: Dejar que el router decida
-/workflows:route "descripción de lo que necesitas"
+### "Something failed and I don't know what"
+/workflows:status my-feature
+Check 50_state.md for BLOCKED status with details.
 
-# Opción 3: Empezar con planificación
-/workflows:plan nombre-feature
-```
+### "Tests won't pass"
+The Ralph Wiggum Loop auto-corrects up to 10 times.
+If still failing: status will be BLOCKED with root cause.
+/workflows:status my-feature
 
-### "El contexto se volvió muy largo"
+### "Need to go back to a previous state"
+/workflows:restore --list        # see available snapshots
+/workflows:restore --name=X      # restore specific one
 
-```bash
-# 1. Guardar estado actual
-/workflows:sync
+### "How do I customize the workflow?"
+Project rules: .ai/extensions/rules/
+Workflow definitions: .ai/extensions/workflows/
+Plugin agents: plugins/multi-agent-workflow/agents/
 
-# 2. Iniciar nueva sesión de Claude
-
-# 3. Restaurar contexto
-/workflows:restore
-```
-
-### "Algo falló y no sé qué"
-
-```bash
-# 1. Ver estado actual
-/workflows:status mi-feature
-
-# 2. Si hay BLOCKED, ver detalles en:
-cat .ai/project/features/mi-feature/50_state.md
-```
-
-### "El frontend está esperando el backend"
-
-```bash
-# 1. Verificar estado del backend
-/workflows:status mi-feature
-
-# 2. Si backend aún no está listo, frontend usa mocks
-# Esto es normal - estado WAITING_API
-
-# 3. Cuando backend termine, sincronizar
-/workflows:sync
-```
-
-### "Los tests no pasan"
-
-```bash
-# El Ralph Wiggum Loop intentará hasta 10 veces
-# Si aún falla:
-
-# 1. Ver el estado de QA
-/workflows:status mi-feature
-
-# 2. Si está BLOCKED, revisar manualmente
-# 3. Arreglar y re-run review
-/workflows:review mi-feature
-```
-
-### "Necesito volver a un estado anterior"
-
-```bash
-# Si hiciste snapshot antes:
-/workflows:restore --snapshot=nombre-snapshot
-
-# Si no, usar git:
-git log --oneline  # encontrar commit
-git checkout <commit> -- .ai/
-```
-
-### "No entiendo un término/concepto"
-
-```bash
-# Ver glosario
-# Archivo: GLOSSARY.md
-
-# O preguntar directamente describiendo tu confusión
-```
-
-### "¿Cómo personalizo el workflow?"
-
-```
-1. Reglas globales: plugins/multi-agent-workflow/rules/global_rules.md
-2. Agentes: plugins/multi-agent-workflow/agents/
-3. Skills: plugins/multi-agent-workflow/skills/
-
-Edita los archivos .md correspondientes.
-```
-
----
-
-¿Problema no listado? Describe tu situación y te ayudaré.
+Problem not listed? Describe your situation and ask.
 ```
 
 ## Related Commands
 
-- `/workflows:onboarding` - Full onboarding experience
-- `/workflows:route` - Intelligent workflow routing
+- `/workflows:route` - Entry point for all requests
 - `/workflows:status` - Check current state
