@@ -1,6 +1,6 @@
 # Framework Rules - Multi-Agent Workflow
 
-**Framework Version**: 2.9.0
+**Framework Version**: 2.10.0
 **Last Updated**: 2026-02-10
 
 ---
@@ -63,6 +63,7 @@ Follow the defined workflow without skipping stages. Each core command enforces 
 
 - **`plan`** requires: request routed via `/workflows:route`
 - **`work`** requires: planner status = `COMPLETED` in `50_state.md`
+- **`validate-solution`** requires: work in progress or `COMPLETED` (or invoked during plan)
 - **`review`** requires: implementation status = `COMPLETED` in `50_state.md`
 - **`compound`** requires: QA status = `APPROVED` in `50_state.md`
 
@@ -73,20 +74,40 @@ If a prerequisite is not met, STOP and complete the missing step first.
 - Don't QA before Implementation is `COMPLETED`
 - If you need to change workflow, document why in `DECISIONS.md`
 
-**Full sequence**: Route → Shape (optional) → Plan → Work → Review → Compound
+**Full sequence**: Route → Shape (optional) → Plan → Work → Validate (auto) → Review → Compound
 
 ### 7. Command Tiers
 
 Commands are organized in tiers. Only Tier 1 and Tier 2 commands should be invoked directly by users:
 
-- **Tier 1 (Core Flow)**: `route`, `shape`, `plan`, `work`, `review`, `compound`
+- **Tier 1 (Core Flow)**: `route`, `shape`, `plan`, `work`, `validate-solution`, `review`, `compound`
 - **Tier 2 (Support)**: `quickstart`, `status`, `help`, `specs`, `discover`
 - **Tier 3 (Automatic)**: Operations handled automatically by Tier 1 commands (sync, checkpoint, snapshot, tdd, trust, validate, comprehension, criteria, parallel, progress, monitor, solid-refactor, role, metrics, restore)
 - **Tier 4 (Developer-Only)**: Plugin development tools (`skill-dev`, `heal-skill`, `reload`)
 
 Tier 3 commands exist for edge cases but should NOT be part of the normal flow.
 
-### 8. Synchronized State
+### 8. Validate Before Delivering (Self-Questioning)
+
+Every AI-generated solution must be questioned before delivery. The AI must:
+
+- **Extract hidden assumptions** — every solution has at least 3
+- **Check blind spots** — context, technical, business, and integration
+- **Consult past learnings** — read `validation-learning-log.md` before asking questions
+- **Ask the user only what's necessary** — never repeat a question already answered in the log
+- **Log every interaction** — answers become permanent learnings for future features
+
+```
+Question first, deliver second.
+Never assume the 70% zone is complete.
+Every user answer is a permanent asset, not a one-time input.
+```
+
+The validation learning log (`validation-learning-log.md`) grows with each feature, making the workflow dynamically smarter. Patterns confirmed in ≥5 features are promoted to project rules automatically.
+
+See `core/docs/VALIDATION_LEARNING.md` for the full specification.
+
+### 9. Synchronized State
 
 Use `50_state.md` to communicate state between roles.
 
