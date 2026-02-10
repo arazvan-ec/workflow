@@ -216,6 +216,29 @@ arr.includes(item);
 - **Performance-critical sections**: Document why complexity is necessary
 - **Compound docs**: Plans and solutions are valuable artifacts
 
+## Compound Memory Integration
+
+Before starting your review, check if `.ai/project/compound-memory.md` exists. If it does:
+
+1. **Read the Agent Calibration table** — check if your intensity has been adjusted (this agent may be set to LOW if the team consistently writes clean code)
+2. **Read Known Pain Points** — look for complexity-related entries (over-abstraction, premature generalization, dead code accumulation)
+3. **If intensity is LOW**: Focus only on high-impact simplifications (>20 LOC reduction)
+4. **If intensity is HIGH**: Apply full YAGNI rigor, challenge every abstraction
+
+Add to your report if relevant pain points exist:
+
+```markdown
+### Compound Memory Checks
+
+| Historical Issue | Status | Evidence |
+|-----------------|--------|----------|
+| [Pain point from memory] | ✓ Not found / ⚠️ Found | [file:line or "Clean"] |
+```
+
+If compound-memory.md does NOT exist, use default intensity.
+
+---
+
 ## Success Criteria
 
 - [ ] Every line of code has clear purpose

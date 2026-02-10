@@ -199,6 +199,36 @@ Document what should be avoided AND where progress slowed:
 - Document security patterns in project_specific.md
 ```
 
+### Step 3b: Update Agent Compound Memory
+
+After documenting anti-patterns and the 70% boundary, update `.ai/project/compound-memory.md`:
+
+```markdown
+# Update compound-memory.md with this feature's data
+
+## For each anti-pattern/pain point found in Step 3:
+
+1. Check if pain point already exists in compound-memory.md:
+   - EXISTS: Increment frequency (e.g., "2/5 features" → "3/6 features"), update severity if worse
+   - NEW: Add new entry under "Known Pain Points"
+
+2. For each successful pattern found in Step 2:
+   - EXISTS: Increment reliability counter
+   - NEW: Add new entry under "Historical Patterns"
+
+3. Recalculate Agent Calibration table:
+   - ≥2 related pain points for an agent → intensity = HIGH
+   - 1 related pain point → intensity = default + warning flag
+   - 0 related pain points → intensity = default
+   - ≥3 reliable good patterns → may LOWER intensity (team is consistent)
+
+4. If a pain point or pattern has been present for ≥5 features:
+   - PROMOTE to project rules (global_rules.md)
+   - Mark in memory: "[PROMOTED to global_rules.md on ${DATE}]"
+```
+
+See `core/agent-memory.md` for the full Agent Compound Memory specification.
+
 ### Step 4: Update Project Rules
 
 If patterns are generalizable, update rules:
@@ -562,6 +592,7 @@ The spec-merger skill:
 - [ ] **Identified the 70% boundary** (where progress slowed)
 - [ ] **Documented what made the 30% hard**
 - [ ] **Listed preventions for future features**
+- [ ] **Updated compound-memory.md** (Step 3b: pain points, patterns, agent calibration)
 - [ ] Updated relevant project rules
 - [ ] Added entry to compound_log.md
 - [ ] Created/updated templates if applicable

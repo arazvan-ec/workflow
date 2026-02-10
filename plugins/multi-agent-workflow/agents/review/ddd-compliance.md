@@ -195,6 +195,33 @@ class User {
 }
 ```
 
+## Compound Memory Integration
+
+Before starting your review, check if `.ai/project/compound-memory.md` exists. If it does:
+
+1. **Read the Agent Calibration table** — check if your intensity has been adjusted
+2. **Read Known Pain Points** — look for DDD-related entries (layer violations, anemic entities, Doctrine in Domain, aggregate boundaries)
+3. **Read Historical Patterns** — look for proven DDD patterns (value objects, factory methods) and validate they're still being followed
+4. **Add a "Compound Memory Checks" section** to your report:
+
+```markdown
+### Compound Memory Checks
+
+| Historical Issue | Status | Evidence |
+|-----------------|--------|----------|
+| [Pain point from memory] | ✓ Not found / ⚠️ Found | [file:line or "Clean"] |
+
+| Proven Pattern | Status | Evidence |
+|---------------|--------|----------|
+| [Pattern from memory] | ✓ Followed / ⚠️ Deviated | [file:line] |
+```
+
+If compound-memory.md does NOT exist or has no DDD-related entries, skip this section and use default intensity.
+
+**Key rule**: This agent has a dual role with compound memory — verify bad patterns are absent AND good patterns are still being followed. Reinforce what works.
+
+---
+
 ## Integration
 
 Use with `/workflows:review`:
