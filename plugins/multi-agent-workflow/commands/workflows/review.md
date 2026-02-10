@@ -8,6 +8,37 @@ argument_hint: <feature-name> [--agent=<security|performance|ddd|code>]
 
 Comprehensive review phase using specialized review agents.
 
+## Flow Guard (prerequisite check)
+
+Before executing, verify the flow has been followed:
+
+```
+PREREQUISITE CHECK:
+  1. Does 50_state.md exist for this feature?
+     - NO: STOP. This feature has not been planned or worked on.
+
+  2. Is the implementation work COMPLETED?
+     - Check backend status = COMPLETED (if applicable)
+     - Check frontend status = COMPLETED or WAITING_API (if applicable)
+     - If neither is COMPLETED: STOP. Run /workflows:work first.
+
+  3. Is QA status already APPROVED?
+     - YES: Review already passed. Confirm re-review with user.
+     - NO: Proceed with review.
+
+  If checks 1 or 2 fail, do NOT proceed.
+```
+
+## Automatic Operations (built into this command)
+
+The following are executed automatically as part of `/workflows:review`:
+- **Comprehension check** -- verifies understanding of generated code
+- **SOLID score verification** -- checks >= 18/25 minimum
+- **Spec validation** -- validates implementation against specs
+- **Trust-level evaluation** -- applies appropriate scrutiny per file
+
+You do NOT need to invoke these separately.
+
 ## Usage
 
 ```bash

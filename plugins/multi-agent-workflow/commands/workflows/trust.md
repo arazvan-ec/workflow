@@ -6,6 +6,8 @@ argument_hint: <filepath | --task <type> | --batch <files...>>
 
 # Multi-Agent Workflow: Trust
 
+> **Tier 3 (Automatic)**: Trust evaluation runs automatically inside `/workflows:route` (routing logic) and `/workflows:work` (execution mode resolution). Only invoke this command manually to inspect trust levels of specific files.
+
 Evaluate the trust level of files or tasks to determine appropriate supervision.
 
 ## Usage

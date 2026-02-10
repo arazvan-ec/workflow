@@ -6,6 +6,8 @@ argument_hint: [--watch] [--json] [--diagnose]
 
 # Multi-Agent Workflow: Monitor
 
+> **Tier 3 (Automatic)**: Parallel agent monitoring is handled automatically by `/workflows:work --mode=roles`. Only invoke manually for real-time dashboard visualization.
+
 Monitor the status of all parallel agents running in a workflow session.
 
 ## Usage

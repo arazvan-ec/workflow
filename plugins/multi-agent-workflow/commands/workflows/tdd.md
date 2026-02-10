@@ -6,6 +6,8 @@ argument_hint: <check | display <file> | generate <file>>
 
 # Multi-Agent Workflow: TDD
 
+> **Tier 3 (Automatic)**: TDD is enforced automatically inside `/workflows:work` (Step 5: TDD cycle). Only invoke this command manually to check TDD compliance of staged files or generate test templates outside the work flow.
+
 Enforce Test-Driven Development practices and generate test templates.
 
 ## Usage

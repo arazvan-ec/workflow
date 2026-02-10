@@ -8,6 +8,24 @@ argument_hint: <feature-name> [--workflow=default|task-breakdown] [--show-impact
 
 The planning phase is the foundation of compound engineering. Invest 80% of effort here.
 
+## Flow Guard (prerequisite check)
+
+Before executing, verify the flow has been followed:
+
+```
+PREREQUISITE CHECK:
+  1. Was this request routed via /workflows:route?
+     - YES: Continue to planning
+     - NO: STOP. Run /workflows:route first, then return here.
+
+  2. If 50_state.md exists for this feature, is this a continuation?
+     - YES (planner = IN_PROGRESS): Resume planning from last checkpoint
+     - YES (planner = COMPLETED): Plan already exists. Confirm re-planning with user.
+     - NO: Fresh start, proceed normally.
+
+  If either check fails, do NOT proceed. Route first.
+```
+
 ## Usage
 
 ```

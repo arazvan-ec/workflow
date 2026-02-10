@@ -1,7 +1,7 @@
 {
   "name": "multi-agent-workflow",
-  "version": "2.7.0",
-  "description": "Compound engineering framework for multi-agent AI development. Model-agnostic provider system with autonomous code generation (agent-executes mode), quality-gated TDD workflow, and multi-agent coordination. 21 specialized agents, 25 workflow commands, 15 skills.",
+  "version": "2.8.0",
+  "description": "Compound engineering framework for multi-agent AI development. Tiered command system (6 core + 4 support + 15 automatic + 3 dev-only), model-agnostic providers, autonomous code generation (agent-executes mode), quality-gated TDD workflow, and multi-agent coordination. 23 specialized agents, 31 workflow commands, 15 skills.",
   "author": {
     "name": "arazvan-ec",
     "url": "https://github.com/arazvan-ec"

@@ -6,6 +6,8 @@ argument_hint: <role> <feature-name> [message]
 
 # Multi-Agent Workflow: Checkpoint
 
+> **Tier 3 (Automatic)**: This command runs automatically inside `/workflows:work` at each logical checkpoint. Only invoke manually if you need to save progress outside the normal work flow.
+
 Save your progress at a natural stopping point. Enables context management and session resumption.
 
 ## Usage

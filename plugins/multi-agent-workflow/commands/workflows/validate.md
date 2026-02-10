@@ -6,6 +6,8 @@ argument_hint: <spec-path> [--all] [--json]
 
 # Multi-Agent Workflow: Validate
 
+> **Tier 3 (Automatic)**: Spec validation runs automatically inside `/workflows:plan` (Phase 2: Specs). Only invoke this command manually to validate specs independently.
+
 Validate specification files (YAML) against their JSON schemas.
 
 ## Usage

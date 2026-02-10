@@ -6,6 +6,8 @@ argument_hint: <skill-name> [--create|--edit|--test|--validate]
 
 # /workflows:skill-dev - Skill Development Mode
 
+> **Tier 4 (Developer-Only)**: This command is for plugin development, not for feature work. Use it to create, edit, and test plugin skills.
+
 **Version**: 1.0.0
 **Category**: Development
 **Requires**: Claude Code 2.1+ (hot-reload support)
