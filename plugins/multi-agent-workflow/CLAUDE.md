@@ -37,6 +37,7 @@ Use these when needed during the flow, not as primary workflow steps.
 
 | Command | Purpose | Typical usage |
 |---------|---------|---------------|
+| `/workflows:quickstart` | Interactive onboarding for new projects | **First time setup** — auto-detects stack, configures plugin |
 | `/workflows:status` | View all roles' progress | Check where things stand |
 | `/workflows:help` | Quick reference and guidance | When lost or unsure |
 | `/workflows:specs` | Manage living specifications | Before planning (discover existing specs) |
@@ -143,6 +144,7 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 - **Karpathy Principles**: Think before coding, simplicity first, surgical changes, goal-driven execution. Details in `core/docs/KARPATHY_PRINCIPLES.md`.
 - **Ralph Wiggum Loop**: Auto-correct up to 10 iterations, then mark BLOCKED. Details in `core/rules/framework_rules.md`.
 - **Compound Capture**: After each feature, extract patterns and update rules via `/workflows:compound`.
+- **Agent Compound Memory**: Review agents read `.ai/project/compound-memory.md` to calibrate intensity based on historical pain points. See `core/agent-memory.md`.
 - **SOLID Constraint**: Phase 3 solutions target score >= 22/25. See `core/solid-pattern-matrix.md`.
 - **Context as Resource**: Thresholds adapt to provider (compaction-aware or manual-snapshots). Details in `core/docs/SESSION_CONTINUITY.md`.
 
@@ -176,6 +178,7 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 | Lifecycle hooks | `core/docs/LIFECYCLE_HOOKS.md` |
 | MCP integration | `core/docs/MCP_INTEGRATION.md` |
 | SOLID pattern matrix | `core/solid-pattern-matrix.md` |
+| Agent compound memory system | `core/agent-memory.md` |
 | Operational rules | `core/rules/framework_rules.md` |
 | Testing conventions | `core/rules/testing-rules.md` |
 | Security & trust model | `core/rules/security-rules.md` |
@@ -183,4 +186,4 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 
 ---
 
-**Version**: 2.8.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers + Shape Up (Singer)
+**Version**: 2.9.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers + Shape Up (Singer) + Agent Compound Memory

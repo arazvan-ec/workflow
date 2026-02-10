@@ -112,6 +112,28 @@ Review code for performance issues and recommend optimizations.
 [Commands to apply optimizations]
 ```
 
+## Compound Memory Integration
+
+Before starting your review, check if `.ai/project/compound-memory.md` exists. If it does:
+
+1. **Read the Agent Calibration table** — check if your intensity has been adjusted
+2. **Read Known Pain Points** — look for performance-related entries (N+1 queries, slow endpoints, bundle size, missing indexes)
+3. **Add a "Compound Memory Checks" section** to your report:
+
+```markdown
+### Compound Memory Checks
+
+| Historical Issue | Status | Evidence |
+|-----------------|--------|----------|
+| [Pain point from memory] | ✓ Not found / ⚠️ Found | [metric or "Clean"] |
+```
+
+If compound-memory.md does NOT exist or has no performance-related entries, skip this section and use default intensity.
+
+**Key rule**: If compound memory shows recurring N+1 queries, check ALL list/collection endpoints first — this is the most common performance regression in projects with this history.
+
+---
+
 ## Integration
 
 Use with `/workflows:review`:

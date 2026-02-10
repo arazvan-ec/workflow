@@ -244,6 +244,12 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/.ai/project/analysis/soul-md-analysis.md (2026-02-10T18:29:47+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/agents/review/ddd-compliance.md (2026-02-10T18:27:40+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/agents/review/performance-review.md (2026-02-10T18:27:35+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/agents/review/security-review.md (2026-02-10T18:27:31+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/core/agent-memory.md (2026-02-10T18:26:59+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/quickstart.md (2026-02-10T18:26:06+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/core/rules/framework_rules.md (2026-02-10T18:05:54+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/reload.md (2026-02-10T18:05:28+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/skill-dev.md (2026-02-10T18:05:18+00:00)

@@ -98,6 +98,28 @@ Review code for security vulnerabilities based on OWASP Top 10 and security best
 [Commands to verify fixes]
 ```
 
+## Compound Memory Integration
+
+Before starting your review, check if `.ai/project/compound-memory.md` exists. If it does:
+
+1. **Read the Agent Calibration table** — check if your intensity has been adjusted
+2. **Read Known Pain Points** — look for security-related entries (JWT, CORS, auth, injection, secrets)
+3. **Add a "Compound Memory Checks" section** to your report:
+
+```markdown
+### Compound Memory Checks
+
+| Historical Issue | Status | Evidence |
+|-----------------|--------|----------|
+| [Pain point from memory] | ✓ Not found / ⚠️ Found | [file:line or "Clean"] |
+```
+
+If compound-memory.md does NOT exist or has no security-related entries, skip this section and use default intensity.
+
+**Key rule**: Historical pain points are HIGH PRIORITY checks. They represent real issues this project has had before — always verify them explicitly.
+
+---
+
 ## Integration
 
 Use with `/workflows:review`:

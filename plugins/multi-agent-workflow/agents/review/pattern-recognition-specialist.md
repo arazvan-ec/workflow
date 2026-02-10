@@ -243,6 +243,31 @@ Grep: pattern="^\s{16,}" type=ts output_mode=content
 Grep: pattern="^(export )?(async )?function" -A 100 type=ts
 ```
 
+## Compound Memory Integration
+
+Before starting your analysis, check if `.ai/project/compound-memory.md` exists. If it does:
+
+1. **Read Known Pain Points** — these are confirmed anti-patterns from previous features. Prioritize checking if they recur.
+2. **Read Historical Patterns** — these are confirmed good patterns. Validate they're still being followed consistently.
+3. **Cross-reference your findings** with compound memory:
+   - New anti-pattern found that's NOT in memory → flag for compound capture
+   - Known anti-pattern from memory found again → mark as RECURRING (higher severity)
+   - Known good pattern NOT followed → flag as REGRESSION
+
+Add to your report:
+
+```markdown
+### Compound Memory Cross-Reference
+
+| Memory Entry | Type | Current Status |
+|-------------|------|---------------|
+| [Entry] | Pain point / Pattern | Recurring / Resolved / New / Followed / Regressed |
+```
+
+This agent has a special relationship with compound memory — it both **consumes** memory (to calibrate analysis) and **produces** data that feeds back into the next `/workflows:compound` capture.
+
+---
+
 ## Integration with Compound Engineering
 
 When patterns are identified:

@@ -1,6 +1,6 @@
 # Framework Rules - Multi-Agent Workflow
 
-**Framework Version**: 2.8.0
+**Framework Version**: 2.9.0
 **Last Updated**: 2026-02-10
 
 ---
@@ -80,7 +80,7 @@ If a prerequisite is not met, STOP and complete the missing step first.
 Commands are organized in tiers. Only Tier 1 and Tier 2 commands should be invoked directly by users:
 
 - **Tier 1 (Core Flow)**: `route`, `shape`, `plan`, `work`, `review`, `compound`
-- **Tier 2 (Support)**: `status`, `help`, `specs`, `discover`
+- **Tier 2 (Support)**: `quickstart`, `status`, `help`, `specs`, `discover`
 - **Tier 3 (Automatic)**: Operations handled automatically by Tier 1 commands (sync, checkpoint, snapshot, tdd, trust, validate, comprehension, criteria, parallel, progress, monitor, solid-refactor, role, metrics, restore)
 - **Tier 4 (Developer-Only)**: Plugin development tools (`skill-dev`, `heal-skill`, `reload`)
 
