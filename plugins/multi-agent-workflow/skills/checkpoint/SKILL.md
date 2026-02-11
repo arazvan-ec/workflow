@@ -1,6 +1,6 @@
 ---
 name: checkpoint
-description: "Creates blocking checkpoints with auto-correction loops (Ralph Wiggum pattern) for quality-gated development."
+description: "Creates blocking checkpoints with auto-correction protocol (BCP) for quality-gated development."
 hooks:
   PreToolUse:
     - matcher: Write
@@ -16,12 +16,12 @@ Create blocking checkpoints with auto-correction loops for quality-gated develop
 ## What This Skill Does
 
 - Validates that tests pass before allowing progress
-- Implements the "Ralph Wiggum Pattern" (iterate until tests pass)
+- Implements the Bounded Correction Protocol (iterate until tests pass)
 - Documents progress for session resumption
 - Manages context window through strategic stopping points
 - Provides escape hatch after max iterations
 
-## The Ralph Wiggum Pattern
+## The Bounded Correction Protocol
 
 Instead of pushing forward blindly, iterate until quality gates pass:
 

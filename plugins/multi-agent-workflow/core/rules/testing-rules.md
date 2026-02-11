@@ -36,7 +36,7 @@ Always write tests before implementation. The test defines the contract; the imp
 - Do not mock domain entities — test them directly
 - Do not write tests that depend on execution order
 
-## Ralph Wiggum Auto-Correction Loop
+## Bounded Auto-Correction Protocol
 
 When tests fail during implementation:
 

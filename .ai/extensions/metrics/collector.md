@@ -10,7 +10,7 @@ This skill integrates with the workflow system to capture performance data witho
 
 - Monitors workflow state transitions
 - Records timing for each stage and checkpoint
-- Tracks iteration counts (Ralph Wiggum pattern)
+- Tracks iteration counts (Bounded Correction Protocol)
 - Captures blocked events and resolutions
 - Logs compound learnings and their reuse
 

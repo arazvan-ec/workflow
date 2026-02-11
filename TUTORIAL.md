@@ -250,7 +250,7 @@ El QA Engineer ejecuta:
 4. **DDD Compliance**: Arquitectura correcta
 5. **Code Review**: Estándares y patrones
 
-### Paso 4.2: Ralph Wiggum Loop
+### Paso 4.2: Bounded Correction Protocol
 
 Si hay errores, el QA automáticamente:
 
@@ -359,7 +359,7 @@ Esto captura:
 │       │                                                              │
 │       ▼                                                              │
 │  ┌─────────────────┐                                                 │
-│  │     REVIEW      │  ← Ralph Wiggum Loop                            │
+│  │     REVIEW      │  ← Bounded Correction Protocol                   │
 │  │    (5-10 min)   │    Auto-corrige hasta 10 veces                  │
 │  └────────┬────────┘                                                 │
 │           │                                                          │
@@ -383,7 +383,7 @@ Esto captura:
 ### Do's
 - Revisar contratos de API antes de implementar
 - Hacer checkpoint después de cada fase
-- Confiar en el Ralph Wiggum loop para arreglos
+- Confiar en el Bounded Correction Protocol para arreglos
 - Usar `/workflows:status` frecuentemente
 
 ### Don'ts

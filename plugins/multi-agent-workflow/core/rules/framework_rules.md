@@ -222,7 +222,7 @@ Only the Planner role can modify project rules (with justification in `DECISIONS
 
 | Rule File | Applies To | Content |
 |-----------|-----------|---------|
-| `testing-rules.md` | Test files (`*Test.php`, `*.test.ts`, etc.) | TDD workflow, coverage, Ralph Wiggum loop |
+| `testing-rules.md` | Test files (`*Test.php`, `*.test.ts`, etc.) | TDD workflow, coverage, Bounded Correction Protocol |
 | `security-rules.md` | Auth, security, payment paths | Trust model, supervision calibration, security prohibitions |
 | `git-rules.md` | Git operations | Branching, commits, conflict management, multi-agent sync |
 

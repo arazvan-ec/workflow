@@ -155,7 +155,7 @@ Esto genera automáticamente:
 | **context: fork** | Agentes aislados que no contaminan tu contexto |
 | **Scoped Rules** | Reglas que se cargan solo al editar archivos relevantes |
 | **50_state.md** | Archivo con el estado actual (fuente de verdad) |
-| **Ralph Wiggum Loop** | Auto-corrección automática (máx 10 intentos) |
+| **Bounded Correction Protocol** | Auto-corrección automática (máx 10 intentos) |
 | **TDD** | Tests primero, código después |
 | **Shaping** | Separar problema de solución antes de planificar |
 

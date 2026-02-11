@@ -293,7 +293,7 @@ Require explanations for decisions, not just code.
 - If security requirements change
 ```
 
-### Strategy 5: Bounded Iteration (Ralph Wiggum Pattern)
+### Strategy 5: Bounded Iteration (Bounded Correction Protocol)
 
 Don't let AI loop forever trying to fix something.
 

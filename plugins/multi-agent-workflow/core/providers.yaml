@@ -122,7 +122,7 @@ providers:
   #   - Generates code using Write/Edit tools following the plan
   #   - Writes tests FIRST (TDD), then implementation
   #   - Runs tests via test-runner skill
-  #   - Auto-corrects via Ralph Wiggum loop (up to 10 iterations)
+  #   - Auto-corrects via Bounded Correction Protocol (up to 10 iterations)
   #   - Validates SOLID via solid-analyzer skill
   #   - Checkpoints on success, marks BLOCKED on failure
   #   - Best for: well-defined tasks with existing patterns to follow

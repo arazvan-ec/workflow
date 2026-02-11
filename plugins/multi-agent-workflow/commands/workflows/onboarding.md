@@ -157,7 +157,7 @@ PLAN → WORK → REVIEW → COMPOUND
 ```
 Cada feature pasa por estas 4 fases, siempre en orden.
 
-### 3. Auto-corrección (Ralph Wiggum Loop)
+### 3. Auto-corrección (Bounded Correction Protocol)
 Si algo falla, el sistema intenta corregirlo automáticamente hasta 10 veces.
 Tú solo intervienes si se bloquea.
 

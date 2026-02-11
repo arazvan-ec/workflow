@@ -125,7 +125,7 @@ El ecosistema de IA en 2026 ha evolucionado significativamente hacia **sistemas 
 | Context management | ✅ Commodore 64 philosophy |
 | MCP-readiness | ✅ Diseño compatible |
 | Skills atómicos | ✅ 10 skills |
-| Auto-corrección (Ralph Wiggum) | ✅ Implementado |
+| Auto-corrección (BCP) | ✅ Implementado |
 | Compound learning capture | ✅ Implementado |
 
 ### Gaps Identificados

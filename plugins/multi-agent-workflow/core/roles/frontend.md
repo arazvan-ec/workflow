@@ -23,7 +23,7 @@ The agent IS the frontend engineer. For each task:
 4. **Run test** to confirm it fails (test-runner skill)
 5. **Write component** following the pattern from the reference — use Write/Edit tools
 6. **Run tests** (test-runner skill)
-7. **If tests fail** → analyze error, fix code, re-run (Ralph Wiggum loop, max 10 iterations)
+7. **If tests fail** → analyze error, fix code, re-run (Bounded Correction Protocol, max 10 iterations)
 8. **Fix lint** (lint-fixer skill)
 9. **Checkpoint** — update `50_state.md` with completed task
 
@@ -153,7 +153,7 @@ The agent implements UI directly, following existing patterns as reference:
    - Fix lint issues via lint-fixer skill
    - Ensure responsive styles match the reference component
 
-5. **Auto-Correct (Ralph Wiggum Loop)**
+5. **Auto-Correct (Bounded Correction Protocol)**
    - If tests fail → analyze error, fix code, re-run (max 10 iterations)
    - If lint fails → fix, re-run
    - If all green → checkpoint
@@ -883,7 +883,7 @@ Todo código frontend debe:
 - ✅ Pasar **linters** (ESLint, Prettier)
 - ✅ Cumplir **criterios de aceptación** del feature
 
-## 🔄 Auto-Correction Loop (Ralph Wiggum Pattern)
+## 🔄 Bounded Auto-Correction Protocol
 
 **CRITICAL**: Aplica este patrón de iteración automática para cada checkpoint.
 

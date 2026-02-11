@@ -818,4 +818,4 @@ Un planning está **completo** cuando:
 **IMPORTANTE**: Siempre especifica que Backend y Frontend deben usar TDD (Test-Driven Development) en todas las tareas. Los tests deben escribirse ANTES de la implementación.
 
 **Última actualización**: 2026-01-16
-**Cambios recientes**: Añadido Escape Hatch Template para task breakdowns (Ralph Wiggum Pattern)
+**Cambios recientes**: Añadido Escape Hatch Template para task breakdowns (Bounded Correction Protocol)

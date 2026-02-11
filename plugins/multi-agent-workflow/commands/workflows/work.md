@@ -37,7 +37,7 @@ The following are executed automatically as part of `/workflows:work`:
 - **Git sync** (Step 2) -- pulls latest changes before starting
 - **TDD enforcement** (Step 5) -- Red-Green-Refactor cycle
 - **SOLID verification** (Step 7) -- checks score at each checkpoint
-- **Ralph Wiggum Loop** (Step 6) -- auto-corrects up to 10 iterations
+- **Bounded Correction Protocol** (Step 6) -- auto-corrects up to 10 iterations
 - **Checkpoint** (Step 7) -- saves progress + commits after each logical unit
 - **Snapshot** -- triggered when context exceeds 70% capacity
 
@@ -91,7 +91,7 @@ TASK EXECUTION LOOP:
   4. RUN tests → confirm failure (test-runner)
   5. WRITE implementation following pattern — Write/Edit tools
   6. RUN tests (test-runner)
-  7. IF fail → analyze + fix (Ralph Wiggum, max 10 iterations)
+  7. IF fail → analyze + fix (BCP, max 10 iterations)
   8. CHECK SOLID (solid-analyzer) — must meet task thresholds
   9. FIX lint (lint-fixer)
   10. CHECKPOINT → update 50_state.md
@@ -217,7 +217,7 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 # If score < expected, refactor before proceeding
 ```
 
-### Step 6: Auto-Correction Loop (Ralph Wiggum Pattern)
+### Step 6: Bounded Auto-Correction Protocol
 
 ```python
 iterations = 0

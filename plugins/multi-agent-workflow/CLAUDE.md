@@ -18,7 +18,7 @@ A compound engineering framework for coordinating multiple AI agents in parallel
 | 0 | `/workflows:route` | Classify request, ask questions, select workflow | **Always first** |
 | 1 | `/workflows:shape` | Separate problem from solution, spike unknowns | Complex/unclear features only |
 | 2 | `/workflows:plan` | Architecture-first planning with SOLID constraint | Before any implementation |
-| 3 | `/workflows:work` | Execute implementation with TDD + Ralph Wiggum Loop | After plan is COMPLETED |
+| 3 | `/workflows:work` | Execute implementation with TDD + Bounded Correction Protocol | After plan is COMPLETED |
 | 4 | `/workflows:validate-solution` | Self-question AI solutions, log learnings | After work, before review |
 | 5 | `/workflows:review` | Multi-agent quality review | After validation |
 | 6 | `/workflows:compound` | Capture learnings for future acceleration | After review is APPROVED |
@@ -145,7 +145,7 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 ## Key Patterns
 
 - **Karpathy Principles**: Think before coding, simplicity first, surgical changes, goal-driven execution. Details in `core/docs/KARPATHY_PRINCIPLES.md`.
-- **Ralph Wiggum Loop**: Auto-correct up to 10 iterations, then mark BLOCKED. Details in `core/rules/framework_rules.md`.
+- **Bounded Correction Protocol**: Auto-correct up to 10 iterations, then mark BLOCKED. Details in `core/rules/framework_rules.md`.
 - **Compound Capture**: After each feature, extract patterns and update rules via `/workflows:compound`.
 - **Agent Compound Memory**: Review agents read `.ai/project/compound-memory.md` to calibrate intensity based on historical pain points. See `core/agent-memory.md`.
 - **Validation Learning**: AI self-questions solutions, asks user targeted questions, and logs answers for future use. Each feature makes validation smarter. See `core/docs/VALIDATION_LEARNING.md`.

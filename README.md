@@ -53,7 +53,7 @@ Productividad = (Velocidad de Código) × (Calidad del Feedback) × (Frecuencia 
 
 ---
 
-### 2. Ralph Wiggum Pattern & Loom
+### 2. Bounded Correction Protocol
 
 **Origen:** Geoffrey Huntley, desarrollador australiano, introdujo el patrón a mediados de 2025.
 
@@ -65,9 +65,9 @@ Productividad = (Velocidad de Código) × (Calidad del Feedback) × (Frecuencia 
 - **The Weaving Loom:** Huntley está desarrollando infraestructura para "software evolutivo" - replanteando los últimos 40 años de ingeniería de software. Incluye:
   - "Spool" - un host de código fuente que replica GitHub pero usa JJ como primitiva de control de versiones
   - Auto-healing de software: sistemas que identifican problemas, los arreglan, despliegan automáticamente y verifican
-- **Adopción masiva:** Diciembre 2025 llevó el patrón Ralph a la cima de los timelines de AI
+- **Adopción masiva:** Diciembre 2025 llevó el Bounded Correction Protocol a la cima de los timelines de AI
 - **Costos revolucionarios:** El desarrollo de software ahora puede hacerse mientras duermes por $10.42/hora
-- **Principio de "Principal Skinner":** Cada loop de Wiggum necesita supervisión - bounded iteration con escape hatches
+- **Principio de "Principal Skinner":** Cada loop de BCP necesita supervisión - bounded iteration con escape hatches
 
 **Implementación en este workflow:**
 ```python
@@ -82,7 +82,7 @@ if iterations >= MAX_ITERATIONS:
     document_for_planner()
 ```
 
-> **Fuentes:**
+> **Fuentes (Bounded Correction Protocol Origins):**
 > - [Everything is a Ralph Loop - Geoffrey Huntley](https://ghuntley.com/loop/)
 > - [Ralph Wiggum as "software engineer" - ghuntley.com](https://ghuntley.com/ralph/)
 > - [GitHub: how-to-ralph-wiggum](https://github.com/ghuntley/how-to-ralph-wiggum)
@@ -449,7 +449,7 @@ Los modelos AI ahora generan aproximadamente **80% del código**, dejando solo 2
 **Por qué este workflow mitiga el 80% Problem:**
 - **Spec-Driven**: Especificaciones completas antes de código previenen "sorpresas" en el 20% difícil
 - **TDD**: Tests escritos primero atrapan edge cases temprano
-- **Ralph Wiggum Loop**: Bounded iteration evita loops infinitos
+- **Bounded Correction Protocol**: Bounded iteration evita loops infinitos
 - **Quality Gates**: Checklist explícito para código crítico
 - **Comprehension Guardian**: Nuevo agente que verifica comprensión antes de aprobar
 - **Self-Review Pattern**: Agentes critican su propio código con "contexto fresco"
@@ -461,7 +461,7 @@ Los modelos AI ahora generan aproximadamente **80% del código**, dejando solo 2
 | **Self-Review** | Agente critica su propio código | Checklist obligatorio antes de COMPLETED |
 | **Comprehension Checkpoints** | Verificar entendimiento periódicamente | Cada 3 iteraciones TDD |
 | **Decision Documentation** | Documentar el "por qué" | DECISIONS.md obligatorio |
-| **Bounded Iteration** | No loops infinitos | Max 10 iteraciones (Ralph Wiggum) |
+| **Bounded Iteration** | No loops infinitos | Max 10 iteraciones (BCP) |
 | **Fresh Context Review** | Revisar como si otro lo escribió | Self-Review Pattern |
 
 #### Comprehension Guardian Agent (NUEVO)
@@ -717,7 +717,7 @@ Este workflow integra todas estas ideas en un sistema cohesivo:
 │                            ▼                  ▼                │
 │                     ┌─────────────────────────────┐            │
 │                     │           QA               │            │
-│                     │   (Ralph Wiggum Loop)      │            │
+│                     │   (Bounded Correction Protocol)      │            │
 │                     └─────────────────────────────┘            │
 │                                                                 │
 │  ┌──────────────────────────────────────────────────────────┐  │
@@ -793,7 +793,7 @@ plugins/multi-agent-workflow/
 ├── core/
 │   ├── rules/
 │   │   ├── framework_rules.md   # Reglas operacionales core (always-loaded)
-│   │   ├── testing-rules.md     # TDD, coverage, Ralph Wiggum (scoped)
+│   │   ├── testing-rules.md     # TDD, coverage, BCP (scoped)
 │   │   ├── security-rules.md    # Trust model, seguridad (scoped)
 │   │   └── git-rules.md         # Branching, commits (scoped)
 │   └── docs/
@@ -822,7 +822,7 @@ Requirements → Architecture → API Contracts → Task Breakdown
 Backend ⟷ Frontend (paralelo) → QA
 ```
 - Backend y Frontend trabajan simultáneamente
-- QA con Ralph Wiggum loop (max 10 iteraciones)
+- QA con Bounded Correction Protocol (max 10 iteraciones)
 - Auto-correction con bounded iteration
 
 ### `review` - Review Multi-Agente
@@ -888,7 +888,7 @@ Analyze → Extract Patterns → Update Rules → Measure Acceleration
 - [From Vibe Coding to Context Engineering - MIT Technology Review](https://www.technologyreview.com/2025/11/05/1127477/from-vibe-coding-to-context-engineering-2025-in-software-development/)
 - [Vibe Coding - Wikipedia](https://en.wikipedia.org/wiki/Vibe_coding)
 
-### Ralph Wiggum & Loom
+### Bounded Correction Protocol (Origins)
 - [Everything is a Ralph Loop - ghuntley.com](https://ghuntley.com/loop/)
 - [Ralph Wiggum as "software engineer"](https://ghuntley.com/ralph/)
 - [GitHub: how-to-ralph-wiggum](https://github.com/ghuntley/how-to-ralph-wiggum)

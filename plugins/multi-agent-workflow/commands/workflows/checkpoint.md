@@ -98,9 +98,9 @@ Create a checkpoint when:
 - **Before a break**: End of day, lunch, etc.
 - **After 1-2 hours**: Good practice for context management
 
-## Ralph Wiggum Pattern
+## Bounded Correction Protocol
 
-The checkpoint system follows the "Ralph Wiggum Pattern":
+The checkpoint system follows the Bounded Correction Protocol:
 
 1. **Blocking Checkpoints**: Can't proceed until tests pass
 2. **Auto-Correction Loop**: Up to 10 iterations to fix failures

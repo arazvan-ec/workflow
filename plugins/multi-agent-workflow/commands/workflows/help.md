@@ -89,7 +89,7 @@ Display the tiered command structure:
 | 0 | /workflows:route     | Classify and route request        | None (always first)   |
 | 1 | /workflows:shape     | Problem/solution separation       | Routed (optional)     |
 | 2 | /workflows:plan      | Architecture-first planning       | Routed                |
-| 3 | /workflows:work      | Execute with TDD + Ralph Wiggum   | Plan = COMPLETED      |
+| 3 | /workflows:work      | Execute with TDD + BCP   | Plan = COMPLETED      |
 | 4 | /workflows:review    | Multi-agent quality review        | Work = COMPLETED      |
 | 5 | /workflows:compound  | Capture learnings                 | Review = APPROVED     |
 
@@ -208,7 +208,7 @@ Every request follows this flow. Stages cannot be skipped.
 |---------------------------|------------------------------------------------|
 | Compound Engineering      | Each task makes the next one easier            |
 | 80/20 Rule                | 80% planning, 20% execution                   |
-| Ralph Wiggum Loop         | Auto-correct up to 10 times, then BLOCKED      |
+| Bounded Correction Protocol | Auto-correct up to 10 times, then BLOCKED      |
 | TDD                       | Tests before code (Red-Green-Refactor)         |
 | DDD                       | Domain-Driven Design architecture              |
 | SOLID Constraint          | Phase 3 solutions must score >= 22/25          |
@@ -255,7 +255,7 @@ If manual action needed:
 Check 50_state.md for BLOCKED status with details.
 
 ### "Tests won't pass"
-The Ralph Wiggum Loop auto-corrects up to 10 times.
+The Bounded Correction Protocol auto-corrects up to 10 times.
 If still failing: status will be BLOCKED with root cause.
 /workflows:status my-feature
 

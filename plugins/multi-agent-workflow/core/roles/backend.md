@@ -23,7 +23,7 @@ The agent IS the backend engineer. For each task:
 4. **Run test** to confirm it fails (test-runner skill)
 5. **Write implementation** following the pattern from the reference file — use Write/Edit tools
 6. **Run tests** (test-runner skill)
-7. **If tests fail** → analyze error, fix code, re-run (Ralph Wiggum loop, max 10 iterations)
+7. **If tests fail** → analyze error, fix code, re-run (Bounded Correction Protocol, max 10 iterations)
 8. **Check SOLID** (solid-analyzer skill) — must meet task thresholds
 9. **Fix lint** (lint-fixer skill)
 10. **Checkpoint** — update `50_state.md` with completed task
@@ -143,7 +143,7 @@ The agent performs all implementation steps autonomously:
    - Follow the pattern from the reference file exactly (same structure, naming, layer placement)
    - Run tests via test-runner skill — confirm they **pass** (Green phase)
 
-4. **Auto-Correct (Ralph Wiggum Loop)**
+4. **Auto-Correct (Bounded Correction Protocol)**
    - If tests fail → analyze error, fix code, re-run (max 10 iterations)
    - Do NOT modify the test to make it pass — fix the implementation
    - If still failing after 10 iterations → mark BLOCKED in `50_state.md`
@@ -602,7 +602,7 @@ Todo código backend debe:
 - ✅ Pasar **CI/CD** sin errores
 - ✅ Cumplir **criterios de aceptación** del feature
 
-## 🔄 Auto-Correction Loop (Ralph Wiggum Pattern)
+## 🔄 Bounded Auto-Correction Protocol
 
 **CRITICAL**: Aplica este patrón de iteración automática para cada checkpoint.
 

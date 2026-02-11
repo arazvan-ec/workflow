@@ -15,7 +15,7 @@
 
 ---
 
-### Ralph Wiggum Pattern
+### Bounded Correction Protocol
 **Qué es**: Loop automático de auto-corrección donde la IA intenta arreglar errores hasta 10 veces.
 
 **Por qué se llama así**: Referencia al personaje de Los Simpsons que sigue intentando aunque falle.
@@ -161,7 +161,7 @@ Frame → Requirements → Shape → Fit Check → Spike → Breadboard → Slic
 ### QA Engineer
 **Qué hace**: Prueba el código y valida calidad.
 
-**Herramienta principal**: Ralph Wiggum Loop.
+**Herramienta principal**: Bounded Correction Protocol.
 
 ---
 

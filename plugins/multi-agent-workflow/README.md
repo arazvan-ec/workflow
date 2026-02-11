@@ -340,7 +340,7 @@ See `commands/workflows/skill-dev.md` for full documentation.
 
 ## Key Patterns
 
-### Ralph Wiggum Pattern (Auto-Correction Loop)
+### Bounded Correction Protocol (Auto-Correction)
 ```python
 while tests_failing and iterations < 10:
     fix_code()
@@ -395,7 +395,7 @@ plugins/multi-agent-workflow/
 ├── core/
 │   ├── rules/
 │   │   ├── framework_rules.md     # Core operational rules (~172 lines)
-│   │   ├── testing-rules.md       # v2.5.0: TDD, coverage, Ralph Wiggum (scoped)
+│   │   ├── testing-rules.md       # v2.5.0: TDD, coverage, BCP (scoped)
 │   │   ├── security-rules.md      # v2.5.0: Trust model, supervision (scoped)
 │   │   └── git-rules.md           # v2.5.0: Branching, commits, conflicts (scoped)
 │   └── docs/

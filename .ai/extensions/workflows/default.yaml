@@ -6,7 +6,7 @@ metadata:
   project: PROJECT_X
   created: "2026-01-15"
   updated: "2026-01-16"
-  changes: "Added blocking checkpoints with auto-correction loop (Ralph Wiggum Pattern)"
+  changes: "Added blocking checkpoints with auto-correction protocol (Bounded Correction Protocol)"
 
 roles:
   - id: planner
@@ -95,7 +95,7 @@ stages:
         - "Validate schema: `php bin/console doctrine:schema:validate` - Must pass"
         - "Run linter: `./vendor/bin/php-cs-fixer fix --dry-run` - Must pass"
 
-      # BLOCKING CHECKPOINTS (Ralph Wiggum Pattern)
+      # BLOCKING CHECKPOINTS (Bounded Correction Protocol)
       # Each checkpoint MUST pass before proceeding to the next
       # Uses auto-correction loop: iterate until tests pass (max 10 iterations)
       checkpoints:
@@ -224,7 +224,7 @@ stages:
         - "Check accessibility: Use browser DevTools Lighthouse audit - Score > 90"
         - "Verify API calls: Open Network tab, verify requests/responses"
 
-      # BLOCKING CHECKPOINTS (Ralph Wiggum Pattern)
+      # BLOCKING CHECKPOINTS (Bounded Correction Protocol)
       # Each checkpoint MUST pass before proceeding to the next
       # Uses auto-correction loop: iterate until tests pass (max 10 iterations)
       checkpoints:

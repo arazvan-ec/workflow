@@ -70,7 +70,7 @@ Action: Enforce API contract freeze before frontend starts
 - Overall pass rate: > 90%
 - Average attempts: < 2.0
 
-### 3. Ralph Wiggum Pattern Tracking
+### 3. Bounded Correction Protocol Tracking
 
 **What it measures**: Number of iterations needed to pass checkpoints.
 

@@ -77,7 +77,7 @@ workflow/
 | Archivo | Propósito | Cuándo Consultarlo |
 |---------|-----------|-------------------|
 | [framework_rules.md](./plugins/multi-agent-workflow/core/rules/framework_rules.md) | Reglas operacionales core | Siempre (always-loaded) |
-| [testing-rules.md](./plugins/multi-agent-workflow/core/rules/testing-rules.md) | TDD, coverage, Ralph Wiggum | Al editar tests (scoped) |
+| [testing-rules.md](./plugins/multi-agent-workflow/core/rules/testing-rules.md) | TDD, coverage, BCP | Al editar tests (scoped) |
 | [security-rules.md](./plugins/multi-agent-workflow/core/rules/security-rules.md) | Trust model, seguridad | Al tocar auth/security/payment (scoped) |
 | [git-rules.md](./plugins/multi-agent-workflow/core/rules/git-rules.md) | Branching, commits, conflictos | Durante operaciones git (scoped) |
 
@@ -184,7 +184,7 @@ workflow/
 | Metodología | Sección en README | Origen |
 |-------------|-------------------|--------|
 | Compound Engineering | §1 | Evolución Vibe Coding 2025 |
-| Ralph Wiggum Pattern | §2 | Geoffrey Huntley |
+| Bounded Correction Protocol | §2 | Geoffrey Huntley |
 | Agent Harnesses | §3 | Tendencia 2026 |
 | Agent-Native Architecture | §4 | Diseño para agentes |
 | Model Context Protocol | §5 | Anthropic |
