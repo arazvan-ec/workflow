@@ -164,7 +164,14 @@ The agent performs all implementation steps autonomously:
    - Check SOLID via solid-analyzer skill — must meet task thresholds
    - Fix lint via lint-fixer skill
 
-7. **Checkpoint**
+7. **Adversarial Self-Review** (before checkpoint)
+   - Review your own implementation with a critical eye
+   - Identify AT LEAST 1 of: edge case not tested, code smell, performance concern, or security consideration
+   - If finding is CRITICAL → fix before checkpoint
+   - If finding is MINOR → document in checkpoint notes for future improvement
+   - Zero findings = review again more carefully (real code always has something)
+
+8. **Checkpoint**
    - Update `50_state.md` with completed task
    - Move to next task only when current checkpoint is fully green
 

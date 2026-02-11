@@ -69,6 +69,26 @@ GOAL VERIFICATION:
 
 **Why this matters**: Tests can pass while the feature is still incomplete. A test suite might verify that a function exists but not that it handles all acceptance criteria. Goal-backward verification catches these gaps.
 
+## Adversarial Self-Review (Checkpoint Prerequisite)
+
+Before marking a checkpoint complete, the implementing agent MUST identify at least 1 potential issue:
+
+```
+ADVERSARIAL SELF-REVIEW:
+  1. Review your own implementation with a critical eye
+  2. Identify AT LEAST 1 of:
+     - A potential edge case not covered by tests
+     - A code smell or SOLID violation (even minor)
+     - A performance concern or potential optimization
+     - A security consideration
+  3. Document finding in checkpoint notes
+  4. If CRITICAL → fix before checkpoint
+  5. If MINOR → document for future improvement
+  6. If ZERO findings → review again. Zero findings on real code is a red flag.
+```
+
+**Checkpoint notes must include**: At least 1 self-review finding. This prevents rubber-stamp checkpoints and ensures continuous quality awareness.
+
 ## When to Use
 
 - **Completing a logical unit**: Domain layer, component, endpoint
