@@ -35,6 +35,34 @@ This command sits between WORK and REVIEW. It can also be invoked:
 - After REVIEW (to validate review findings)
 - Standalone (for any solution validation)
 
+### Plan-Phase Validation Mode
+
+When invoked during planning (with `--phase=plan` or during active planning), validate-solution operates in plan-validation mode. This mode is automatically triggered by the Plan Completeness Verification in `/workflows:plan`.
+
+```
+IF invoked with --phase=plan OR during active planning:
+
+  VALIDATE:
+  1. Does 00_problem_statement.md address the user's actual request?
+     - Compare against the original request text
+     - Flag deviations or omissions
+
+  2. Do specs in 12_specs.md cover all aspects of the request?
+     - Map user requirements → specs
+     - Flag missing coverage
+
+  3. Do solutions in 15_solutions.md address all specs?
+     - Map specs → solutions
+     - Flag specs without solutions
+
+  4. Are tasks in 30_tasks.md traceable to solutions?
+     - Map solutions → tasks
+     - Flag solutions without implementation tasks
+
+  OUTPUT: Planning validation report noting gaps and deviations
+  ACTION: If gaps found, return to the relevant phase for correction
+```
+
 ## Flow Guard (prerequisite check)
 
 ```
