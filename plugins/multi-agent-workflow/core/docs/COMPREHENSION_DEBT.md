@@ -295,22 +295,38 @@ Require explanations for decisions, not just code.
 
 ### Strategy 5: Bounded Iteration (Bounded Correction Protocol)
 
-Don't let AI loop forever trying to fix something.
+Don't let AI loop forever trying to fix something. The BCP detects 3 types of deviations with scale-adaptive limits.
 
 ```python
-# Bounded iteration with escape hatch
-MAX_ITERATIONS = 10
+# Bounded iteration with 3 deviation types and adaptive limits
+# Limits: simple=5, moderate=10, complex=15 (from providers.yaml)
+max_iterations = resolve_from_complexity(task)
 iteration = 0
 
-while not tests_passing and iteration < MAX_ITERATIONS:
-    analyze_error()
-    attempt_fix()
-    run_tests()
+while (not tests_passing or deviation_detected) and iteration < max_iterations:
+    # Classify: TYPE 1 (test failure), TYPE 2 (missing functionality), TYPE 3 (incomplete pattern)
+    deviation_type = classify_deviation()
+
+    if deviation_type == TYPE_1:
+        analyze_error()
+        fix_implementation()       # NEVER fix the test
+    elif deviation_type == TYPE_2:
+        compare_vs_acceptance_criteria()
+        add_missing_implementation()
+    elif deviation_type == TYPE_3:
+        compare_vs_reference_file()
+        complete_pattern()
+
+    run_verification()  # tests + acceptance criteria check
     iteration += 1
 
-if iteration >= MAX_ITERATIONS:
+if all_verified:
+    verify_acceptance_criteria()   # Goal-backward verification
+    adversarial_self_review()      # Identify at least 1 issue
+    checkpoint_complete()
+elif iteration >= max_iterations:
     # ESCAPE HATCH - requires human intervention
-    mark_blocked()
+    mark_blocked(deviation_type, attempts_per_type)
     document_attempts()
     escalate_to_human()
 ```

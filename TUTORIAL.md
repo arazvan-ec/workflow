@@ -250,21 +250,32 @@ El QA Engineer ejecuta:
 4. **DDD Compliance**: Arquitectura correcta
 5. **Code Review**: Estándares y patrones
 
-### Paso 4.2: Bounded Correction Protocol
+### Paso 4.2: Bounded Correction Protocol (BCP)
 
-Si hay errores, el QA automáticamente:
+Si hay errores o desviaciones, el BCP automáticamente detecta y corrige 3 tipos:
 
 ```
-Iteración 1: Error en validación de TaskTitle
+Iteración 1 [TYPE 1 - Test Failure]:
+  Error en validación de TaskTitle
+  → Clasificación: test failure → fix implementation
   → Arreglar: Agregar validación de longitud máxima
   → Re-test: PASS
 
-Iteración 2: Test de integración falla
-  → Arreglar: Corregir endpoint URL
-  → Re-test: PASS
+Iteración 2 [TYPE 2 - Missing Functionality]:
+  Tests pasan pero acceptance criteria "tareas completadas muestran timestamp" no cumplido
+  → Clasificación: missing functionality → add implementation
+  → Arreglar: Añadir campo completed_at a Task entity
+  → Re-test + Goal Verification: PASS (5/5 criteria verified)
 
+Goal-Backward Verification: 5/5 acceptance criteria ✅
+Adversarial Self-Review: "Edge case: TaskTitle con solo espacios en blanco no validado" → MINOR, documentado
 Resultado: APPROVED después de 2 iteraciones
 ```
+
+**Nota**: Los límites de iteración son adaptativos según complejidad:
+- Simple (5): Bug fix, cambio single-file
+- Moderado (10): Feature estándar
+- Complejo (15): Nueva arquitectura
 
 ### Paso 4.3: Verificar Aprobación
 
@@ -360,7 +371,7 @@ Esto captura:
 │       ▼                                                              │
 │  ┌─────────────────┐                                                 │
 │  │     REVIEW      │  ← Bounded Correction Protocol                   │
-│  │    (5-10 min)   │    Auto-corrige hasta 10 veces                  │
+│  │    (5-10 min)   │    3 tipos de desviación, límites adaptativos   │
 │  └────────┬────────┘                                                 │
 │           │                                                          │
 │           ▼                                                          │

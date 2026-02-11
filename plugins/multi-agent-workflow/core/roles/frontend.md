@@ -1039,7 +1039,7 @@ Para componentes UI, el loop incluye verificación visual:
 5. **Implementar** UI según el stage actual del workflow con **auto-correction loop**
 6. **Actualizar** `50_state.md` (IN_PROGRESS)
 7. **Escribir tests** (TDD - ANTES de implementar)
-8. **Ejecutar tests** → Si fallan, iterar hasta pasar (max 10 intentos)
+8. **Ejecutar tests** → Si fallan, iterar con BCP (3 tipos de desviación, límites adaptativos)
 9. **Verificación visual** → Si no se ve bien, iterar
 10. **Lighthouse audit** → Si < 90, iterar
 11. **Solo cuando todo pase** → Checkpoint completado

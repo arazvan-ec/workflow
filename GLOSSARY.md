@@ -15,20 +15,39 @@
 
 ---
 
-### Bounded Correction Protocol
-**Qué es**: Loop automático de auto-corrección donde la IA intenta arreglar errores hasta 10 veces.
+### Bounded Correction Protocol (BCP)
+**Qué es**: Protocolo de auto-corrección acotado que detecta y corrige tres tipos de desviaciones durante el desarrollo, con límites adaptativos según complejidad.
 
-**Por qué se llama así**: Referencia al personaje de Los Simpsons que sigue intentando aunque falle.
+**Tres tipos de desviación**:
+- **TYPE 1 — Test Failure**: Tests fallan → arreglar implementación (NUNCA el test)
+- **TYPE 2 — Missing Functionality**: Tests pasan pero acceptance criteria no se cumplen → añadir implementación faltante
+- **TYPE 3 — Incomplete Pattern**: Implementación no sigue el reference file → completar el patrón
+
+**Límites adaptativos** (según complejidad del task):
+| Complejidad | Max iteraciones | Ejemplo |
+|-------------|----------------|---------|
+| Simple | 5 | Bug fix, refactor, cambio single-file |
+| Moderado | 10 | Feature estándar, multi-file |
+| Complejo | 15 | Nueva arquitectura, integración multi-capa |
 
 **Cómo funciona**:
 ```
-Intento 1: Código falla → Analizar error → Arreglar
-Intento 2: Código falla → Analizar error → Arreglar
-...
-Intento 10: Si sigue fallando → BLOCKED, pedir ayuda
+while (tests_failing OR deviation_detected) and iteration < max_iterations:
+    CLASSIFY deviation → TYPE 1, 2, or 3
+    Apply targeted fix based on type
+    Run verification (tests + acceptance criteria)
+    iteration++
+
+if all_verified → checkpoint complete
+if max_iterations reached → BLOCKED, documentar con tipo de desviación
 ```
 
-**Origen**: Geoffrey Huntley.
+**Mejoras integradas (GSD + BMAD)**:
+- **Solution Validation**: Validar approach ANTES de implementar (evita ciclos desperdiciados)
+- **Goal-Backward Verification**: Verificar contra acceptance criteria, no solo tests
+- **Adversarial Self-Review**: Agente identifica al menos 1 issue propio antes del checkpoint
+
+**Origen**: Geoffrey Huntley. Mejorado con conceptos de GSD (Get Shit Done) y BMAD (Breakthrough Method for Agile AI Driven Development).
 
 ---
 
@@ -60,6 +79,63 @@ Frame → Requirements → Shape → Fit Check → Spike → Breadboard → Slic
 **Comando**: `/workflows:shape`
 
 **Origen**: Ryan Singer, "Shape Up" (Basecamp/37signals).
+
+---
+
+### Solution Validation (Pre-Implementation Check)
+**Qué es**: Paso de validación que ocurre ANTES de escribir código (Step 4.5 en el workflow). Verifica que el approach es arquitecturalmente correcto antes de iniciar TDD.
+
+**4 checks que realiza**:
+1. **Reference Check**: ¿Existe un reference file? → Confirmar que el approach sigue el mismo patrón
+2. **Integration Check**: ¿Conflicta con checkpoints completados? → Verificar interfaces (DTOs, method signatures)
+3. **Decision Check**: ¿Es consistente con DECISIONS.md? → Verificar decisiones arquitectónicas
+4. **Complexity Assessment**: Resolver `max_iterations` según complejidad del task
+
+**Por qué importa**: Evita desperdiciar ciclos TDD en un approach fundamentalmente incorrecto.
+
+**Origen**: Adaptado de BMAD Solutioning Phase.
+
+---
+
+### Goal-Backward Verification
+**Qué es**: Verificación contra los acceptance criteria del task ADEMÁS de los tests. "Tests pasan" es necesario pero NO suficiente.
+
+**Tipos de criterio**:
+- **AUTOMATED**: Verificable por comando → ejecutar y verificar output
+- **OBSERVABLE**: Requiere inspección de código → leer archivos y verificar comportamiento
+- **MANUAL**: Requiere verificación humana → documentar y marcar PENDING_REVIEW
+
+**Resultado**: Score X/Y criterios verificados. Si alguno falla → re-entra al correction loop como TYPE 2 (missing functionality).
+
+**Origen**: Adaptado de GSD Verify Phase.
+
+---
+
+### Adversarial Self-Review
+**Qué es**: Paso obligatorio antes de marcar un checkpoint como completo. El agente implementador DEBE identificar al menos 1 potential issue en su propio código.
+
+**Qué buscar** (al menos 1):
+- Edge case no cubierto por tests
+- Code smell o violación SOLID (incluso menor)
+- Concern de performance u optimización
+- Consideración de seguridad
+
+**Regla**: Zero findings = review again. Zero findings en código real es una red flag.
+
+**Origen**: Adaptado de BMAD Adversarial Review Pattern.
+
+---
+
+### Deviation Types (Tipos de Desviación)
+**Qué es**: Clasificación de los tres tipos de problemas que el BCP detecta y corrige.
+
+| Tipo | Descripción | Acción |
+|------|-------------|--------|
+| **TYPE 1** | Tests fallan con errores | Arreglar implementación (nunca el test) |
+| **TYPE 2** | Tests pasan pero acceptance criteria no se cumplen | Añadir funcionalidad faltante |
+| **TYPE 3** | No sigue el patrón del reference file | Completar el patrón |
+
+**Por qué importa**: Antes solo se detectaban test failures (TYPE 1). Ahora se capturan gaps funcionales y patrones incompletos.
 
 ---
 

@@ -145,7 +145,7 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 ## Key Patterns
 
 - **Karpathy Principles**: Think before coding, simplicity first, surgical changes, goal-driven execution. Details in `core/docs/KARPATHY_PRINCIPLES.md`.
-- **Bounded Correction Protocol**: Auto-correct up to 10 iterations, then mark BLOCKED. Details in `core/rules/framework_rules.md`.
+- **Bounded Correction Protocol**: Detects 3 deviation types (test failure, missing functionality, incomplete pattern) with scale-adaptive limits (simple: 5, moderate: 10, complex: 15). Includes solution validation pre-check, goal-backward verification, and adversarial self-review. Details in `core/rules/testing-rules.md`.
 - **Compound Capture**: After each feature, extract patterns and update rules via `/workflows:compound`.
 - **Agent Compound Memory**: Review agents read `.ai/project/compound-memory.md` to calibrate intensity based on historical pain points. See `core/agent-memory.md`.
 - **Validation Learning**: AI self-questions solutions, asks user targeted questions, and logs answers for future use. Each feature makes validation smarter. See `core/docs/VALIDATION_LEARNING.md`.
@@ -191,4 +191,4 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 
 ---
 
-**Version**: 2.10.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers + Shape Up (Singer) + Agent Compound Memory + AI Validation Learning
+**Version**: 2.10.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers + Shape Up (Singer) + Agent Compound Memory + AI Validation Learning + GSD + BMAD

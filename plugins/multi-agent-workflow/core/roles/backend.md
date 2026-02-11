@@ -721,7 +721,7 @@ Edge case in email validation for non-standard formats
 3. **Implementar** según el stage actual del workflow con **auto-correction loop**
 4. **Actualizar** `50_state.md` (IN_PROGRESS)
 5. **Escribir tests** (TDD - ANTES de implementar)
-6. **Ejecutar tests** → Si fallan, iterar hasta pasar (max 10 intentos)
+6. **Ejecutar tests** → Si fallan, iterar con BCP (3 tipos de desviación, límites adaptativos)
 7. **Solo cuando tests pasen** → Checkpoint completado
 8. **Actualizar** `50_state.md` (COMPLETED o BLOCKED)
 9. **Commit y push**

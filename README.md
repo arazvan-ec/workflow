@@ -57,7 +57,7 @@ Productividad = (Velocidad de Código) × (Calidad del Feedback) × (Frecuencia 
 
 **Origen:** Geoffrey Huntley, desarrollador australiano, introdujo el patrón a mediados de 2025.
 
-**Concepto:** Un loop infinito que alimenta el mismo prompt a un agente de IA una y otra vez hasta que la tarea se complete. El progreso no persiste en el context window del LLM - vive en archivos y git history.
+**Concepto:** Un loop acotado que alimenta el mismo prompt a un agente de IA con detección de desviaciones hasta que la tarea se complete. El progreso no persiste en el context window del LLM - vive en archivos y git history.
 
 **Filosofía clave:** *"Mejor fallar predeciblemente que tener éxito impredeciblemente."*
 
@@ -68,18 +68,34 @@ Productividad = (Velocidad de Código) × (Calidad del Feedback) × (Frecuencia 
 - **Adopción masiva:** Diciembre 2025 llevó el Bounded Correction Protocol a la cima de los timelines de AI
 - **Costos revolucionarios:** El desarrollo de software ahora puede hacerse mientras duermes por $10.42/hora
 - **Principio de "Principal Skinner":** Cada loop de BCP necesita supervisión - bounded iteration con escape hatches
+- **Integración GSD + BMAD (v2.10.0):** El BCP original solo detectaba test failures. Ahora integra conceptos de [GSD](https://github.com/gsd-build/get-shit-done) y [BMAD](https://github.com/bmad-code-org/BMAD-METHOD):
+  - **3 tipos de desviación** (GSD): test failures, missing functionality, incomplete patterns
+  - **Límites adaptativos** (BMAD): simple=5, moderate=10, complex=15 iteraciones
+  - **Solution Validation**: Validar approach ANTES de implementar (BMAD Solutioning)
+  - **Goal-Backward Verification**: Verificar contra acceptance criteria, no solo tests (GSD Verify)
+  - **Adversarial Self-Review**: Auto-review crítico antes de checkpoint (BMAD Review)
 
 **Implementación en este workflow:**
 ```python
-while tests_failing and iterations < MAX_ITERATIONS (10):
-    analyze_error()
-    fix_code()
-    run_tests()
-    if passing: checkpoint_complete()
+# Flujo: Solution Validation → TDD → BCP (3 tipos) → Goal Verification → Self-Review → Checkpoint
 
-if iterations >= MAX_ITERATIONS:
-    mark_blocked()
-    document_for_planner()
+# Step 4.5: Validar approach antes de escribir código
+validate_approach(reference_files, checkpoints, decisions_md)
+
+# Step 5-6: TDD + BCP con 3 tipos de desviación y límites adaptativos
+while (tests_failing or deviation_detected) and iterations < max_iterations:
+    classify_deviation()  # TYPE 1 (test), TYPE 2 (missing), TYPE 3 (pattern)
+    apply_targeted_fix()
+    run_verification()    # tests + acceptance criteria check
+    iterations++
+
+# Step 7: Goal-Backward Verification + Adversarial Self-Review
+if all_verified:
+    verify_acceptance_criteria()  # automated, observable, manual
+    adversarial_self_review()     # identificar al menos 1 issue
+    checkpoint_complete()
+elif iterations >= max_iterations:
+    mark_blocked(deviation_type, attempts_per_type)
 ```
 
 > **Fuentes (Bounded Correction Protocol Origins):**
@@ -449,20 +465,23 @@ Los modelos AI ahora generan aproximadamente **80% del código**, dejando solo 2
 **Por qué este workflow mitiga el 80% Problem:**
 - **Spec-Driven**: Especificaciones completas antes de código previenen "sorpresas" en el 20% difícil
 - **TDD**: Tests escritos primero atrapan edge cases temprano
-- **Bounded Correction Protocol**: Bounded iteration evita loops infinitos
+- **Bounded Correction Protocol**: 3 tipos de desviación con límites adaptativos (5/10/15) evitan loops infinitos y capturan gaps funcionales
+- **Solution Validation**: Validar approach antes de implementar evita ciclos TDD desperdiciados
+- **Goal-Backward Verification**: Verificar contra acceptance criteria asegura que "tests pasan" ≠ "feature completa"
 - **Quality Gates**: Checklist explícito para código crítico
 - **Comprehension Guardian**: Nuevo agente que verifica comprensión antes de aprobar
-- **Self-Review Pattern**: Agentes critican su propio código con "contexto fresco"
+- **Adversarial Self-Review**: Agentes identifican issues propios antes de cada checkpoint
 
 #### Estrategias de Mitigación Implementadas
 
 | Estrategia | Descripción | Implementación |
 |------------|-------------|----------------|
-| **Self-Review** | Agente critica su propio código | Checklist obligatorio antes de COMPLETED |
+| **Adversarial Self-Review** | Agente identifica issues propios antes de checkpoint | Mínimo 1 finding obligatorio (BMAD) |
 | **Comprehension Checkpoints** | Verificar entendimiento periódicamente | Cada 3 iteraciones TDD |
 | **Decision Documentation** | Documentar el "por qué" | DECISIONS.md obligatorio |
-| **Bounded Iteration** | No loops infinitos | Max 10 iteraciones (BCP) |
-| **Fresh Context Review** | Revisar como si otro lo escribió | Self-Review Pattern |
+| **Bounded Iteration** | No loops infinitos, 3 tipos de desviación | Límites adaptativos: 5/10/15 (BCP) |
+| **Goal-Backward Verification** | Verificar contra acceptance criteria | Tests pass ≠ feature completa (GSD) |
+| **Solution Validation** | Validar approach antes de implementar | Step 4.5 pre-TDD (BMAD) |
 
 #### Comprehension Guardian Agent (NUEVO)
 
@@ -822,8 +841,8 @@ Requirements → Architecture → API Contracts → Task Breakdown
 Backend ⟷ Frontend (paralelo) → QA
 ```
 - Backend y Frontend trabajan simultáneamente
-- QA con Bounded Correction Protocol (max 10 iteraciones)
-- Auto-correction con bounded iteration
+- Bounded Correction Protocol con 3 tipos de desviación y límites adaptativos (5/10/15)
+- Solution Validation pre-TDD + Goal-Backward Verification + Adversarial Self-Review
 
 ### `review` - Review Multi-Agente
 ```
@@ -847,7 +866,7 @@ Analyze → Extract Patterns → Update Rules → Measure Acceleration
 1. **Contexto Explícito** - Todo en archivos, nada en memoria implícita
 2. **Roles Inmutables** - Una instancia = un rol fijo
 3. **Estado Sincronizado** - `50_state.md` como fuente de verdad
-4. **Bounded Iteration** - Max 10 intentos antes de escalar
+4. **Bounded Iteration** - 3 tipos de desviación con límites adaptativos (5/10/15) antes de escalar
 5. **Fail Fast and Correct** - Errores baratos cuando regenerar toma segundos
 6. **Testing Before Completion** - Nunca marcar done sin verificar
 7. **Knowledge Compounding** - Cada feature acelera los siguientes
@@ -918,6 +937,10 @@ Analyze → Extract Patterns → Update Rules → Measure Acceleration
 - [Beyond Vibe Coding - Addy Osmani](https://beyond.addy.ie/)
 - [Vibe Coding Hangover - DEV Community](https://dev.to/maximiliano_allende97/the-vibe-coding-hangover-why-im-returning-to-engineering-rigor-in-2026-49hl)
 
+### GSD & BMAD (v2.10.0 Integration)
+- [GSD - Get Shit Done](https://github.com/gsd-build/get-shit-done) — Meta-prompting system with deviation detection and goal-backward verification
+- [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) — Breakthrough Method for Agile AI Driven Development with adversarial review and scale-adaptive intelligence
+
 ---
 
 ## Licencia
@@ -932,4 +955,4 @@ MIT License
 /workflows:plan my-feature
 ```
 
-*Sistema actualizado: 28 Enero 2026 - Añadido The 80% Problem & Comprehension Debt (Addy Osmani)*
+*Sistema actualizado: 11 Febrero 2026 - v2.10.0: Integración GSD + BMAD (BCP con 3 tipos de desviación, límites adaptativos, solution validation, goal-backward verification, adversarial self-review)*

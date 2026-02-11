@@ -155,7 +155,7 @@ Esto genera automáticamente:
 | **context: fork** | Agentes aislados que no contaminan tu contexto |
 | **Scoped Rules** | Reglas que se cargan solo al editar archivos relevantes |
 | **50_state.md** | Archivo con el estado actual (fuente de verdad) |
-| **Bounded Correction Protocol** | Auto-corrección automática (máx 10 intentos) |
+| **Bounded Correction Protocol** | Auto-corrección con 3 tipos de desviación y límites adaptativos (5/10/15) |
 | **TDD** | Tests primero, código después |
 | **Shaping** | Separar problema de solución antes de planificar |
 
