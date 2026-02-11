@@ -1,6 +1,6 @@
 # Framework Rules - Multi-Agent Workflow
 
-**Framework Version**: 2.10.0
+**Framework Version**: 2.11.0
 **Last Updated**: 2026-02-10
 
 ---
@@ -18,6 +18,8 @@ For additional scoped rules see: `testing-rules.md`, `security-rules.md`, `git-r
 ### 1. Route Before Acting
 
 Every interaction passes through the workflow router before work begins. See `CLAUDE.md` for the routing protocol and `core/docs/ROUTING_REFERENCE.md` for question templates.
+
+**Exception — Quick Mode**: `/workflows:quick` can be invoked directly for simple tasks (≤3 files, no architecture impact, no sensitive paths). Quick Mode performs its own inline assessment and can escalate to the full workflow if the task is more complex than expected.
 
 ### 2. Karpathy Principles — Apply to All Work
 

@@ -7,6 +7,8 @@ A compound engineering framework for coordinating multiple AI agents in parallel
 ```
   ROUTE ──> SHAPE ──> PLAN ──> WORK ──> VALIDATE ──> REVIEW ──> COMPOUND
   (entry)  (optional)  (80%)   (15%)     (auto)       (4%)       (1%)
+
+  ROUTE ──> QUICK (lightweight alternative for simple tasks)
 ```
 
 **Every request starts with routing.** No exceptions.
@@ -16,7 +18,9 @@ A compound engineering framework for coordinating multiple AI agents in parallel
 | # | Command | Purpose | When |
 |---|---------|---------|------|
 | 0 | `/workflows:route` | Classify request, ask questions, select workflow | **Always first** |
+| 0b | `/workflows:quick` | Lightweight path for simple tasks (≤3 files, no architecture) | Simple tasks, route suggests or user invokes directly |
 | 1 | `/workflows:shape` | Separate problem from solution, spike unknowns | Complex/unclear features only |
+| 1b | `/workflows:discuss` | Capture implementation preferences before planning | Medium/complex features (optional, between route and plan) |
 | 2 | `/workflows:plan` | Architecture-first planning with SOLID constraint | Before any implementation |
 | 3 | `/workflows:work` | Execute implementation with TDD + Bounded Correction Protocol | After plan is COMPLETED |
 | 4 | `/workflows:validate-solution` | Self-question AI solutions, log learnings | After work, before review |
@@ -105,7 +109,7 @@ Exception: continuing an already-routed task with valid `50_state.md` context.
 | Roles (4) | planner, backend, frontend, qa | `plan`, `work`, `review` |
 | Review (8) | security, performance, ddd-compliance, code-ts, agent-native, simplicity, pattern-recognition, **solution-validator** | `validate-solution`, `review` |
 | Research (5) | codebase-analyzer, git-historian, dependency-auditor, learnings-researcher, best-practices-researcher | `route`, `plan` |
-| Workflow (5) | bug-reproducer, spec-analyzer, spec-extractor, style-enforcer, comprehension-guardian | `work`, `review` |
+| Workflow (6) | bug-reproducer, spec-analyzer, spec-extractor, style-enforcer, comprehension-guardian, **diagnostic-agent** | `work`, `review` |
 | Design (2) | api-designer, ui-verifier | `plan`, `review` |
 
 Agents are invoked automatically by the core commands. You rarely need to invoke them directly.
@@ -145,7 +149,7 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 ## Key Patterns
 
 - **Karpathy Principles**: Think before coding, simplicity first, surgical changes, goal-driven execution. Details in `core/docs/KARPATHY_PRINCIPLES.md`.
-- **Bounded Correction Protocol**: Detects 3 deviation types (test failure, missing functionality, incomplete pattern) with scale-adaptive limits (simple: 5, moderate: 10, complex: 15). Includes solution validation pre-check, goal-backward verification, and adversarial self-review. Details in `core/rules/testing-rules.md`.
+- **Bounded Correction Protocol**: Detects 3 deviation types (test failure, missing functionality, incomplete pattern) with scale-adaptive limits (simple: 5, moderate: 10, complex: 15). Includes solution validation pre-check, goal-backward verification, adversarial self-review, and diagnostic escalation (invokes diagnostic-agent after 3 consecutive same errors). Details in `core/rules/testing-rules.md`.
 - **Compound Capture**: After each feature, extract patterns and update rules via `/workflows:compound`.
 - **Agent Compound Memory**: Review agents read `.ai/project/compound-memory.md` to calibrate intensity based on historical pain points. See `core/agent-memory.md`.
 - **Validation Learning**: AI self-questions solutions, asks user targeted questions, and logs answers for future use. Each feature makes validation smarter. See `core/docs/VALIDATION_LEARNING.md`.
@@ -191,4 +195,4 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 
 ---
 
-**Version**: 2.10.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers + Shape Up (Singer) + Agent Compound Memory + AI Validation Learning + GSD + BMAD
+**Version**: 2.11.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers + Shape Up (Singer) + Agent Compound Memory + AI Validation Learning + GSD + BMAD
