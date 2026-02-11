@@ -32,10 +32,12 @@ PREREQUISITE CHECK:
 ## Automatic Operations (built into this command)
 
 The following are executed automatically as part of `/workflows:review`:
+- **Solution validation check** -- verifies if `/workflows:validate-solution` was run; if not, suggests running it first
 - **Comprehension check** -- verifies understanding of generated code
 - **SOLID score verification** -- checks >= 18/25 minimum
 - **Spec validation** -- validates implementation against specs
 - **Trust-level evaluation** -- applies appropriate scrutiny per file
+- **Validation learning integration** -- reads `validation-learning-log.md` for relevant preferences and patterns
 
 You do NOT need to invoke these separately.
 

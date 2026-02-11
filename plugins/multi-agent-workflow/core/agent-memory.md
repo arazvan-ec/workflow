@@ -258,6 +258,24 @@ This prevents compound-memory.md from growing unbounded while ensuring the most 
 
 ---
 
+## Relationship to Validation Learning Log
+
+Compound Memory and the Validation Learning Log (`validation-learning-log.md`) are complementary systems:
+
+| Aspect | Compound Memory | Validation Learning Log |
+|--------|----------------|------------------------|
+| **Focus** | Pain points & patterns from completed features | Questions & answers from solution validations |
+| **Written by** | `/workflows:compound` | `/workflows:validate-solution` |
+| **Read by** | Review agents, Planner | Solution validator, Planner, all agents |
+| **Updates when** | After feature completion | After every validation |
+| **Contains** | Anti-patterns, 70% boundary data | User preferences, confirmed patterns, Q&A history |
+
+Together: Compound Memory tells agents WHERE problems occur. Validation Learning Log tells agents WHAT the user prefers.
+
+See `core/docs/VALIDATION_LEARNING.md` for the full specification.
+
+---
+
 ## Constraints
 
 1. **compound-memory.md must stay readable** — max 200 lines. Prune old/resolved items.

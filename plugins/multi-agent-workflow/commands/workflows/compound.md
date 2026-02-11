@@ -593,6 +593,7 @@ The spec-merger skill:
 - [ ] **Documented what made the 30% hard**
 - [ ] **Listed preventions for future features**
 - [ ] **Updated compound-memory.md** (Step 3b: pain points, patterns, agent calibration)
+- [ ] **Cross-referenced validation-learning-log.md** (promote mature patterns, reconcile with compound captures)
 - [ ] Updated relevant project rules
 - [ ] Added entry to compound_log.md
 - [ ] Created/updated templates if applicable
@@ -842,7 +843,9 @@ After compound capture, these agents can enhance documentation:
 ### Integration
 This command integrates with:
 - `/workflows:plan` - Learnings inform future plans
+- `/workflows:validate-solution` - Validation learnings cross-referenced with compound captures
 - `learnings-researcher` agent - Searches documented solutions
+- `validation-learning-log` skill - Manages validation Q&A learnings
 - `compound_log.md` - Quick reference for patterns
 - `spec-merger` skill - Intelligent spec merging and conflict resolution
 - `.ai/project/specs/` - Project specifications (entities, API contracts, business rules)
