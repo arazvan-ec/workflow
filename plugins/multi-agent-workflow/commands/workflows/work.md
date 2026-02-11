@@ -314,6 +314,66 @@ Checkpoint 5: Accessibility
 - Verification: npm run lighthouse
 ```
 
+## Per-Task State Persistence (MANDATORY)
+
+> **CRITICAL RULE**: Update `50_state.md` after completing EACH individual task, not just at checkpoints. If a session is interrupted between tasks, the resume point must be documented.
+
+After completing each task in `30_tasks.md`:
+
+```
+PER-TASK UPDATE PROTOCOL:
+
+1. Mark the task as COMPLETED in 50_state.md task tracker
+2. Record the timestamp (ISO 8601)
+3. Update the "Resume Point" section with the NEXT task
+4. WRITE 50_state.md to disk immediately
+
+This happens BEFORE the checkpoint (which includes git commit).
+Even if no checkpoint is triggered, the state file is updated.
+```
+
+### Task-Level State Tracker (in 50_state.md)
+
+```markdown
+## <Role> Engineer
+**Status**: IN_PROGRESS
+**Last Updated**: ${ISO_TIMESTAMP}
+
+### Task Progress
+| Task ID | Description | Status | Completed At |
+|---------|-------------|--------|--------------|
+| BE-001 | Create User Entity | COMPLETED | 2026-01-16T14:00:00Z |
+| BE-002 | Create Email VO | COMPLETED | 2026-01-16T14:15:00Z |
+| BE-003 | Create UserRepository Interface | IN_PROGRESS | - |
+| BE-004 | CreateUserUseCase | PENDING | - |
+| BE-005 | POST /api/users endpoint | PENDING | - |
+
+### Resume Point
+**Last Completed Task**: BE-002 (Create Email VO)
+**Currently Working On**: BE-003 (Create UserRepository Interface)
+**Next Task After Current**: BE-004 (CreateUserUseCase)
+**Files to Read on Resume**:
+  - .ai/project/features/${FEATURE_ID}/30_tasks.md (Task BE-003)
+  - src/Domain/Entity/User.php (reference for repository)
+**Last Save**: 2026-01-16T14:15:00Z
+```
+
+### Interrupted Session Recovery
+
+When resuming a session (detected by reading `50_state.md` with status `IN_PROGRESS`):
+
+```
+RESUME PROTOCOL:
+1. Read 50_state.md → identify Resume Point
+2. Read the "Currently Working On" task from 30_tasks.md
+3. Read "Files to Read on Resume" list
+4. Check git status for uncommitted changes
+5. Continue from the identified task
+
+DO NOT restart from the beginning.
+DO NOT re-do completed tasks.
+```
+
 ## State Updates
 
 Update `50_state.md` at each checkpoint:
@@ -334,6 +394,27 @@ Update `50_state.md` at each checkpoint:
   - 30_tasks.md (Task BE-005)
   - src/Domain/Entity/User.php
 - **SOLID Notes**: DIP verified - no infrastructure imports in Domain
+```
+
+### State Update Timing
+
+```
+WHEN to update 50_state.md:
+
+1. After EACH task completion (even if not a checkpoint)
+   → Update: task status, timestamp, resume point
+   → Cost: ~5 seconds, prevents hours of lost work
+
+2. At EACH checkpoint (logical unit boundary)
+   → Update: full checkpoint details, SOLID score, tests
+   → Also: git commit
+
+3. Before ANY pause or break
+   → Update: resume point with current context
+   → This is the minimum for session recovery
+
+ALWAYS include "Last Save" timestamp in 50_state.md.
+Format: ISO 8601 (e.g., 2026-01-16T14:30:00Z)
 ```
 
 ## Escape Hatch
