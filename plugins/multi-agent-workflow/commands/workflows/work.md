@@ -35,9 +35,10 @@ PREREQUISITE CHECK:
 
 The following are executed automatically as part of `/workflows:work`:
 - **Git sync** (Step 2) -- pulls latest changes before starting
+- **Solution Validation** (Step 4.5) -- validates approach before TDD cycle
 - **TDD enforcement** (Step 5) -- Red-Green-Refactor cycle
 - **SOLID verification** (Step 7) -- checks score at each checkpoint
-- **Bounded Correction Protocol** (Step 6) -- auto-corrects up to 10 iterations
+- **Bounded Correction Protocol** (Step 6) -- auto-corrects with scale-adaptive limits
 - **Checkpoint** (Step 7) -- saves progress + commits after each logical unit
 - **Snapshot** -- triggered when context exceeds 70% capacity
 
@@ -187,6 +188,37 @@ Read: .ai/project/features/${FEATURE_ID}/30_tasks.md
 - Domain: Can start immediately
 - Application: Domain should be COMPLETED (or mock)
 - Infrastructure: Application should be COMPLETED
+
+### Step 4.5: Solution Validation (Pre-Implementation Check)
+
+Before starting the TDD cycle for each task, validate the approach is sound:
+
+```
+SOLUTION VALIDATION (for each task in 30_tasks.md):
+
+1. REFERENCE CHECK: Does a reference file exist for this task?
+   - YES: Read reference file. Confirm approach follows the same pattern.
+   - NO: Check 15_solutions.md for architectural guidance. Confirm alignment.
+
+2. INTEGRATION CHECK: Will this conflict with completed checkpoints?
+   - Read completed checkpoints in 50_state.md
+   - Verify interfaces match (DTO shapes, method signatures, API contracts)
+   - If conflict detected → STOP. Consult planner before proceeding.
+
+3. DECISION CHECK: Is approach consistent with DECISIONS.md?
+   - Read DECISIONS.md for relevant architectural decisions
+   - If approach contradicts a decision → STOP. Consult planner.
+
+4. COMPLEXITY ASSESSMENT: Resolve max_iterations for this task
+   - Read task complexity from 30_tasks.md (or infer from scope)
+   - Set max_iterations from providers.yaml correction_limits
+   - simple: 5, moderate: 10, complex: 15
+
+If ALL checks pass → proceed to TDD (Step 5)
+If ANY check fails → escalate to planner with specific conflict details
+```
+
+This step prevents wasting TDD iterations on an architecturally flawed approach.
 
 ### Step 5: Execute with TDD + SOLID
 

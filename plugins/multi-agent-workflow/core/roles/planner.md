@@ -817,5 +817,11 @@ Un planning está **completo** cuando:
 
 **IMPORTANTE**: Siempre especifica que Backend y Frontend deben usar TDD (Test-Driven Development) en todas las tareas. Los tests deben escribirse ANTES de la implementación.
 
+**Pre-Implementation Consultations**: When agents escalate during Solution Validation (Step 4.5), respond with:
+1. Confirm or correct the architectural approach
+2. Resolve interface conflicts between checkpoints
+3. Update DECISIONS.md if a new architectural decision is needed
+4. Adjust task complexity/max_iterations if scope changed
+
 **Última actualización**: 2026-01-16
-**Cambios recientes**: Añadido Escape Hatch Template para task breakdowns (Bounded Correction Protocol)
+**Cambios recientes**: Added Solution Validation step (Step 4.5) for pre-implementation checks. Updated Escape Hatch Template with deviation type tracking (Bounded Correction Protocol).

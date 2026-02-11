@@ -138,12 +138,19 @@ The agent performs all implementation steps autonomously:
    - Run the test via test-runner skill — confirm it **fails** (Red phase)
    - If the test passes immediately, the test is not testing new behavior — revise it
 
-3. **Write Implementation (TDD Green)**
+3. **Validate Approach (Solution Validation)**
+   - Before writing code, verify: Does this approach follow the reference pattern?
+   - Check 50_state.md for completed checkpoints — will interfaces conflict?
+   - Check DECISIONS.md — does approach contradict any architectural decision?
+   - Resolve max_iterations from task complexity (simple:5, moderate:10, complex:15)
+   - If any validation fails → STOP. Consult planner before proceeding.
+
+4. **Write Implementation (TDD Green)**
    - Use Write/Edit tools to create the minimum code that makes the test pass
    - Follow the pattern from the reference file exactly (same structure, naming, layer placement)
    - Run tests via test-runner skill — confirm they **pass** (Green phase)
 
-4. **Auto-Correct (Bounded Correction Protocol)**
+5. **Auto-Correct (Bounded Correction Protocol)**
    - Detects 3 deviation types: test failure, missing functionality, incomplete pattern
    - TYPE 1: Tests fail → analyze error, fix code, re-run
    - TYPE 2: Tests pass but acceptance criteria unmet → add missing implementation
@@ -152,12 +159,12 @@ The agent performs all implementation steps autonomously:
    - Max iterations resolved from `providers.yaml` correction_limits (default: 10)
    - If still failing after max iterations → mark BLOCKED in `50_state.md`
 
-5. **Refactor (TDD Refactor)**
+6. **Refactor (TDD Refactor)**
    - Improve code quality while keeping tests green
    - Check SOLID via solid-analyzer skill — must meet task thresholds
    - Fix lint via lint-fixer skill
 
-6. **Checkpoint**
+7. **Checkpoint**
    - Update `50_state.md` with completed task
    - Move to next task only when current checkpoint is fully green
 

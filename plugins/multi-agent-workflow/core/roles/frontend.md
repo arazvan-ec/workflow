@@ -143,17 +143,24 @@ The agent implements UI directly, following existing patterns as reference:
    - Use Write tool to create the test file following the reference test pattern
    - Run test via test-runner skill — confirm it fails (Red phase)
 
-3. **Implement Component (TDD Green)**
+3. **Validate Approach (Solution Validation)**
+   - Before writing code, verify: Does this approach follow the reference component pattern?
+   - Check 50_state.md for completed checkpoints — will interfaces conflict?
+   - Check DECISIONS.md — does approach contradict any architectural decision?
+   - Resolve max_iterations from task complexity (simple:5, moderate:10, complex:15)
+   - If any validation fails → STOP. Consult planner before proceeding.
+
+4. **Implement Component (TDD Green)**
    - Use Write/Edit tools to create the component following the reference pattern
    - Write the MINIMUM code to make the test pass
    - Run tests via test-runner skill — confirm they pass (Green phase)
 
-4. **Refactor & Polish**
+5. **Refactor & Polish**
    - Improve code structure while keeping tests green
    - Fix lint issues via lint-fixer skill
    - Ensure responsive styles match the reference component
 
-5. **Auto-Correct (Bounded Correction Protocol)**
+6. **Auto-Correct (Bounded Correction Protocol)**
    - Detects 3 deviation types: test failure, missing functionality, incomplete pattern
    - TYPE 1: Tests fail → analyze error, fix code, re-run
    - TYPE 2: Tests pass but acceptance criteria unmet → add missing implementation
@@ -162,7 +169,7 @@ The agent implements UI directly, following existing patterns as reference:
    - Max iterations from `providers.yaml` correction_limits (default: 10)
    - If all green → checkpoint
 
-6. **Checkpoint**
+7. **Checkpoint**
    - Update `50_state.md` with completed task
    - Move to next task in `30_tasks.md`
 
