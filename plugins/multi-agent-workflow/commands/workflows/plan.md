@@ -169,6 +169,33 @@ When shaped brief exists, the planner should:
 
 ---
 
+## Planning Depth Resolution
+
+Before starting the planning process, resolve the `planning_depth` provider from `core/providers.yaml`:
+
+```
+READ core/providers.yaml → providers.planning_depth
+
+IF "auto":
+  ├── Complexity from /workflows:route == "complex" → full
+  ├── Complexity from /workflows:route == "medium"  → standard
+  └── Complexity from /workflows:route == "simple"  → minimal
+
+IF "full":    Execute ALL phases (Step 0 + Phase 1 + Phase 2 + Phase 3 + Phase 4)
+IF "standard": Execute Step 0 + Phase 1 + Phase 2 + Phase 3 (skip integration/impact detail) + Phase 4
+IF "minimal":  Execute Step 0 + Phase 1 + Phase 4 ONLY (skip Phase 2 specs and Phase 3 solutions)
+```
+
+| Depth | Phases | Output Files | Best For |
+|-------|--------|-------------|----------|
+| **full** | All phases + integration + SOLID + impact | All files | Complex features, multi-layer, security |
+| **standard** | Phase 1-4, no detailed impact | 00, 12, 15, 30, 50, FEATURE | Medium features, single-layer |
+| **minimal** | Phase 1 + Phase 4 only | 00, 30, 50, FEATURE | Simple features, bug fixes |
+
+When `planning_depth` is `minimal`, the Quality Gates for Phase 2 and Phase 3 are skipped (those phases don't execute).
+
+---
+
 ## The Architecture-First Planning Process
 
 > **"Every new feature is an INTEGRATION into existing architecture, not an isolated solution."**
@@ -218,7 +245,20 @@ When shaped brief exists, the planner should:
 
 Before planning any new feature, load and understand the existing project architecture.
 
-### Step 0.0: Check for Shaped Brief (if exists)
+### Step 0.0: Load Implementation Preferences (if exists)
+
+```bash
+# Check if discussion phase captured preferences
+PREFERENCES=".ai/project/features/${FEATURE_ID}/01_preferences.md"
+if [ -f "$PREFERENCES" ]; then
+  echo "Preferences found from /workflows:discuss. Loading into planning context."
+  # Read technology choices, architecture preferences, code style, constraints
+  # Do NOT re-ask questions already answered in 01_preferences.md
+  # Use preferences to guide Phase 1 constraints and Phase 3 solutions
+fi
+```
+
+### Step 0.0b: Check for Shaped Brief (if exists)
 
 ```bash
 # Check if shaping was done before planning

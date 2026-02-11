@@ -7,6 +7,8 @@ A compound engineering framework for coordinating multiple AI agents in parallel
 ```
   ROUTE ──> SHAPE ──> PLAN ──> WORK ──> VALIDATE ──> REVIEW ──> COMPOUND
   (entry)  (optional)  (80%)   (15%)     (auto)       (4%)       (1%)
+
+  ROUTE ──> QUICK (lightweight alternative for simple tasks)
 ```
 
 **Every request starts with routing.** No exceptions.
@@ -16,7 +18,9 @@ A compound engineering framework for coordinating multiple AI agents in parallel
 | # | Command | Purpose | When |
 |---|---------|---------|------|
 | 0 | `/workflows:route` | Classify request, ask questions, select workflow | **Always first** |
+| 0b | `/workflows:quick` | Lightweight path for simple tasks (≤3 files, no architecture) | Simple tasks, route suggests or user invokes directly |
 | 1 | `/workflows:shape` | Separate problem from solution, spike unknowns | Complex/unclear features only |
+| 1b | `/workflows:discuss` | Capture implementation preferences before planning | Medium/complex features (optional, between route and plan) |
 | 2 | `/workflows:plan` | Architecture-first planning with SOLID constraint | Before any implementation |
 | 3 | `/workflows:work` | Execute implementation with TDD + Ralph Wiggum Loop | After plan is COMPLETED |
 | 4 | `/workflows:validate-solution` | Self-question AI solutions, log learnings | After work, before review |

@@ -112,12 +112,13 @@ USER REQUEST
 
 | User Need | Complexity | Multi-Agent | Recommended Workflow | Command |
 |-----------|------------|-------------|---------------------|---------|
-| New feature (unclear scope) | Any | Maybe | shape-first | `/workflows:shape` then `/workflows:plan` |
-| New feature (clear scope) | Any | Yes | task-breakdown | `/workflows:plan --workflow=task-breakdown` |
+| Any task | Simple (≤3 files) | No | quick | `/workflows:quick` |
+| New feature (unclear scope) | Any | Maybe | shape-first | `/workflows:discuss` (optional) then `/workflows:shape` then `/workflows:plan` |
+| New feature (clear scope) | Medium/Complex | Yes | task-breakdown | `/workflows:discuss` (optional) then `/workflows:plan --workflow=task-breakdown` |
 | New feature (clear scope) | Simple | No | default | `/workflows:plan --workflow=default` |
 | Bug fix | Any | No | implementation-only | `/workflows:plan --workflow=implementation-only` |
 | Refactoring | Complex | Yes | task-breakdown | `/workflows:plan --workflow=task-breakdown` |
-| Refactoring | Simple | No | implementation-only | `/workflows:work` |
+| Refactoring | Simple | No | quick or implementation-only | `/workflows:quick` or `/workflows:work` |
 | Investigation | Any | No | N/A | Invoke research agents |
 | Code review | Any | Yes | N/A | `/workflows:review` |
 | Documentation | Any | No | N/A | `/workflows:work --role=planner` |

@@ -244,6 +244,10 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/plugins/multi-agent-workflow/core/providers.yaml (2026-02-11T13:03:03+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/agents/workflow/diagnostic-agent.md (2026-02-11T13:02:27+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/discuss.md (2026-02-11T13:01:14+00:00)
+- /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/quick.md (2026-02-11T13:00:02+00:00)
 - /root/.claude/plans/reactive-honking-pizza.md (2026-02-11T11:38:32+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/core/docs/VALIDATION_LEARNING.md (2026-02-10T22:51:50+00:00)
 - /home/user/workflow/plugins/multi-agent-workflow/commands/workflows/validate-solution.md (2026-02-10T22:50:51+00:00)

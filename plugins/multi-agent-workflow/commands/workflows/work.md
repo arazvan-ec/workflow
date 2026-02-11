@@ -1,7 +1,7 @@
 ---
 name: workflows:work
 description: "Execute implementation with configurable parallelization modes and execution mode (agent-executes, human-guided, or hybrid)."
-argument_hint: <feature-name> --mode=<roles|layers|stacks> [--role=<role>] [--layer=<layer>] [--exec=auto|agent|human|hybrid]
+argument_hint: <feature-name> --mode=<roles|layers|stacks> [--role=<role>] [--layer=<layer>] [--exec=auto|agent|human|hybrid] [--isolation=session|task]
 ---
 
 # Multi-Agent Workflow: Work
@@ -114,6 +114,71 @@ After step 9 (lint fixed, tests passing):
   → Reject: regenerate with human feedback
 ` ` `
 
+## Task Isolation Mode (Fresh Context per Task)
+
+Resolve task isolation from `--isolation` flag or `fork_strategy` provider:
+
+```
+1. IF --isolation=task flag passed → per-task isolation
+2. ELSE IF fork_strategy == "per-task" in providers.yaml → per-task isolation
+3. ELSE → session isolation (default, all tasks in one context)
+```
+
+### Per-Task Isolation (`--isolation=task`)
+
+Inspired by GSD's "fresh context per task" pattern. Each task in `30_tasks.md` executes in its own isolated subagent context, preventing context rot on long sessions.
+
+```
+PER-TASK ISOLATION PROTOCOL:
+
+FOR each task in 30_tasks.md:
+  1. LAUNCH Task subagent (context: fork) with ONLY:
+     - Role definition (e.g., backend.md)
+     - Task definition from 30_tasks.md
+     - Reference files listed in the task
+     - 15_solutions.md (for SOLID patterns to follow)
+     → 200K tokens purely for this task, zero accumulated context
+
+  2. Subagent executes:
+     - TDD cycle (Red → Green → Refactor)
+     - Ralph Wiggum Loop (max 10 iterations)
+     - SOLID verification
+
+  3. Subagent returns summary:
+     - Files created/modified
+     - Tests: X passing, Y% coverage
+     - SOLID score
+     - Issues encountered (if any)
+
+  4. Main agent:
+     - Atomic git commit for this task
+     - UPDATE 50_state.md with task completion
+     - Verify subagent output meets acceptance criteria
+     - Launch next task with fresh context
+
+BENEFITS:
+  - No context degradation across tasks
+  - Each task gets maximum available tokens
+  - Individual task commits enable git bisect
+  - Failed tasks don't pollute context for subsequent tasks
+
+TRADE-OFFS:
+  - Higher total token consumption (~30-50% more)
+  - Subagent doesn't see changes from previous tasks (reads from disk)
+  - Setup overhead per task (~5 seconds)
+
+BEST FOR:
+  - Features with 10+ tasks
+  - Sessions expected to exceed 2 hours
+  - When quality degradation is observed in later tasks
+```
+
+### Session Isolation (default, `--isolation=session`)
+
+Standard behavior: all tasks execute in the same context window. The Ralph Wiggum Loop, TDD, and checkpoints operate within a single session. Use context management thresholds from `providers.yaml` to manage context exhaustion.
+
+---
+
 ## Parallelization Modes
 
 ### Mode: Roles (Standard)
@@ -217,24 +282,55 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 # If score < expected, refactor before proceeding
 ```
 
-### Step 6: Auto-Correction Loop (Ralph Wiggum Pattern)
+### Step 6: Auto-Correction Loop (Ralph Wiggum Pattern + Diagnostic Escalation)
 
 ```python
 iterations = 0
 MAX_ITERATIONS = 10
+same_error_count = 0
+last_error = None
 
 while tests_failing and iterations < MAX_ITERATIONS:
-    analyze_error()
-    fix_code()
+    error = analyze_error()
+
+    # Track repeated errors
+    if error_matches(error, last_error):
+        same_error_count += 1
+    else:
+        same_error_count = 0
+        last_error = error
+
+    # DIAGNOSTIC ESCALATION: After 3 consecutive same errors,
+    # invoke diagnostic-agent instead of brute-force retry
+    if same_error_count >= 3:
+        diagnosis = invoke_diagnostic_agent(
+            error=error,
+            attempts_log=attempts_log,
+            task_context=current_task
+        )
+        # context: fork — agent runs in isolated context
+
+        if diagnosis.confidence == "LOW":
+            document_blocker(include_diagnostic=diagnosis)
+            mark_blocked()
+            break
+
+        apply_diagnostic_recommendation(diagnosis)
+        same_error_count = 0  # reset after new approach
+    else:
+        fix_code()  # standard fix attempt
+
     run_tests()
     iterations += 1
 
 if tests_passing:
     checkpoint_complete()
-else:
+elif not is_blocked:
     document_blocker()
     mark_blocked()
 ```
+
+**Diagnostic escalation**: When the same error recurs 3 times, the `diagnostic-agent` (see `agents/workflow/diagnostic-agent.md`) runs in a forked context to analyze root cause and recommend a different approach. This prevents wasting iterations on the same failing fix.
 
 ### Step 7: Checkpoint (includes SOLID verification)
 

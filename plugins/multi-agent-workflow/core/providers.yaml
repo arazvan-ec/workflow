@@ -94,7 +94,17 @@ providers:
   #   - All 7 heavy skills forked (consultant, coverage-checker, etc.)
   #   - Reason: Protect limited context window at all costs
   #
-  fork_strategy: auto  # auto | selective | aggressive
+  # per-task: Fork for each individual execution task (GSD-style fresh context)
+  #   - Each task in 30_tasks.md runs in its own isolated context
+  #   - Subagent receives ONLY: role.md + task definition + reference files
+  #   - 200K tokens purely for implementation, zero accumulated context
+  #   - Prevents context rot on long implementation sessions
+  #   - Atomic git commit per task enables granular bisect/revert
+  #   - Trade-off: Higher token consumption but higher quality per task
+  #   - Requires: --isolation=task flag on /workflows:work
+  #   - Best for: large features with 10+ tasks, long sessions
+  #
+  fork_strategy: auto  # auto | selective | aggressive | per-task
 
   # --- Coordination ---
   # How agents communicate and share state
@@ -142,6 +152,28 @@ providers:
   #   - Best for: teams building trust with agent execution
   #
   execution_mode: auto  # auto | agent-executes | human-guided | hybrid
+
+  # --- Planning Depth ---
+  # Adjusts planning phases based on task complexity.
+  # Inspired by BMAD's Scale-Domain-Adaptive approach.
+  #
+  # full: All phases + integration analysis + SOLID (complex features)
+  #   - Phase 1 (Understand) + Phase 2 (Specs) + Phase 3 (Solutions+SOLID) + Phase 4 (Tasks)
+  #   - Integration analysis + architectural impact
+  #   - Best for: new features, multi-layer changes, security-sensitive
+  #
+  # standard: Phase 1-3 + tasks, skip architectural impact detail
+  #   - Phase 1 (Understand) + Phase 2 (Specs) + Phase 3 (Solutions) + Phase 4 (Tasks)
+  #   - SOLID verification but no detailed layer/module impact analysis
+  #   - Best for: medium features, single-layer changes
+  #
+  # minimal: Problem statement + tasks only (simple features)
+  #   - Phase 1 (Understand) + Phase 4 (Tasks) — skips specs and solutions
+  #   - No SOLID analysis, no integration analysis
+  #   - Best for: simple features, bug fixes, small changes
+  #   - Note: /workflows:quick is preferred for truly trivial tasks
+  #
+  planning_depth: auto  # auto | full | standard | minimal
 
 # --- Thresholds ---
 # Override default thresholds based on your model's capabilities.
