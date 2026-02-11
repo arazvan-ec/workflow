@@ -219,22 +219,39 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 
 ### Step 6: Bounded Auto-Correction Protocol
 
+Detects and corrects three types of deviations (not just test failures):
+
 ```python
 iterations = 0
-MAX_ITERATIONS = 10
+MAX_ITERATIONS = 10  # Resolved from providers.yaml correction_limits
 
-while tests_failing and iterations < MAX_ITERATIONS:
-    analyze_error()
-    fix_code()
-    run_tests()
+while (tests_failing or deviation_detected) and iterations < MAX_ITERATIONS:
+    classify_deviation()
+
+    if TYPE_1_TEST_FAILURE:
+        analyze_error()
+        fix_code()          # NEVER fix the test
+    elif TYPE_2_MISSING_FUNCTIONALITY:
+        compare_vs_acceptance_criteria()  # from 30_tasks.md
+        add_missing_implementation()
+    elif TYPE_3_INCOMPLETE_PATTERN:
+        compare_vs_reference_file()       # from task definition
+        complete_pattern()
+
+    run_verification()    # tests + acceptance criteria check
     iterations += 1
 
-if tests_passing:
+if all_verified:
     checkpoint_complete()
 else:
-    document_blocker()
+    document_blocker(deviation_type, attempts_per_type)
     mark_blocked()
 ```
+
+**Deviation Types:**
+- **TYPE 1 — Test Failure**: Tests fail → fix implementation
+- **TYPE 2 — Missing Functionality**: Tests pass but acceptance criteria unmet → add implementation
+- **TYPE 3 — Incomplete Pattern**: Implementation doesn't follow reference file → complete pattern
 
 ### Step 7: Checkpoint (includes SOLID verification)
 
@@ -338,17 +355,19 @@ Update `50_state.md` at each checkpoint:
 
 ## Escape Hatch
 
-If blocked after 10 iterations:
+If blocked after max iterations:
 
 ```markdown
 ## Blocker: [Task Name]
 
-**Iterations attempted**: 10
-**Last error**: [exact error]
+**Deviation type**: TYPE 1 | TYPE 2 | TYPE 3
+**Iterations attempted**: [N] (Type 1: X, Type 2: Y, Type 3: Z)
+**Last error/gap**: [exact error or unmet criterion]
 
-**What was tried**:
-1. [Approach 1] → [Result]
-2. [Approach 2] → [Result]
+**What was tried per deviation type**:
+- TYPE 1 (test failures): [approaches tried]
+- TYPE 2 (missing functionality): [gaps identified and attempted]
+- TYPE 3 (incomplete patterns): [reference comparisons made]
 
 **Root cause hypothesis**: [Why failing]
 

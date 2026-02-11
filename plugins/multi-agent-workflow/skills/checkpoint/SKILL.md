@@ -23,21 +23,30 @@ Create blocking checkpoints with auto-correction loops for quality-gated develop
 
 ## The Bounded Correction Protocol
 
-Instead of pushing forward blindly, iterate until quality gates pass:
+Instead of pushing forward blindly, detect and correct three types of deviations:
 
 ```
-while tests_failing and iterations < 10:
-    1. Analyze error
-    2. Fix code
-    3. Re-run tests
-    4. If pass → checkpoint complete
-    5. If fail → loop again
+while (tests_failing OR deviation_detected) and iterations < max_iterations:
+    CLASSIFY deviation:
+      TYPE 1 (test failure):    analyze error → fix implementation
+      TYPE 2 (missing feature): compare vs acceptance criteria → add implementation
+      TYPE 3 (incomplete pattern): compare vs reference → complete pattern
 
-if iterations >= 10:
-    → Document blocker
+    Run verification (tests + acceptance criteria check)
+    iterations++
+
+if all_verified:
+    → Checkpoint complete
+elif iterations >= max_iterations:
+    → Document blocker with deviation type breakdown
     → Mark as BLOCKED
     → Wait for help
 ```
+
+**Deviation Types:**
+- **TYPE 1 — Test Failure**: Tests fail with errors → fix implementation (NEVER the test)
+- **TYPE 2 — Missing Functionality**: Tests pass but acceptance criteria unmet → add missing code
+- **TYPE 3 — Incomplete Pattern**: Doesn't match reference file → complete the pattern
 
 ## When to Use
 

@@ -144,9 +144,13 @@ The agent performs all implementation steps autonomously:
    - Run tests via test-runner skill — confirm they **pass** (Green phase)
 
 4. **Auto-Correct (Bounded Correction Protocol)**
-   - If tests fail → analyze error, fix code, re-run (max 10 iterations)
+   - Detects 3 deviation types: test failure, missing functionality, incomplete pattern
+   - TYPE 1: Tests fail → analyze error, fix code, re-run
+   - TYPE 2: Tests pass but acceptance criteria unmet → add missing implementation
+   - TYPE 3: Implementation doesn't match reference → complete the pattern
    - Do NOT modify the test to make it pass — fix the implementation
-   - If still failing after 10 iterations → mark BLOCKED in `50_state.md`
+   - Max iterations resolved from `providers.yaml` correction_limits (default: 10)
+   - If still failing after max iterations → mark BLOCKED in `50_state.md`
 
 5. **Refactor (TDD Refactor)**
    - Improve code quality while keeping tests green
@@ -604,20 +608,15 @@ Todo código backend debe:
 
 ## 🔄 Bounded Auto-Correction Protocol
 
-**CRITICAL**: Aplica este patrón de iteración automática para cada checkpoint.
+**CRITICAL**: Aplica este protocolo de corrección automática para cada checkpoint. Detecta 3 tipos de desviación.
 
-### Concepto
+### Tipos de Desviación
 
-En lugar de avanzar ciegamente, itera hasta que los tests pasen:
-
-```
-while tests_failing:
-    1. Analizar error
-    2. Corregir código
-    3. Re-ejecutar tests
-    4. Si tests pasan → siguiente checkpoint
-    5. Si tests fallan → volver a paso 1
-```
+| Tipo | Trigger | Acción |
+|------|---------|--------|
+| **TYPE 1 — Test Failure** | Tests fallan con errores | Analizar error → corregir implementación (NO el test) |
+| **TYPE 2 — Missing Functionality** | Tests pasan pero acceptance criteria no cumplidos | Comparar vs `30_tasks.md` → añadir implementación faltante |
+| **TYPE 3 — Incomplete Pattern** | Implementación no sigue el reference file | Comparar vs referencia → completar patrón |
 
 ### Flujo de Auto-Corrección por Checkpoint
 
@@ -626,30 +625,32 @@ Checkpoint: Implement User Entity
 
 1. 🔴 Escribir test (TDD)
 2. 🟢 Implementar mínimo código
-3. ⚙️ Ejecutar test
-   └── Si PASA → ✅ Checkpoint completado
-   └── Si FALLA → 🔁 Auto-corrección:
-       ├── Leer mensaje de error
-       ├── Identificar causa raíz
-       ├── Corregir código (NO el test)
-       ├── Re-ejecutar test
-       └── Repetir hasta MAX_ITERATIONS (10)
+3. ⚙️ Ejecutar verificación (tests + acceptance criteria)
+   └── Si TODO PASA → ✅ Checkpoint completado
+   └── Si DESVIACIÓN DETECTADA → 🔁 Auto-corrección:
+       ├── Clasificar desviación (TYPE 1, 2, o 3)
+       ├── TYPE 1: Leer error → corregir implementación
+       ├── TYPE 2: Leer criteria → añadir funcionalidad
+       ├── TYPE 3: Leer referencia → completar patrón
+       ├── Re-ejecutar verificación
+       └── Repetir hasta max_iterations (from providers.yaml)
 
-4. Si después de 10 iteraciones no pasa:
+4. Si después de max_iterations no pasa:
    └── Documentar en DECISIONS.md:
-       - Qué se intentó
+       - Tipo de desviación predominante
+       - Qué se intentó por cada tipo
        - Por qué falla
-       - Posibles alternativas
    └── Actualizar 50_state.md → BLOCKED
    └── Esperar ayuda del Planner
 ```
 
-### Reglas del Loop
+### Reglas del Protocolo
 
-1. **MAX_ITERATIONS = 10**: Después de 10 intentos, detente y documenta
+1. **max_iterations**: Resuelto desde `providers.yaml` correction_limits (default: 10)
 2. **No modificar tests para que pasen**: Los tests definen el comportamiento esperado
-3. **Solo avanzar con tests verdes**: No pases al siguiente checkpoint con tests fallando
+3. **Solo avanzar con verificación completa**: Tests verdes + acceptance criteria cumplidos
 4. **Documentar cada iteración**: Si llegas a 5+ intentos, documenta qué estás intentando
+5. **Clasificar desviaciones**: Trackear cuántas iteraciones por cada tipo de desviación
 
 ### Ejemplo Práctico
 
