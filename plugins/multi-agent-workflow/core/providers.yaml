@@ -94,7 +94,17 @@ providers:
   #   - All 7 heavy skills forked (consultant, coverage-checker, etc.)
   #   - Reason: Protect limited context window at all costs
   #
-  fork_strategy: auto  # auto | selective | aggressive
+  # per-task: Fork for each individual execution task (GSD-style fresh context)
+  #   - Each task in 30_tasks.md runs in its own isolated context
+  #   - Subagent receives ONLY: role.md + task definition + reference files
+  #   - 200K tokens purely for implementation, zero accumulated context
+  #   - Prevents context rot on long implementation sessions
+  #   - Atomic git commit per task enables granular bisect/revert
+  #   - Trade-off: Higher token consumption but higher quality per task
+  #   - Requires: --isolation=task flag on /workflows:work
+  #   - Best for: large features with 10+ tasks, long sessions
+  #
+  fork_strategy: auto  # auto | selective | aggressive | per-task
 
   # --- Coordination ---
   # How agents communicate and share state
