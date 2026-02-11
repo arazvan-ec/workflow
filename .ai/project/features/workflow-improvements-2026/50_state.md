@@ -244,6 +244,7 @@ See `DECISIONS.md` for full decision log.
 **Modified By**: Planner Agent
 
 ### Modified Files (Auto-tracked)
+- /home/user/workflow/plugins/multi-agent-workflow/core/templates/feature_spec.yaml (2026-02-11T13:36:54+00:00)
 - /home/user/workflow/.ai/project/features/context-engineering-v2/30_tasks.md (2026-02-11T13:31:38+00:00)
 - /home/user/workflow/.ai/project/features/context-engineering-v2/15_solutions.md (2026-02-11T13:31:01+00:00)
 - /home/user/workflow/docs/ai-integration-analysis-2026.md (2026-02-11T13:31:00+00:00)
