@@ -16,7 +16,8 @@ Create blocking checkpoints with auto-correction loops for quality-gated develop
 ## What This Skill Does
 
 - Validates that tests pass before allowing progress
-- Implements the Bounded Correction Protocol (iterate until tests pass)
+- Implements the Bounded Correction Protocol (3 deviation types, scale-adaptive limits)
+- **Goal-Backward Verification**: Verifies against acceptance criteria, not just test results
 - Documents progress for session resumption
 - Manages context window through strategic stopping points
 - Provides escape hatch after max iterations
@@ -47,6 +48,26 @@ elif iterations >= max_iterations:
 - **TYPE 1 — Test Failure**: Tests fail with errors → fix implementation (NEVER the test)
 - **TYPE 2 — Missing Functionality**: Tests pass but acceptance criteria unmet → add missing code
 - **TYPE 3 — Incomplete Pattern**: Doesn't match reference file → complete the pattern
+
+## Goal-Backward Verification
+
+After the correction loop completes (tests pass), verify against the task's acceptance criteria:
+
+```
+GOAL VERIFICATION:
+  1. Read acceptance criteria for current task from 30_tasks.md
+  2. For each criterion:
+     AUTOMATED: testable via command → run → verify output
+     OBSERVABLE: requires code inspection → grep/read files → verify behavior
+     MANUAL: requires human verification → document → flag PENDING_REVIEW
+  3. Score: X/Y criteria verified
+
+  all verified      → checkpoint COMPLETE
+  criterion FAILED  → re-enter correction loop (TYPE 2: missing functionality)
+  criterion MANUAL  → checkpoint PENDING_REVIEW (add to 50_state.md notes)
+```
+
+**Why this matters**: Tests can pass while the feature is still incomplete. A test suite might verify that a function exists but not that it handles all acceptance criteria. Goal-backward verification catches these gaps.
 
 ## When to Use
 

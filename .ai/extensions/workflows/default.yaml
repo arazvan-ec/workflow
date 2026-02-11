@@ -112,6 +112,13 @@ stages:
             - command: "grep -r '@ORM' backend/src/Domain/ || true"
               expected: "no_output"
               description: "No Doctrine annotations in Domain layer (DDD compliance)"
+          goal_verification:
+            - criterion: "Domain entities implement required business rules"
+              type: observable
+              check: "Verify entity methods match acceptance criteria from 30_tasks.md"
+            - criterion: "Value objects enforce domain constraints"
+              type: automated
+              check: "Unit tests cover validation rules specified in FEATURE_X.md"
           on_failure: |
             If tests fail after max iterations:
             1. Document in DECISIONS.md what was attempted (include deviation types)
@@ -246,6 +253,13 @@ stages:
             - command: "npm test -- --testPathPattern=[ComponentName] --passWithNoTests"
               expected: "exit_code == 0"
               description: "Component tests pass"
+          goal_verification:
+            - criterion: "Component renders required UI elements from acceptance criteria"
+              type: observable
+              check: "Verify component JSX includes all UI elements from 30_tasks.md"
+            - criterion: "Props and state types match the API contract"
+              type: automated
+              check: "TypeScript types align with API response shape from FEATURE_X.md"
           on_failure: |
             If tests fail after max iterations:
             1. Document in DECISIONS.md what was attempted (include deviation types)

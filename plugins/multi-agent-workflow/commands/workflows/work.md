@@ -285,7 +285,7 @@ else:
 - **TYPE 2 — Missing Functionality**: Tests pass but acceptance criteria unmet → add implementation
 - **TYPE 3 — Incomplete Pattern**: Implementation doesn't follow reference file → complete pattern
 
-### Step 7: Checkpoint (includes SOLID verification)
+### Step 7: Checkpoint (includes SOLID + Goal Verification)
 
 After each logical unit:
 
@@ -293,7 +293,28 @@ After each logical unit:
 # 1. Verify SOLID score
 /workflow-skill:solid-analyzer --path=src/modified-path
 
-# 2. Only checkpoint if SOLID score meets expected
+# 2. Goal-Backward Verification (from GSD Verify)
+# Verify against acceptance criteria, not just test results
+```
+
+**Goal-Backward Verification** (tests passing is necessary but NOT sufficient):
+
+```
+GOAL VERIFICATION (after tests pass):
+  1. Read acceptance criteria for current task from 30_tasks.md
+  2. For each criterion:
+     - AUTOMATED: If testable via command → run command → verify output
+     - OBSERVABLE: If requires code inspection → read files → verify behavior exists
+     - MANUAL: If requires human verification → document what to verify
+  3. Score: X/Y criteria verified
+
+  If all criteria verified → proceed to checkpoint
+  If any criterion FAILED → re-enter correction loop (TYPE 2 deviation)
+  If any criterion MANUAL → add PENDING_REVIEW to checkpoint notes
+```
+
+```bash
+# 3. Only checkpoint if SOLID + goal verification pass
 /workflows:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
 ```
 
