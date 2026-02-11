@@ -97,12 +97,14 @@ stages:
 
       # BLOCKING CHECKPOINTS (Bounded Correction Protocol)
       # Each checkpoint MUST pass before proceeding to the next
-      # Uses auto-correction loop: iterate until tests pass (max 10 iterations)
+      # Uses Bounded Correction Protocol: iterate until verified (scale-adaptive limits)
+      # Limits from providers.yaml → thresholds.correction_limits
       checkpoints:
         - name: domain_layer
           description: "Domain entities, value objects, and domain services"
           blocker: true
-          max_iterations: 10
+          complexity: moderate
+          max_iterations: 10   # moderate: standard DDD entities
           verify:
             - command: "php bin/phpunit tests/Unit/Domain/"
               expected: "exit_code == 0"
@@ -111,15 +113,16 @@ stages:
               expected: "no_output"
               description: "No Doctrine annotations in Domain layer (DDD compliance)"
           on_failure: |
-            If tests fail after 10 iterations:
-            1. Document in DECISIONS.md what was attempted
+            If tests fail after max iterations:
+            1. Document in DECISIONS.md what was attempted (include deviation types)
             2. Update 50_state.md to BLOCKED
             3. Wait for Planner assistance
 
         - name: application_layer
           description: "Use cases, application services, and DTOs"
           blocker: true
-          max_iterations: 10
+          complexity: moderate
+          max_iterations: 10   # moderate: use cases follow patterns
           depends_on: [domain_layer]
           verify:
             - command: "php bin/phpunit tests/Unit/Application/"
@@ -129,15 +132,16 @@ stages:
               expected: "coverage >= 80%"
               description: "Coverage must be >= 80%"
           on_failure: |
-            If tests fail after 10 iterations:
-            1. Document in DECISIONS.md what was attempted
+            If tests fail after max iterations:
+            1. Document in DECISIONS.md what was attempted (include deviation types)
             2. Update 50_state.md to BLOCKED
             3. Wait for Planner assistance
 
         - name: infrastructure_layer
           description: "Repositories, controllers, and external services"
           blocker: true
-          max_iterations: 10
+          complexity: complex
+          max_iterations: 15   # complex: multi-layer integration (DB, HTTP, external)
           depends_on: [application_layer]
           verify:
             - command: "php bin/phpunit tests/Integration/"
@@ -147,15 +151,16 @@ stages:
               expected: "exit_code == 0"
               description: "Database schema must be valid"
           on_failure: |
-            If tests fail after 10 iterations:
-            1. Document in DECISIONS.md what was attempted
+            If tests fail after max iterations:
+            1. Document in DECISIONS.md what was attempted (include deviation types)
             2. Update 50_state.md to BLOCKED
             3. Wait for Planner assistance
 
         - name: api_endpoints
           description: "REST API endpoints and contracts"
           blocker: true
-          max_iterations: 10
+          complexity: moderate
+          max_iterations: 10   # moderate: follows existing controller patterns
           depends_on: [infrastructure_layer]
           verify:
             - command: "curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/api/[endpoint]"
@@ -165,7 +170,7 @@ stages:
               expected: "total_coverage >= 80%"
               description: "Total coverage must be >= 80%"
           on_failure: |
-            If tests fail after 10 iterations:
+            If tests fail after max iterations:
             1. Document in DECISIONS.md what was attempted
             2. Update 50_state.md to BLOCKED
             3. Wait for Planner assistance
@@ -226,12 +231,14 @@ stages:
 
       # BLOCKING CHECKPOINTS (Bounded Correction Protocol)
       # Each checkpoint MUST pass before proceeding to the next
-      # Uses auto-correction loop: iterate until tests pass (max 10 iterations)
+      # Uses Bounded Correction Protocol: iterate until verified (scale-adaptive limits)
+      # Limits from providers.yaml → thresholds.correction_limits
       checkpoints:
         - name: component_structure
           description: "Component with props, state, and TypeScript types"
           blocker: true
-          max_iterations: 10
+          complexity: simple
+          max_iterations: 5    # simple: component skeleton with types
           verify:
             - command: "npm run type-check"
               expected: "exit_code == 0"
@@ -240,15 +247,16 @@ stages:
               expected: "exit_code == 0"
               description: "Component tests pass"
           on_failure: |
-            If tests fail after 10 iterations:
-            1. Document in DECISIONS.md what was attempted
+            If tests fail after max iterations:
+            1. Document in DECISIONS.md what was attempted (include deviation types)
             2. Update 50_state.md to BLOCKED
             3. Wait for Planner assistance
 
         - name: form_logic
           description: "Form validation, event handlers, and state management"
           blocker: true
-          max_iterations: 10
+          complexity: moderate
+          max_iterations: 10   # moderate: standard form patterns
           depends_on: [component_structure]
           verify:
             - command: "npm test -- --testPathPattern=[FormName]"
@@ -258,7 +266,7 @@ stages:
               expected: "exit_code == 0"
               description: "Linting passes"
           on_failure: |
-            If tests fail after 10 iterations:
+            If tests fail after max iterations:
             1. Document in DECISIONS.md what was attempted
             2. Update 50_state.md to BLOCKED
             3. Wait for Planner assistance
@@ -266,7 +274,8 @@ stages:
         - name: api_integration
           description: "API integration or mocks with error handling"
           blocker: true
-          max_iterations: 10
+          complexity: complex
+          max_iterations: 15   # complex: API integration with error handling
           depends_on: [form_logic]
           verify:
             - command: "npm test -- --testPathPattern=integration"
@@ -276,7 +285,7 @@ stages:
               expected: "coverage >= 70%"
               description: "Coverage must be >= 70%"
           on_failure: |
-            If tests fail after 10 iterations:
+            If tests fail after max iterations:
             1. Document in DECISIONS.md what was attempted
             2. Update 50_state.md to BLOCKED
             3. Wait for Planner assistance
@@ -284,14 +293,15 @@ stages:
         - name: responsive_design
           description: "Responsive at mobile (375px), tablet (768px), desktop (1024px)"
           blocker: true
-          max_iterations: 10
+          complexity: simple
+          max_iterations: 5    # simple: CSS adjustments at breakpoints
           depends_on: [api_integration]
           verify:
             - manual: "Visual inspection at 375px, 768px, 1024px"
               expected: "UI renders correctly at all breakpoints"
               description: "No horizontal scroll, proper layout at each size"
           on_failure: |
-            If responsive issues persist after 10 iterations:
+            If responsive issues persist after max iterations:
             1. Document in DECISIONS.md what was attempted
             2. Include screenshots of issues
             3. Update 50_state.md to BLOCKED
@@ -300,7 +310,8 @@ stages:
         - name: accessibility_audit
           description: "Lighthouse accessibility score >= 90"
           blocker: true
-          max_iterations: 10
+          complexity: simple
+          max_iterations: 5    # simple: a11y fixes are typically straightforward
           depends_on: [responsive_design]
           verify:
             - manual: "Run Lighthouse audit in Chrome DevTools"
@@ -310,7 +321,7 @@ stages:
               expected: "all_elements_focusable"
               description: "All interactive elements reachable via keyboard"
           on_failure: |
-            If accessibility issues persist after 10 iterations:
+            If accessibility issues persist after max iterations:
             1. Document in DECISIONS.md what was attempted
             2. Include Lighthouse report
             3. Update 50_state.md to BLOCKED

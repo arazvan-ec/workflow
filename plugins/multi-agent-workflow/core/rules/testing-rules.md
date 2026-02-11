@@ -86,4 +86,16 @@ If max iterations reached, document with deviation classification:
 **Status**: BLOCKED - Needs Planner decision
 ```
 
+### Iteration Limits by Complexity
+
+The `max_iterations` value is resolved from `providers.yaml` → `thresholds.correction_limits`:
+
+| Complexity | max_iterations | When to use |
+|------------|---------------|-------------|
+| **simple** | 5 | Fix, patch, refactor, single-file changes |
+| **moderate** | 10 | Standard feature, multi-file implementation |
+| **complex** | 15 | New architecture, multi-layer integration, novel patterns |
+
+**Resolution order**: Task definition in `30_tasks.md` → inferred from scope → `correction_limits.default` (10).
+
 This bounded protocol prevents infinite loops while detecting problems beyond simple test failures.

@@ -167,6 +167,16 @@ thresholds:
     # Default: 50 (manual-snapshots), 150 (compaction-aware)
     max_messages: null
 
+  # Correction limits (Bounded Correction Protocol)
+  # Scale-adaptive iteration limits based on task complexity.
+  # The planner assigns complexity in 30_tasks.md. If not specified,
+  # the agent infers from scope (files referenced, pattern availability).
+  correction_limits:
+    simple: 5       # Fix, patch, refactor, single-file changes
+    moderate: 10    # Standard feature, multi-file implementation
+    complex: 15     # New architecture, multi-layer integration, novel patterns
+    default: 10     # When complexity is not specified
+
   # Fork decision thresholds
   fork:
     # Files read threshold to trigger fork (selective mode)
