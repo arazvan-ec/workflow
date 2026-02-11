@@ -143,6 +143,28 @@ providers:
   #
   execution_mode: auto  # auto | agent-executes | human-guided | hybrid
 
+  # --- Planning Depth ---
+  # Adjusts planning phases based on task complexity.
+  # Inspired by BMAD's Scale-Domain-Adaptive approach.
+  #
+  # full: All phases + integration analysis + SOLID (complex features)
+  #   - Phase 1 (Understand) + Phase 2 (Specs) + Phase 3 (Solutions+SOLID) + Phase 4 (Tasks)
+  #   - Integration analysis + architectural impact
+  #   - Best for: new features, multi-layer changes, security-sensitive
+  #
+  # standard: Phase 1-3 + tasks, skip architectural impact detail
+  #   - Phase 1 (Understand) + Phase 2 (Specs) + Phase 3 (Solutions) + Phase 4 (Tasks)
+  #   - SOLID verification but no detailed layer/module impact analysis
+  #   - Best for: medium features, single-layer changes
+  #
+  # minimal: Problem statement + tasks only (simple features)
+  #   - Phase 1 (Understand) + Phase 4 (Tasks) -- skips specs and solutions
+  #   - No SOLID analysis, no integration analysis
+  #   - Best for: simple features, bug fixes, small changes
+  #   - Note: /workflows:quick is preferred for truly trivial tasks
+  #
+  planning_depth: auto  # auto | full | standard | minimal
+
 # --- Thresholds ---
 # Override default thresholds based on your model's capabilities.
 # When null, the provider auto-selects appropriate values.

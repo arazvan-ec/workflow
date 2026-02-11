@@ -62,7 +62,7 @@ Resolve execution_mode from `core/providers.yaml` before starting any task. In `
 Follow the defined workflow without skipping stages. Each core command enforces prerequisites:
 
 - **`plan`** requires: request routed via `/workflows:route`
-- **`work`** requires: planner status = `COMPLETED` in `50_state.md`
+- **`work`** requires: planner status = `COMPLETED` in `50_state.md` AND all required plan files exist on disk (`00_problem_statement.md`, `12_specs.md`, `15_solutions.md`, `30_tasks.md`)
 - **`validate-solution`** requires: work in progress or `COMPLETED` (or invoked during plan)
 - **`review`** requires: implementation status = `COMPLETED` in `50_state.md`
 - **`compound`** requires: QA status = `APPROVED` in `50_state.md`
@@ -114,6 +114,40 @@ Use `50_state.md` to communicate state between roles.
 - Update `50_state.md` frequently
 - Read other roles' state before starting
 - Use standard states: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, `APPROVED`, `REJECTED`
+
+### 10. Planning Persistence (Write-Then-Advance)
+
+Planning output must be written to disk incrementally, not accumulated in memory.
+
+```
+THE WRITE-THEN-ADVANCE RULE:
+
+Every planning phase writes its output file BEFORE the next phase begins.
+Every work task updates 50_state.md BEFORE the next task begins.
+
+PHASE COMPLETION PROTOCOL (applies to every phase):
+
+1. GENERATE the phase output in full
+2. WRITE the output file to disk immediately (use Write tool)
+3. UPDATE 50_state.md with phase completion status + timestamp
+4. VERIFY the file exists on disk (use Read tool to confirm)
+5. ONLY THEN advance to the next phase
+
+If step 2 fails, RETRY the write. Do NOT proceed to next phase
+with unwritten output.
+```
+
+This ensures:
+- Interrupted sessions can be resumed from the last completed phase/task
+- Partial progress is never lost
+- `50_state.md` always reflects the true current state
+
+Violations:
+- Generating multiple phase outputs without writing intermediate files
+- Advancing to Phase 3 without Phase 2 output written to disk
+- Completing tasks without updating `50_state.md` between them
+
+This rule applies to both `/workflows:plan` and `/workflows:work`.
 
 ---
 

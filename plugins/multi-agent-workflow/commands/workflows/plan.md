@@ -55,6 +55,101 @@ Good planning means:
 
 ---
 
+## MANDATORY: Incremental Persistence Protocol
+
+> **CRITICAL RULE**: Every planning phase MUST write its output file to disk IMMEDIATELY upon completion, BEFORE starting the next phase. Planning is NOT an in-memory exercise. If Claude is interrupted at any point, all completed phases must be recoverable from disk.
+
+### The Write-Then-Advance Rule
+
+```
+PHASE COMPLETION PROTOCOL (applies to every phase):
+
+1. GENERATE the phase output in full
+2. WRITE the output file to disk immediately (use Write tool)
+3. UPDATE 50_state.md with phase completion status + timestamp
+4. VERIFY the file exists on disk (use Read tool to confirm)
+5. ONLY THEN advance to the next phase
+
+If step 2 fails, RETRY the write. Do NOT proceed to next phase
+with unwritten output.
+```
+
+### Planning Progress Tracker (in 50_state.md)
+
+At the START of planning, create `50_state.md` with this structure:
+
+```markdown
+## Planner
+**Status**: IN_PROGRESS
+**Feature**: ${FEATURE_ID}
+**Started**: ${ISO_TIMESTAMP}
+**Last Updated**: ${ISO_TIMESTAMP}
+
+### Planning Progress
+| Phase | Status | Output File | Written At |
+|-------|--------|-------------|------------|
+| Step 0 (Load Specs) | PENDING | (context only) | - |
+| Phase 1 (Understand) | PENDING | 00_problem_statement.md | - |
+| Phase 2 (Specs) | PENDING | 12_specs.md | - |
+| Phase 2b (Integration) | PENDING | 13_integration_analysis.md | - |
+| Phase 3 (Solutions) | PENDING | 15_solutions.md | - |
+| Phase 3b (Impact) | PENDING | 16_architectural_impact.md | - |
+| Phase 4 (Tasks) | PENDING | 30_tasks.md | - |
+| Completeness Check | PENDING | FEATURE_${ID}.md | - |
+
+### Resume Point
+**Last Completed Phase**: (none)
+**Next Phase**: Step 0
+**Files Written So Far**: (none)
+```
+
+### Per-Phase Write Directives
+
+After completing each phase, you MUST execute these exact steps:
+
+**After Step 0 (Load Specs)**:
+```
+1. UPDATE 50_state.md: Step 0 → COMPLETED, timestamp
+2. No output file for this step (context only)
+```
+
+**After Phase 1 (Understand)**:
+```
+1. WRITE .ai/project/features/${FEATURE_ID}/00_problem_statement.md
+2. VERIFY file exists and has substantive content (not just headers)
+3. UPDATE 50_state.md: Phase 1 → COMPLETED, timestamp, file path
+4. UPDATE Resume Point: Last = Phase 1, Next = Phase 2
+```
+
+**After Phase 2 (Specs)**:
+```
+1. WRITE .ai/project/features/${FEATURE_ID}/12_specs.md
+2. VERIFY file exists and has substantive content
+3. WRITE .ai/project/features/${FEATURE_ID}/13_integration_analysis.md (if applicable)
+4. UPDATE 50_state.md: Phase 2 → COMPLETED, Phase 2b → COMPLETED, timestamps
+5. UPDATE Resume Point: Last = Phase 2, Next = Phase 3
+```
+
+**After Phase 3 (Solutions)**:
+```
+1. WRITE .ai/project/features/${FEATURE_ID}/15_solutions.md
+2. VERIFY file exists and has substantive content
+3. WRITE .ai/project/features/${FEATURE_ID}/16_architectural_impact.md (if applicable)
+4. UPDATE 50_state.md: Phase 3 → COMPLETED, Phase 3b → COMPLETED, timestamps
+5. UPDATE Resume Point: Last = Phase 3, Next = Phase 4
+```
+
+**After Phase 4 (Tasks)**:
+```
+1. WRITE .ai/project/features/${FEATURE_ID}/30_tasks.md (or 30_tasks_backend.md, etc.)
+2. VERIFY file(s) exist with substantive content
+3. WRITE .ai/project/features/${FEATURE_ID}/FEATURE_${FEATURE_ID}.md (summary)
+4. UPDATE 50_state.md: Phase 4 → COMPLETED, Completeness Check → PENDING
+5. PROCEED to Completeness Verification
+```
+
+---
+
 ## Shaping Integration (Optional Pre-Phase)
 
 If `/workflows:shape` was run before planning, the following artifacts are available:
@@ -71,6 +166,33 @@ When shaped brief exists, the planner should:
 2. **Phase 2**: Use Requirements (R) as foundation for functional specs (add formal structure)
 3. **Phase 3**: Use Shape parts as starting point for solutions (add SOLID analysis)
 4. **Tasks**: Use Slices (V1, V2...) to structure task groups vertically
+
+---
+
+## Planning Depth Resolution
+
+Before starting the planning process, resolve the `planning_depth` provider from `core/providers.yaml`:
+
+```
+READ core/providers.yaml → providers.planning_depth
+
+IF "auto":
+  ├── Complexity from /workflows:route == "complex" → full
+  ├── Complexity from /workflows:route == "medium"  → standard
+  └── Complexity from /workflows:route == "simple"  → minimal
+
+IF "full":    Execute ALL phases (Step 0 + Phase 1 + Phase 2 + Phase 3 + Phase 4)
+IF "standard": Execute Step 0 + Phase 1 + Phase 2 + Phase 3 (skip integration/impact detail) + Phase 4
+IF "minimal":  Execute Step 0 + Phase 1 + Phase 4 ONLY (skip Phase 2 specs and Phase 3 solutions)
+```
+
+| Depth | Phases | Output Files | Best For |
+|-------|--------|-------------|----------|
+| **full** | All phases + integration + SOLID + impact | All files | Complex features, multi-layer, security |
+| **standard** | Phase 1-4, no detailed impact | 00, 12, 15, 30, 50, FEATURE | Medium features, single-layer |
+| **minimal** | Phase 1 + Phase 4 only | 00, 30, 50, FEATURE | Simple features, bug fixes |
+
+When `planning_depth` is `minimal`, the Quality Gates for Phase 2 and Phase 3 are skipped (those phases don't execute).
 
 ---
 
@@ -123,7 +245,20 @@ When shaped brief exists, the planner should:
 
 Before planning any new feature, load and understand the existing project architecture.
 
-### Step 0.0: Check for Shaped Brief (if exists)
+### Step 0.0: Load Implementation Preferences (if exists)
+
+```bash
+# Check if discussion phase captured preferences
+PREFERENCES=".ai/project/features/${FEATURE_ID}/01_preferences.md"
+if [ -f "$PREFERENCES" ]; then
+  echo "Preferences found from /workflows:discuss. Loading into planning context."
+  # Read technology choices, architecture preferences, code style, constraints
+  # Do NOT re-ask questions already answered in 01_preferences.md
+  # Use preferences to guide Phase 1 constraints and Phase 3 solutions
+fi
+```
+
+### Step 0.0b: Check for Shaped Brief (if exists)
 
 ```bash
 # Check if shaping was done before planning
@@ -256,6 +391,42 @@ Before proceeding, ensure you understand:
 2. [Measurable criterion 2]
 ```
 
+### Phase 1 Quality Gate (BCP for Planning)
+
+Before writing `00_problem_statement.md`, self-validate with bounded iteration:
+
+```
+PHASE 1 QUALITY CHECK (max 3 iterations):
+
+  iteration = 0
+  while iteration < 3:
+    CHECK 1: Is the problem statement specific to the user's request?
+      - Does it reference the user's exact words or intent?
+      - FAIL if it is generic/templated (e.g., "The system needs improvement")
+
+    CHECK 2: Does it have substantive content (not just headers)?
+      - Count non-empty, non-header lines. Must be >= 10 lines of content.
+      - FAIL if only section headers with placeholder text
+
+    CHECK 3: Are success criteria measurable and specific?
+      - Each criterion must be testable (pass/fail)
+      - FAIL if criteria are vague (e.g., "good performance")
+
+    CHECK 4: Does it address ALL aspects of the user's request?
+      - Compare against the original request text
+      - FAIL if significant aspects are missing
+
+    IF all checks pass → WRITE file, advance to Phase 2
+    IF any check fails → log which check failed, revise, iteration += 1
+
+  IF 3 iterations exhausted and still failing:
+    WRITE the best version with a "## Quality Warnings" section noting deficiencies
+    NOTIFY user: "Phase 1 output has quality concerns: [list]. Review recommended."
+    ADVANCE to Phase 2 (do not block indefinitely)
+```
+
+**After passing Quality Gate**: Follow the Per-Phase Write Directives (see Incremental Persistence Protocol above).
+
 ---
 
 ## PHASE 2: SPECS (Requisitos Funcionales)
@@ -379,6 +550,43 @@ Before proceeding to Phase 3, verify no unresolved conflicts:
 # ⚠️ 1 business rule conflict (BR-001 vs new discount rule)
 # Action: Resolve conflict before proceeding
 ```
+
+### Phase 2 Quality Gate (BCP for Planning)
+
+Before writing `12_specs.md`, self-validate with bounded iteration:
+
+```
+PHASE 2 QUALITY CHECK (max 3 iterations):
+
+  iteration = 0
+  while iteration < 3:
+    CHECK 1: Does each spec describe WHAT (not HOW)?
+      - Specs must be functional requirements, not technical design
+      - FAIL if specs contain implementation details (class names, patterns)
+
+    CHECK 2: Does each spec have testable acceptance criteria?
+      - At least 2 acceptance criteria per spec
+      - Each must be verifiable (pass/fail)
+      - FAIL if criteria are missing or vague
+
+    CHECK 3: Do specs cover the FULL scope of the user's request?
+      - Map each user requirement to at least one spec
+      - FAIL if user requirements are not fully covered
+
+    CHECK 4: Is the integration analysis substantive (not just "None")?
+      - Must identify at least extended/modified/new for entities AND endpoints
+      - FAIL if all sections say "None" for a non-trivial feature
+
+    IF all checks pass → WRITE files, advance to Phase 3
+    IF any check fails → revise, iteration += 1
+
+  IF 3 iterations exhausted:
+    WRITE best version with "## Quality Warnings" section
+    NOTIFY user of concerns
+    ADVANCE to Phase 3
+```
+
+**After passing Quality Gate**: Follow the Per-Phase Write Directives (see Incremental Persistence Protocol above).
 
 ---
 
@@ -587,48 +795,101 @@ After designing solutions, analyze the architectural impact across the codebase.
 | Migration conflicts | LOW | MEDIUM | Coordinate with team |
 ```
 
+### Phase 3 Quality Gate (BCP for Planning)
+
+Before writing `15_solutions.md`, self-validate with bounded iteration:
+
+```
+PHASE 3 QUALITY CHECK (max 3 iterations):
+
+  iteration = 0
+  while iteration < 3:
+    CHECK 1: Does every spec from Phase 2 have a corresponding solution?
+      - Map SPEC-F01 → Solution, SPEC-F02 → Solution, etc.
+      - FAIL if any spec lacks a solution
+
+    CHECK 2: Does each solution specify concrete files to create/modify?
+      - Must list actual file paths, not abstract descriptions
+      - FAIL if solutions are too abstract ("implement a service")
+
+    CHECK 3: Is the SOLID analysis present and non-trivial?
+      - Each solution must have the SOLID compliance table filled in
+      - FAIL if SOLID table has empty cells or "N/A" for everything
+
+    CHECK 4: Does the architectural impact section list specific layers and files?
+      - Must identify files to CREATE and files to MODIFY
+      - FAIL if change scope is empty or says "TBD"
+
+    IF all checks pass → WRITE files, advance to Phase 4
+    IF any check fails → revise, iteration += 1
+
+  IF 3 iterations exhausted:
+    WRITE best version with "## Quality Warnings" section
+    NOTIFY user of concerns
+    ADVANCE to Phase 4
+```
+
+**After passing Quality Gate**: Follow the Per-Phase Write Directives (see Incremental Persistence Protocol above).
+
 ---
 
 ## Complete Planning Workflow
 
 ```bash
 # 0. STEP 0: Load Project Specs (Architecture Context)
-SPECS_BASE=".ai/project/specs"
-# Read existing entities, api-contracts, business-rules, architectural-constraints
-# Display summary of existing architecture
-# Output: Understanding of current system
-
-# 1. Create workspace
 FEATURE_ID="user-authentication"
 mkdir -p .ai/project/features/${FEATURE_ID}
 
-# 2. PHASE 1: Understand
+# CREATE 50_state.md with Planning Progress Tracker ← WRITE IMMEDIATELY
+# (see Incremental Persistence Protocol for template)
+# Read existing entities, api-contracts, business-rules, architectural-constraints
+# Display summary of existing architecture
+# UPDATE 50_state.md: Step 0 → COMPLETED
+
+# 1. PHASE 1: Understand
 # - Analyze request IN CONTEXT of existing specs
 # - Ask clarifying questions if needed
 # - Document problem statement
-# Output: 00_problem_statement.md
+# - RUN Phase 1 Quality Gate (max 3 iterations)
+# - WRITE .ai/project/features/${FEATURE_ID}/00_problem_statement.md ← IMMEDIATELY
+# - VERIFY file exists on disk
+# - UPDATE 50_state.md: Phase 1 → COMPLETED with timestamp
 
-# 3. PHASE 2: Specs + Integration Analysis
+# 2. PHASE 2: Specs + Integration Analysis
 /workflow-skill:criteria-generator --feature=${FEATURE_ID} --interview
 # - Define functional specs (WHAT the system must do)
-# - Identify EXTENDED entities/endpoints
-# - Identify MODIFIED entities/endpoints
-# - Identify NEW entities/endpoints
+# - Identify EXTENDED, MODIFIED, NEW entities/endpoints
 # - Detect conflicts with existing specs
-# Output: 12_specs.md, 13_integration_analysis.md
+# - RUN Phase 2 Quality Gate (max 3 iterations)
+# - WRITE .ai/project/features/${FEATURE_ID}/12_specs.md ← IMMEDIATELY
+# - WRITE .ai/project/features/${FEATURE_ID}/13_integration_analysis.md ← IMMEDIATELY
+# - VERIFY files exist on disk
+# - UPDATE 50_state.md: Phase 2 → COMPLETED with timestamp
 
-# 4. PHASE 3: Solutions with SOLID + Architectural Impact
+# 3. PHASE 3: Solutions with SOLID + Architectural Impact
 /workflow-skill:solid-analyzer --path=src/relevant-path  # Get baseline
 # - Design solutions using patterns
 # - Verify SOLID score ≥22/25
-# - Analyze layers affected
-# - List modules touched
-# - Estimate change scope (files affected)
-# Output: 15_solutions.md (HOW with SOLID), 16_architectural_impact.md
+# - Analyze layers affected, modules touched, change scope
+# - RUN Phase 3 Quality Gate (max 3 iterations)
+# - WRITE .ai/project/features/${FEATURE_ID}/15_solutions.md ← IMMEDIATELY
+# - WRITE .ai/project/features/${FEATURE_ID}/16_architectural_impact.md ← IMMEDIATELY
+# - VERIFY files exist on disk
+# - UPDATE 50_state.md: Phase 3 → COMPLETED with timestamp
 
-# 5. Create task breakdown
+# 4. Create task breakdown
 # Each task includes SOLID requirements + integration notes
-# Output: 30_tasks.md
+# - WRITE .ai/project/features/${FEATURE_ID}/30_tasks.md ← IMMEDIATELY
+# - WRITE .ai/project/features/${FEATURE_ID}/FEATURE_${FEATURE_ID}.md ← IMMEDIATELY
+# - VERIFY files exist on disk
+# - UPDATE 50_state.md: Phase 4 → COMPLETED with timestamp
+
+# 5. RUN Plan Completeness Verification (MANDATORY)
+# - Verify all files exist on disk
+# - Verify substantive content (not just headers)
+# - Cross-reference against original request
+# - User confirmation
+# - UPDATE 50_state.md: Planner → COMPLETED
 ```
 
 ---
@@ -710,6 +971,99 @@ Before marking planning as COMPLETED:
 
 **If SOLID is not addressed in Phase 3, the plan is INCOMPLETE.**
 **If integration analysis is missing, the plan treats feature as ISOLATED (anti-pattern).**
+
+---
+
+## Plan Completeness Verification (MANDATORY before marking COMPLETED)
+
+Before setting planner status to `COMPLETED` in `50_state.md`, execute this verification:
+
+```
+PLAN COMPLETENESS GATE:
+
+  STEP 1: Verify all required files exist on disk
+  ─────────────────────────────────────────────────
+  For each required file, use Read tool to verify it exists and is non-empty:
+
+  REQUIRED_FILES = [
+    "00_problem_statement.md",   # Phase 1 output
+    "12_specs.md",               # Phase 2 output
+    "15_solutions.md",           # Phase 3 output
+    "30_tasks.md",               # Phase 4 output (or 30_tasks_backend.md etc.)
+    "50_state.md",               # State tracking
+    "FEATURE_${FEATURE_ID}.md"   # Summary
+  ]
+
+  OPTIONAL_FILES = [
+    "13_integration_analysis.md",  # Phase 2b (when --show-impact=true)
+    "16_architectural_impact.md",  # Phase 3b (when --show-impact=true)
+    "10_architecture.md",          # task-breakdown workflow only
+    "20_api_contracts.md",         # task-breakdown workflow only
+  ]
+
+  missing = []
+  for file in REQUIRED_FILES:
+    path = ".ai/project/features/${FEATURE_ID}/${file}"
+    if NOT exists(path) OR is_empty(path):
+      missing.append(file)
+
+  IF missing is not empty:
+    STOP. Report: "Plan incomplete. Missing files: ${missing}"
+    DO NOT mark planner as COMPLETED.
+    Attempt to generate missing files.
+
+  STEP 2: Verify substantive content (not just headers)
+  ─────────────────────────────────────────────────────
+  For each REQUIRED file:
+    Read the file
+    Count lines that are not blank and not markdown headers (not starting with #)
+    IF content_lines < 5:
+      Flag as "insufficient content"
+
+  IF any file flagged:
+    WARN user: "${file} has insufficient content (${n} lines). Enriching..."
+    Re-generate the flagged sections with more depth
+    Re-write the file
+
+  STEP 3: Cross-reference against original request
+  ─────────────────────────────────────────────────
+  Read the original user request (from 00_problem_statement.md "Original Request")
+  Read 12_specs.md and 30_tasks.md
+  Verify:
+    - Every distinct requirement from the request maps to at least one spec
+    - Every spec maps to at least one task
+    - No major aspect of the request is absent from the plan
+
+  IF gaps found:
+    LIST the gaps
+    ASK user: "The plan may not fully cover: [gaps]. Should I add these?"
+    IF yes: generate missing specs/tasks and write them
+    IF no: document user's decision in 50_state.md
+
+  STEP 4: User confirmation (recommended)
+  ────────────────────────────────────────
+  Present plan summary to user:
+    "Plan complete for ${FEATURE_ID}:
+     - ${N} functional specs defined
+     - ${M} tasks created (${B} backend, ${F} frontend, ${Q} QA)
+     - ${X} files to create, ${Y} files to modify
+     - Estimated SOLID score: ${SCORE}/25
+     - All output files written to .ai/project/features/${FEATURE_ID}/
+
+     Ready to proceed to /workflows:work? (yes/review/revise)"
+
+  IF "review": Display the full FEATURE_${ID}.md for user review
+  IF "revise": Ask what to change, update relevant files
+  IF "yes" or no response: Mark COMPLETED
+
+  STEP 5: Mark planning COMPLETED
+  ────────────────────────────────
+  UPDATE 50_state.md:
+    Planner Status → COMPLETED
+    Completeness Check → COMPLETED
+    All phases → COMPLETED with timestamps
+    Last Updated → current timestamp
+```
 
 ---
 
