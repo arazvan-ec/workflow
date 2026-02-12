@@ -4,7 +4,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 from domain.entities import (
-    Feature, Task, Session, Commit, Agent, Skill, Command, Snapshot, ProjectConfig,
+    Feature, Task, Session, Commit, CommitFile, Agent, Skill, Command, Snapshot, ProjectConfig,
 )
 from infrastructure.config import Settings
 from infrastructure.parsers.state_parser import parse_state_file
@@ -185,6 +185,85 @@ class GitRepository:
             commits.append(commit)
             i += 1
 
+        return commits
+
+    def get_commit_files(self, commit_hash: str) -> list[CommitFile]:
+        """Get list of changed files for a specific commit with per-file stats."""
+        import re as _re
+        cwd = str(self.settings.project_root)
+        # Get numstat (insertions/deletions per file)
+        try:
+            numstat = subprocess.run(
+                ["git", "diff-tree", "--no-commit-id", "-r", "--numstat", commit_hash],
+                capture_output=True, text=True, timeout=5, cwd=cwd,
+            )
+            status = subprocess.run(
+                ["git", "diff-tree", "--no-commit-id", "-r", "--name-status", commit_hash],
+                capture_output=True, text=True, timeout=5, cwd=cwd,
+            )
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            return []
+
+        # Parse name-status → {path: status_letter}
+        status_map: dict[str, str] = {}
+        for line in status.stdout.strip().split("\n"):
+            if not line.strip():
+                continue
+            parts = line.split("\t")
+            if len(parts) >= 2:
+                st = parts[0][0] if parts[0] else "M"
+                path = parts[-1]  # last part handles renames
+                status_map[path] = st
+
+        # Parse numstat → CommitFile objects
+        files: list[CommitFile] = []
+        for line in numstat.stdout.strip().split("\n"):
+            if not line.strip():
+                continue
+            parts = line.split("\t")
+            if len(parts) < 3:
+                continue
+            ins = int(parts[0]) if parts[0] != "-" else 0
+            dels = int(parts[1]) if parts[1] != "-" else 0
+            path = parts[2]
+            files.append(CommitFile(
+                path=path,
+                status=status_map.get(path, "M"),
+                insertions=ins,
+                deletions=dels,
+            ))
+        return files
+
+    def get_commit_diff(self, commit_hash: str, max_lines: int = 500) -> str:
+        """Get the unified diff for a commit, truncated to max_lines."""
+        try:
+            result = subprocess.run(
+                ["git", "show", "--format=", "--patch", commit_hash],
+                capture_output=True, text=True, timeout=10,
+                cwd=str(self.settings.project_root),
+            )
+            if result.returncode != 0:
+                return ""
+        except (subprocess.TimeoutExpired, FileNotFoundError):
+            return ""
+
+        lines = result.stdout.split("\n")
+        if len(lines) > max_lines:
+            lines = lines[:max_lines]
+            lines.append(f"\n... truncated ({len(result.stdout.split(chr(10)))} total lines)")
+        return "\n".join(lines)
+
+    def get_commits_with_details(self, limit: int = 20, max_diff_lines: int = 500) -> list[Commit]:
+        """Get commits enriched with file lists and diffs."""
+        commits = self.get_commits(limit=limit)
+        for commit in commits:
+            commit.files = self.get_commit_files(commit.hash)
+            commit.diff = self.get_commit_diff(commit.hash, max_lines=max_diff_lines)
+            # Fix files_changed/insertions/deletions from per-file data
+            if commit.files:
+                commit.files_changed = len(commit.files)
+                commit.insertions = sum(f.insertions for f in commit.files)
+                commit.deletions = sum(f.deletions for f in commit.files)
         return commits
 
 

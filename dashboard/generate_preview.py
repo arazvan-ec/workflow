@@ -40,8 +40,10 @@ def gather_data():
         'commits': [
             {'hash':c.hash,'short_hash':c.short_hash,'message':c.message,
              'author':c.author,'date':c.date,'files_changed':c.files_changed,
-             'insertions':c.insertions,'deletions':c.deletions}
-            for c in git_repo.get_commits(limit=30)
+             'insertions':c.insertions,'deletions':c.deletions,
+             'files': [{'path':f.path,'status':f.status,'insertions':f.insertions,'deletions':f.deletions} for f in c.files],
+             'diff':c.diff}
+            for c in git_repo.get_commits_with_details(limit=30, max_diff_lines=500)
         ],
         'branches': git_repo.get_branches(),
     }

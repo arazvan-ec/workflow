@@ -143,6 +143,14 @@ class Session:
 
 
 @dataclass
+class CommitFile:
+    path: str
+    status: str = "M"  # A=added, M=modified, D=deleted, R=renamed
+    insertions: int = 0
+    deletions: int = 0
+
+
+@dataclass
 class Commit:
     hash: str
     short_hash: str
@@ -152,6 +160,8 @@ class Commit:
     files_changed: int = 0
     insertions: int = 0
     deletions: int = 0
+    files: list[CommitFile] = field(default_factory=list)
+    diff: str = ""
 
 
 @dataclass
