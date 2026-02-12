@@ -82,10 +82,10 @@ Exception: continuing an already-routed task with valid `50_state.md` context.
 | Category | Agents | Invoked by |
 |----------|--------|------------|
 | Roles (4) | planner, backend, frontend, qa | `plan`, `work`, `review` |
-| Review (5) | security, performance, ddd-compliance, code-ts, simplicity, pattern-recognition | `review` |
+| Review (4) | security, performance, ddd-compliance, code-review-ts | `review` |
 | Research (2) | codebase-analyzer, learnings-researcher | `route`, `plan` |
-| Workflow (3) | spec-analyzer, spec-extractor, diagnostic-agent | `work`, `review` |
-| Design (2) | api-designer, ui-verifier | `plan`, `review` |
+| Workflow (2) | spec-analyzer, diagnostic-agent | `work`, `review` |
+| Design (3) | api-designer, solid-architecture-generator, ui-verifier | `plan`, `review` |
 
 Agents are invoked automatically by the core commands. You rarely need to invoke them directly.
 
@@ -112,7 +112,7 @@ Agents are invoked automatically by the core commands. You rarely need to invoke
 | Review agents (`agents/review/`) | Human-triggered | During `/workflows:review` |
 | Project rules (`.ai/project/rules/`) | Software-determined | When matching patterns apply |
 
-Heavy skills and all 7 review agents run with `context: fork` -- isolated context windows returning summaries only. See `core/docs/CONTEXT_ENGINEERING.md`.
+Heavy skills and review agents run with `context: fork` -- isolated context windows returning summaries only. See `core/docs/CONTEXT_ENGINEERING.md`.
 
 ## Capability Providers
 
