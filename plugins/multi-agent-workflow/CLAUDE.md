@@ -65,14 +65,12 @@ The following are handled automatically by the core commands above. They exist a
 | Trust evaluation | `route` (routing logic) | `/workflows:trust` |
 | Spec validation | `plan` (Phase 2: Specs) | `/workflows:validate` |
 | Solution validation | `work` (on completion), `review` (pre-check) | `/workflows:validate-solution` |
-| Comprehension check | `review` (quality gates) | `/workflows:comprehension` |
 | Criteria evaluation | `plan` (Phase 3: SOLID) | `/workflows:criteria` |
 | Parallelization | `work --mode=roles` (auto-detects provider) | `/workflows:parallel` |
 | Progress tracking | `work` (state updates in `50_state.md`) | `/workflows:progress` |
 | Monitoring | `work --mode=roles` (parallel mode) | `/workflows:monitor` |
 | SOLID refactoring | `review` (when score < 18/25) | `/workflows:solid-refactor` |
 | Role assignment | `work --role=X` | `/workflows:role` |
-| Metrics collection | `compound` (performance analysis) | `/workflows:metrics` |
 
 ---
 
@@ -107,9 +105,9 @@ Exception: continuing an already-routed task with valid `50_state.md` context.
 | Category | Agents | Invoked by |
 |----------|--------|------------|
 | Roles (4) | planner, backend, frontend, qa | `plan`, `work`, `review` |
-| Review (8) | security, performance, ddd-compliance, code-ts, agent-native, simplicity, pattern-recognition, **solution-validator** | `validate-solution`, `review` |
-| Research (5) | codebase-analyzer, git-historian, dependency-auditor, learnings-researcher, best-practices-researcher | `route`, `plan` |
-| Workflow (6) | bug-reproducer, spec-analyzer, spec-extractor, style-enforcer, comprehension-guardian, **diagnostic-agent** | `work`, `review` |
+| Review (5) | security, performance, ddd-compliance, code-ts, simplicity, pattern-recognition, **solution-validator** | `validate-solution`, `review` |
+| Research (2) | codebase-analyzer, learnings-researcher | `route`, `plan` |
+| Workflow (3) | spec-analyzer, spec-extractor, **diagnostic-agent** | `work`, `review` |
 | Design (2) | api-designer, ui-verifier | `plan`, `review` |
 
 Agents are invoked automatically by the core commands. You rarely need to invoke them directly.
@@ -151,7 +149,6 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 - **Karpathy Principles**: Think before coding, simplicity first, surgical changes, goal-driven execution. Details in `core/docs/KARPATHY_PRINCIPLES.md`.
 - **Bounded Correction Protocol**: Detects 3 deviation types (test failure, missing functionality, incomplete pattern) with scale-adaptive limits (simple: 5, moderate: 10, complex: 15). Includes solution validation pre-check, goal-backward verification, adversarial self-review, and diagnostic escalation (invokes diagnostic-agent after 3 consecutive same errors). Details in `core/rules/testing-rules.md`.
 - **Compound Capture**: After each feature, extract patterns and update rules via `/workflows:compound`.
-- **Agent Compound Memory**: Review agents read `.ai/project/compound-memory.md` to calibrate intensity based on historical pain points. See `core/agent-memory.md`.
 - **Validation Learning**: AI self-questions solutions, asks user targeted questions, and logs answers for future use. Each feature makes validation smarter. See `core/docs/VALIDATION_LEARNING.md`.
 - **SOLID Constraint**: Phase 3 solutions target score >= 22/25. See `core/solid-pattern-matrix.md`.
 - **Context as Resource**: Thresholds adapt to provider (compaction-aware or manual-snapshots). Details in `core/docs/SESSION_CONTINUITY.md`.
@@ -186,7 +183,6 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 | Lifecycle hooks | `core/docs/LIFECYCLE_HOOKS.md` |
 | MCP integration | `core/docs/MCP_INTEGRATION.md` |
 | SOLID pattern matrix | `core/solid-pattern-matrix.md` |
-| Agent compound memory system | `core/agent-memory.md` |
 | Validation learning system | `core/docs/VALIDATION_LEARNING.md` |
 | Operational rules | `core/rules/framework_rules.md` |
 | Testing conventions | `core/rules/testing-rules.md` |
@@ -195,4 +191,4 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 
 ---
 
-**Version**: 2.11.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers + Shape Up (Singer) + Agent Compound Memory + AI Validation Learning + GSD + BMAD
+**Version**: 3.0.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers + Shape Up (Singer) + AI Validation Learning + GSD + BMAD
