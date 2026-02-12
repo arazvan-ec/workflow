@@ -154,8 +154,7 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 | Routing details & question templates | `core/docs/ROUTING_REFERENCE.md` |
 | Karpathy principles | `core/docs/KARPATHY_PRINCIPLES.md` |
 | Context engineering & fork model | `core/docs/CONTEXT_ENGINEERING.md` |
-| Session continuity & snapshots | `core/docs/SESSION_CONTINUITY.md` |
-| Lifecycle hooks | `core/docs/LIFECYCLE_HOOKS.md` |
+| Session continuity | `core/docs/SESSION_CONTINUITY.md` |
 | MCP integration | `core/docs/MCP_INTEGRATION.md` |
 | SOLID pattern matrix | `core/solid-pattern-matrix.md` |
 | Validation learning system | `core/docs/VALIDATION_LEARNING.md` |
