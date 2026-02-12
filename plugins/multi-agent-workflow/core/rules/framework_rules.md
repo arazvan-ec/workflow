@@ -1,13 +1,13 @@
 # Framework Rules - Multi-Agent Workflow
 
-**Framework Version**: 2.11.0
-**Last Updated**: 2026-02-10
+**Framework Version**: 3.0.0
+**Last Updated**: 2026-02-12
 
 ---
 
 ## Purpose
 
-These are the fundamental operational rules of the Multi-Agent Workflow framework. They apply to all projects using this plugin. Project-specific rules go in `.ai/extensions/rules/`.
+These are the fundamental operational rules of the Multi-Agent Workflow framework. They apply to all projects using this plugin. Project-specific rules go in `.ai/project/rules/`.
 
 For additional scoped rules see: `testing-rules.md`, `security-rules.md`, `git-rules.md` in this directory.
 
@@ -65,7 +65,6 @@ Follow the defined workflow without skipping stages. Each core command enforces 
 
 - **`plan`** requires: request routed via `/workflows:route`
 - **`work`** requires: planner status = `COMPLETED` in `50_state.md` AND all required plan files exist on disk (`00_problem_statement.md`, `12_specs.md`, `15_solutions.md`, `30_tasks.md`)
-- **`validate-solution`** requires: work in progress or `COMPLETED` (or invoked during plan)
 - **`review`** requires: implementation status = `COMPLETED` in `50_state.md`
 - **`compound`** requires: QA status = `APPROVED` in `50_state.md`
 
@@ -82,10 +81,9 @@ If a prerequisite is not met, STOP and complete the missing step first.
 
 Commands are organized in tiers. Only Tier 1 and Tier 2 commands should be invoked directly by users:
 
-- **Tier 1 (Core Flow)**: `route`, `shape`, `plan`, `work`, `validate-solution`, `review`, `compound`
+- **Tier 1 (Core Flow)**: `route`, `quick`, `shape`, `plan`, `work`, `review`, `compound`
 - **Tier 2 (Support)**: `quickstart`, `status`, `help`, `specs`, `discover`
-- **Tier 3 (Automatic)**: Operations handled automatically by Tier 1 commands (sync, checkpoint, snapshot, tdd, trust, validate, comprehension, criteria, parallel, progress, monitor, solid-refactor, role, metrics, restore)
-- **Tier 4 (Developer-Only)**: Plugin development tools (`skill-dev`, `heal-skill`, `reload`)
+- **Tier 3 (Utility)**: `validate`, `solid-refactor`, `role`
 
 Tier 3 commands exist for edge cases but should NOT be part of the normal flow.
 
@@ -264,4 +262,4 @@ Only the Planner role can modify project rules (with justification in `DECISIONS
 
 ---
 
-**Note**: These rules are part of the Multi-Agent Workflow Plugin and should not be modified per-project. For project-specific rules, create files in `.ai/extensions/rules/`.
+**Note**: These rules are part of the Multi-Agent Workflow Plugin and should not be modified per-project. For project-specific rules, create files in `.ai/project/rules/`.

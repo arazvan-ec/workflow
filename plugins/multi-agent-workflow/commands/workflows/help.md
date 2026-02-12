@@ -102,35 +102,13 @@ Display the tiered command structure:
 | /workflows:specs     | Manage living specifications         |
 | /workflows:discover  | Auto-analyze project architecture    |
 
-### Tier 3: Automatic (handled by core commands, manual override only)
+### Tier 3: Utility (use when needed, not part of normal flow)
 
-These run automatically inside the core flow. Only invoke manually for edge cases:
-
-| Operation           | Auto-triggered by              | Manual command          |
-|---------------------|--------------------------------|-------------------------|
-| Git sync            | plan, work                     | /workflows:sync         |
-| Save progress       | work (at checkpoints)          | /workflows:checkpoint   |
-| Session snapshot    | work (context > 70%)           | /workflows:snapshot     |
-| Restore session     | Session start + 50_state.md    | /workflows:restore      |
-| TDD enforcement     | work (TDD cycle)               | /workflows:tdd          |
-| Trust evaluation    | route (routing logic)          | /workflows:trust        |
-| Spec validation     | plan (Phase 2)                 | /workflows:validate     |
-| Comprehension check | review (quality gates)         | /workflows:comprehension|
-| Criteria evaluation | plan (Phase 3: SOLID)          | /workflows:criteria     |
-| Parallelization     | work --mode=roles              | /workflows:parallel     |
-| Progress tracking   | work (50_state.md updates)     | /workflows:progress     |
-| Monitoring          | work (parallel mode)           | /workflows:monitor      |
-| SOLID refactoring   | review (when score < 18/25)    | /workflows:solid-refactor|
-| Role assignment     | work --role=X                  | /workflows:role         |
-| Metrics collection  | compound (analysis)            | /workflows:metrics      |
-
-### Tier 4: Developer-Only (plugin development)
-
-| Command              | Purpose                              |
-|----------------------|--------------------------------------|
-| /workflows:skill-dev | Create/edit/test plugin skills       |
-| /workflows:heal-skill| Fix broken skill definitions         |
-| /workflows:reload    | Hot-reload skills/agents mid-session |
+| Command                | Purpose                              |
+|------------------------|--------------------------------------|
+| /workflows:validate    | Validate specs manually              |
+| /workflows:solid-refactor | SOLID-guided refactoring          |
+| /workflows:role        | Switch/assign role explicitly        |
 ```
 
 ### Topic: agents
@@ -147,7 +125,7 @@ These run automatically inside the core flow. Only invoke manually for edge case
 | Frontend    | UI and component implementation  |
 | QA          | Testing and validation           |
 
-### Review Agents (7) -- invoked by /workflows:review (context: fork)
+### Review Agents (6) -- invoked by /workflows:review (context: fork)
 
 | Agent                       | Speciality                  |
 |-----------------------------|-----------------------------|
@@ -155,29 +133,23 @@ These run automatically inside the core flow. Only invoke manually for edge case
 | Performance Review          | N+1, memory leaks           |
 | DDD Compliance              | Domain-Driven architecture  |
 | Code Review TS              | TypeScript standards        |
-| Agent-Native Reviewer       | AI-compatible code          |
 | Code Simplicity Reviewer    | Simplicity and readability  |
 | Pattern Recognition         | Anti-pattern detection      |
 
-### Research Agents (5) -- invoked by route, plan (context: fork)
+### Research Agents (2) -- invoked by route, plan (context: fork)
 
 | Agent                       | Speciality                  |
 |-----------------------------|-----------------------------|
 | Codebase Analyzer           | Structure analysis          |
-| Git Historian               | History and decisions       |
-| Dependency Auditor          | Dependency security         |
 | Learnings Researcher        | Past successful patterns    |
-| Best Practices Researcher   | External best practices     |
 
-### Workflow Agents (5) -- invoked by work, review
+### Workflow Agents (3) -- invoked by work, review
 
 | Agent                       | Speciality                  |
 |-----------------------------|-----------------------------|
-| Bug Reproducer              | Reproduce and document bugs |
 | Spec Analyzer               | Validate vs specifications  |
 | Spec Extractor              | Extract specs from code     |
-| Style Enforcer              | Code standards              |
-| Comprehension Guardian      | Prevent misunderstandings   |
+| Diagnostic Agent            | Debug persistent failures   |
 
 ### Design Agents (2) -- invoked by plan, review
 
@@ -244,11 +216,7 @@ See GLOSSARY.md for full definitions.
 /workflows:route "describe what you need"
 
 ### "Context window is getting heavy"
-The plugin auto-snapshots at ~70% capacity.
-If manual action needed:
-1. /workflows:snapshot
-2. Start new Claude session
-3. /workflows:restore
+Commit your work, start a new Claude session, and resume from `50_state.md`.
 
 ### "Something failed and I don't know what"
 /workflows:status my-feature
@@ -259,13 +227,8 @@ The Bounded Correction Protocol auto-corrects up to 10 times.
 If still failing: status will be BLOCKED with root cause.
 /workflows:status my-feature
 
-### "Need to go back to a previous state"
-/workflows:restore --list        # see available snapshots
-/workflows:restore --name=X      # restore specific one
-
 ### "How do I customize the workflow?"
-Project rules: .ai/extensions/rules/
-Workflow definitions: .ai/extensions/workflows/
+Project rules: .ai/project/rules/
 Plugin agents: plugins/multi-agent-workflow/agents/
 
 Problem not listed? Describe your situation and ask.
