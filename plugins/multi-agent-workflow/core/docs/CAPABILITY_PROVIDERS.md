@@ -102,7 +102,7 @@ IF providers.parallelization == "worktrees"  →  force worktrees
 **What stays the same**:
 - `50_state.md` still updated (persistent state)
 - Role definitions still apply (one role per agent)
-- Quality gates still enforced (checkpoints, Ralph Wiggum loop)
+- Quality gates still enforced (checkpoints, Bounded Correction Protocol)
 
 ### Implementation: Worktrees + tmux (tier: standard, lightweight)
 
@@ -354,7 +354,7 @@ EXECUTION LOOP (per task):
   4. RUN tests → confirm they fail (expected)
   5. GENERATE implementation following pattern reference
   6. RUN tests (test-runner skill)
-  7. IF tests fail → analyze error + fix (Ralph Wiggum loop, max 10)
+  7. IF tests fail → analyze error + fix (BCP, max 10)
   8. CHECK SOLID compliance (solid-analyzer skill)
   9. IF SOLID < threshold → refactor + re-run tests
   10. FIX lint issues (lint-fixer skill)

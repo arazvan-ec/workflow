@@ -11,8 +11,17 @@ A **compound engineering** framework for Claude Code that coordinates multiple A
 - **25 Workflow Commands**: Core workflows + session management + metrics + skill development
 - **12 Skills**: Core, Quality, Workflow, Compound, Integration, and SOLID analysis
 - **3 Parallelization Modes**: By roles, by layers (DDD), or by stacks
-- **Quality Gates**: Blocking checkpoints with auto-correction loops
+- **Quality Gates**: Blocking checkpoints with Bounded Correction Protocol (3 deviation types, adaptive limits)
 - **Compound Learning**: Capture insights from each feature
+
+### v2.10.0 New Features (GSD + BMAD Integration)
+- **Bounded Correction Protocol Enhanced**: Replaces simple test-failure loop with 3-type deviation detection (test failures, missing functionality, incomplete patterns)
+- **Scale-Adaptive Iteration Limits**: `max_iterations` varies by task complexity — simple: 5, moderate: 10, complex: 15 (configured in `providers.yaml`)
+- **Solution Validation (Step 4.5)**: Pre-implementation check validates approach against reference files, completed checkpoints, and DECISIONS.md before starting TDD
+- **Goal-Backward Verification**: After tests pass, verifies against acceptance criteria from `30_tasks.md` — tests passing ≠ feature complete
+- **Adversarial Self-Review**: Agents must identify at least 1 potential issue in their own code before checkpoint completion
+- **GSD Origins**: Deviation detection and goal-backward verification adapted from [GSD (Get Shit Done)](https://github.com/gsd-build/get-shit-done)
+- **BMAD Origins**: Scale-adaptive limits, solution validation, and adversarial review adapted from [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD)
 
 ### v2.7.0 New Features (Agent-Native Execution)
 - **Execution Mode Provider**: `/workflows:work` now supports `agent-executes` (agent generates code), `human-guided` (legacy), and `hybrid` (agent generates, human reviews) modes
@@ -340,17 +349,32 @@ See `commands/workflows/skill-dev.md` for full documentation.
 
 ## Key Patterns
 
-### Ralph Wiggum Pattern (Auto-Correction Loop)
-```python
-while tests_failing and iterations < 10:
-    fix_code()
-    run_tests()
-    if passing: checkpoint_complete()
+### Bounded Correction Protocol (BCP)
 
-if iterations >= 10:
-    mark_blocked()
-    document_for_help()
+Detects and corrects three types of deviations with scale-adaptive limits:
+
+```python
+# Deviation Types:
+#   TYPE 1: Test failure → fix implementation (never the test)
+#   TYPE 2: Missing functionality → add vs acceptance criteria
+#   TYPE 3: Incomplete pattern → complete vs reference file
+
+# Adaptive limits: simple=5, moderate=10, complex=15
+while (tests_failing or deviation_detected) and iterations < max_iterations:
+    classify_deviation()  # TYPE 1, 2, or 3
+    apply_targeted_fix()
+    run_verification()    # tests + acceptance criteria
+    iterations++
+
+if all_verified: checkpoint_complete()
+elif max_iterations_reached: mark_blocked(deviation_type)
 ```
+
+**Enhanced workflow** (GSD + BMAD integration):
+1. **Solution Validation** (Step 4.5): Validate approach before TDD cycle
+2. **TDD Cycle**: Red → Green → Refactor with BCP auto-correction
+3. **Goal-Backward Verification**: Verify against acceptance criteria (not just tests)
+4. **Adversarial Self-Review**: Agent identifies at least 1 issue before checkpoint
 
 ### Compound Capture Pattern
 After each feature:
@@ -395,7 +419,7 @@ plugins/multi-agent-workflow/
 ├── core/
 │   ├── rules/
 │   │   ├── framework_rules.md     # Core operational rules (~172 lines)
-│   │   ├── testing-rules.md       # v2.5.0: TDD, coverage, Ralph Wiggum (scoped)
+│   │   ├── testing-rules.md       # v2.5.0: TDD, coverage, BCP (scoped)
 │   │   ├── security-rules.md      # v2.5.0: Trust model, supervision (scoped)
 │   │   └── git-rules.md           # v2.5.0: Branching, commits, conflicts (scoped)
 │   └── docs/
@@ -545,6 +569,6 @@ See `core/docs/CONTEXT_ENGINEERING.md` for the full reference document.
 
 ---
 
-**Version**: 2.7.0
-**Aligned with**: Compound Engineering + Karpathy Principles + Claude Agent SDK + Context Engineering (Fowler) + Agent Skills Architecture (Hightower) + Capability Providers + Agent-Native Execution
+**Version**: 2.10.0
+**Aligned with**: Compound Engineering + Karpathy Principles + Claude Agent SDK + Context Engineering (Fowler) + Agent Skills Architecture (Hightower) + Capability Providers + Agent-Native Execution + GSD (Get Shit Done) + BMAD Method
 **Changelog**: See CLAUDE.md and CONTEXT_ENGINEERING.md for version history

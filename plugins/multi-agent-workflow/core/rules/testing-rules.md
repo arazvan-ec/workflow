@@ -36,21 +36,66 @@ Always write tests before implementation. The test defines the contract; the imp
 - Do not mock domain entities — test them directly
 - Do not write tests that depend on execution order
 
-## Ralph Wiggum Auto-Correction Loop
+## Bounded Auto-Correction Protocol
 
-When tests fail during implementation:
+The correction protocol detects and addresses three types of deviations, not just test failures.
+
+### Deviation Types
+
+1. **TYPE 1 — Test Failure**: Tests fail with errors. Fix the implementation (NEVER the test, unless the test itself is wrong).
+2. **TYPE 2 — Missing Functionality**: Tests pass but acceptance criteria from `30_tasks.md` are not met. Add the missing implementation.
+3. **TYPE 3 — Incomplete Pattern**: Implementation doesn't match the reference file pattern. Compare against the reference and complete the pattern.
+
+### Correction Loop
 
 ```
 iteration = 0
-while tests_failing and iteration < 10:
-    analyze the failure
-    fix the code (not the test, unless the test is wrong)
-    run tests again
+while (tests_failing OR deviation_detected) and iteration < max_iterations:
+    CLASSIFY the deviation:
+
+    IF TYPE 1 (test failure):
+        analyze test error output
+        fix implementation code (NOT the test)
+    ELSE IF TYPE 2 (missing functionality):
+        compare implementation vs acceptance criteria in 30_tasks.md
+        identify gap → add missing implementation
+    ELSE IF TYPE 3 (incomplete pattern):
+        compare vs reference file from task definition
+        identify missing pieces → complete the pattern
+
+    run verification (tests + acceptance criteria check)
     iteration++
 
-if iteration >= 10:
+if all_verified:
+    proceed to checkpoint
+else:
+    document_blocker(deviation_type, attempts_per_type)
     mark task as BLOCKED
-    document what was tried and what failed
 ```
 
-This bounded retry prevents infinite loops while giving reasonable room for correction.
+### Escape Hatch
+
+If max iterations reached, document with deviation classification:
+
+```markdown
+## Blocker: [Task Name]
+**Deviation type**: TYPE 1 (test failure) | TYPE 2 (missing functionality) | TYPE 3 (incomplete pattern)
+**Iterations attempted**: [N] (Type 1: X, Type 2: Y, Type 3: Z)
+**Last error/gap**: [exact error or missing criterion]
+**What was tried**: [approaches per deviation type]
+**Status**: BLOCKED - Needs Planner decision
+```
+
+### Iteration Limits by Complexity
+
+The `max_iterations` value is resolved from `providers.yaml` → `thresholds.correction_limits`:
+
+| Complexity | max_iterations | When to use |
+|------------|---------------|-------------|
+| **simple** | 5 | Fix, patch, refactor, single-file changes |
+| **moderate** | 10 | Standard feature, multi-file implementation |
+| **complex** | 15 | New architecture, multi-layer integration, novel patterns |
+
+**Resolution order**: Task definition in `30_tasks.md` → inferred from scope → `correction_limits.default` (10).
+
+This bounded protocol prevents infinite loops while detecting problems beyond simple test failures.

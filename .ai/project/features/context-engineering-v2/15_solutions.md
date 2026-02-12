@@ -33,7 +33,7 @@ On-demand (via reference docs):
 - Workflow selection quick guide table (~15 lines) → moved to ROUTING_REFERENCE.md
 - 3-phase planning ASCII diagram (~5 lines)
 - SOLID constraint explanation + scoring tables (~30 lines)
-- Ralph Wiggum code block (~8 lines) → one-liner reference
+- BCP code block (~8 lines) → one-liner reference
 - Compound capture steps (~5 lines) → one-liner reference
 - Commodore 64 context management (~5 lines) → reference to SESSION_CONTINUITY.md
 - MCP configured servers table + usage (~25 lines) → reference to MCP_INTEGRATION.md

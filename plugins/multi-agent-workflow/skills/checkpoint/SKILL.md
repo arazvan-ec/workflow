@@ -1,6 +1,6 @@
 ---
 name: checkpoint
-description: "Creates blocking checkpoints with auto-correction loops (Ralph Wiggum pattern) for quality-gated development."
+description: "Creates blocking checkpoints with auto-correction protocol (BCP) for quality-gated development."
 hooks:
   PreToolUse:
     - matcher: Write
@@ -16,28 +16,78 @@ Create blocking checkpoints with auto-correction loops for quality-gated develop
 ## What This Skill Does
 
 - Validates that tests pass before allowing progress
-- Implements the "Ralph Wiggum Pattern" (iterate until tests pass)
+- Implements the Bounded Correction Protocol (3 deviation types, scale-adaptive limits)
+- **Goal-Backward Verification**: Verifies against acceptance criteria, not just test results
 - Documents progress for session resumption
 - Manages context window through strategic stopping points
 - Provides escape hatch after max iterations
 
-## The Ralph Wiggum Pattern
+## The Bounded Correction Protocol
 
-Instead of pushing forward blindly, iterate until quality gates pass:
+Instead of pushing forward blindly, detect and correct three types of deviations:
 
 ```
-while tests_failing and iterations < 10:
-    1. Analyze error
-    2. Fix code
-    3. Re-run tests
-    4. If pass → checkpoint complete
-    5. If fail → loop again
+while (tests_failing OR deviation_detected) and iterations < max_iterations:
+    CLASSIFY deviation:
+      TYPE 1 (test failure):    analyze error → fix implementation
+      TYPE 2 (missing feature): compare vs acceptance criteria → add implementation
+      TYPE 3 (incomplete pattern): compare vs reference → complete pattern
 
-if iterations >= 10:
-    → Document blocker
+    Run verification (tests + acceptance criteria check)
+    iterations++
+
+if all_verified:
+    → Checkpoint complete
+elif iterations >= max_iterations:
+    → Document blocker with deviation type breakdown
     → Mark as BLOCKED
     → Wait for help
 ```
+
+**Deviation Types:**
+- **TYPE 1 — Test Failure**: Tests fail with errors → fix implementation (NEVER the test)
+- **TYPE 2 — Missing Functionality**: Tests pass but acceptance criteria unmet → add missing code
+- **TYPE 3 — Incomplete Pattern**: Doesn't match reference file → complete the pattern
+
+## Goal-Backward Verification
+
+After the correction loop completes (tests pass), verify against the task's acceptance criteria:
+
+```
+GOAL VERIFICATION:
+  1. Read acceptance criteria for current task from 30_tasks.md
+  2. For each criterion:
+     AUTOMATED: testable via command → run → verify output
+     OBSERVABLE: requires code inspection → grep/read files → verify behavior
+     MANUAL: requires human verification → document → flag PENDING_REVIEW
+  3. Score: X/Y criteria verified
+
+  all verified      → checkpoint COMPLETE
+  criterion FAILED  → re-enter correction loop (TYPE 2: missing functionality)
+  criterion MANUAL  → checkpoint PENDING_REVIEW (add to 50_state.md notes)
+```
+
+**Why this matters**: Tests can pass while the feature is still incomplete. A test suite might verify that a function exists but not that it handles all acceptance criteria. Goal-backward verification catches these gaps.
+
+## Adversarial Self-Review (Checkpoint Prerequisite)
+
+Before marking a checkpoint complete, the implementing agent MUST identify at least 1 potential issue:
+
+```
+ADVERSARIAL SELF-REVIEW:
+  1. Review your own implementation with a critical eye
+  2. Identify AT LEAST 1 of:
+     - A potential edge case not covered by tests
+     - A code smell or SOLID violation (even minor)
+     - A performance concern or potential optimization
+     - A security consideration
+  3. Document finding in checkpoint notes
+  4. If CRITICAL → fix before checkpoint
+  5. If MINOR → document for future improvement
+  6. If ZERO findings → review again. Zero findings on real code is a red flag.
+```
+
+**Checkpoint notes must include**: At least 1 self-review finding. This prevents rubber-stamp checkpoints and ensures continuous quality awareness.
 
 ## When to Use
 

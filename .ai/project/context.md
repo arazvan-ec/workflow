@@ -91,7 +91,7 @@
 
 ## Key Features
 
-### Auto-Correction Loop (Ralph Wiggum Pattern)
+### Auto-Correction Loop (Bounded Correction Protocol)
 - Max 10 iterations before documenting blockers
 - Escape hatch protocol for stuck situations
 - Integrated into all roles

@@ -66,7 +66,7 @@ The `CLAUDE.md` file contains only what every session needs:
 - Snapshot/metrics workflow → `core/docs/SESSION_CONTINUITY.md`
 - Lifecycle hooks details → `core/docs/LIFECYCLE_HOOKS.md`
 - Trust model and security → `core/rules/security-rules.md`
-- TDD and Ralph Wiggum loop → `core/rules/testing-rules.md`
+- TDD and Bounded Correction Protocol → `core/rules/testing-rules.md`
 - Git workflow and conflicts → `core/rules/git-rules.md`
 
 Additionally, `framework_rules.md` was reduced from ~464 to ~173 lines by extracting domain-specific content into scoped rule files and eliminating duplication with CLAUDE.md. Combined always-loaded context dropped from ~980 to ~300 lines (~70% reduction).
@@ -230,7 +230,7 @@ Fowler explicitly warns against several temptations:
 ### 2. "We can ensure the agent does X"
 **Reality**: With LLMs, certainty is impossible. The plugin addresses this by:
 - Quality gates (SOLID ≥18/25) as probabilistic filters, not guarantees
-- Ralph Wiggum pattern (retry up to 10 times, then escalate)
+- Bounded Correction Protocol (retry up to 10 times, then escalate)
 - Multiple review agents for cross-validation
 - Human checkpoints at critical moments
 

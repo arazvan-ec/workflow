@@ -7,6 +7,8 @@ A compound engineering framework for coordinating multiple AI agents in parallel
 ```
   ROUTE ──> SHAPE ──> PLAN ──> WORK ──> VALIDATE ──> REVIEW ──> COMPOUND
   (entry)  (optional)  (80%)   (15%)     (auto)       (4%)       (1%)
+
+  ROUTE ──> QUICK (lightweight alternative for simple tasks)
 ```
 
 **Every request starts with routing.** No exceptions.
@@ -16,19 +18,18 @@ A compound engineering framework for coordinating multiple AI agents in parallel
 | # | Command | Purpose | When |
 |---|---------|---------|------|
 | 0 | `/workflows:route` | Classify request, ask questions, select workflow | **Always first** |
+| 0b | `/workflows:quick` | Lightweight path for simple tasks (≤3 files, no architecture) | Simple tasks, route suggests or user invokes directly |
 | 1 | `/workflows:shape` | Separate problem from solution, spike unknowns | Complex/unclear features only |
 | 2 | `/workflows:plan` | Architecture-first planning with SOLID constraint | Before any implementation |
-| 3 | `/workflows:work` | Execute implementation with TDD + Ralph Wiggum Loop | After plan is COMPLETED |
-| 4 | `/workflows:validate-solution` | Self-question AI solutions, log learnings | After work, before review |
-| 5 | `/workflows:review` | Multi-agent quality review | After validation |
-| 6 | `/workflows:compound` | Capture learnings for future acceleration | After review is APPROVED |
+| 3 | `/workflows:work` | Execute implementation with TDD + Bounded Correction Protocol | After plan is COMPLETED |
+| 4 | `/workflows:review` | Multi-agent quality review | After work is COMPLETED |
+| 5 | `/workflows:compound` | Capture learnings for future acceleration | After review is APPROVED |
 
 ### Flow Guards (enforced)
 
 - `plan` requires: routing completed
 - `work` requires: plan status = COMPLETED in `50_state.md`
-- `validate-solution` requires: work status = COMPLETED (or invoked during plan/work)
-- `review` requires: work status = COMPLETED in `50_state.md` (validation recommended but not blocking)
+- `review` requires: work status = COMPLETED in `50_state.md`
 - `compound` requires: review status = APPROVED in `50_state.md`
 
 ---
@@ -47,40 +48,18 @@ Use these when needed during the flow, not as primary workflow steps.
 
 ---
 
-## Automatic Operations (do NOT invoke manually)
+## Automatic Operations (integrated into core commands)
 
-The following are handled automatically by the core commands above. They exist as commands for edge cases but should **not** be part of the normal flow:
+These operations are handled automatically by the core commands. They do NOT have separate commands:
 
-| Operation | Triggered automatically by | Manual command (edge case only) |
-|-----------|---------------------------|--------------------------------|
-| Git sync | `plan`, `work` (Step 2: Git Sync) | `/workflows:sync` |
-| Checkpoint/save progress | `work` (Step 7: Checkpoint) | `/workflows:checkpoint` |
-| Session snapshot | `work` (when context > 70%) | `/workflows:snapshot` |
-| Restore session | Session start with existing `50_state.md` | `/workflows:restore` |
-| TDD enforcement | `work` (Step 5: TDD cycle) | `/workflows:tdd` |
-| Trust evaluation | `route` (routing logic) | `/workflows:trust` |
-| Spec validation | `plan` (Phase 2: Specs) | `/workflows:validate` |
-| Solution validation | `work` (on completion), `review` (pre-check) | `/workflows:validate-solution` |
-| Comprehension check | `review` (quality gates) | `/workflows:comprehension` |
-| Criteria evaluation | `plan` (Phase 3: SOLID) | `/workflows:criteria` |
-| Parallelization | `work --mode=roles` (auto-detects provider) | `/workflows:parallel` |
-| Progress tracking | `work` (state updates in `50_state.md`) | `/workflows:progress` |
-| Monitoring | `work --mode=roles` (parallel mode) | `/workflows:monitor` |
-| SOLID refactoring | `review` (when score < 18/25) | `/workflows:solid-refactor` |
-| Role assignment | `work --role=X` | `/workflows:role` |
-| Metrics collection | `compound` (performance analysis) | `/workflows:metrics` |
-
----
-
-## Developer-Only Commands
-
-These are for plugin development, not for feature work:
-
-| Command | Purpose |
-|---------|---------|
-| `/workflows:skill-dev` | Create/edit/test plugin skills |
-| `/workflows:heal-skill` | Fix broken skill definitions |
-| `/workflows:reload` | Hot-reload skills/agents mid-session |
+| Operation | Integrated into |
+|-----------|----------------|
+| Git sync | `plan`, `work` |
+| Checkpoint/save progress | `work` (Step 7) |
+| TDD enforcement | `work` (Step 5: TDD cycle) |
+| Spec validation | `plan` (Phase 2: Specs) → `/workflows:validate` |
+| SOLID refactoring | `review` (when score < 18/25) → `/workflows:solid-refactor` |
+| Role assignment | `work --role=X` → `/workflows:role` |
 
 ---
 
@@ -103,10 +82,10 @@ Exception: continuing an already-routed task with valid `50_state.md` context.
 | Category | Agents | Invoked by |
 |----------|--------|------------|
 | Roles (4) | planner, backend, frontend, qa | `plan`, `work`, `review` |
-| Review (8) | security, performance, ddd-compliance, code-ts, agent-native, simplicity, pattern-recognition, **solution-validator** | `validate-solution`, `review` |
-| Research (5) | codebase-analyzer, git-historian, dependency-auditor, learnings-researcher, best-practices-researcher | `route`, `plan` |
-| Workflow (5) | bug-reproducer, spec-analyzer, spec-extractor, style-enforcer, comprehension-guardian | `work`, `review` |
-| Design (2) | api-designer, ui-verifier | `plan`, `review` |
+| Review (4) | security, performance, ddd-compliance, code-review-ts | `review` |
+| Research (2) | codebase-analyzer, learnings-researcher | `route`, `plan` |
+| Workflow (2) | spec-analyzer, diagnostic-agent | `work`, `review` |
+| Design (3) | api-designer, solid-architecture-generator, ui-verifier | `plan`, `review` |
 
 Agents are invoked automatically by the core commands. You rarely need to invoke them directly.
 
@@ -114,10 +93,9 @@ Agents are invoked automatically by the core commands. You rarely need to invoke
 
 | Category | Skills |
 |----------|--------|
-| Core | consultant, checkpoint, git-sync |
+| Core | consultant, checkpoint, git-sync, commit-formatter |
 | Quality | test-runner, coverage-checker, lint-fixer |
-| Workflow | worktree-manager, commit-formatter |
-| Compound | changelog-generator, layer-validator, spec-merger, **validation-learning-log** |
+| Compound | spec-merger, validation-learning-log |
 | Integration | mcp-connector |
 | SOLID | solid-analyzer, criteria-generator |
 | Shaping | shaper, breadboarder |
@@ -132,9 +110,9 @@ Agents are invoked automatically by the core commands. You rarely need to invoke
 | Role definitions (`core/roles/`) | LLM-determined | When role is active |
 | Skills (`skills/`) | Human-triggered | On `/skill:X` invocation |
 | Review agents (`agents/review/`) | Human-triggered | During `/workflows:review` |
-| Project hooks (`.ai/hooks/`) | Software-determined | Automatic on tool events |
+| Project rules (`.ai/project/rules/`) | Software-determined | When matching patterns apply |
 
-Heavy skills and all 7 review agents run with `context: fork` -- isolated context windows returning summaries only. See `core/docs/CONTEXT_ENGINEERING.md`.
+Heavy skills and review agents run with `context: fork` -- isolated context windows returning summaries only. See `core/docs/CONTEXT_ENGINEERING.md`.
 
 ## Capability Providers
 
@@ -145,12 +123,10 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 ## Key Patterns
 
 - **Karpathy Principles**: Think before coding, simplicity first, surgical changes, goal-driven execution. Details in `core/docs/KARPATHY_PRINCIPLES.md`.
-- **Ralph Wiggum Loop**: Auto-correct up to 10 iterations, then mark BLOCKED. Details in `core/rules/framework_rules.md`.
+- **Bounded Correction Protocol**: Detects 3 deviation types (test failure, missing functionality, incomplete pattern) with scale-adaptive limits (simple: 5, moderate: 10, complex: 15). Includes solution validation pre-check, goal-backward verification, adversarial self-review, and diagnostic escalation (invokes diagnostic-agent after 3 consecutive same errors). Details in `core/rules/testing-rules.md`.
 - **Compound Capture**: After each feature, extract patterns and update rules via `/workflows:compound`.
-- **Agent Compound Memory**: Review agents read `.ai/project/compound-memory.md` to calibrate intensity based on historical pain points. See `core/agent-memory.md`.
 - **Validation Learning**: AI self-questions solutions, asks user targeted questions, and logs answers for future use. Each feature makes validation smarter. See `core/docs/VALIDATION_LEARNING.md`.
 - **SOLID Constraint**: Phase 3 solutions target score >= 22/25. See `core/solid-pattern-matrix.md`.
-- **Context as Resource**: Thresholds adapt to provider (compaction-aware or manual-snapshots). Details in `core/docs/SESSION_CONTINUITY.md`.
 
 ## State Management
 
@@ -178,11 +154,9 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 | Routing details & question templates | `core/docs/ROUTING_REFERENCE.md` |
 | Karpathy principles | `core/docs/KARPATHY_PRINCIPLES.md` |
 | Context engineering & fork model | `core/docs/CONTEXT_ENGINEERING.md` |
-| Session continuity & snapshots | `core/docs/SESSION_CONTINUITY.md` |
-| Lifecycle hooks | `core/docs/LIFECYCLE_HOOKS.md` |
+| Session continuity | `core/docs/SESSION_CONTINUITY.md` |
 | MCP integration | `core/docs/MCP_INTEGRATION.md` |
 | SOLID pattern matrix | `core/solid-pattern-matrix.md` |
-| Agent compound memory system | `core/agent-memory.md` |
 | Validation learning system | `core/docs/VALIDATION_LEARNING.md` |
 | Operational rules | `core/rules/framework_rules.md` |
 | Testing conventions | `core/rules/testing-rules.md` |
@@ -191,4 +165,4 @@ All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`
 
 ---
 
-**Version**: 2.10.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers + Shape Up (Singer) + Agent Compound Memory + AI Validation Learning
+**Version**: 3.0.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers + Shape Up (Singer) + AI Validation Learning + GSD + BMAD

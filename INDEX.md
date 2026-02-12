@@ -77,7 +77,7 @@ workflow/
 | Archivo | Propósito | Cuándo Consultarlo |
 |---------|-----------|-------------------|
 | [framework_rules.md](./plugins/multi-agent-workflow/core/rules/framework_rules.md) | Reglas operacionales core | Siempre (always-loaded) |
-| [testing-rules.md](./plugins/multi-agent-workflow/core/rules/testing-rules.md) | TDD, coverage, Ralph Wiggum | Al editar tests (scoped) |
+| [testing-rules.md](./plugins/multi-agent-workflow/core/rules/testing-rules.md) | TDD, coverage, BCP | Al editar tests (scoped) |
 | [security-rules.md](./plugins/multi-agent-workflow/core/rules/security-rules.md) | Trust model, seguridad | Al tocar auth/security/payment (scoped) |
 | [git-rules.md](./plugins/multi-agent-workflow/core/rules/git-rules.md) | Branching, commits, conflictos | Durante operaciones git (scoped) |
 
@@ -184,7 +184,7 @@ workflow/
 | Metodología | Sección en README | Origen |
 |-------------|-------------------|--------|
 | Compound Engineering | §1 | Evolución Vibe Coding 2025 |
-| Ralph Wiggum Pattern | §2 | Geoffrey Huntley |
+| Bounded Correction Protocol | §2 | Geoffrey Huntley |
 | Agent Harnesses | §3 | Tendencia 2026 |
 | Agent-Native Architecture | §4 | Diseño para agentes |
 | Model Context Protocol | §5 | Anthropic |
@@ -194,6 +194,7 @@ workflow/
 | Spec-Driven Development | §9 | Contratos primero |
 | The 70% Problem | §10 | Addy Osmani |
 | Shape Up (Shaping) | §11 | Ryan Singer |
+| GSD + BMAD Integration | v2.10.0 | BCP enhanced with deviation types, adaptive limits, goal verification |
 
 ---
 
@@ -278,6 +279,7 @@ Semana 1+: Dominio
 | 2026-02 | Nuevo comando /workflows:onboarding | commands/workflows/onboarding.md |
 | 2026-02 | Nuevo comando /workflows:help | commands/workflows/help.md |
 | 2026-02 | Mensaje de bienvenida | WELCOME.md |
+| 2026-02 | v2.10.0: GSD + BMAD integration (BCP enhanced, deviation types, adaptive limits) | core/rules/, core/roles/, commands/workflows/, skills/checkpoint/ |
 | 2026-02 | v2.8.0: Shaping skills (Shape Up, Singer) | skills/shaper/, skills/breadboarder/, commands/workflows/shape.md |
 | 2026-02 | Mejoras de onboarding | QUICKSTART.md, INDEX.md |
 | 2026-01 | Evolution Governance | global_rules.md |

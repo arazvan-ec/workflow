@@ -100,7 +100,8 @@ tasks:
       title: "Task Title"
       reference: "FR-101"
       methodology: TDD
-      max_iterations: 10
+      complexity: moderate    # simple (5 iter) | moderate (10) | complex (15)
+      max_iterations: 10     # Override; or omit to use correction_limits from providers.yaml
       acceptance_criteria:
         - "Acceptance criterion 1"
         - "Acceptance criterion 2"
@@ -111,7 +112,8 @@ tasks:
       title: "Second Task"
       reference: "FR-102"
       methodology: TDD
-      max_iterations: 10
+      complexity: simple      # Simple task: max 5 iterations
+      max_iterations: 5
       acceptance_criteria:
         - "Criterion"
       done_when: "Completion criteria"
@@ -123,6 +125,7 @@ tasks:
       title: "Frontend Task"
       reference: "FR-101"
       methodology: TDD
+      complexity: moderate
       max_iterations: 10
       acceptance_criteria:
         - "UI criterion"
@@ -135,6 +138,7 @@ tasks:
       title: "Test Task"
       reference: "FR-101, FR-102"
       methodology: standard
+      complexity: simple
       max_iterations: 5
       acceptance_criteria:
         - "All tests pass"

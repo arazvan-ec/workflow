@@ -28,7 +28,7 @@ SOUL.md es una tecnica que consiste en crear un archivo markdown que define la *
 | Reglas de comportamiento | Inline en el mismo archivo | Sistema de reglas con scoped activation |
 | Persistencia | Solo identidad | Snapshots, 50_state.md, lifecycle hooks |
 | Multi-agente | No soportado | 23 agentes coordinados en paralelo |
-| Quality gates | No tiene | TDD, SOLID >=22/25, Ralph Wiggum Loop |
+| Quality gates | No tiene | TDD, SOLID >=22/25, Bounded Correction Protocol |
 | Compound learning | No tiene | /workflows:compound captura aprendizajes |
 | Adaptacion por modelo | No tiene | Capability providers (Opus 4.5 vs 4.6) |
 | Activacion de contexto | Siempre cargado | Dinamica (always/software/human-triggered) |

@@ -567,7 +567,6 @@ Session Start
 ---
 
 **Related Documentation:**
-- `PAIRING_PATTERNS.md` - How to work effectively with Claude
-- `GIT_WORKFLOW.md` - Git practices for multi-agent work
-- `COMPREHENSION_DEBT.md` - Managing code comprehension
 - `WORKFLOW_DECISION_MATRIX.md` - Choosing the right workflow
+- `CONTEXT_ENGINEERING.md` - Context management strategies
+- `core/rules/git-rules.md` - Git practices for multi-agent work

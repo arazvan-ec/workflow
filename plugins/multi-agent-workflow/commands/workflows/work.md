@@ -1,7 +1,7 @@
 ---
 name: workflows:work
 description: "Execute implementation with configurable parallelization modes and execution mode (agent-executes, human-guided, or hybrid)."
-argument_hint: <feature-name> --mode=<roles|layers|stacks> [--role=<role>] [--layer=<layer>] [--exec=auto|agent|human|hybrid]
+argument_hint: <feature-name> --mode=<roles|layers|stacks> [--role=<role>] [--layer=<layer>] [--exec=auto|agent|human|hybrid] [--isolation=session|task]
 ---
 
 # Multi-Agent Workflow: Work
@@ -35,9 +35,10 @@ PREREQUISITE CHECK:
 
 The following are executed automatically as part of `/workflows:work`:
 - **Git sync** (Step 2) -- pulls latest changes before starting
+- **Solution Validation** (Step 4.5) -- validates approach before TDD cycle
 - **TDD enforcement** (Step 5) -- Red-Green-Refactor cycle
 - **SOLID verification** (Step 7) -- checks score at each checkpoint
-- **Ralph Wiggum Loop** (Step 6) -- auto-corrects up to 10 iterations
+- **Bounded Correction Protocol** (Step 6) -- auto-corrects with scale-adaptive limits
 - **Checkpoint** (Step 7) -- saves progress + commits after each logical unit
 - **Snapshot** -- triggered when context exceeds 70% capacity
 
@@ -91,7 +92,7 @@ TASK EXECUTION LOOP:
   4. RUN tests → confirm failure (test-runner)
   5. WRITE implementation following pattern — Write/Edit tools
   6. RUN tests (test-runner)
-  7. IF fail → analyze + fix (Ralph Wiggum, max 10 iterations)
+  7. IF fail → analyze + fix (BCP, max 10 iterations)
   8. CHECK SOLID (solid-analyzer) — must meet task thresholds
   9. FIX lint (lint-fixer)
   10. CHECKPOINT → update 50_state.md
@@ -113,6 +114,71 @@ After step 9 (lint fixed, tests passing):
   → Modify: incorporate changes, re-run tests
   → Reject: regenerate with human feedback
 ` ` `
+
+## Task Isolation Mode (Fresh Context per Task)
+
+Resolve task isolation from `--isolation` flag or `fork_strategy` provider:
+
+```
+1. IF --isolation=task flag passed → per-task isolation
+2. ELSE IF fork_strategy == "per-task" in providers.yaml → per-task isolation
+3. ELSE → session isolation (default, all tasks in one context)
+```
+
+### Per-Task Isolation (`--isolation=task`)
+
+Inspired by GSD's "fresh context per task" pattern. Each task in `30_tasks.md` executes in its own isolated subagent context, preventing context rot on long sessions.
+
+```
+PER-TASK ISOLATION PROTOCOL:
+
+FOR each task in 30_tasks.md:
+  1. LAUNCH Task subagent (context: fork) with ONLY:
+     - Role definition (e.g., backend.md)
+     - Task definition from 30_tasks.md
+     - Reference files listed in the task
+     - 15_solutions.md (for SOLID patterns to follow)
+     → 200K tokens purely for this task, zero accumulated context
+
+  2. Subagent executes:
+     - TDD cycle (Red → Green → Refactor)
+     - Bounded Correction Protocol (scale-adaptive limits)
+     - SOLID verification
+
+  3. Subagent returns summary:
+     - Files created/modified
+     - Tests: X passing, Y% coverage
+     - SOLID score
+     - Issues encountered (if any)
+
+  4. Main agent:
+     - Atomic git commit for this task
+     - UPDATE 50_state.md with task completion
+     - Verify subagent output meets acceptance criteria
+     - Launch next task with fresh context
+
+BENEFITS:
+  - No context degradation across tasks
+  - Each task gets maximum available tokens
+  - Individual task commits enable git bisect
+  - Failed tasks don't pollute context for subsequent tasks
+
+TRADE-OFFS:
+  - Higher total token consumption (~30-50% more)
+  - Subagent doesn't see changes from previous tasks (reads from disk)
+  - Setup overhead per task (~5 seconds)
+
+BEST FOR:
+  - Features with 10+ tasks
+  - Sessions expected to exceed 2 hours
+  - When quality degradation is observed in later tasks
+```
+
+### Session Isolation (default, `--isolation=session`)
+
+Standard behavior: all tasks execute in the same context window. The Bounded Correction Protocol, TDD, and checkpoints operate within a single session. Use context management thresholds from `providers.yaml` to manage context exhaustion.
+
+---
 
 ## Parallelization Modes
 
@@ -188,6 +254,37 @@ Read: .ai/project/features/${FEATURE_ID}/30_tasks.md
 - Application: Domain should be COMPLETED (or mock)
 - Infrastructure: Application should be COMPLETED
 
+### Step 4.5: Solution Validation (Pre-Implementation Check)
+
+Before starting the TDD cycle for each task, validate the approach is sound:
+
+```
+SOLUTION VALIDATION (for each task in 30_tasks.md):
+
+1. REFERENCE CHECK: Does a reference file exist for this task?
+   - YES: Read reference file. Confirm approach follows the same pattern.
+   - NO: Check 15_solutions.md for architectural guidance. Confirm alignment.
+
+2. INTEGRATION CHECK: Will this conflict with completed checkpoints?
+   - Read completed checkpoints in 50_state.md
+   - Verify interfaces match (DTO shapes, method signatures, API contracts)
+   - If conflict detected → STOP. Consult planner before proceeding.
+
+3. DECISION CHECK: Is approach consistent with DECISIONS.md?
+   - Read DECISIONS.md for relevant architectural decisions
+   - If approach contradicts a decision → STOP. Consult planner.
+
+4. COMPLEXITY ASSESSMENT: Resolve max_iterations for this task
+   - Read task complexity from 30_tasks.md (or infer from scope)
+   - Set max_iterations from providers.yaml correction_limits
+   - simple: 5, moderate: 10, complex: 15
+
+If ALL checks pass → proceed to TDD (Step 5)
+If ANY check fails → escalate to planner with specific conflict details
+```
+
+This step prevents wasting TDD iterations on an architecturally flawed approach.
+
 ### Step 5: Execute with TDD + SOLID
 
 Execution behavior depends on the resolved execution mode (see Execution Mode Resolution above).
@@ -217,26 +314,73 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 # If score < expected, refactor before proceeding
 ```
 
-### Step 6: Auto-Correction Loop (Ralph Wiggum Pattern)
+### Step 6: Bounded Auto-Correction Protocol + Diagnostic Escalation
+
+Detects and corrects three types of deviations, with intelligent escalation for recurring errors:
 
 ```python
 iterations = 0
-MAX_ITERATIONS = 10
+MAX_ITERATIONS = 10  # Resolved from providers.yaml correction_limits
+same_error_count = 0
+last_error = None
 
-while tests_failing and iterations < MAX_ITERATIONS:
-    analyze_error()
-    fix_code()
-    run_tests()
+while (tests_failing or deviation_detected) and iterations < MAX_ITERATIONS:
+    error = classify_deviation()
+
+    # Track repeated errors for diagnostic escalation
+    if error_matches(error, last_error):
+        same_error_count += 1
+    else:
+        same_error_count = 0
+        last_error = error
+
+    # DIAGNOSTIC ESCALATION: After 3 consecutive same errors,
+    # invoke diagnostic-agent instead of brute-force retry
+    if same_error_count >= 3:
+        diagnosis = invoke_diagnostic_agent(
+            error=error,
+            attempts_log=attempts_log,
+            task_context=current_task
+        )
+        # context: fork — agent runs in isolated context
+
+        if diagnosis.confidence == "LOW":
+            document_blocker(include_diagnostic=diagnosis)
+            mark_blocked()
+            break
+
+        apply_diagnostic_recommendation(diagnosis)
+        same_error_count = 0  # reset after new approach
+    else:
+        # Standard deviation-type handling
+        if TYPE_1_TEST_FAILURE:
+            analyze_error()
+            fix_code()          # NEVER fix the test
+        elif TYPE_2_MISSING_FUNCTIONALITY:
+            compare_vs_acceptance_criteria()  # from 30_tasks.md
+            add_missing_implementation()
+        elif TYPE_3_INCOMPLETE_PATTERN:
+            compare_vs_reference_file()       # from task definition
+            complete_pattern()
+
+    run_verification()    # tests + acceptance criteria check
     iterations += 1
 
-if tests_passing:
+if all_verified:
     checkpoint_complete()
-else:
-    document_blocker()
+elif not is_blocked:
+    document_blocker(deviation_type, attempts_per_type)
     mark_blocked()
 ```
 
-### Step 7: Checkpoint (includes SOLID verification)
+**Deviation Types:**
+- **TYPE 1 — Test Failure**: Tests fail → fix implementation
+- **TYPE 2 — Missing Functionality**: Tests pass but acceptance criteria unmet → add implementation
+- **TYPE 3 — Incomplete Pattern**: Implementation doesn't follow reference file → complete pattern
+
+**Diagnostic escalation**: When the same error recurs 3 times, the `diagnostic-agent` (see `agents/workflow/diagnostic-agent.md`) runs in a forked context to analyze root cause and recommend a different approach. This prevents wasting iterations on the same failing fix.
+
+### Step 7: Checkpoint (includes SOLID + Goal Verification)
 
 After each logical unit:
 
@@ -244,7 +388,28 @@ After each logical unit:
 # 1. Verify SOLID score
 /workflow-skill:solid-analyzer --path=src/modified-path
 
-# 2. Only checkpoint if SOLID score meets expected
+# 2. Goal-Backward Verification (from GSD Verify)
+# Verify against acceptance criteria, not just test results
+```
+
+**Goal-Backward Verification** (tests passing is necessary but NOT sufficient):
+
+```
+GOAL VERIFICATION (after tests pass):
+  1. Read acceptance criteria for current task from 30_tasks.md
+  2. For each criterion:
+     - AUTOMATED: If testable via command → run command → verify output
+     - OBSERVABLE: If requires code inspection → read files → verify behavior exists
+     - MANUAL: If requires human verification → document what to verify
+  3. Score: X/Y criteria verified
+
+  If all criteria verified → proceed to checkpoint
+  If any criterion FAILED → re-enter correction loop (TYPE 2 deviation)
+  If any criterion MANUAL → add PENDING_REVIEW to checkpoint notes
+```
+
+```bash
+# 3. Only checkpoint if SOLID + goal verification pass
 /workflows:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
 ```
 
@@ -336,19 +501,102 @@ Update `50_state.md` at each checkpoint:
 - **SOLID Notes**: DIP verified - no infrastructure imports in Domain
 ```
 
+## Per-Task State Persistence (MANDATORY)
+
+> **CRITICAL RULE**: Update `50_state.md` after completing EACH individual task, not just at checkpoints. If a session is interrupted between tasks, the resume point must be documented.
+
+After completing each task in `30_tasks.md`:
+
+```
+PER-TASK UPDATE PROTOCOL:
+
+1. Mark the task as COMPLETED in 50_state.md task tracker
+2. Record the timestamp (ISO 8601)
+3. Update the "Resume Point" section with the NEXT task
+4. WRITE 50_state.md to disk immediately
+
+This happens BEFORE the checkpoint (which includes git commit).
+Even if no checkpoint is triggered, the state file is updated.
+```
+
+### Task-Level State Tracker (in 50_state.md)
+
+```markdown
+## <Role> Engineer
+**Status**: IN_PROGRESS
+**Last Updated**: ${ISO_TIMESTAMP}
+
+### Task Progress
+| Task ID | Description | Status | Completed At |
+|---------|-------------|--------|--------------|
+| BE-001 | Create User Entity | COMPLETED | 2026-01-16T14:00:00Z |
+| BE-002 | Create Email VO | COMPLETED | 2026-01-16T14:15:00Z |
+| BE-003 | Create UserRepository Interface | IN_PROGRESS | - |
+| BE-004 | CreateUserUseCase | PENDING | - |
+| BE-005 | POST /api/users endpoint | PENDING | - |
+
+### Resume Point
+**Last Completed Task**: BE-002 (Create Email VO)
+**Currently Working On**: BE-003 (Create UserRepository Interface)
+**Next Task After Current**: BE-004 (CreateUserUseCase)
+**Files to Read on Resume**:
+  - .ai/project/features/${FEATURE_ID}/30_tasks.md (Task BE-003)
+  - src/Domain/Entity/User.php (reference for repository)
+**Last Save**: 2026-01-16T14:15:00Z
+```
+
+### Interrupted Session Recovery
+
+When resuming a session (detected by reading `50_state.md` with status `IN_PROGRESS`):
+
+```
+RESUME PROTOCOL:
+1. Read 50_state.md → identify Resume Point
+2. Read the "Currently Working On" task from 30_tasks.md
+3. Read "Files to Read on Resume" list
+4. Check git status for uncommitted changes
+5. Continue from the identified task
+
+DO NOT restart from the beginning.
+DO NOT re-do completed tasks.
+```
+
+### State Update Timing
+
+```
+WHEN to update 50_state.md:
+
+1. After EACH task completion (even if not a checkpoint)
+   → Update: task status, timestamp, resume point
+   → Cost: ~5 seconds, prevents hours of lost work
+
+2. At EACH checkpoint (logical unit boundary)
+   → Update: full checkpoint details, SOLID score, tests
+   → Also: git commit
+
+3. Before ANY pause or break
+   → Update: resume point with current context
+   → This is the minimum for session recovery
+
+ALWAYS include "Last Save" timestamp in 50_state.md.
+Format: ISO 8601 (e.g., 2026-01-16T14:30:00Z)
+```
+
 ## Escape Hatch
 
-If blocked after 10 iterations:
+If blocked after max iterations:
 
 ```markdown
 ## Blocker: [Task Name]
 
-**Iterations attempted**: 10
-**Last error**: [exact error]
+**Deviation type**: TYPE 1 | TYPE 2 | TYPE 3
+**Iterations attempted**: [N] (Type 1: X, Type 2: Y, Type 3: Z)
+**Last error/gap**: [exact error or unmet criterion]
 
-**What was tried**:
-1. [Approach 1] → [Result]
-2. [Approach 2] → [Result]
+**What was tried per deviation type**:
+- TYPE 1 (test failures): [approaches tried]
+- TYPE 2 (missing functionality): [gaps identified and attempted]
+- TYPE 3 (incomplete patterns): [reference comparisons made]
 
 **Root cause hypothesis**: [Why failing]
 

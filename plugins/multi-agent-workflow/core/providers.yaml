@@ -94,7 +94,17 @@ providers:
   #   - All 7 heavy skills forked (consultant, coverage-checker, etc.)
   #   - Reason: Protect limited context window at all costs
   #
-  fork_strategy: auto  # auto | selective | aggressive
+  # per-task: Fork for each individual execution task (GSD-style fresh context)
+  #   - Each task in 30_tasks.md runs in its own isolated context
+  #   - Subagent receives ONLY: role.md + task definition + reference files
+  #   - 200K tokens purely for implementation, zero accumulated context
+  #   - Prevents context rot on long implementation sessions
+  #   - Atomic git commit per task enables granular bisect/revert
+  #   - Trade-off: Higher token consumption but higher quality per task
+  #   - Requires: --isolation=task flag on /workflows:work
+  #   - Best for: large features with 10+ tasks, long sessions
+  #
+  fork_strategy: auto  # auto | selective | aggressive | per-task
 
   # --- Coordination ---
   # How agents communicate and share state
@@ -122,7 +132,7 @@ providers:
   #   - Generates code using Write/Edit tools following the plan
   #   - Writes tests FIRST (TDD), then implementation
   #   - Runs tests via test-runner skill
-  #   - Auto-corrects via Ralph Wiggum loop (up to 10 iterations)
+  #   - Auto-corrects via Bounded Correction Protocol (up to 10 iterations)
   #   - Validates SOLID via solid-analyzer skill
   #   - Checkpoints on success, marks BLOCKED on failure
   #   - Best for: well-defined tasks with existing patterns to follow
@@ -142,6 +152,28 @@ providers:
   #   - Best for: teams building trust with agent execution
   #
   execution_mode: auto  # auto | agent-executes | human-guided | hybrid
+
+  # --- Planning Depth ---
+  # Adjusts planning phases based on task complexity.
+  # Inspired by BMAD's Scale-Domain-Adaptive approach.
+  #
+  # full: All phases + integration analysis + SOLID (complex features)
+  #   - Phase 1 (Understand) + Phase 2 (Specs) + Phase 3 (Solutions+SOLID) + Phase 4 (Tasks)
+  #   - Integration analysis + architectural impact
+  #   - Best for: new features, multi-layer changes, security-sensitive
+  #
+  # standard: Phase 1-3 + tasks, skip architectural impact detail
+  #   - Phase 1 (Understand) + Phase 2 (Specs) + Phase 3 (Solutions) + Phase 4 (Tasks)
+  #   - SOLID verification but no detailed layer/module impact analysis
+  #   - Best for: medium features, single-layer changes
+  #
+  # minimal: Problem statement + tasks only (simple features)
+  #   - Phase 1 (Understand) + Phase 4 (Tasks) -- skips specs and solutions
+  #   - No SOLID analysis, no integration analysis
+  #   - Best for: simple features, bug fixes, small changes
+  #   - Note: /workflows:quick is preferred for truly trivial tasks
+  #
+  planning_depth: auto  # auto | full | standard | minimal
 
 # --- Thresholds ---
 # Override default thresholds based on your model's capabilities.
@@ -166,6 +198,16 @@ thresholds:
     # Max messages before suggesting checkpoint
     # Default: 50 (manual-snapshots), 150 (compaction-aware)
     max_messages: null
+
+  # Correction limits (Bounded Correction Protocol)
+  # Scale-adaptive iteration limits based on task complexity.
+  # The planner assigns complexity in 30_tasks.md. If not specified,
+  # the agent infers from scope (files referenced, pattern availability).
+  correction_limits:
+    simple: 5       # Fix, patch, refactor, single-file changes
+    moderate: 10    # Standard feature, multi-file implementation
+    complex: 15     # New architecture, multi-layer integration, novel patterns
+    default: 10     # When complexity is not specified
 
   # Fork decision thresholds
   fork:
