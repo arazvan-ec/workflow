@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Development Dashboard - SNAAPI</title>
+<style>
+:root{--bg0:#0d1117;--bg1:#161b22;--bg2:#1c2128;--bg3:#262c36;--bd:#30363d;--bd2:#21262d;--t1:#e6edf3;--t2:#8b949e;--t3:#6e7681;--blue:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--purple:#bc8cff;--cyan:#39d2c0;--orange:#db6d28;--r:8px;--rs:4px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg0);color:var(--t1);line-height:1.5;font-size:14px}
+.app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--bg1);border-right:1px solid var(--bd);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:10}
+.sidebar-header{padding:20px 16px 12px;border-bottom:1px solid var(--bd)}
+.logo{font-size:16px;font-weight:700;color:var(--blue);letter-spacing:-.5px}
+.version{font-size:11px;color:var(--t3);display:block;margin-top:2px}
+.nav-links{list-style:none;padding:8px 0;flex:1;overflow-y:auto}
+.nav-link{display:flex;align-items:center;gap:10px;padding:8px 16px;color:var(--t2);text-decoration:none;font-size:13px;font-weight:500;cursor:pointer;border-left:3px solid transparent;transition:.2s}
+.nav-link:hover{background:var(--bg3);color:var(--t1)}
+.nav-link.active{color:var(--t1);background:var(--bg3);border-left-color:var(--blue)}
+.ni{font-size:16px;width:20px;text-align:center}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--bd);font-size:11px;color:var(--t3)}
+.content{flex:1;margin-left:240px;padding:24px 32px;min-height:100vh}
+.ph{margin-bottom:24px}
+.ph h2{font-size:22px;font-weight:600;margin-bottom:4px}
+.ph p{color:var(--t2);font-size:13px}
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.mc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:20px;transition:.2s}
+.mc:hover{border-color:var(--blue)}
+.ml{font-size:12px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.mv{font-size:28px;font-weight:700;line-height:1.2}
+.ms{font-size:12px;color:var(--t3);margin-top:4px}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:16px;overflow:hidden}
+.ch{padding:16px 20px;border-bottom:1px solid var(--bd2);display:flex;justify-content:space-between;align-items:center}
+.ch h3{font-size:15px;font-weight:600}
+.cb{padding:20px}
+.fg{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px;margin-bottom:24px}
+.fc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:20px;cursor:pointer;transition:.2s}
+.fc:hover{border-color:var(--blue);transform:translateY(-1px);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.fch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.fn{font-size:15px;font-weight:600}
+.fw{font-size:11px;color:var(--t3);margin-top:2px}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.b-pending{background:rgba(139,148,158,.15);color:var(--t2)}
+.b-progress{background:rgba(88,166,255,.15);color:var(--blue)}
+.b-completed{background:rgba(63,185,80,.15);color:var(--green)}
+.b-blocked{background:rgba(248,81,73,.15);color:var(--red)}
+.b-waiting{background:rgba(210,153,34,.15);color:var(--yellow)}
+.pbc{margin-bottom:12px}
+.pl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.pln{color:var(--t2)}.plv{color:var(--t3);font-weight:600}
+.pb{height:6px;background:var(--bg0);border-radius:3px;overflow:hidden}
+.pf{height:100%;border-radius:3px;transition:width .5s}
+.pf-blue{background:var(--blue)}.pf-green{background:var(--green)}.pf-yellow{background:var(--yellow)}.pf-red{background:var(--red)}.pf-purple{background:var(--purple)}
+.rg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:12px}
+.rs{height:4px;border-radius:2px}
+.rs-p{background:var(--t2);opacity:.3}.rs-i{background:var(--blue)}.rs-c{background:var(--green)}.rs-b{background:var(--red)}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 16px;text-align:left;border-bottom:1px solid var(--bd2);font-size:13px}
+th{color:var(--t2);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;background:var(--bg1)}
+tr:hover td{background:var(--bg3)}
+.rdg{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+.rc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:16px}
+.rch{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.rt{font-size:14px;font-weight:600;text-transform:capitalize}
+.cp{width:56px;height:56px;position:relative}
+.cp svg{transform:rotate(-90deg);width:56px;height:56px}
+.cp .trk{fill:none;stroke:var(--bg0);stroke-width:4}
+.cp .fl{fill:none;stroke-width:4;stroke-linecap:round}
+.cp .vl{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:12px;font-weight:700}
+.sc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:12px;transition:.2s}
+.sc:hover{border-color:var(--blue)}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ss{font-weight:600;font-size:14px;color:var(--blue)}
+.sd{font-size:12px;color:var(--t3)}
+.st{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--t2)}
+.st strong{color:var(--t1);margin-right:4px}
+.tbr{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.tbn{width:80px;font-size:11px;color:var(--t2);text-align:right;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbt{flex:1;height:16px;background:var(--bg0);border-radius:var(--rs);overflow:hidden}
+.tbf{height:100%;background:var(--blue);border-radius:var(--rs);min-width:2px}
+.tbc{width:30px;font-size:11px;color:var(--t3);font-weight:600}
+.ct{display:flex;gap:0;margin-bottom:24px;border-bottom:1px solid var(--bd)}
+.ctb{padding:10px 20px;font-size:13px;font-weight:500;color:var(--t2);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:.2s}
+.ctb:hover{color:var(--t1)}.ctb.active{color:var(--blue);border-bottom-color:var(--blue)}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ci{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:16px}
+.cin{font-size:14px;font-weight:600;color:var(--blue);margin-bottom:4px}
+.cic{font-size:11px;color:var(--t3);text-transform:uppercase;margin-bottom:8px}
+.cid{font-size:13px;color:var(--t2);line-height:1.5;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.tl{position:relative;padding-left:24px}
+.tl::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--bd)}
+.ti{position:relative;margin-bottom:20px;padding-left:24px}
+.td{position:absolute;left:-20px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--blue);border:2px solid var(--bg0)}
+.td-feat{background:var(--green)}.td-fix{background:var(--red)}.td-refactor{background:var(--purple)}.td-docs{background:var(--yellow)}.td-chore{background:var(--t3)}.td-cleanup{background:var(--orange)}
+.tm{font-size:14px;font-weight:500;margin-bottom:4px}
+.tmeta{display:flex;gap:12px;font-size:12px;color:var(--t3);flex-wrap:wrap}
+.pr{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.pc{padding:6px 12px;border-radius:var(--rs);font-size:12px;font-weight:500;border:1px solid var(--bd)}
+.pc-c{background:rgba(63,185,80,.1);border-color:var(--green);color:var(--green)}
+.pc-i{background:rgba(88,166,255,.1);border-color:var(--blue);color:var(--blue)}
+.pc-p{background:rgba(139,148,158,.1);color:var(--t3)}
+.bk{color:var(--blue);text-decoration:none;font-size:13px;display:inline-flex;align-items:center;gap:4px;margin-bottom:16px;cursor:pointer}
+.bk:hover{text-decoration:underline}
+.fdh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--bd)}
+.fdt{font-size:22px;font-weight:700}
+.fm{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;font-size:12px;color:var(--t2)}
+.fm strong{color:var(--t1)}
+.al{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.ai{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--rs);padding:6px 12px;font-size:12px;color:var(--blue)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:768px){.sidebar{display:none}.content{margin-left:0;padding:16px}.mg{grid-template-columns:repeat(2,1fr)}.fg{grid-template-columns:1fr}.rdg{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:var(--bg0)}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:var(--t3)}
+code{background:var(--bg3);padding:1px 6px;border-radius:3px;font-size:12px;color:var(--yellow)}
+</style>
+</head>
+<body>
+<div class="app">
+<nav class="sidebar">
+<div class="sidebar-header">
+<h1 class="logo">AI Dashboard</h1>
+<span class="version">v3.0.0 - multi-agent-workflow</span>
+</div>
+<ul class="nav-links" id="nav">
+<li><a class="nav-link active" data-page="overview" onclick="go('overview')"><span class="ni">&#9673;</span> Overview</a></li>
+<li><a class="nav-link" data-page="features" onclick="go('features')"><span class="ni">&#9881;</span> Features</a></li>
+<li><a class="nav-link" data-page="sessions" onclick="go('sessions')"><span class="ni">&#9201;</span> Sessions</a></li>
+<li><a class="nav-link" data-page="quality" onclick="go('quality')"><span class="ni">&#10003;</span> Quality</a></li>
+<li><a class="nav-link" data-page="plugin" onclick="go('plugin')"><span class="ni">&#9733;</span> Plugin Catalog</a></li>
+<li><a class="nav-link" data-page="git" onclick="go('git')"><span class="ni">&#8644;</span> Git Timeline</a></li>
+</ul>
+<div class="sidebar-footer">Snapshot: 12 feb 2026 21:30</div>
+</nav>
+<main class="content" id="content"></main>
+</div>
+
+<!-- Data stored safely as non-executable JSON -->
+<script type="application/json" id="dashboard-data">__DASHBOARD_DATA__</script>
+
+<script>
+// Parse data from the safe JSON block
+var D = JSON.parse(document.getElementById('dashboard-data').textContent);
+
+function go(page, arg) {
+  document.querySelectorAll('.nav-link').forEach(function(l) {
+    l.classList.remove('active');
+    if (l.dataset.page === page || (page === 'feature-detail' && l.dataset.page === 'features')) l.classList.add('active');
+  });
+  var c = document.getElementById('content');
+  try {
+    if (page === 'overview') renderOverview(c);
+    else if (page === 'features') renderFeatures(c);
+    else if (page === 'feature-detail') renderFeatureDetail(c, arg);
+    else if (page === 'sessions') renderSessions(c);
+    else if (page === 'quality') renderQuality(c);
+    else if (page === 'plugin') renderPlugin(c);
+    else if (page === 'git') renderGit(c);
+  } catch(e) {
+    c.innerHTML = '<div style="padding:40px;color:var(--red)"><h3>Error rendering ' + page + '</h3><pre>' + e.message + '\n' + e.stack + '</pre></div>';
+  }
+}
+
+function statusClass(s) {
+  if (!s) return 'pending';
+  var u = s.toUpperCase();
+  if (u === 'COMPLETED' || u === 'APPROVED') return 'completed';
+  if (u === 'IN_PROGRESS') return 'progress';
+  if (u === 'BLOCKED') return 'blocked';
+  if (u.indexOf('WAITING') >= 0 || u === 'READY_FOR_REVIEW') return 'waiting';
+  return 'pending';
+}
+
+function progressColor(p) {
+  return p >= 80 ? 'green' : p >= 40 ? 'blue' : p > 0 ? 'yellow' : 'blue';
+}
+
+function segClass(s) {
+  if (!s) return 'rs-p';
+  var u = s.toUpperCase();
+  if (u === 'COMPLETED' || u === 'APPROVED') return 'rs-c';
+  if (u === 'IN_PROGRESS') return 'rs-i';
+  if (u === 'BLOCKED') return 'rs-b';
+  return 'rs-p';
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  try { return new Date(d).toLocaleDateString('es-ES', {day:'2-digit', month:'short', year:'numeric'}); } catch(e) { return d; }
+}
+
+function fmtDateFull(d) {
+  if (!d) return '';
+  try { return new Date(d).toLocaleDateString('es-ES', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}); } catch(e) { return d; }
+}
+
+function fmtDur(s) {
+  if (!s) return '-';
+  if (s < 60) return s + 's';
+  var m = Math.floor(s / 60), r = s % 60;
+  if (m < 60) return m + 'm ' + r + 's';
+  return Math.floor(m / 60) + 'h ' + (m % 60) + 'm';
+}
+
+function fmtTok(n) {
+  if (!n) return '0';
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return n.toString();
+}
+
+function esc(t) {
+  if (!t) return '';
+  var d = document.createElement('div');
+  d.textContent = String(t);
+  return d.innerHTML;
+}
+
+var circ = 2 * Math.PI * 22;
+
+function renderOverview(c) {
+  var o = D.overview, p = o.project, fs = o.features_summary, ps = o.plugin_stats;
+  c.innerHTML =
+    '<div class="ph"><h2>' + esc(p.name) + ' Dashboard</h2><p>' + esc(p.description) + '</p></div>' +
+    '<div class="mg">' +
+      '<div class="mc"><div class="ml">Total Features</div><div class="mv" style="color:var(--blue)">' + fs.total + '</div><div class="ms">Plugin v' + esc(p.plugin_version) + '</div></div>' +
+      '<div class="mc"><div class="ml">Completed</div><div class="mv" style="color:var(--green)">' + fs.completed + '</div><div class="ms">of ' + fs.total + ' features</div></div>' +
+      '<div class="mc"><div class="ml">In Progress</div><div class="mv" style="color:var(--yellow)">' + fs.in_progress + '</div><div class="ms">' + fs.blocked + ' blocked</div></div>' +
+      '<div class="mc"><div class="ml">Overall Progress</div><div class="mv" style="color:var(--purple)">' + fs.overall_progress_pct + '%</div><div class="ms">across all features</div></div>' +
+      '<div class="mc"><div class="ml">Agents</div><div class="mv" style="color:var(--blue)">' + ps.agents + '</div><div class="ms">specialized agents</div></div>' +
+      '<div class="mc"><div class="ml">Skills + Commands</div><div class="mv" style="color:var(--green)">' + (ps.skills + ps.commands) + '</div><div class="ms">' + ps.skills + ' skills, ' + ps.commands + ' commands</div></div>' +
+    '</div>' +
+    '<div class="fg">' + o.features.map(featureCard).join('') + '</div>' +
+    '<div class="g2">' +
+      '<div class="card"><div class="ch"><h3>Recent Commits</h3></div><div class="cb">' +
+        o.recent_commits.map(function(cm) {
+          return '<div style="padding:8px 0;border-bottom:1px solid var(--bd2);font-size:13px"><code>' + esc(cm.short_hash) + '</code> ' + esc(cm.message).substring(0, 55) + (cm.message.length > 55 ? '...' : '') + '<div style="font-size:11px;color:var(--t3);margin-top:2px">' + esc(cm.author) + ' - ' + fmtDate(cm.date) + '</div></div>';
+        }).join('') +
+      '</div></div>' +
+      '<div class="card"><div class="ch"><h3>Recent Sessions</h3></div><div class="cb">' +
+        o.recent_sessions.slice(0, 5).map(function(s) {
+          return '<div style="padding:8px 0;border-bottom:1px solid var(--bd2);font-size:13px"><span style="color:var(--blue);font-weight:500">' + esc(s.slug || s.session_id.substring(0, 8)) + '</span> <span style="color:var(--t2)">' + s.message_count + ' msgs</span><div style="font-size:11px;color:var(--t3);margin-top:2px">' + esc(s.model || '?') + ' - ' + fmtDate(s.started_at) + '</div></div>';
+        }).join('') +
+      '</div></div>' +
+    '</div>';
+}
+
+function featureCard(f) {
+  var r = f.roles || {};
+  var roles = ['planner', 'backend', 'frontend', 'qa'];
+  return '<div class="fc" onclick="go(\'feature-detail\',\'' + esc(f.id) + '\')">' +
+    '<div class="fch"><div><div class="fn">' + esc(f.name || f.id) + '</div><div class="fw">' + esc(f.workflow || 'default') + '</div></div><span class="badge b-' + statusClass(f.overall_status) + '">' + esc(f.overall_status) + '</span></div>' +
+    '<div class="pbc"><div class="pl"><span class="pln">Overall</span><span class="plv">' + f.overall_progress_pct + '%</span></div><div class="pb"><div class="pf pf-' + progressColor(f.overall_progress_pct) + '" style="width:' + f.overall_progress_pct + '%"></div></div></div>' +
+    '<div class="rg">' + roles.map(function(k) { var rl = r[k]; return '<div class="rs ' + (rl ? segClass(rl.status) : 'rs-p') + '" title="' + k + ': ' + (rl ? rl.status + ' (' + rl.progress_pct + '%)' : 'N/A') + '"></div>'; }).join('') + '</div>' +
+    '<div style="display:flex;gap:16px;margin-top:12px;font-size:11px;color:var(--t3)">' + roles.map(function(k) { var rl = r[k]; return '<span>' + k.charAt(0).toUpperCase() + k.slice(1) + ': ' + (rl ? rl.progress_pct + '%' : '-') + '</span>'; }).join('') + '</div>' +
+  '</div>';
+}
+
+function renderFeatures(c) {
+  var features = D.overview.features;
+  c.innerHTML = '<div class="ph"><h2>Features</h2><p>' + features.length + ' features tracked</p></div><div class="fg">' + features.map(featureCard).join('') + '</div>';
+}
+
+function renderFeatureDetail(c, fid) {
+  var f = D.features_detail[fid];
+  if (!f) { c.innerHTML = '<div style="text-align:center;padding:48px;color:var(--t2)">Feature not found</div>'; return; }
+  var tasks = D.tasks[fid] || [];
+  var roles = f.roles || {};
+  var roleKeys = ['planner', 'backend', 'frontend', 'qa'];
+  var html = '<a class="bk" onclick="go(\'features\')">&larr; Back to Features</a>' +
+    '<div class="fdh"><div><div class="fdt">' + esc(f.name || f.id) + '</div><div class="fm"><span>Workflow: <strong>' + esc(f.workflow) + '</strong></span><span>Created: <strong>' + (f.created || '-') + '</strong></span><span>Updated: <strong>' + (f.last_updated || '-') + '</strong></span></div></div>' +
+    '<div style="text-align:right"><span class="badge b-' + statusClass(f.overall_status) + '" style="font-size:13px;padding:4px 14px">' + esc(f.overall_status) + '</span><div style="font-size:24px;font-weight:700;margin-top:8px;color:var(--blue)">' + f.overall_progress_pct + '%</div></div></div>';
+
+  html += '<div class="card" style="margin-bottom:24px"><div class="cb">' + roleKeys.map(function(k) {
+    var r = roles[k]; if (!r) return '';
+    return '<div class="pbc"><div class="pl"><span class="pln" style="text-transform:capitalize">' + k + '</span><span class="plv">' + r.progress_pct + '% (' + r.checkpoints_done + '/' + r.checkpoints_total + ')</span></div><div class="pb"><div class="pf pf-' + progressColor(r.progress_pct) + '" style="width:' + r.progress_pct + '%"></div></div></div>';
+  }).join('') + '</div></div>';
+
+  html += '<h3 style="margin-bottom:16px;font-size:16px">Role Progress</h3><div class="rdg">' + roleKeys.map(function(k) {
+    var r = roles[k]; if (!r) return '';
+    var off = circ - (r.progress_pct / 100) * circ;
+    var col = r.status === 'COMPLETED' ? 'var(--green)' : r.status === 'BLOCKED' ? 'var(--red)' : 'var(--blue)';
+    return '<div class="rc"><div class="rch"><div><div class="rt">' + esc(r.role) + '</div><span class="badge b-' + statusClass(r.status) + '" style="margin-top:4px">' + esc(r.status) + '</span></div>' +
+      '<div class="cp"><svg viewBox="0 0 48 48"><circle class="trk" cx="24" cy="24" r="22"/><circle class="fl" cx="24" cy="24" r="22" stroke="' + col + '" stroke-dasharray="' + circ + '" stroke-dashoffset="' + off + '"/></svg><div class="vl">' + Math.round(r.progress_pct) + '%</div></div></div>' +
+      (r.current_task ? '<div style="font-size:12px;color:var(--yellow);margin-bottom:8px">Current: ' + esc(r.current_task) + '</div>' : '') +
+      (r.depends_on && r.depends_on.length ? '<div style="font-size:11px;color:var(--t3);margin-bottom:8px">Depends on: ' + r.depends_on.join(', ') + '</div>' : '') +
+      (r.notes && r.notes.length ? '<div style="font-size:12px;color:var(--t2);margin-bottom:8px">' + r.notes.map(function(n) { return '<div style="margin-bottom:2px">- ' + esc(n) + '</div>'; }).join('') + '</div>' : '') +
+      (r.completed_tasks && r.completed_tasks.length ? '<div style="font-size:11px;color:var(--t3);margin-top:8px">' + r.completed_tasks.length + ' tasks completed</div>' : '') +
+      (r.blockers && r.blockers.length ? '<div style="font-size:12px;color:var(--red);margin-top:8px">Blockers: ' + r.blockers.join('; ') + '</div>' : '') +
+    '</div>';
+  }).join('') + '</div>';
+
+  if (f.phases && f.phases.length) {
+    html += '<div class="card"><div class="ch"><h3>Phase Progress</h3></div><div class="cb">' +
+      '<div class="pr">' + f.phases.map(function(p) { var cls = p.status.toUpperCase().indexOf('COMPLETED') >= 0 ? 'pc-c' : p.status.toUpperCase().indexOf('PROGRESS') >= 0 ? 'pc-i' : 'pc-p'; return '<div class="pc ' + cls + '">' + esc(p.name) + ' (' + p.progress_pct + '%)</div>'; }).join('') + '</div>' +
+      '<table><thead><tr><th>Phase</th><th>Status</th><th>Progress</th></tr></thead><tbody>' + f.phases.map(function(p) { return '<tr><td>' + esc(p.name) + '</td><td><span class="badge b-' + statusClass(p.status) + '">' + esc(p.status) + '</span></td><td>' + p.progress_pct + '%</td></tr>'; }).join('') + '</tbody></table></div></div>';
+  }
+
+  if (tasks.length) {
+    var done = tasks.filter(function(t) { return t.done; }).length;
+    html += '<div class="card"><div class="ch"><h3>Tasks (' + done + '/' + tasks.length + ' done)</h3></div><div class="cb">' +
+      '<table><thead><tr><th>ID</th><th>Title</th><th>Status</th><th>Priority</th></tr></thead><tbody>' + tasks.map(function(t) { return '<tr><td><code>' + esc(t.id) + '</code></td><td>' + esc(t.title) + '</td><td>' + (t.done ? '<span class="badge b-completed">Done</span>' : '<span class="badge b-pending">Pending</span>') + '</td><td>' + (t.priority || '-') + '</td></tr>'; }).join('') + '</tbody></table></div></div>';
+  }
+
+  if (f.decisions && f.decisions.length) {
+    html += '<div class="card"><div class="ch"><h3>Decisions</h3></div><div class="cb"><table><thead><tr><th>Date</th><th>Decision</th><th>Rationale</th></tr></thead><tbody>' + f.decisions.map(function(d) { return '<tr><td style="white-space:nowrap;color:var(--t3)">' + esc(d.date) + '</td><td>' + esc(d.decision) + '</td><td style="color:var(--t2)">' + esc(d.rationale) + '</td></tr>'; }).join('') + '</tbody></table></div></div>';
+  }
+
+  if (f.artifacts && f.artifacts.length) {
+    html += '<div class="card"><div class="ch"><h3>Artifacts (' + f.artifacts.length + ')</h3></div><div class="cb"><ul class="al">' + f.artifacts.map(function(a) { return '<li class="ai">' + esc(a) + '</li>'; }).join('') + '</ul></div></div>';
+  }
+  c.innerHTML = html;
+}
+
+function renderSessions(c) {
+  var sessions = D.sessions;
+  var totalMsg = sessions.reduce(function(s, x) { return s + x.message_count; }, 0);
+  var totalIn = sessions.reduce(function(s, x) { return s + (x.total_input_tokens || 0); }, 0);
+  var totalOut = sessions.reduce(function(s, x) { return s + (x.total_output_tokens || 0); }, 0);
+  c.innerHTML = '<div class="ph"><h2>Sessions</h2><p>' + sessions.length + ' sessions tracked</p></div>' +
+    '<div class="mg">' +
+      '<div class="mc"><div class="ml">Total Sessions</div><div class="mv" style="color:var(--blue)">' + sessions.length + '</div></div>' +
+      '<div class="mc"><div class="ml">Total Messages</div><div class="mv" style="color:var(--green)">' + totalMsg.toLocaleString() + '</div></div>' +
+      '<div class="mc"><div class="ml">Input Tokens</div><div class="mv" style="color:var(--yellow)">' + fmtTok(totalIn) + '</div></div>' +
+      '<div class="mc"><div class="ml">Output Tokens</div><div class="mv" style="color:var(--purple)">' + fmtTok(totalOut) + '</div></div>' +
+    '</div>' +
+    sessions.map(function(s) {
+      var maxTc = s.tool_calls.length ? Math.max.apply(null, s.tool_calls.map(function(t) { return t.count; })) : 1;
+      return '<div class="sc"><div class="sh"><div><div class="ss">' + esc(s.slug || s.session_id.substring(0, 12)) + '</div><div style="font-size:11px;color:var(--t3);margin-top:2px">ID: ' + s.session_id.substring(0, 8) + '...</div></div><div class="sd">' + fmtDateFull(s.started_at) + '</div></div>' +
+        '<div class="st"><div><strong>' + s.message_count + '</strong> messages</div><div><strong>' + s.user_message_count + '</strong> user</div><div><strong>' + s.assistant_message_count + '</strong> assistant</div><div><strong>' + fmtDur(s.duration_seconds) + '</strong> duration</div>' + (s.model ? '<div><strong>' + esc(s.model) + '</strong></div>' : '') + (s.git_branch ? '<div>Branch: <strong>' + esc(s.git_branch) + '</strong></div>' : '') + (s.permission_mode ? '<div>Mode: <strong>' + esc(s.permission_mode) + '</strong></div>' : '') + '</div>' +
+        (s.total_input_tokens || s.total_output_tokens ? '<div style="margin-top:8px;font-size:12px;color:var(--t3)">Tokens: ' + fmtTok(s.total_input_tokens) + ' in / ' + fmtTok(s.total_output_tokens) + ' out</div>' : '') +
+        (s.tool_calls.length ? '<div style="display:flex;flex-direction:column;gap:6px;margin-top:12px">' + s.tool_calls.slice(0, 8).map(function(tc) { return '<div class="tbr"><div class="tbn">' + esc(tc.tool) + '</div><div class="tbt"><div class="tbf" style="width:' + (tc.count / maxTc * 100) + '%"></div></div><div class="tbc">' + tc.count + '</div></div>'; }).join('') + '</div>' : '') +
+      '</div>';
+    }).join('');
+}
+
+function renderQuality(c) {
+  var features = D.quality.features;
+  c.innerHTML = '<div class="ph"><h2>Quality Metrics</h2><p>Code quality and coverage across all features</p></div>' +
+    features.map(function(f) {
+      var roles = f.roles || {}; var roleKeys = Object.keys(roles);
+      return '<div class="card"><div class="ch"><h3>' + esc(f.feature_name || f.feature_id) + '</h3></div><div class="cb">' +
+        '<table><thead><tr><th>Role</th><th>Completion</th><th>Coverage</th><th>Blockers</th></tr></thead><tbody>' +
+        roleKeys.map(function(k) { var r = roles[k]; return '<tr><td style="text-transform:capitalize;font-weight:500">' + k + '</td><td><div class="pb" style="width:120px;display:inline-block;vertical-align:middle"><div class="pf pf-' + progressColor(r.completed_pct) + '" style="width:' + r.completed_pct + '%"></div></div> <span style="margin-left:8px;font-size:12px">' + r.completed_pct + '%</span></td><td>' + (r.coverage_lines && r.coverage_lines !== '-%' ? esc(r.coverage_lines) : '<span style="color:var(--t3)">-</span>') + '</td><td>' + (r.blockers && r.blockers.length ? '<span style="color:var(--red)">' + r.blockers.length + '</span>' : '<span style="color:var(--green)">0</span>') + '</td></tr>'; }).join('') +
+        '</tbody></table></div></div>';
+    }).join('');
+}
+
+function renderPlugin(c) {
+  var agents = D.agents, skills = D.skills, commands = D.commands, info = D.plugin_info;
+  c.innerHTML = '<div class="ph"><h2>Plugin Catalog</h2><p>' + esc(info.name) + ' v' + esc(info.version) + ' - ' + agents.length + ' agents, ' + skills.length + ' skills, ' + commands.length + ' commands</p></div>' +
+    '<div class="ct"><button class="ctb active" onclick="showTab(this,\'agents\')">Agents (' + agents.length + ')</button><button class="ctb" onclick="showTab(this,\'skills\')">Skills (' + skills.length + ')</button><button class="ctb" onclick="showTab(this,\'commands\')">Commands (' + commands.length + ')</button></div>' +
+    '<div id="tab-content">' + agentsGrid() + '</div>';
+
+  window.showTab = function(btn, tab) {
+    document.querySelectorAll('.ctb').forEach(function(b) { b.classList.remove('active'); }); btn.classList.add('active');
+    var tc = document.getElementById('tab-content');
+    if (tab === 'agents') tc.innerHTML = agentsGrid();
+    else if (tab === 'skills') tc.innerHTML = skillsGrid();
+    else tc.innerHTML = commandsGrid();
+  };
+
+  function agentsGrid() {
+    var groups = {};
+    agents.forEach(function(a) { var cat = a.category || 'other'; if (!groups[cat]) groups[cat] = []; groups[cat].push(a); });
+    return Object.keys(groups).map(function(cat) {
+      return '<h4 style="margin:16px 0 8px;font-size:13px;text-transform:uppercase;color:var(--t3);letter-spacing:.5px">' + esc(cat) + '</h4><div class="cg">' + groups[cat].map(function(a) { return '<div class="ci"><div class="cin">' + esc(a.name) + '</div><div class="cic">' + esc(a.category) + '</div><div class="cid">' + esc((a.description || 'No description').replace(/<[^>]*>/g, '')) + '</div></div>'; }).join('') + '</div>';
+    }).join('');
+  }
+
+  function skillsGrid() {
+    return '<div class="cg" style="margin-top:16px">' + skills.map(function(s) { return '<div class="ci"><div class="cin">' + esc(s.name) + '</div><div class="cid">' + esc((s.description || 'No description').replace(/<[^>]*>/g, '')) + '</div></div>'; }).join('') + '</div>';
+  }
+
+  function commandsGrid() {
+    return '<div class="cg" style="margin-top:16px">' + commands.map(function(cm) { return '<div class="ci"><div class="cin">/workflows:' + esc(cm.name) + '</div>' + (cm.argument_hint ? '<div class="cic">' + esc(cm.argument_hint) + '</div>' : '') + '<div class="cid">' + esc((cm.description || 'No description').replace(/<[^>]*>/g, '')) + '</div></div>'; }).join('') + '</div>';
+  }
+}
+
+function renderGit(c) {
+  var commits = D.commits, branches = D.branches;
+  c.innerHTML = '<div class="ph"><h2>Git Timeline</h2><p>' + commits.length + ' recent commits across ' + branches.length + ' branches</p></div>' +
+    '<div class="mg">' +
+      '<div class="mc"><div class="ml">Commits</div><div class="mv" style="color:var(--blue)">' + commits.length + '</div></div>' +
+      '<div class="mc"><div class="ml">Branches</div><div class="mv" style="color:var(--green)">' + branches.length + '</div></div>' +
+    '</div>' +
+    '<div class="card"><div class="cb"><div class="tl">' + commits.map(function(cm) {
+      var m = cm.message.toLowerCase();
+      var type = m.indexOf('feat') === 0 || m.indexOf('add') === 0 ? 'feat' : m.indexOf('fix') === 0 ? 'fix' : m.indexOf('refactor') === 0 ? 'refactor' : m.indexOf('doc') === 0 ? 'docs' : m.indexOf('chore') === 0 ? 'chore' : m.indexOf('clean') === 0 ? 'cleanup' : '';
+      return '<div class="ti"><div class="td' + (type ? ' td-' + type : '') + '"></div><div class="tm">' + esc(cm.message) + '</div><div class="tmeta"><span><code>' + esc(cm.short_hash) + '</code></span><span>' + esc(cm.author) + '</span><span>' + fmtDateFull(cm.date) + '</span></div></div>';
+    }).join('') + '</div></div></div>';
+}
+
+// Start
+go('overview');
+</script>
+</body>
+</html>
