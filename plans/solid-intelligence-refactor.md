@@ -221,40 +221,133 @@ learned_antipatterns:
 
 ### Fase 4: Reescribir `solid-analyzer` skill
 
-**Qué**: Cambiar de "detectar violaciones → score numérico" a "analizar contra perfil del proyecto → verificaciones por principio".
+**Qué**: Cambiar de "detectar violaciones → score numérico" a "analizar contra perfil del proyecto → verificaciones contextuales por principio".
 
-**Nuevo flujo del skill**:
+**CRÍTICO**: El solid-analyzer se usa en 3 momentos distintos del workflow con propósitos distintos. La reescritura debe cubrir los 3 modos:
+
+#### Los 3 Modos del solid-analyzer
+
+```
+MODE 1 — BASELINE (Plan Step 3.1)
+  Invocación: /workflow-skill:solid-analyzer --mode=baseline --path=src/relevant-module
+  Input: path al código EXISTENTE + architecture-profile.yaml
+  Propósito: Entender el estado actual ANTES de diseñar
+  Output:
+    - Patrones que el proyecto ya usa (detectados del código + confirmados por profile)
+    - Violaciones actuales en el área afectada
+    - Principios más/menos relevantes para este módulo
+    - Archivos de referencia que ejemplifican buenas prácticas
+  Quién lo consume: El agente en Plan Step 3.2 para diseñar soluciones coherentes
+
+MODE 2 — DESIGN_VALIDATE (Plan Step 3.4)
+  Invocación: /workflow-skill:solid-analyzer --mode=design --design=design.md
+  Input: design.md (el diseño propuesto, NO hay código aún) + architecture-profile.yaml
+  Propósito: Validar que el diseño respeta SOLID ANTES de implementar
+  Output:
+    Por cada principio relevante (según profile):
+      SRP: COMPLIANT — "Cada clase tiene una responsabilidad: User=identidad, Email=validación"
+      OCP: COMPLIANT — "Strategy para tokens permite añadir tipos sin modificar"
+      LSP: N/A — "No hay herencia en este diseño"
+      ISP: COMPLIANT — "Interfaces ≤5 métodos: UserRepositoryInterface(3)"
+      DIP: COMPLIANT — "Domain define interfaces, Infrastructure implementa"
+    Veredicto: COMPLIANT / NEEDS_WORK / NON_COMPLIANT
+    Si NEEDS_WORK: qué principio y qué cambiar en el diseño
+  Gate: Si NON_COMPLIANT → el diseño no avanza a Phase 4 (tasks)
+
+MODE 3 — CODE_VERIFY (Work Steps 5/7, Review Phase 4)
+  Invocación: /workflow-skill:solid-analyzer --mode=verify --path=src/modified-path --design=design.md
+  Input: código recién escrito + design.md + architecture-profile.yaml
+  Propósito: Verificar que la IMPLEMENTACIÓN cumple tanto SOLID como lo diseñado
+  Output:
+    Por cada principio relevante:
+      SRP: COMPLIANT — "UserService:45 LOC, 3 public methods, 1 responsabilidad"
+      DIP: COMPLIANT — "Domain/ tiene zero imports de Infrastructure/"
+    Match con design.md:
+      "design.md decía Strategy para tokens → implementado como JwtTokenGenerator + interface ✓"
+      "design.md decía Repository pattern → implementado como DoctrineUserRepository ✓"
+    Veredicto: COMPLIANT / NEEDS_WORK / NON_COMPLIANT
+    Si NEEDS_WORK: qué principio viola, evidencia (archivo:línea), sugerencia contextual
+  Gate: Si NON_COMPLIANT → no pasa el checkpoint (Work) o se rechaza (Review)
+```
+
+#### Flujo completo en el workflow
+
+```
+discover --setup
+  └─ GENERA architecture-profile.yaml (detecta stack, patrones, convenciones)
+
+plan Phase 3:
+  ├─ Step 3.1: solid-analyzer MODE=BASELINE
+  │   LEE: architecture-profile.yaml + código existente
+  │   OUTPUT: baseline del proyecto → informa Step 3.2
+  │
+  ├─ Step 3.2: El agente DISEÑA soluciones
+  │   LEE: architecture-profile.yaml (patrones del proyecto)
+  │   LEE: architecture-reference.md (referencia de principios)
+  │   LEE: output de Step 3.1 (baseline)
+  │   ESCRIBE: design.md con razonamiento por principio
+  │
+  └─ Step 3.4: solid-analyzer MODE=DESIGN_VALIDATE
+      LEE: design.md + architecture-profile.yaml
+      GATE: NON_COMPLIANT → volver a Step 3.2
+
+work:
+  ├─ Step 5 (después de TDD green+refactor):
+  │   solid-analyzer MODE=CODE_VERIFY --path=src/modified --design=design.md
+  │   GATE: NON_COMPLIANT → BCP correction loop
+  │
+  └─ Step 7 (checkpoint):
+      solid-analyzer MODE=CODE_VERIFY --path=src/Domain --design=design.md
+      solid-analyzer MODE=CODE_VERIFY --path=src/Application --design=design.md
+      solid-analyzer MODE=CODE_VERIFY --path=src/Infrastructure --design=design.md
+      GATE: NON_COMPLIANT en cualquier layer → no pasa checkpoint
+
+review Phase 4:
+  └─ solid-analyzer MODE=CODE_VERIFY --path=src --design=design.md --scope=full
+      GATE: NON_COMPLIANT → REJECTED
+
+compound Step 3c:
+  └─ ENRIQUECE architecture-profile.yaml con learnings
+```
+
+#### Lógica común a los 3 modos
+
 ```
 1. LEER openspec/specs/architecture-profile.yaml
-   - Si no existe: usar defaults razonables + advertir
+   - Si no existe: usar defaults razonables + advertir al usuario
+   - Si existe: cargar stack, paradigm, solid_relevance, conventions, reference_files
 
 2. Para cada principio SOLID:
-   a. Verificar relevance del principio para este proyecto
-      - Si relevance = low → skip con nota "N/A for this project"
-   b. Aplicar las reglas de detección ADAPTADAS al stack:
-      - PHP/Java: buscar clases, interfaces, imports
-      - Go: buscar structs, implicit interfaces, package imports
-      - Python: buscar clases, duck typing patterns, imports
-      - TypeScript: buscar types/interfaces, module imports
-      - Funcional: buscar composición, side effects, coupling
+   a. Verificar relevance del principio (del profile)
+      - Si relevance = low → "N/A for this project" (skip)
+      - Si relevance = critical → cualquier violación es NON_COMPLIANT
+      - Si relevance = high → violación es NEEDS_WORK
+      - Si relevance = medium → violación es NEEDS_WORK (con menor urgencia)
+   b. Aplicar reglas de detección ADAPTADAS al stack del profile:
+      - PHP/Java (oop): buscar clases, interfaces, imports entre layers
+      - Go (oop+interfaces implícitas): buscar structs, package boundaries
+      - Python (dynamic): buscar clases, imports, duck typing
+      - TypeScript (mixed): buscar types/interfaces, module imports
+      - Functional: buscar composición, side effects, coupling entre módulos
    c. Comparar contra reference_files del profile
-      - "¿Este código nuevo sigue el mismo patrón que Order.php?"
-   d. Emitir veredicto por principio: COMPLIANT / NEEDS_WORK / NON_COMPLIANT
-      - Con evidencia concreta (archivo:línea, qué viola, por qué)
-      - Con sugerencia contextual (no de la tabla, sino del profile)
+      "¿Este código nuevo sigue el mismo patrón que el reference?"
+   d. Emitir veredicto: COMPLIANT / NEEDS_WORK / NON_COMPLIANT + evidencia
 
-3. OUTPUT:
-   Veredicto global: COMPLIANT / NEEDS_WORK / NON_COMPLIANT
-   Por principio:
-     SRP: COMPLIANT — "UserService tiene 1 responsabilidad: orchestrate user creation"
-     OCP: NEEDS_WORK — "PaymentService.php:45 has switch by type. Profile suggests Strategy (see PricingStrategy.php)"
-     LSP: N/A — "No inheritance detected in new code"
-     ISP: COMPLIANT — "UserRepositoryInterface has 3 methods, within threshold"
-     DIP: COMPLIANT — "Domain/ has zero infrastructure imports"
+3. Veredicto global:
+   - COMPLIANT: todos los principios relevantes son COMPLIANT o N/A
+   - NEEDS_WORK: algún principio es NEEDS_WORK pero ninguno NON_COMPLIANT
+   - NON_COMPLIANT: algún principio con relevance critical/high es NON_COMPLIANT
+```
 
-   Issues (si hay):
-     - OCP violation in PaymentService.php:45 — switch(paymentType) should use Strategy
-       Reference: src/Domain/Service/Pricing/PricingStrategy.php (from project profile)
+#### Fallback sin architecture-profile.yaml
+
+Si el profile no existe (proyecto no ha ejecutado `discover --setup`):
+```
+- Detectar stack del proyecto por heurísticas (package.json, composer.json, go.mod, etc.)
+- Asumir todos los principios como relevance=medium
+- No usar reference_files (no hay)
+- Usar thresholds default (200 LOC, 7 métodos, 5 interface methods)
+- Advertir: "Run /workflows:discover --setup for project-specific SOLID analysis"
 ```
 
 **Archivos**:
@@ -264,21 +357,49 @@ learned_antipatterns:
 
 ### Fase 5: Actualizar `plan.md` Phase 3
 
-**Qué**: Cambiar de "score ≥22/25" a "verificación contextual por principio".
+**Qué**: Cambiar de "score ≥22/25" a "verificación contextual por principio". Conectar los modos BASELINE y DESIGN_VALIDATE del solid-analyzer.
 
-**Cambios**:
-- Step 3.1 "Analyze Existing Code (SOLID Baseline)": En vez de obtener un score X/25, leer `architecture-profile.yaml` para entender qué patrones usa el proyecto y qué principios son relevantes
-- Step 3.2 "Design Solutions with SOLID": En vez de llenar tablas con "S:5 O:5 L:5...", razonar por principio:
-  - "¿Esta solución respeta SRP? Sí porque..."
-  - "¿Esta solución respeta OCP? Sí porque usamos Strategy como ya hace PricingStrategy.php"
-  - "¿LSP aplica aquí? No, no hay herencia"
-- Step 3.4 "Verify SOLID Score": Reemplazar por "Verify SOLID Compliance" — invoca solid-analyzer con el nuevo formato
-- Eliminar todos los "≥22/25" y "≥18/25"
-- Reemplazar la "SOLID Compliance" table en el template de design.md por una sección narrativa por principio
-- Quality Gate Phase 3 Check 3: cambiar de "SOLID table has empty cells" a "each relevant principle has a reasoned verdict"
-- Actualizar el "If You Need... Use Pattern" table para que diga "See architecture-profile.yaml for project patterns" en vez de scores
-- Actualizar task template: cambiar "SOLID Requirements: Use Strategy pattern for..." por "Architecture: Follow project pattern for X (see profile reference)"
-- Actualizar checklist final: quitar "Expected SOLID score ≥22/25"
+**Cambios específicos por Step**:
+
+**Step 3.1 "Analyze Existing Code"** (actualmente invoca `solid-analyzer --path` y espera score X/25):
+- Cambiar invocación a: `solid-analyzer --mode=baseline --path=src/relevant-module`
+- Cambiar output esperado de "Current SOLID score: X/25" a: "Patrones detectados, violaciones actuales, principios relevantes, archivos de referencia"
+- Este output se usa como INPUT para Step 3.2
+
+**Step 3.2 "Design Solutions with SOLID"** (actualmente llena tablas S:5 O:5...):
+- Añadir: "LEER openspec/specs/architecture-profile.yaml para seguir patrones del proyecto"
+- Reemplazar la tabla `| Principle | How It's Addressed | Pattern Used |` con sección narrativa:
+  ```
+  ## SOLID Compliance
+  - **SRP**: COMPLIANT — UserService tiene una responsabilidad (orchestrate creation)
+  - **OCP**: COMPLIANT — Strategy para tokens (siguiendo patrón existente en PricingStrategy.php)
+  - **LSP**: N/A — No hay herencia en este diseño
+  - **ISP**: COMPLIANT — UserRepositoryInterface tiene 3 métodos
+  - **DIP**: COMPLIANT — Domain define interfaces, Infrastructure implementa
+  ```
+- Eliminar "Expected SOLID Score: 24/25"
+
+**Step 3.3 "Pattern Selection Guide"** (actualmente tabla con "SOLID Addressed"):
+- Cambiar de tabla fija a: "Consultar architecture-profile.yaml → patterns_detected y solid_relevance.*.when_violated para seleccionar patrones coherentes con el proyecto"
+- Mantener la tabla como fallback cuando no hay profile, pero sin scores
+- Cambiar referencia de `core/solid-pattern-matrix.md` a `core/architecture-reference.md`
+
+**Step 3.4 "Verify SOLID Score"** (actualmente invoca `solid-analyzer --validate --design=design.md`):
+- Cambiar a: `solid-analyzer --mode=design --design=design.md`
+- Cambiar gate de "≥18/25 to proceed, ≥22/25 to approve" a: "COMPLIANT to proceed, NEEDS_WORK requires revision, NON_COMPLIANT blocks"
+- Eliminar sección "SOLID Score Thresholds" (la tabla A/B/C/F con scores)
+
+**Quality Gate Phase 3 Check 3** (actualmente: "Is the SOLID analysis present and non-trivial?"):
+- Cambiar a: "Does each relevant SOLID principle have a reasoned verdict (COMPLIANT/N_A with justification)?"
+- FAIL si algún principio con relevance≥medium no tiene justificación
+
+**Task template** (actualmente: "SOLID Requirements: Use Strategy pattern..."):
+- Cambiar a: "Architecture: Follow project pattern for X (reference: src/Domain/Service/Pricing/PricingStrategy.php)"
+- El reference file viene del profile, no de la matrix
+
+**Checklist final**:
+- Quitar "Expected SOLID score ≥22/25"
+- Poner "SOLID compliance: all relevant principles verified in design.md"
 
 **Archivos**:
 - MODIFICAR: `commands/workflows/plan.md` (~20 secciones a actualizar)
@@ -287,14 +408,40 @@ learned_antipatterns:
 
 ### Fase 6: Actualizar `work.md`
 
-**Qué**: Cambiar las verificaciones de score numérico por verificaciones por principio.
+**Qué**: Cambiar las verificaciones de score numérico por `solid-analyzer --mode=verify`. Conectar el MODE 3 (CODE_VERIFY) del solid-analyzer.
 
-**Cambios**:
-- Step 5 "TDD + SOLID": quitar "SOLID score" del checkpoint, poner "SOLID compliance check"
-- Step 7 "Checkpoint": reemplazar "SOLID score ≥18/25" por "solid-analyzer --validate returns COMPLIANT or NEEDS_WORK (not NON_COMPLIANT)"
-- Checkpoint SOLID Requirements table: reemplazar scores per-layer (SRP ≥4/5, DIP ≥4/5) por verificaciones booleanas ("Domain has zero infra imports", "each class has single responsibility")
-- Quitar "SOLID Total: Must achieve ≥18/25 overall"
-- Actualizar ejemplo de checkpoint output: quitar "SOLID Score: 21/25" → poner "SOLID: COMPLIANT (5/5 principles verified)"
+**Cambios específicos por Step**:
+
+**Task Execution Loop** (línea ~88, el resumen del loop):
+- Paso 8: cambiar "CHECK SOLID (solid-analyzer) — must meet task thresholds" → "CHECK SOLID (solid-analyzer --mode=verify) — must be COMPLIANT"
+
+**Step 5 "TDD + SOLID"** (línea ~276):
+- Cambiar invocación de `solid-analyzer --path=src/modified-path` a: `solid-analyzer --mode=verify --path=src/modified-path --design=design.md`
+- Cambiar "Must match expected score from design.md" a: "Must be COMPLIANT. If NEEDS_WORK, refactor before proceeding. If NON_COMPLIANT, enter BCP correction loop."
+
+**Step 7 "Checkpoint"** (línea ~371):
+- Cambiar `solid-analyzer --path=src/modified-path` a: `solid-analyzer --mode=verify --path=src/modified-path --design=design.md`
+- Reemplazar la tabla "Checkpoint SOLID Requirements" por:
+  ```
+  | Checkpoint Type | Verification |
+  |-----------------|-------------|
+  | Domain layer | solid-analyzer --mode=verify --path=src/Domain --design=design.md |
+  | Application layer | solid-analyzer --mode=verify --path=src/Application --design=design.md |
+  | Infrastructure | solid-analyzer --mode=verify --path=src/Infrastructure --design=design.md |
+  | Full feature | solid-analyzer --mode=verify --path=src --design=design.md --scope=full |
+  ```
+- Quitar "SRP ≥4/5, DIP ≥4/5" etc. → la relevancia viene del profile
+- Quitar "Total score must be ≥18/25" → el gate es: ningún principio NON_COMPLIANT
+
+**Per-task isolation output** (línea ~150):
+- Cambiar "SOLID score" → "SOLID: COMPLIANT/NEEDS_WORK (per-principle details)"
+
+**Ejemplo de checkpoint output** (línea ~480):
+- Cambiar "SOLID Score: 21/25 (SRP: 5, OCP: 4, LSP: 4, ISP: 4, DIP: 4)" → "SOLID: COMPLIANT (SRP: ✓, OCP: ✓, LSP: N/A, ISP: ✓, DIP: ✓)"
+
+**Stack-Specific Workflows** (líneas ~413-443):
+- Eliminar scores per-layer ("SRP ≥4/5, DIP ≥4/5" etc.)
+- Reemplazar por: "solid-analyzer --mode=verify verifica los principios relevantes según architecture-profile.yaml"
 
 **Archivos**:
 - MODIFICAR: `commands/workflows/work.md`
@@ -303,12 +450,17 @@ learned_antipatterns:
 
 ### Fase 7: Actualizar `review.md`
 
-**Qué**: Cambiar de "SOLID score matches expected" a "SOLID compliance verified per principle".
+**Qué**: Cambiar de "SOLID score matches expected" a `solid-analyzer --mode=verify --scope=full`. Conectar el MODE 3 (CODE_VERIFY) del solid-analyzer para validación final.
 
 **Cambios**:
-- Quitar "SOLID score verification -- checks >= 18/25 minimum"
-- QA Phase 4: en vez de comparar score numérico de design.md vs implementación, verificar que cada principio marcado como "relevante" en design.md fue respetado
-- Decisión de rechazo: "NON_COMPLIANT on any relevant principle" en vez de "score < 18/25"
+- Quitar "SOLID score verification -- checks >= 18/25 minimum" → "SOLID compliance verification — must be COMPLIANT per solid-analyzer"
+- QA Phase 4 invocación: cambiar `solid-analyzer --path=src --validate` a: `solid-analyzer --mode=verify --path=src --design=design.md --scope=full`
+- Verificación: en vez de comparar score numérico, el reviewer verifica:
+  1. solid-analyzer MODE=CODE_VERIFY retorna COMPLIANT
+  2. Cada principio marcado como relevante en design.md fue implementado correctamente
+  3. Los patrones diseñados (Strategy, Repository, etc.) existen en el código
+- Decisión de rechazo: "NON_COMPLIANT on any principle with relevance≥high" en vez de "score < 18/25"
+- Decisión de aprobación con notas: "NEEDS_WORK on principles with relevance=medium" (no bloquea, pero se documenta)
 
 **Archivos**:
 - MODIFICAR: `commands/workflows/review.md`
@@ -410,6 +562,26 @@ Fase 10: Verificación                                       ← Grep final
 ```
 
 Nota: Fases 1+2 son independientes y se pueden hacer en paralelo. Fases 5+6+7 son independientes entre sí pero dependen de Fase 4.
+
+---
+
+## Verificación de Flujo: Dónde se usa cada pieza
+
+Esta tabla es la verificación de que el plan cubre todos los puntos de contacto:
+
+| Fase del Workflow | Qué lee | Qué invoca | Qué escribe | Modo solid-analyzer |
+|-------------------|---------|------------|-------------|---------------------|
+| `discover --setup` | Codebase existente | codebase-analyzer | `architecture-profile.yaml` | Ninguno |
+| `plan` Step 0 | `architecture-profile.yaml` + `openspec/specs/` | — | — | — |
+| `plan` Step 3.1 | Código existente + profile | solid-analyzer | — | **BASELINE** |
+| `plan` Step 3.2 | profile + architecture-reference.md + baseline output | — | `design.md` (con SOLID por principio) | — |
+| `plan` Step 3.4 | `design.md` + profile | solid-analyzer | — | **DESIGN_VALIDATE** |
+| `work` Step 5 | Código nuevo + `design.md` + profile | solid-analyzer | — | **CODE_VERIFY** |
+| `work` Step 7 | Código per-layer + `design.md` + profile | solid-analyzer | tasks.md (checkpoint) | **CODE_VERIFY** |
+| `review` Phase 4 | Todo el código + `design.md` + profile | solid-analyzer | tasks.md (QA status) | **CODE_VERIFY** (scope=full) |
+| `compound` Step 3c | `architecture-profile.yaml` + learnings | — | `architecture-profile.yaml` (enriquecido) | Ninguno |
+
+Si alguna celda de esta tabla no tiene su cambio correspondiente en las Fases 1-10, el plan tiene un hueco. Verificar contra esta tabla después de cada fase implementada.
 
 ---
 
