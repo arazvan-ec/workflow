@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Features - Multi-Agent Workflow v3.0.0</title>
+<style>
+:root{--bg0:#0d1117;--bg1:#161b22;--bg2:#1c2128;--bg3:#262c36;--bd:#30363d;--bd2:#21262d;--t1:#e6edf3;--t2:#8b949e;--t3:#6e7681;--blue:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--purple:#bc8cff;--cyan:#39d2c0;--orange:#db6d28;--r:8px;--rs:4px;--gradient:linear-gradient(135deg,#58a6ff 0%,#bc8cff 50%,#39d2c0 100%)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg0);color:var(--t1);line-height:1.6;font-size:14px}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Hero */
+.hero{text-align:center;padding:80px 24px 60px;background:linear-gradient(180deg,var(--bg1) 0%,var(--bg0) 100%);border-bottom:1px solid var(--bd);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(88,166,255,.06) 0%,transparent 50%),radial-gradient(circle at 70% 50%,rgba(188,140,255,.06) 0%,transparent 50%);pointer-events:none}
+.hero-badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.5px;background:rgba(88,166,255,.12);color:var(--blue);border:1px solid rgba(88,166,255,.25);margin-bottom:20px}
+.hero h1{font-size:42px;font-weight:700;letter-spacing:-1px;margin-bottom:12px;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:18px;color:var(--t2);max-width:680px;margin:0 auto 32px}
+.hero-stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat .num{font-size:32px;font-weight:700;color:var(--t1)}
+.hero-stat .label{font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+
+/* Container */
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+/* Section */
+.section{padding:60px 0}
+.section-header{text-align:center;margin-bottom:48px}
+.section-header h2{font-size:28px;font-weight:700;margin-bottom:8px}
+.section-header p{color:var(--t2);font-size:15px;max-width:600px;margin:0 auto}
+.section-divider{border:none;border-top:1px solid var(--bd);margin:0}
+
+/* Feature Grid */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+.feature-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:28px;transition:all .3s ease;position:relative;overflow:hidden}
+.feature-card:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.feature-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gradient);opacity:0;transition:opacity .3s}
+.feature-card:hover::after{opacity:1}
+.feature-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+.feature-card h3{font-size:17px;font-weight:600;margin-bottom:8px}
+.feature-card p{font-size:13px;color:var(--t2);line-height:1.6}
+.feature-version{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:rgba(63,185,80,.12);color:var(--green);margin-top:12px}
+
+/* Icon backgrounds */
+.icon-dashboard{background:rgba(88,166,255,.15);color:var(--blue)}
+.icon-bcp{background:rgba(248,81,73,.15);color:var(--red)}
+.icon-agents{background:rgba(188,140,255,.15);color:var(--purple)}
+.icon-shape{background:rgba(210,153,34,.15);color:var(--yellow)}
+.icon-learning{background:rgba(57,210,192,.15);color:var(--cyan)}
+.icon-providers{background:rgba(219,109,40,.15);color:var(--orange)}
+.icon-specs{background:rgba(63,185,80,.15);color:var(--green)}
+.icon-compound{background:rgba(88,166,255,.15);color:var(--blue)}
+.icon-commands{background:rgba(188,140,255,.15);color:var(--purple)}
+.icon-context{background:rgba(210,153,34,.15);color:var(--yellow)}
+
+/* Highlight Section */
+.highlight{background:var(--bg1);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);padding:60px 0}
+.highlight-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.highlight-content h2{font-size:24px;font-weight:700;margin-bottom:12px}
+.highlight-content p{color:var(--t2);font-size:14px;margin-bottom:20px}
+.highlight-list{list-style:none}
+.highlight-list li{padding:8px 0;font-size:13px;color:var(--t2);display:flex;align-items:center;gap:10px}
+.highlight-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+/* Flow Diagram */
+.flow-diagram{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:32px;text-align:center;overflow-x:auto}
+.flow-steps{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;padding:12px 0}
+.flow-step{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r);padding:14px 20px;text-align:center;min-width:110px;position:relative}
+.flow-step .name{font-size:13px;font-weight:600;color:var(--t1)}
+.flow-step .weight{font-size:11px;color:var(--t3);margin-top:2px}
+.flow-arrow{color:var(--t3);font-size:20px;padding:0 4px;flex-shrink:0}
+.flow-step.active{border-color:var(--blue);background:rgba(88,166,255,.08)}
+
+/* Comparison Table */
+.comparison{overflow-x:auto}
+.comparison table{width:100%;border-collapse:collapse;font-size:13px}
+.comparison th,.comparison td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--bd2)}
+.comparison th{background:var(--bg1);color:var(--t2);font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.comparison td:first-child{font-weight:500;color:var(--t1)}
+.comparison .col-without{color:var(--red)}
+.comparison .col-with{color:var(--green)}
+.comparison tr:hover td{background:var(--bg3)}
+
+/* Agent Map */
+.agent-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.agent-group{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:20px}
+.agent-group-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.agent-group-count{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.agent-item{font-size:12px;color:var(--t2);padding:4px 0;display:flex;align-items:center;gap:8px}
+.agent-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* BCP Section */
+.bcp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.bcp-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:20px;text-align:center}
+.bcp-card .type{font-size:11px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:8px}
+.bcp-card .desc{font-size:13px;color:var(--t2)}
+.bcp-card .limit{font-size:28px;font-weight:700;margin:12px 0 4px}
+.bcp-card .limit-label{font-size:11px;color:var(--t3)}
+
+/* Tech Stack */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.tech-item{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:16px;display:flex;align-items:center;gap:12px}
+.tech-label{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+.tech-value{font-size:13px;font-weight:500;color:var(--t1)}
+
+/* Footer */
+.footer{text-align:center;padding:40px 24px;border-top:1px solid var(--bd);color:var(--t3);font-size:12px}
+.footer a{color:var(--blue)}
+
+/* Responsive */
+@media(max-width:768px){
+  .hero h1{font-size:28px}
+  .hero p{font-size:15px}
+  .hero-stats{gap:24px}
+  .hero-stat .num{font-size:24px}
+  .features-grid{grid-template-columns:1fr}
+  .highlight-grid{grid-template-columns:1fr}
+  .bcp-grid{grid-template-columns:1fr}
+  .flow-steps{gap:8px}
+  .agent-map{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .agent-map{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<header class="hero">
+  <div class="hero-badge">PREMIUM FEATURES</div>
+  <h1>Multi-Agent Workflow v3.0.0</h1>
+  <p>Framework de ingenieria compuesta para desarrollo de software asistido por IA con agentes coordinados en paralelo.</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="num">11</div>
+      <div class="label">Agentes AI</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">15</div>
+      <div class="label">Comandos</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">14</div>
+      <div class="label">Skills</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">7</div>
+      <div class="label">Metodologias</div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">300-700%</div>
+      <div class="label">Mejora Productividad</div>
+    </div>
+  </div>
+</header>
+
+<!-- Core Features -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Funcionalidades Premium</h2>
+      <p>Cada funcionalidad esta implementada y probada. Sin promesas, sin roadmaps: todo funciona hoy.</p>
+    </div>
+
+    <div class="features-grid">
+      <!-- 1. Dashboard -->
+      <div class="feature-card">
+        <div class="feature-icon icon-dashboard">&#9673;</div>
+        <h3>Dashboard en Tiempo Real</h3>
+        <p>Visualizacion live del progreso de desarrollo con FastAPI, WebSocket y timeline de Git con diffs de codigo. Preview HTML standalone incluido.</p>
+        <div class="feature-version">v3.0.0</div>
+      </div>
+
+      <!-- 2. BCP -->
+      <div class="feature-card">
+        <div class="feature-icon icon-bcp">&#8635;</div>
+        <h3>Bounded Correction Protocol</h3>
+        <p>Loop acotado con 3 tipos de desviacion (GSD) y limites adaptativos (BMAD). Solution validation, goal-backward verification y adversarial self-review.</p>
+        <div class="feature-version">v2.10.0</div>
+      </div>
+
+      <!-- 3. Agents -->
+      <div class="feature-card">
+        <div class="feature-icon icon-agents">&#9881;</div>
+        <h3>11 Agentes Especializados</h3>
+        <p>Roles, review, research, workflow y design. Invocacion automatica desde los comandos del core flow. Equipos coordinados por categoria.</p>
+        <div class="feature-version">v3.0.0</div>
+      </div>
+
+      <!-- 4. Shape Up -->
+      <div class="feature-card">
+        <div class="feature-icon icon-shape">&#9670;</div>
+        <h3>Shape Up Methodology</h3>
+        <p>Fase pre-planning con shapes, fit checks, spikes, breadboards y vertical slices. Separa problema de solucion antes de comprometerse.</p>
+        <div class="feature-version">v2.8.0</div>
+      </div>
+
+      <!-- 5. Validation Learning -->
+      <div class="feature-card">
+        <div class="feature-icon icon-learning">&#9733;</div>
+        <h3>AI Validation Learning</h3>
+        <p>Sistema de auto-mejora donde los agentes aprenden de cada feature. Preguntas targeted al usuario, feedback loop y log de aprendizajes.</p>
+        <div class="feature-version">v2.10.0</div>
+      </div>
+
+      <!-- 6. Capability Providers -->
+      <div class="feature-card">
+        <div class="feature-icon icon-providers">&#9635;</div>
+        <h3>Capability Providers</h3>
+        <p>Abstraccion model-agnostic con auto-deteccion. Funciona con cualquier modelo Claude, adaptando paralelizacion, contexto y estrategia de fork.</p>
+        <div class="feature-version">v2.7.0</div>
+      </div>
+
+      <!-- 7. Spec-Driven -->
+      <div class="feature-card">
+        <div class="feature-icon icon-specs">&#9745;</div>
+        <h3>Spec-Driven Development</h3>
+        <p>Contratos API definidos antes de implementacion. Permite desarrollo paralelo frontend/backend. Spec Analyzer valida compliance automaticamente.</p>
+        <div class="feature-version">v2.5.0</div>
+      </div>
+
+      <!-- 8. Compound Engineering -->
+      <div class="feature-card">
+        <div class="feature-icon icon-compound">&#8734;</div>
+        <h3>Compound Engineering</h3>
+        <p>Cada feature hace que los siguientes sean mas rapidos. Captura de learnings, patrones reutilizables y conocimiento que se compone exponencialmente.</p>
+        <div class="feature-version">v1.0.0</div>
+      </div>
+
+      <!-- 9. Commands -->
+      <div class="feature-card">
+        <div class="feature-icon icon-commands">&#9655;</div>
+        <h3>15 Comandos Esenciales</h3>
+        <p>Surface reducida de 30+ a 15 comandos. Core flow (6), support (5), automatic (4). Flujo claro sin confusion.</p>
+        <div class="feature-version">v3.0.0</div>
+      </div>
+
+      <!-- 10. Context Engineering -->
+      <div class="feature-card">
+        <div class="feature-icon icon-context">&#9783;</div>
+        <h3>Context Engineering</h3>
+        <p>Gestion optimizada del context window con activacion selectiva, fork context para agentes pesados y 50_state.md como fuente de verdad.</p>
+        <div class="feature-version">v2.0.0</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- Workflow Flow -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Core Flow</h2>
+      <p>Cada request pasa por el router. Sin excepciones. El flujo garantiza calidad en cada paso.</p>
+    </div>
+
+    <div class="flow-diagram">
+      <div class="flow-steps">
+        <div class="flow-step active">
+          <div class="name">ROUTE</div>
+          <div class="weight">Entry point</div>
+        </div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">
+          <div class="name">SHAPE</div>
+          <div class="weight">Opcional</div>
+        </div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">
+          <div class="name">PLAN</div>
+          <div class="weight">80%</div>
+        </div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">
+          <div class="name">WORK</div>
+          <div class="weight">15%</div>
+        </div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">
+          <div class="name">VALIDATE</div>
+          <div class="weight">Auto</div>
+        </div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">
+          <div class="name">REVIEW</div>
+          <div class="weight">4%</div>
+        </div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">
+          <div class="name">COMPOUND</div>
+          <div class="weight">1%</div>
+        </div>
+      </div>
+    </div>
+
+    <br>
+    <div class="flow-diagram" style="margin-top:12px">
+      <div style="font-size:12px;color:var(--t3);margin-bottom:8px">Alternativa ligera</div>
+      <div class="flow-steps">
+        <div class="flow-step active">
+          <div class="name">ROUTE</div>
+          <div class="weight">Entry point</div>
+        </div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-step">
+          <div class="name">QUICK</div>
+          <div class="weight">Tareas simples</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- BCP Detail -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Bounded Correction Protocol</h2>
+      <p>Loop acotado con deteccion inteligente de desviaciones y limites adaptativos por complejidad.</p>
+    </div>
+
+    <div class="bcp-grid" style="margin-bottom:32px">
+      <div class="bcp-card">
+        <div class="type" style="color:var(--red)">Type 1</div>
+        <div class="desc">Test Failure</div>
+        <p style="font-size:12px;color:var(--t3);margin-top:8px">Fix especifico del test que falla</p>
+      </div>
+      <div class="bcp-card">
+        <div class="type" style="color:var(--yellow)">Type 2</div>
+        <div class="desc">Missing Functionality</div>
+        <p style="font-size:12px;color:var(--t3);margin-top:8px">Implementar funcionalidad faltante</p>
+      </div>
+      <div class="bcp-card">
+        <div class="type" style="color:var(--purple)">Type 3</div>
+        <div class="desc">Incomplete Pattern</div>
+        <p style="font-size:12px;color:var(--t3);margin-top:8px">Completar patron DDD, naming, etc.</p>
+      </div>
+    </div>
+
+    <div class="bcp-grid">
+      <div class="bcp-card">
+        <div class="limit" style="color:var(--green)">5</div>
+        <div class="limit-label">Max iteraciones</div>
+        <div class="desc" style="margin-top:8px">Simple</div>
+        <p style="font-size:12px;color:var(--t3);margin-top:4px">&le; 3 archivos</p>
+      </div>
+      <div class="bcp-card">
+        <div class="limit" style="color:var(--yellow)">10</div>
+        <div class="limit-label">Max iteraciones</div>
+        <div class="desc" style="margin-top:8px">Moderate</div>
+        <p style="font-size:12px;color:var(--t3);margin-top:4px">4-10 archivos</p>
+      </div>
+      <div class="bcp-card">
+        <div class="limit" style="color:var(--red)">15</div>
+        <div class="limit-label">Max iteraciones</div>
+        <div class="desc" style="margin-top:8px">Complex</div>
+        <p style="font-size:12px;color:var(--t3);margin-top:4px">&gt; 10 archivos</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- Agent Map -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Mapa de Agentes</h2>
+      <p>11 agentes especializados organizados en 5 categorias, invocados automaticamente por el core flow.</p>
+    </div>
+
+    <div class="agent-map">
+      <div class="agent-group">
+        <div class="agent-group-title">
+          Roles <span class="agent-group-count" style="background:rgba(88,166,255,.15);color:var(--blue)">4</span>
+        </div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--blue)"></span> Planner</div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--blue)"></span> Backend</div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--blue)"></span> Frontend</div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--blue)"></span> QA</div>
+      </div>
+
+      <div class="agent-group">
+        <div class="agent-group-title">
+          Review <span class="agent-group-count" style="background:rgba(248,81,73,.15);color:var(--red)">4</span>
+        </div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--red)"></span> Security</div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--red)"></span> Performance</div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--red)"></span> DDD Compliance</div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--red)"></span> Code Review TS</div>
+      </div>
+
+      <div class="agent-group">
+        <div class="agent-group-title">
+          Research <span class="agent-group-count" style="background:rgba(57,210,192,.15);color:var(--cyan)">2</span>
+        </div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--cyan)"></span> Codebase Analyzer</div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--cyan)"></span> Learnings Researcher</div>
+      </div>
+
+      <div class="agent-group">
+        <div class="agent-group-title">
+          Workflow <span class="agent-group-count" style="background:rgba(210,153,34,.15);color:var(--yellow)">2</span>
+        </div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--yellow)"></span> Diagnostic Agent</div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--yellow)"></span> Spec Analyzer</div>
+      </div>
+
+      <div class="agent-group">
+        <div class="agent-group-title">
+          Design <span class="agent-group-count" style="background:rgba(188,140,255,.15);color:var(--purple)">3</span>
+        </div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--purple)"></span> API Designer</div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--purple)"></span> SOLID Generator</div>
+        <div class="agent-item"><span class="agent-dot" style="background:var(--purple)"></span> UI Verifier</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Highlight: Compound Engineering -->
+<section class="highlight">
+  <div class="container">
+    <div class="highlight-grid">
+      <div class="highlight-content">
+        <h2>Compound Engineering</h2>
+        <p>Cada feature completado hace que los siguientes sean mas rapidos. El conocimiento se acumula exponencialmente a traves de learnings, patrones y reglas emergentes.</p>
+        <ul class="highlight-list">
+          <li>Captura automatica de learnings al finalizar cada feature</li>
+          <li>Learnings Researcher busca patrones relevantes antes de planificar</li>
+          <li>Reglas del proyecto se enriquecen con cada iteracion</li>
+          <li>Validacion AI mejora precision con cada feature completado</li>
+          <li>Feature 10+ alcanza 3-7x mejora vs baseline</li>
+        </ul>
+      </div>
+      <div>
+        <div class="flow-diagram">
+          <div style="text-align:left;padding:8px 0">
+            <div style="margin-bottom:16px">
+              <div style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:4px">Feature 1</div>
+              <div style="height:8px;background:var(--bg0);border-radius:4px;overflow:hidden"><div style="height:100%;width:15%;background:var(--blue);border-radius:4px"></div></div>
+              <div style="font-size:11px;color:var(--t3);margin-top:2px">Baseline</div>
+            </div>
+            <div style="margin-bottom:16px">
+              <div style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:4px">Feature 5</div>
+              <div style="height:8px;background:var(--bg0);border-radius:4px;overflow:hidden"><div style="height:100%;width:45%;background:var(--green);border-radius:4px"></div></div>
+              <div style="font-size:11px;color:var(--t3);margin-top:2px">2-3x (patrones establecidos)</div>
+            </div>
+            <div style="margin-bottom:16px">
+              <div style="font-size:13px;font-weight:600;color:var(--t1);margin-bottom:4px">Feature 10+</div>
+              <div style="height:8px;background:var(--bg0);border-radius:4px;overflow:hidden"><div style="height:100%;width:85%;background:var(--cyan);border-radius:4px"></div></div>
+              <div style="font-size:11px;color:var(--t3);margin-top:2px">3-7x (compound effect)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- Comparison -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Comparativa</h2>
+      <p>Desarrollo sin workflow vs con Premium Features.</p>
+    </div>
+
+    <div class="comparison">
+      <table>
+        <thead>
+          <tr>
+            <th>Aspecto</th>
+            <th>Sin Workflow</th>
+            <th>Con Premium</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Planificacion</td>
+            <td class="col-without">Ad-hoc, improvisada</td>
+            <td class="col-with">Architecture-first, 80% del esfuerzo</td>
+          </tr>
+          <tr>
+            <td>Correccion de errores</td>
+            <td class="col-without">Loop infinito, sin limites</td>
+            <td class="col-with">BCP con 3 tipos + limites adaptativos</td>
+          </tr>
+          <tr>
+            <td>Calidad</td>
+            <td class="col-without">Review manual</td>
+            <td class="col-with">4 agentes de review automaticos</td>
+          </tr>
+          <tr>
+            <td>Validacion</td>
+            <td class="col-without">Manual, inconsistente</td>
+            <td class="col-with">AI Validation Learning (mejora continua)</td>
+          </tr>
+          <tr>
+            <td>Visibilidad</td>
+            <td class="col-without">Cero</td>
+            <td class="col-with">Dashboard en tiempo real</td>
+          </tr>
+          <tr>
+            <td>Sesiones largas</td>
+            <td class="col-without">Degradacion de contexto</td>
+            <td class="col-with">Context Engineering optimizado</td>
+          </tr>
+          <tr>
+            <td>Features complejos</td>
+            <td class="col-without">Saltar directo a codigo</td>
+            <td class="col-with">Shape Up pre-planning</td>
+          </tr>
+          <tr>
+            <td>Desarrollo paralelo</td>
+            <td class="col-without">Imposible</td>
+            <td class="col-with">Spec-Driven con contratos API</td>
+          </tr>
+          <tr>
+            <td>Conocimiento</td>
+            <td class="col-without">Se pierde entre features</td>
+            <td class="col-with">Compound Engineering (se acumula)</td>
+          </tr>
+          <tr>
+            <td>Modelos</td>
+            <td class="col-without">Atado a un modelo</td>
+            <td class="col-with">Capability Providers (model-agnostic)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- Tech Stack -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Stack Tecnologico</h2>
+      <p>Componentes y tecnologias que forman el framework.</p>
+    </div>
+
+    <div class="tech-grid">
+      <div class="tech-item">
+        <div>
+          <div class="tech-label">Framework</div>
+          <div class="tech-value">Claude Code Plugin System</div>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div>
+          <div class="tech-label">Dashboard</div>
+          <div class="tech-value">FastAPI + Uvicorn + WebSocket</div>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div>
+          <div class="tech-label">Estado</div>
+          <div class="tech-value">Markdown + YAML + Git</div>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div>
+          <div class="tech-label">Agentes</div>
+          <div class="tech-value">11 agentes (prompt engineering)</div>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div>
+          <div class="tech-label">Deteccion</div>
+          <div class="tech-value">Capability Providers + auto-detect</div>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div>
+          <div class="tech-label">Real-time</div>
+          <div class="tech-value">File Watcher + WebSocket</div>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div>
+          <div class="tech-label">Metodologias</div>
+          <div class="tech-value">7 metodologias integradas</div>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div>
+          <div class="tech-label">Licencia</div>
+          <div class="tech-value">MIT - Open Source</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Methodologies -->
+<section class="highlight">
+  <div class="container">
+    <div class="section-header">
+      <h2>7 Metodologias Integradas</h2>
+      <p>La sintesis de las metodologias mas avanzadas en desarrollo AI.</p>
+    </div>
+
+    <div class="features-grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+      <div class="feature-card" style="padding:20px">
+        <h3 style="font-size:14px">Compound Engineering</h3>
+        <p style="font-size:12px">Vinci Rufus - Cada iteracion acelera la siguiente</p>
+      </div>
+      <div class="feature-card" style="padding:20px">
+        <h3 style="font-size:14px">Bounded Correction Protocol</h3>
+        <p style="font-size:12px">Geoffrey Huntley + GSD + BMAD - Loops acotados</p>
+      </div>
+      <div class="feature-card" style="padding:20px">
+        <h3 style="font-size:14px">Shape Up</h3>
+        <p style="font-size:12px">Ryan Singer - Separar problema de solucion</p>
+      </div>
+      <div class="feature-card" style="padding:20px">
+        <h3 style="font-size:14px">Test-Driven Development</h3>
+        <p style="font-size:12px">Red - Green - Refactor con enforcement AI</p>
+      </div>
+      <div class="feature-card" style="padding:20px">
+        <h3 style="font-size:14px">Domain-Driven Design</h3>
+        <p style="font-size:12px">Separacion de capas, compliance automatico</p>
+      </div>
+      <div class="feature-card" style="padding:20px">
+        <h3 style="font-size:14px">Spec-Driven Development</h3>
+        <p style="font-size:12px">Contratos API primero, implementacion despues</p>
+      </div>
+      <div class="feature-card" style="padding:20px">
+        <h3 style="font-size:14px">Context Engineering</h3>
+        <p style="font-size:12px">Martin Fowler - Gestion optimizada del context window</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>Multi-Agent Workflow Plugin v3.0.0 &middot; Febrero 2026</p>
+  <p style="margin-top:4px">
+    <a href="https://github.com/arazvan-ec/workflow">GitHub</a> &middot;
+    Alineado con Compound Engineering + Karpathy + Context Engineering + Capability Providers + Shape Up + AI Validation Learning + GSD + BMAD
+  </p>
+</footer>
+
+</body>
+</html>

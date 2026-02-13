@@ -21,7 +21,13 @@
     "capability-providers",
     "model-agnostic",
     "ai-validation-learning",
-    "scoped-rules"
+    "scoped-rules",
+    "bounded-correction-protocol",
+    "shape-up",
+    "spec-driven-development",
+    "real-time-dashboard",
+    "gsd",
+    "bmad"
   ],
   "commands": "./commands/",
   "agents": [

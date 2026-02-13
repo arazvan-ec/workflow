@@ -26,6 +26,7 @@
 | **No entiendo un término** | [GLOSSARY.md](./GLOSSARY.md) | `/workflows:help concepts` |
 | **No sé qué comando usar** | - | `/workflows:route` |
 | **Quiero todo el detalle** | [README.md](./README.md) | - |
+| **Ver funcionalidades premium** | [PREMIUM.md](./PREMIUM.md) | - |
 | **Soy un agente Claude** | [CLAUDE.md](./CLAUDE.md) | - |
 
 ---
