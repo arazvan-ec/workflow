@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Development Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1f4ca;</text></svg>">
+</head>
+<body>
+    <div class="app">
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1 class="logo">AI Dashboard</h1>
+                <span class="version" id="plugin-version"></span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#/" class="nav-link active" data-page="overview">
+                    <span class="nav-icon">&#9673;</span> Overview
+                </a></li>
+                <li><a href="#/features" class="nav-link" data-page="features">
+                    <span class="nav-icon">&#9881;</span> Features
+                </a></li>
+                <li><a href="#/sessions" class="nav-link" data-page="sessions">
+                    <span class="nav-icon">&#9201;</span> Sessions
+                </a></li>
+                <li><a href="#/quality" class="nav-link" data-page="quality">
+                    <span class="nav-icon">&#10003;</span> Quality
+                </a></li>
+                <li><a href="#/plugin" class="nav-link" data-page="plugin">
+                    <span class="nav-icon">&#9733;</span> Plugin Catalog
+                </a></li>
+                <li><a href="#/git" class="nav-link" data-page="git">
+                    <span class="nav-icon">&#8644;</span> Git Timeline
+                </a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="ws-status" id="ws-status">
+                    <span class="ws-dot"></span>
+                    <span class="ws-text">Connecting...</span>
+                </div>
+            </div>
+        </nav>
+        <main class="content" id="content">
+            <div class="loading">Loading dashboard...</div>
+        </main>
+    </div>
+
+    <script src="/static/js/websocket.js"></script>
+    <script src="/static/js/components/overview.js"></script>
+    <script src="/static/js/components/feature-list.js"></script>
+    <script src="/static/js/components/feature-detail.js"></script>
+    <script src="/static/js/components/sessions.js"></script>
+    <script src="/static/js/components/quality.js"></script>
+    <script src="/static/js/components/plugin-catalog.js"></script>
+    <script src="/static/js/components/git-timeline.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
