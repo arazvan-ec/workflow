@@ -111,6 +111,61 @@ tr:hover td{background:var(--bg3)}
 @media(max-width:768px){.sidebar{display:none}.content{margin-left:0;padding:16px}.mg{grid-template-columns:repeat(2,1fr)}.fg{grid-template-columns:1fr}.rdg{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
 ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:var(--bg0)}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:var(--t3)}
 code{background:var(--bg3);padding:1px 6px;border-radius:3px;font-size:12px;color:var(--yellow)}
+/* Premium */
+.pm-hero{text-align:center;padding:40px 20px 32px;background:linear-gradient(180deg,var(--bg1) 0%,var(--bg0) 100%);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:24px;position:relative;overflow:hidden}
+.pm-hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(88,166,255,.06) 0%,transparent 50%),radial-gradient(circle at 70% 50%,rgba(188,140,255,.06) 0%,transparent 50%);pointer-events:none}
+.pm-badge{display:inline-block;padding:3px 12px;border-radius:16px;font-size:11px;font-weight:600;letter-spacing:.5px;background:rgba(88,166,255,.12);color:var(--blue);border:1px solid rgba(88,166,255,.25);margin-bottom:14px}
+.pm-title{font-size:28px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;background:linear-gradient(135deg,var(--blue) 0%,var(--purple) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.pm-desc{font-size:14px;color:var(--t2);max-width:560px;margin:0 auto 24px}
+.pm-stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap}
+.pm-stat-n{font-size:24px;font-weight:700;color:var(--t1)}
+.pm-stat-l{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px}
+.pm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:24px}
+.pm-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:20px;transition:all .2s;position:relative;overflow:hidden}
+.pm-card:hover{border-color:var(--blue);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.pm-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--purple),var(--cyan));opacity:0;transition:opacity .2s}
+.pm-card:hover::after{opacity:1}
+.pm-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.pm-card h4{font-size:14px;font-weight:600;margin-bottom:6px}
+.pm-card p{font-size:12px;color:var(--t2);line-height:1.5}
+.pm-ver{display:inline-block;padding:1px 7px;border-radius:8px;font-size:10px;font-weight:600;background:rgba(63,185,80,.12);color:var(--green);margin-top:8px}
+.pm-flow{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:24px;text-align:center;margin-bottom:24px}
+.pm-flow-title{font-size:13px;font-weight:600;color:var(--t2);margin-bottom:16px;text-transform:uppercase;letter-spacing:.5px}
+.pm-steps{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;padding:8px 0}
+.pm-step{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--rs);padding:10px 16px;text-align:center;min-width:90px}
+.pm-step .sn{font-size:12px;font-weight:600;color:var(--t1)}
+.pm-step .sw{font-size:10px;color:var(--t3)}
+.pm-step.active{border-color:var(--blue);background:rgba(88,166,255,.08)}
+.pm-arrow{color:var(--t3);font-size:16px;padding:0 3px;flex-shrink:0}
+.pm-bcp{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.pm-bcp-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:16px;text-align:center}
+.pm-bcp-type{font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px}
+.pm-bcp-name{font-size:13px;font-weight:500;color:var(--t1)}
+.pm-bcp-desc{font-size:11px;color:var(--t3);margin-top:4px}
+.pm-bcp-num{font-size:22px;font-weight:700;margin:8px 0 2px}
+.pm-agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+.pm-ag{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:14px}
+.pm-ag-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.pm-ag-count{font-size:10px;padding:1px 6px;border-radius:8px;font-weight:600}
+.pm-ag-item{font-size:11px;color:var(--t2);padding:3px 0;display:flex;align-items:center;gap:6px}
+.pm-ag-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.pm-cmp table{width:100%;border-collapse:collapse;font-size:12px}
+.pm-cmp th,.pm-cmp td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--bd2)}
+.pm-cmp th{background:var(--bg1);color:var(--t2);font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.pm-cmp .c-no{color:var(--red)}.pm-cmp .c-yes{color:var(--green)}
+.pm-cmp tr:hover td{background:var(--bg3)}
+.pm-meth{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:24px}
+.pm-meth-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:14px}
+.pm-meth-card h4{font-size:13px;font-weight:600;margin-bottom:4px}
+.pm-meth-card p{font-size:11px;color:var(--t2)}
+.pm-compound{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:20px;margin-bottom:24px}
+.pm-compound-title{font-size:14px;font-weight:600;margin-bottom:16px}
+.pm-compound-bar{margin-bottom:12px}
+.pm-compound-bar .lbl{font-size:12px;font-weight:500;color:var(--t1);margin-bottom:4px}
+.pm-compound-bar .bar{height:8px;background:var(--bg0);border-radius:4px;overflow:hidden}
+.pm-compound-bar .fill{height:100%;border-radius:4px}
+.pm-compound-bar .sub{font-size:10px;color:var(--t3);margin-top:2px}
+@media(max-width:768px){.pm-grid{grid-template-columns:1fr}.pm-bcp{grid-template-columns:1fr}.pm-agents{grid-template-columns:1fr 1fr}.pm-meth{grid-template-columns:1fr}}
 /* Diff viewer */
 .cm-row{border:1px solid var(--bd);border-radius:var(--r);margin-bottom:12px;background:var(--bg2);overflow:hidden;transition:.2s}
 .cm-row:hover{border-color:var(--blue)}
@@ -167,6 +222,7 @@ code{background:var(--bg3);padding:1px 6px;border-radius:3px;font-size:12px;colo
 <li><a class="nav-link" data-page="quality" onclick="go('quality')"><span class="ni">&#10003;</span> Quality</a></li>
 <li><a class="nav-link" data-page="plugin" onclick="go('plugin')"><span class="ni">&#9733;</span> Plugin Catalog</a></li>
 <li><a class="nav-link" data-page="git" onclick="go('git')"><span class="ni">&#8644;</span> Git Timeline</a></li>
+<li><a class="nav-link" data-page="premium" onclick="go('premium')"><span class="ni">&#9830;</span> Premium</a></li>
 </ul>
 <div class="sidebar-footer">Snapshot: 12 feb 2026 21:30</div>
 </nav>
@@ -194,6 +250,7 @@ function go(page, arg) {
     else if (page === 'quality') renderQuality(c);
     else if (page === 'plugin') renderPlugin(c);
     else if (page === 'git') renderGit(c);
+    else if (page === 'premium') renderPremium(c);
   } catch(e) {
     c.innerHTML = '<div style="padding:40px;color:var(--red)"><h3>Error rendering ' + page + '</h3><pre>' + e.message + '\n' + e.stack + '</pre></div>';
   }
@@ -526,6 +583,152 @@ function renderGit(c) {
         '</div>' +
       '</div>';
     }).join('');
+}
+
+function renderPremium(c) {
+  var ps = D.overview.plugin_stats || {};
+  var nAgents = ps.agents || 11, nSkills = ps.skills || 14, nCommands = ps.commands || 15;
+
+  var features = [
+    {icon:'&#9673;', bg:'rgba(88,166,255,.15)', color:'var(--blue)', title:'Dashboard en Tiempo Real', desc:'Visualizacion live del progreso con FastAPI, WebSocket y timeline de Git con diffs de codigo. Preview HTML standalone incluido.', ver:'v3.0.0'},
+    {icon:'&#8635;', bg:'rgba(248,81,73,.15)', color:'var(--red)', title:'Bounded Correction Protocol', desc:'Loop acotado con 3 tipos de desviacion (GSD) y limites adaptativos (BMAD). Solution validation, goal-backward verification y adversarial self-review.', ver:'v2.10.0'},
+    {icon:'&#9881;', bg:'rgba(188,140,255,.15)', color:'var(--purple)', title:nAgents + ' Agentes Especializados', desc:'Roles, review, research, workflow y design. Invocacion automatica desde los comandos del core flow. Equipos coordinados por categoria.', ver:'v3.0.0'},
+    {icon:'&#9670;', bg:'rgba(210,153,34,.15)', color:'var(--yellow)', title:'Shape Up Methodology', desc:'Fase pre-planning con shapes, fit checks, spikes, breadboards y vertical slices. Separa problema de solucion antes de comprometerse.', ver:'v2.8.0'},
+    {icon:'&#9733;', bg:'rgba(57,210,192,.15)', color:'var(--cyan)', title:'AI Validation Learning', desc:'Sistema de auto-mejora donde los agentes aprenden de cada feature. Preguntas targeted, feedback loop y log de aprendizajes.', ver:'v2.10.0'},
+    {icon:'&#9635;', bg:'rgba(219,109,40,.15)', color:'var(--orange)', title:'Capability Providers', desc:'Abstraccion model-agnostic con auto-deteccion. Funciona con cualquier modelo Claude, adaptando paralelizacion, contexto y estrategia de fork.', ver:'v2.7.0'},
+    {icon:'&#10003;', bg:'rgba(63,185,80,.15)', color:'var(--green)', title:'Spec-Driven Development', desc:'Contratos API definidos antes de implementacion. Permite desarrollo paralelo frontend/backend. Spec Analyzer valida compliance automaticamente.', ver:'v2.5.0'},
+    {icon:'&#8734;', bg:'rgba(88,166,255,.15)', color:'var(--blue)', title:'Compound Engineering', desc:'Cada feature hace que los siguientes sean mas rapidos. Captura de learnings, patrones reutilizables y conocimiento que se compone exponencialmente.', ver:'v1.0.0'},
+    {icon:'&#9655;', bg:'rgba(188,140,255,.15)', color:'var(--purple)', title:nCommands + ' Comandos Esenciales', desc:'Surface reducida de 30+ a ' + nCommands + ' comandos. Core flow (6), support (5), automatic (4). Flujo claro sin confusion.', ver:'v3.0.0'},
+    {icon:'&#9783;', bg:'rgba(210,153,34,.15)', color:'var(--yellow)', title:'Context Engineering', desc:'Gestion optimizada del context window con activacion selectiva, fork context para agentes pesados y 50_state.md como fuente de verdad.', ver:'v2.0.0'}
+  ];
+
+  var agentGroups = [
+    {name:'Roles', color:'var(--blue)', bg:'rgba(88,166,255,.15)', items:['Planner','Backend','Frontend','QA']},
+    {name:'Review', color:'var(--red)', bg:'rgba(248,81,73,.15)', items:['Security','Performance','DDD Compliance','Code Review TS']},
+    {name:'Research', color:'var(--cyan)', bg:'rgba(57,210,192,.15)', items:['Codebase Analyzer','Learnings Researcher']},
+    {name:'Workflow', color:'var(--yellow)', bg:'rgba(210,153,34,.15)', items:['Diagnostic Agent','Spec Analyzer']},
+    {name:'Design', color:'var(--purple)', bg:'rgba(188,140,255,.15)', items:['API Designer','SOLID Generator','UI Verifier']}
+  ];
+
+  var comparisons = [
+    ['Planificacion','Ad-hoc, improvisada','Architecture-first, 80% del esfuerzo'],
+    ['Correccion de errores','Loop infinito, sin limites','BCP con 3 tipos + limites adaptativos'],
+    ['Calidad','Review manual','4 agentes de review automaticos'],
+    ['Validacion','Manual, inconsistente','AI Validation Learning (mejora continua)'],
+    ['Visibilidad','Cero','Dashboard en tiempo real'],
+    ['Sesiones largas','Degradacion de contexto','Context Engineering optimizado'],
+    ['Features complejos','Saltar directo a codigo','Shape Up pre-planning'],
+    ['Desarrollo paralelo','Imposible','Spec-Driven con contratos API'],
+    ['Conocimiento','Se pierde entre features','Compound Engineering (se acumula)'],
+    ['Modelos','Atado a un modelo','Capability Providers (model-agnostic)']
+  ];
+
+  var methodologies = [
+    {title:'Compound Engineering', desc:'Vinci Rufus - Cada iteracion acelera la siguiente'},
+    {title:'Bounded Correction Protocol', desc:'Geoffrey Huntley + GSD + BMAD - Loops acotados'},
+    {title:'Shape Up', desc:'Ryan Singer - Separar problema de solucion'},
+    {title:'Test-Driven Development', desc:'Red - Green - Refactor con enforcement AI'},
+    {title:'Domain-Driven Design', desc:'Separacion de capas, compliance automatico'},
+    {title:'Spec-Driven Development', desc:'Contratos API primero, implementacion despues'},
+    {title:'Context Engineering', desc:'Martin Fowler - Gestion optimizada del context window'}
+  ];
+
+  var html = '';
+
+  // Hero
+  html += '<div class="pm-hero">' +
+    '<div class="pm-badge">PREMIUM FEATURES</div>' +
+    '<div class="pm-title">Multi-Agent Workflow v' + esc(D.plugin_info.version || '3.0.0') + '</div>' +
+    '<div class="pm-desc">Framework de ingenieria compuesta para desarrollo de software asistido por IA con agentes coordinados en paralelo.</div>' +
+    '<div class="pm-stats">' +
+      '<div><div class="pm-stat-n">' + nAgents + '</div><div class="pm-stat-l">Agentes AI</div></div>' +
+      '<div><div class="pm-stat-n">' + nCommands + '</div><div class="pm-stat-l">Comandos</div></div>' +
+      '<div><div class="pm-stat-n">' + nSkills + '</div><div class="pm-stat-l">Skills</div></div>' +
+      '<div><div class="pm-stat-n">7</div><div class="pm-stat-l">Metodologias</div></div>' +
+      '<div><div class="pm-stat-n">300-700%</div><div class="pm-stat-l">Mejora</div></div>' +
+    '</div>' +
+  '</div>';
+
+  // Feature cards
+  html += '<div class="pm-grid">' + features.map(function(f) {
+    return '<div class="pm-card">' +
+      '<div class="pm-ico" style="background:' + f.bg + ';color:' + f.color + '">' + f.icon + '</div>' +
+      '<h4>' + f.title + '</h4>' +
+      '<p>' + f.desc + '</p>' +
+      '<div class="pm-ver">' + f.ver + '</div>' +
+    '</div>';
+  }).join('') + '</div>';
+
+  // Core Flow
+  var steps = [
+    {n:'ROUTE',w:'Entry point',a:true},{n:'SHAPE',w:'Opcional',a:false},{n:'PLAN',w:'80%',a:false},
+    {n:'WORK',w:'15%',a:false},{n:'VALIDATE',w:'Auto',a:false},{n:'REVIEW',w:'4%',a:false},{n:'COMPOUND',w:'1%',a:false}
+  ];
+  html += '<div class="pm-flow"><div class="pm-flow-title">Core Flow</div><div class="pm-steps">' +
+    steps.map(function(s, i) {
+      return (i > 0 ? '<span class="pm-arrow">&rarr;</span>' : '') +
+        '<div class="pm-step' + (s.a ? ' active' : '') + '"><div class="sn">' + s.n + '</div><div class="sw">' + s.w + '</div></div>';
+    }).join('') +
+  '</div>' +
+  '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--bd)">' +
+    '<div style="font-size:11px;color:var(--t3);margin-bottom:8px">Alternativa ligera</div>' +
+    '<div class="pm-steps">' +
+      '<div class="pm-step active"><div class="sn">ROUTE</div><div class="sw">Entry point</div></div>' +
+      '<span class="pm-arrow">&rarr;</span>' +
+      '<div class="pm-step"><div class="sn">QUICK</div><div class="sw">Tareas simples</div></div>' +
+    '</div>' +
+  '</div></div>';
+
+  // BCP Section
+  html += '<div class="ph"><h2 style="font-size:18px">Bounded Correction Protocol</h2><p>Loop acotado con deteccion inteligente de desviaciones y limites adaptativos.</p></div>';
+  html += '<div class="pm-bcp">' +
+    '<div class="pm-bcp-card"><div class="pm-bcp-type" style="color:var(--red)">Type 1</div><div class="pm-bcp-name">Test Failure</div><div class="pm-bcp-desc">Fix especifico del test que falla</div></div>' +
+    '<div class="pm-bcp-card"><div class="pm-bcp-type" style="color:var(--yellow)">Type 2</div><div class="pm-bcp-name">Missing Functionality</div><div class="pm-bcp-desc">Implementar funcionalidad faltante</div></div>' +
+    '<div class="pm-bcp-card"><div class="pm-bcp-type" style="color:var(--purple)">Type 3</div><div class="pm-bcp-name">Incomplete Pattern</div><div class="pm-bcp-desc">Completar patron DDD, naming, etc.</div></div>' +
+  '</div>';
+  html += '<div class="pm-bcp">' +
+    '<div class="pm-bcp-card"><div class="pm-bcp-num" style="color:var(--green)">5</div><div class="pm-bcp-name">Simple</div><div class="pm-bcp-desc">&le; 3 archivos</div></div>' +
+    '<div class="pm-bcp-card"><div class="pm-bcp-num" style="color:var(--yellow)">10</div><div class="pm-bcp-name">Moderate</div><div class="pm-bcp-desc">4-10 archivos</div></div>' +
+    '<div class="pm-bcp-card"><div class="pm-bcp-num" style="color:var(--red)">15</div><div class="pm-bcp-name">Complex</div><div class="pm-bcp-desc">&gt; 10 archivos</div></div>' +
+  '</div>';
+
+  // Agent map
+  html += '<div class="ph" style="margin-top:8px"><h2 style="font-size:18px">Mapa de Agentes</h2><p>' + nAgents + ' agentes organizados en 5 categorias, invocados automaticamente.</p></div>';
+  html += '<div class="pm-agents">' + agentGroups.map(function(g) {
+    return '<div class="pm-ag">' +
+      '<div class="pm-ag-title">' + g.name + ' <span class="pm-ag-count" style="background:' + g.bg + ';color:' + g.color + '">' + g.items.length + '</span></div>' +
+      g.items.map(function(item) {
+        return '<div class="pm-ag-item"><span class="pm-ag-dot" style="background:' + g.color + '"></span>' + item + '</div>';
+      }).join('') +
+    '</div>';
+  }).join('') + '</div>';
+
+  // Compound Engineering chart
+  html += '<div class="pm-compound">' +
+    '<div class="pm-compound-title">Compound Engineering - Efecto Acumulativo</div>' +
+    '<div class="pm-compound-bar"><div class="lbl">Feature 1</div><div class="bar"><div class="fill" style="width:15%;background:var(--blue)"></div></div><div class="sub">Baseline</div></div>' +
+    '<div class="pm-compound-bar"><div class="lbl">Feature 5</div><div class="bar"><div class="fill" style="width:45%;background:var(--green)"></div></div><div class="sub">2-3x (patrones establecidos)</div></div>' +
+    '<div class="pm-compound-bar"><div class="lbl">Feature 10+</div><div class="bar"><div class="fill" style="width:85%;background:var(--cyan)"></div></div><div class="sub">3-7x (compound effect completo)</div></div>' +
+  '</div>';
+
+  // Comparison
+  html += '<div class="ph"><h2 style="font-size:18px">Comparativa</h2><p>Desarrollo sin workflow vs con Premium Features.</p></div>';
+  html += '<div class="pm-cmp card"><table><thead><tr><th>Aspecto</th><th>Sin Workflow</th><th>Con Premium</th></tr></thead><tbody>' +
+    comparisons.map(function(row) {
+      return '<tr><td style="font-weight:500">' + row[0] + '</td><td class="c-no">' + row[1] + '</td><td class="c-yes">' + row[2] + '</td></tr>';
+    }).join('') +
+  '</tbody></table></div>';
+
+  // Methodologies
+  html += '<div class="ph"><h2 style="font-size:18px">7 Metodologias Integradas</h2><p>La sintesis de las metodologias mas avanzadas en desarrollo AI.</p></div>';
+  html += '<div class="pm-meth">' + methodologies.map(function(m) {
+    return '<div class="pm-meth-card"><h4>' + m.title + '</h4><p>' + m.desc + '</p></div>';
+  }).join('') + '</div>';
+
+  // Footer
+  html += '<div style="text-align:center;padding:24px 0;font-size:11px;color:var(--t3)">Multi-Agent Workflow Plugin v' + esc(D.plugin_info.version || '3.0.0') + ' &middot; Febrero 2026</div>';
+
+  c.innerHTML = html;
 }
 
 // Start
