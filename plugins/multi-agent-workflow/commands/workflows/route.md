@@ -67,11 +67,15 @@ USER REQUEST
      │
      ▼
 ┌────────────────┐
-│ Is it a        │──YES──▶ Is scope/approach clear?
+│ Is it a        │──YES──▶ Are requirements clear and complete?
 │ new feature?   │           │
-└───────┬────────┘          YES──▶ /workflows:plan (task-breakdown workflow)
-        │NO                  │
-        │                   NO───▶ /workflows:shape (shape first, then plan)
+└───────┬────────┘          YES──▶ Is scope/approach clear?
+        │NO                  │       │
+        │                    │      YES──▶ /workflows:plan (task-breakdown workflow)
+        │                    │       │
+        │                    │      NO───▶ /workflows:shape (shape first, then plan)
+        │                    │
+        │                   NO───▶ /workflows:requirements (refine first, then shape or plan)
         ▼
         │NO
         ▼
@@ -113,6 +117,7 @@ USER REQUEST
 | User Need | Complexity | Multi-Agent | Recommended Workflow | Command |
 |-----------|------------|-------------|---------------------|---------|
 | Any task | Simple (≤3 files) | No | quick | `/workflows:quick` |
+| New feature (vague/incomplete requirements) | Any | Maybe | requirements-first | `/workflows:requirements` then `/workflows:shape` then `/workflows:plan` |
 | New feature (unclear scope) | Any | Maybe | shape-first | `/workflows:discuss` (optional) then `/workflows:shape` then `/workflows:plan` |
 | New feature (clear scope) | Medium/Complex | Yes | task-breakdown | `/workflows:discuss` (optional) then `/workflows:plan --workflow=task-breakdown` |
 | New feature (clear scope) | Simple | No | default | `/workflows:plan --workflow=default` |
@@ -178,6 +183,28 @@ Para investigar esto efectivamente, necesito entender:
 2. **Contexto**: ¿Por qué necesitas esta información?
 3. **Alcance**: ¿Dónde debería buscar? (archivos, commits, docs)
 4. **Formato de respuesta**: ¿Necesitas un reporte, código, o solo respuesta?
+```
+
+### For Requirements Assessment (when to suggest /workflows:requirements)
+
+Use this template when a feature request lacks sufficient detail for shaping:
+
+```markdown
+Tu solicitud parece necesitar refinamiento de requisitos antes de proceder. Sugiero esto porque:
+
+- [ ] La descripción tiene menos de 3 criterios de aceptación claros
+- [ ] Hay múltiples interpretaciones posibles del alcance
+- [ ] No están definidos los requisitos no funcionales (rendimiento, seguridad)
+- [ ] Los casos borde no están contemplados
+- [ ] Hay múltiples stakeholders con posibles necesidades diferentes
+
+Recomiendo ejecutar `/workflows:requirements` primero para:
+1. Definir requisitos funcionales y no funcionales precisos
+2. Identificar casos borde y puntos de integración
+3. Establecer criterios de aceptación testables
+4. Documentar lo que está fuera de alcance
+
+¿Quieres que iniciemos el proceso de refinamiento de requisitos?
 ```
 
 ## Execution Protocol
