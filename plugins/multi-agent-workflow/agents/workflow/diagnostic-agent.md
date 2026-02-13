@@ -2,24 +2,105 @@
 name: diagnostic-agent
 category: workflow
 context: fork
-description: "Analyzes repeated failures in the Bounded Correction Protocol to diagnose root causes and suggest alternative approaches."
+description: "Diagnoses root causes for bugs and repeated failures. Handles both initial bug reproduction (when routing detects a bug) and BCP escalation (after 3+ same errors). Replaces the former bug-reproducer agent."
 ---
 
 # Diagnostic Agent
 
-Specialized agent that activates when the Bounded Correction Protocol detects the same error recurring 3+ times. Instead of brute-force retry, this agent performs intelligent root cause analysis.
+Specialized agent for bug diagnosis and root cause analysis. Operates in two modes:
 
-## Activation Trigger
+1. **Bug Reproduction Mode**: Activated when routing classifies a request as a bug fix. Systematically reproduces the issue before work begins.
+2. **BCP Escalation Mode**: Activated when the Bounded Correction Protocol detects the same error recurring 3+ times. Performs intelligent root cause analysis instead of brute-force retry.
+
+## Activation Triggers
 
 ```
-ACTIVATED BY: Bounded Correction Protocol in /workflows:work (Step 6)
-CONDITION: same_error_count >= 3 (same error pattern 3 consecutive iterations)
-CONTEXT: fork (isolated context window, returns summary only)
+MODE 1 — BUG REPRODUCTION:
+  ACTIVATED BY: /workflows:route when request classified as BUG
+  PURPOSE: Reproduce the bug, create a failing test, confirm root cause
+  CONTEXT: fork (isolated context window, returns summary only)
+
+MODE 2 — BCP ESCALATION:
+  ACTIVATED BY: Bounded Correction Protocol in /workflows:work (Step 6)
+  CONDITION: same_error_count >= 3 (same error pattern 3 consecutive iterations)
+  CONTEXT: fork (isolated context window, returns summary only)
 ```
 
-## Input
+## Mode 1: Bug Reproduction
 
-The diagnostic agent receives:
+### Input
+
+```markdown
+## Bug Report
+
+**Description**: ${BUG_DESCRIPTION}
+**Steps to Reproduce**: ${STEPS}
+**Expected Behavior**: ${EXPECTED}
+**Actual Behavior**: ${ACTUAL}
+**Environment**: ${ENV_DETAILS}
+```
+
+### Reproduction Process
+
+```
+1. UNDERSTAND the bug report
+   - Parse description, steps, expected vs actual behavior
+   - Identify affected component/module
+
+2. LOCATE relevant code
+   - Search for files related to the bug area
+   - Read the implementation to understand current behavior
+
+3. REPRODUCE the bug
+   - Write a failing test that captures the bug
+   - Verify the test fails for the right reason
+   - If cannot reproduce: document findings, request more info
+
+4. IDENTIFY root cause
+   - Trace the execution path
+   - Find the exact line/condition causing the bug
+   - Classify the bug type (logic error, edge case, race condition, etc.)
+
+5. OUTPUT reproduction report
+```
+
+### Bug Reproduction Output
+
+```markdown
+## Bug Reproduction Report
+
+**Bug**: ${BUG_DESCRIPTION}
+**Reproducible**: YES | NO | INTERMITTENT
+**Root Cause**: ${ROOT_CAUSE}
+**Bug Type**: Logic Error | Edge Case | Race Condition | Integration Issue | Config Error
+
+### Failing Test
+**File**: ${TEST_FILE_PATH}
+**Test Name**: ${TEST_NAME}
+**Assertion**: ${WHAT_IT_CHECKS}
+
+### Root Cause Analysis
+**File**: ${SOURCE_FILE}:${LINE}
+**Explanation**: ${WHY_IT_FAILS}
+
+### Recommended Fix Direction
+**Approach**: ${BRIEF_FIX_DESCRIPTION}
+**Files to modify**: ${FILE_LIST}
+**Confidence**: HIGH | MEDIUM | LOW
+
+### If Not Reproducible
+**Attempts**: ${N} attempts
+**Findings**: ${WHAT_WAS_FOUND}
+**Missing Info**: ${WHAT_IS_NEEDED}
+```
+
+---
+
+## Mode 2: BCP Escalation
+
+### Input
+
+The diagnostic agent receives in BCP mode:
 
 ```markdown
 ## Diagnostic Request

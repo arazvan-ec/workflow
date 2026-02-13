@@ -1,6 +1,6 @@
 # API Contract Template
 # Use this template to define external API contracts
-# Validate with: /workflows:validate <path>
+# Validate: contracts are validated automatically during /workflows:plan
 
 version: "1.0"
 

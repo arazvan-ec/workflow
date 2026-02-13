@@ -1,6 +1,6 @@
 # Feature Specification Template
 # Copy this file to start a new feature spec
-# Validate with: /workflows:validate <path>
+# Validate: specs are validated automatically during /workflows:plan
 
 version: "1.0"
 

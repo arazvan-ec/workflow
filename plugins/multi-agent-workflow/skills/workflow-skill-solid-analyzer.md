@@ -493,7 +493,7 @@ Run with `--recommend-patterns` for fix suggestions.
 
 The analyzer runs automatically when:
 - `/workflows:plan` starts (baseline analysis)
-- `/workflows:solid-refactor` is invoked
+- `/workflows:plan` includes SOLID analysis
 - Architecture criteria evaluation includes SOLID
 - PR review for files in `src/Domain` or `src/Application`
 
@@ -562,6 +562,5 @@ pattern_preferences:
 ## Related
 
 - `core/solid-pattern-matrix.md` - Pattern selection guide
-- `agents/design/solid-architecture-generator.md` - Architecture generation
-- `commands/workflows/solid-refactor.md` - Refactoring workflow
+- `agents/review/architecture-reviewer.md` - Architecture validation
 - `architecture-quality-criteria.md` - Quality metrics

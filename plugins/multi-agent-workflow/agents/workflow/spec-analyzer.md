@@ -158,9 +158,6 @@ php bin/phpunit tests/Application/CreateUserUseCaseTest.php
 
 Use before QA review:
 ```bash
-# Analyze spec compliance
-/multi-agent-workflow:analyze-spec user-authentication
-
-# Then proceed to review
+# Run spec compliance analysis using the process described above, then proceed to review
 /workflows:review user-authentication
 ```

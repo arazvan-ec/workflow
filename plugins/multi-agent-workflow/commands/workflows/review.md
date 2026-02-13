@@ -1,7 +1,7 @@
 ---
 name: workflows:review
 description: "Multi-agent review before merge. Validates implementation against specs, runs tests, and approves or rejects."
-argument_hint: <feature-name> [--agent=<security|performance|ddd|code>]
+argument_hint: <feature-name> [--agent=<security|performance|architecture|code>]
 ---
 
 # Multi-Agent Workflow: Review
@@ -32,7 +32,7 @@ PREREQUISITE CHECK:
 ## Automatic Operations (built into this command)
 
 The following are executed automatically as part of `/workflows:review`:
-- **Solution validation check** -- verifies if `/workflows:validate-solution` was run; if not, suggests running it first
+- **Solution validation check** -- validates approach before implementation
 - **Comprehension check** -- verifies understanding of generated code
 - **SOLID score verification** -- checks >= 18/25 minimum
 - **Spec validation** -- validates implementation against specs
@@ -50,7 +50,7 @@ You do NOT need to invoke these separately.
 # Specific review agent
 /workflows:review user-authentication --agent=security
 /workflows:review user-authentication --agent=performance
-/workflows:review user-authentication --agent=ddd
+/workflows:review user-authentication --agent=architecture
 /workflows:review user-authentication --agent=code
 ```
 
@@ -62,7 +62,7 @@ You do NOT need to invoke these separately.
 | **solid** | SOLID compliance, patterns | All features (mandatory) |
 | **security** | OWASP, vulnerabilities | Auth, payments, sensitive data |
 | **performance** | Speed, optimization | High-traffic features |
-| **ddd** | DDD compliance | Backend with business logic |
+| **architecture** | DDD + SOLID architecture | Backend with business logic |
 | **code** | Code quality, patterns | All features |
 
 **Note**: SOLID review is ALWAYS included in the default `qa` review. Use `--agent=solid` for SOLID-only review.

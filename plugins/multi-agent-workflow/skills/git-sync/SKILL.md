@@ -79,6 +79,6 @@ If conflicts occur in `50_state.md`:
 ## Integration with Workflow
 
 This skill is automatically invoked by:
-- `/workflows:role` - Before loading role context
+- `/workflows:work` - Before loading role context
 - `/workflows:checkpoint` - After creating checkpoint
 - `/workflows:status` - To ensure fresh status

@@ -35,7 +35,7 @@ Content enters the agent's context through different mechanisms:
 |--------|------------|------|----------|
 | **Always loaded** | System | Every session start | `CLAUDE.md` (~130 lines), `core/rules/framework_rules.md` (~173 lines) |
 | **Scoped rules** | System | When matching file types are edited | `core/rules/testing-rules.md`, `security-rules.md`, `git-rules.md` |
-| **LLM-determined** | The model | When it judges content is relevant | Role definitions (`core/roles/backend.md`) loaded when adopting a role |
+| **LLM-determined** | The model | When it judges content is relevant | Role definitions (`core/roles/implementer.md`) loaded when adopting a role |
 | **Human-triggered** | The user | On explicit invocation | Slash commands (`/workflows:plan`), skills (`/skill:consultant`) |
 | **Software-determined** | The system | Automatic on events | Lifecycle hooks (PreToolUse, PostToolUse, Stop) |
 
@@ -64,7 +64,6 @@ The `CLAUDE.md` file contains only what every session needs:
 - SOLID scoring tables and pattern details → `core/solid-pattern-matrix.md`
 - MCP server details → `core/docs/MCP_INTEGRATION.md`
 - Snapshot/metrics workflow → `core/docs/SESSION_CONTINUITY.md`
-- Lifecycle hooks details → `core/docs/LIFECYCLE_HOOKS.md`
 - Trust model and security → `core/rules/security-rules.md`
 - TDD and Bounded Correction Protocol → `core/rules/testing-rules.md`
 - Git workflow and conflicts → `core/rules/git-rules.md`
@@ -116,9 +115,9 @@ The fork decision depends on the active provider (see `core/providers.yaml` → 
 
 Fork everything marked with `context: fork`. This protects the limited context window.
 
-**Forked skills** (7): consultant, token-advisor, coverage-checker, solid-analyzer, spec-merger, changelog-generator, mcp-connector
+**Forked skills** (5): consultant, coverage-checker, solid-analyzer, spec-merger, mcp-connector
 
-**Forked agents** (7): security-review, performance-review, ddd-compliance, code-review-ts, agent-native-reviewer, code-simplicity-reviewer, pattern-recognition-specialist
+**Forked agents** (4): security-reviewer, performance-reviewer, architecture-reviewer, code-reviewer
 
 **When to fork**: Always, if declared with `context: fork`.
 
@@ -128,13 +127,11 @@ With larger context windows, fork only when isolation is truly needed:
 
 **Always fork** (regardless of tier):
 - consultant (7-layer deep analysis, always heavy)
-- security-review (sensitive — isolation is a security feature, not just a space optimization)
+- security-reviewer (sensitive — isolation is a security feature, not just a space optimization)
 - mcp-connector (external services — isolation prevents side effects)
 
 **Fork only when heavy** (convert to inline when focused):
 - coverage-checker: Fork when full project scan, inline when single module
-- changelog-generator: Typically lightweight (reads git log), inline by default
-- token-advisor: Quick context check, inline by default
 - spec-merger: Fork when merging multiple specs, inline for single spec
 
 **Fork decision thresholds** (selective mode):
@@ -176,10 +173,10 @@ Context engineering approach: hooks travel with the skill in YAML frontmatter.
 
 | Hook | Matcher | Purpose | Example Skills |
 |------|---------|---------|---------------|
-| `PreToolUse` | `Bash` | Validate before execution | layer-validator, ddd-compliance, commit-formatter |
+| `PreToolUse` | `Bash` | Validate before execution | architecture-reviewer, commit-formatter |
 | `PreToolUse` | `Write` | Validate before file changes | checkpoint |
 | `PreToolUse` | `mcp__*` | Pre-flight for MCP calls | mcp-connector |
-| `PostToolUse` | `Bash` | Audit logging after execution | test-runner, lint-fixer, coverage-checker, git-sync, worktree-manager |
+| `PostToolUse` | `Bash` | Audit logging after execution | test-runner, lint-fixer, coverage-checker, git-sync |
 | `PostToolUse` | `mcp__*` | Audit MCP interactions | mcp-connector |
 | `Stop` | (all) | Final report, cleanup | Most skills and review agents |
 
@@ -196,7 +193,7 @@ User Request: "Necesito agregar pagos con Stripe"
    ┌────┼────────────────┐
    │    │                 │
    ▼    ▼                 ▼
-consultant  spec-analyzer  git-historian
+consultant  spec-analyzer  codebase-analyzer
 (0.8s)      (0.5s)         (0.6s)
    │         │              │
    └────┬────┘──────────────┘
@@ -205,7 +202,7 @@ consultant  spec-analyzer  git-historian
    Aggregated Evidence:
    - Stack: Symfony 6.4 + DDD (consultant)
    - No payment specs exist (spec-analyzer)
-   - Greenfield area, no recent changes (git-historian)
+   - Greenfield area, no recent changes (codebase-analyzer)
         │
         ▼
    Informed Decision:
@@ -246,10 +243,10 @@ Hightower's key insight is that Claude Code 2.1 features enable a **process mode
 
 | OS Concept | Claude Code Equivalent | Plugin Implementation |
 |---|---|---|
-| Process | Skill with `context: fork` | 7 forked skills + 7 forked agents |
-| Process lifecycle | Hooks (PreToolUse, PostToolUse, Stop) | Scoped hooks in 13 skills/agents |
+| Process | Skill with `context: fork` | 5 forked skills + 4 forked agents |
+| Process lifecycle | Hooks (PreToolUse, PostToolUse, Stop) | Scoped hooks in skills/agents |
 | IPC (Inter-Process Communication) | Hook emissions + result summaries | Queen Agent observes sub-agent hooks |
-| Hot-reload | Save → instant skill reload | `/workflows:skill-dev` development loop |
+| Hot-reload | Save → instant skill reload | Skill development loop |
 | Process isolation | Forked context window | Review agents don't pollute work context |
 
 This makes the plugin function as an **agent operating system** where:
@@ -297,20 +294,16 @@ hooks:
 
 ### How to develop a new skill with hot-reload
 ```bash
-/workflows:skill-dev my-new-skill --create
-# Edit the generated SKILL.md
+# Create skill file in skills/ directory
+# Edit the SKILL.md
 # Save → auto-reload → test → iterate
-/workflows:skill-dev my-new-skill --validate
-/workflows:skill-dev my-new-skill --test
 ```
 
 ## Related Documentation
 
 - `CLAUDE.md` — Plugin instructions with Context Activation Model
 - `README.md` — Plugin overview with Intellectual Influences section
-- `core/docs/LIFECYCLE_HOOKS.md` — Detailed hook system documentation
 - `core/docs/SESSION_CONTINUITY.md` — Context management strategies
-- `commands/workflows/skill-dev.md` — Skill development workflow
 - `commands/workflows/route.md` — Queen Agent pattern details
 
 ## Sources

@@ -504,7 +504,6 @@ All MCP invocations are logged:
 
 ## Related Documentation
 
-- [MCP Integration Guide](/home/user/workflow/plugins/multi-agent-workflow/core/docs/MCP_INTEGRATION.md)
-- [MCP Servers Configuration](/home/user/workflow/.ai/extensions/mcp/servers.yaml)
-- [MCP Extension README](/home/user/workflow/.ai/extensions/mcp/README.md)
-- [Trust Model](/home/user/workflow/.ai/extensions/trust/trust_model.yaml)
+- MCP Integration Guide (core/docs/MCP_INTEGRATION.md)
+- servers.yaml (MCP server configuration)
+- Trust Model (core/rules/security-rules.md)

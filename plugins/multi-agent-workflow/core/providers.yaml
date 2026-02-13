@@ -75,7 +75,7 @@ providers:
   #
   # manual-snapshots: Manual snapshot/restore cycle (any model)
   #   - Strict 70% rule with proactive compaction
-  #   - token-advisor for monitoring
+  #   - Context monitoring via checkpoints
   #   - Frequent checkpoints recommended
   #   - Conservative thresholds (20 files, 50 messages, 2 hours)
   #
@@ -120,7 +120,7 @@ providers:
   # state-plus-git: 50_state.md + git sync (any model)
   #   - All coordination via file-based state
   #   - Git commits as synchronization points
-  #   - /workflows:sync for explicit state sharing
+  #   - git-sync skill for explicit state sharing
   #
   coordination: auto  # auto | native-plus-state | state-plus-git
 

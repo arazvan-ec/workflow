@@ -150,9 +150,6 @@ project/
 
 Use before planning:
 ```bash
-# Analyze project before planning feature
-/multi-agent-workflow:analyze
-
-# Then plan with context
+# Analyze the codebase using the process described above, then plan with context
 /workflows:plan user-management
 ```

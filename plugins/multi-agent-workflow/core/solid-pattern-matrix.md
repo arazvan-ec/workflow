@@ -313,7 +313,7 @@ Use this table to select patterns that maximize SOLID compliance:
 
 ### Automatic Pattern Suggestion
 
-When `/workflows:solid-refactor` detects a violation:
+When `/workflows:plan` detects a SOLID violation:
 
 ```yaml
 violation_detected:
@@ -384,6 +384,5 @@ When a pattern is applied, document:
 ## Related Documents
 
 - `architecture-quality-criteria.md` - Métricas SOLID verificables
-- `agents/design/solid-architecture-generator.md` - Agente que genera arquitecturas
-- `skills/solid-analyzer.md` - Análisis automático de SOLID
-- `commands/workflows/solid-refactor.md` - Comando de refactorización
+- `agents/review/architecture-reviewer.md` - Validación de arquitecturas
+- `skills/workflow-skill-solid-analyzer.md` - Análisis automático de SOLID

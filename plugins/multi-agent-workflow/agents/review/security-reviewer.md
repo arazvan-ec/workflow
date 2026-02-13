@@ -1,14 +1,14 @@
 ---
-name: security-review
+name: security-reviewer
 description: "Reviews code for OWASP Top 10 vulnerabilities, authentication flows, authorization patterns, input validation, and secrets management."
 model: inherit
 context: fork
 hooks:
   Stop:
-    - command: "echo '[security-review] Security audit complete. Check report for vulnerabilities.'"
+    - command: "echo '[security-reviewer] Security audit complete. Check report for vulnerabilities.'"
 ---
 
-# Agent: Security Review
+# Agent: Security Reviewer
 
 Specialized agent for security auditing and vulnerability detection.
 
@@ -72,7 +72,7 @@ Review code for security vulnerabilities based on OWASP Top 10 and security best
 ```markdown
 ## Security Review: ${FEATURE_ID}
 
-**Reviewer**: Security Review Agent
+**Reviewer**: Security Reviewer Agent
 **Date**: ${DATE}
 **Risk Level**: LOW | MEDIUM | HIGH | CRITICAL
 

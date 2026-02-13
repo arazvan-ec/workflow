@@ -141,7 +141,7 @@ After completing each phase, you MUST execute these exact steps:
 
 **After Phase 4 (Tasks)**:
 ```
-1. WRITE .ai/project/features/${FEATURE_ID}/30_tasks.md (or 30_tasks_backend.md, etc.)
+1. WRITE .ai/project/features/${FEATURE_ID}/30_tasks.md
 2. VERIFY file(s) exist with substantive content
 3. WRITE .ai/project/features/${FEATURE_ID}/FEATURE_${FEATURE_ID}.md (summary)
 4. UPDATE 50_state.md: Phase 4 → COMPLETED, Completeness Check → PENDING
@@ -248,10 +248,10 @@ Before planning any new feature, load and understand the existing project archit
 ### Step 0.0: Load Implementation Preferences (if exists)
 
 ```bash
-# Check if discussion phase captured preferences
+# Check if pre-planning phase captured preferences
 PREFERENCES=".ai/project/features/${FEATURE_ID}/01_preferences.md"
 if [ -f "$PREFERENCES" ]; then
-  echo "Preferences found from /workflows:discuss. Loading into planning context."
+  echo "Preferences found from pre-planning. Loading into planning context."
   # Read technology choices, architecture preferences, code style, constraints
   # Do NOT re-ask questions already answered in 01_preferences.md
   # Use preferences to guide Phase 1 constraints and Phase 3 solutions
@@ -536,7 +536,40 @@ After defining functional specs, analyze how they integrate with existing specs.
 | BR-011 | Order | Discount cannot exceed 50% of order total |
 ```
 
-#### Step 2.B: Conflict Detection
+#### Step 2.B: API Contract Design (for new/modified endpoints)
+
+When the feature introduces new API endpoints or modifies existing ones, apply these conventions:
+
+```
+API CONTRACT DESIGN PROTOCOL:
+
+1. NAMING: RESTful resource-based URLs
+   - Resources are nouns, plural: /api/users, /api/orders
+   - Nested resources for relationships: /api/users/{id}/orders
+   - Actions as sub-resources when CRUD doesn't fit: /api/orders/{id}/cancel
+
+2. CONTRACT DEFINITION: For each new/modified endpoint, specify:
+   - Method + Path
+   - Request: headers, path params, query params, body schema
+   - Response: status codes (success + error), body schema
+   - Authentication: required/optional, token type
+   - Rate limiting: if applicable
+
+3. CONSISTENCY: Match existing project conventions
+   - Read existing API contracts in .ai/project/specs/api-contracts/
+   - Follow the same response envelope format
+   - Use consistent error response structure
+   - Match pagination style (cursor vs offset)
+
+4. VERSIONING: Follow project's versioning strategy
+   - If existing endpoints use /api/v1/, new endpoints must too
+   - If no versioning exists, don't introduce it unnecessarily
+
+5. OUTPUT: Write contracts to 20_api_contracts.md (task-breakdown workflow)
+   or include in 13_integration_analysis.md (default workflow)
+```
+
+#### Step 2.C: Conflict Detection
 
 Before proceeding to Phase 3, verify no unresolved conflicts:
 
@@ -989,7 +1022,7 @@ PLAN COMPLETENESS GATE:
     "00_problem_statement.md",   # Phase 1 output
     "12_specs.md",               # Phase 2 output
     "15_solutions.md",           # Phase 3 output
-    "30_tasks.md",               # Phase 4 output (or 30_tasks_backend.md etc.)
+    "30_tasks.md",               # Phase 4 output
     "50_state.md",               # State tracking
     "FEATURE_${FEATURE_ID}.md"   # Summary
   ]
@@ -1093,9 +1126,7 @@ PLAN COMPLETENESS GATE:
 ├── 15_data_model.md
 ├── 16_architectural_impact.md # Architectural impact (NEW)
 ├── 20_api_contracts.md
-├── 30_tasks_backend.md
-├── 31_tasks_frontend.md
-├── 32_tasks_qa.md
+├── 30_tasks.md
 ├── 35_dependencies.md
 ├── 50_state.md
 └── FEATURE_${FEATURE_ID}.md

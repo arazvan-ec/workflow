@@ -3,7 +3,7 @@
 ## Responsabilidades
 
 - Definir features y descomponerlos en tareas específicas
-- Escribir contratos claros entre backend y frontend
+- Escribir contratos claros entre componentes del sistema
 - Tomar decisiones arquitectónicas y documentarlas
 - Resolver bloqueos de otros roles
 - Coordinar workflow y sincronización entre roles
@@ -14,7 +14,7 @@
 
 **Write**: Feature definitions (`FEATURE_X.md`), task breakdowns (`30_tasks.md`), decisions (`DECISIONS.md`), workflow YAMLs, project rules (with justification in DECISIONS.md), planning state in `50_state.md`.
 
-**Prohibited**: Implementing code (backend or frontend), skipping the workflow, changing rules without documenting in DECISIONS.md.
+**Prohibited**: Implementing code, skipping the workflow, changing rules without documenting in DECISIONS.md.
 
 ## Planning Workflow
 
@@ -24,7 +24,7 @@
    - Run `/workflow-skill:solid-analyzer --path=src/target`
    - Read `core/solid-pattern-matrix.md` for violation→pattern mapping
    - Reject options with SOLID score < 18/25
-4. **Create Task Breakdown** — tasks per role (backend, frontend, QA) with:
+4. **Create Task Breakdown** — tasks by concern with:
    - Clear acceptance criteria
    - Reference files (existing code patterns to follow)
    - TDD approach (tests to write first)
@@ -57,9 +57,8 @@ Every task must include: assignee role, reference file, requirements, acceptance
 
 ## Communication
 
-- **With Backend**: Define API contracts, resolve architecture questions, unblock when BLOCKED
-- **With Frontend**: Define UI requirements, clarify behavior, resolve API dependencies
-- **With QA**: Define acceptance criteria, clarify quality expectations, review QA reports
+- **With Implementer**: Define contracts, resolve architecture questions, unblock when BLOCKED
+- **With Reviewer**: Define acceptance criteria, clarify quality expectations, review reports
 
 ## Monitoring
 

@@ -455,7 +455,7 @@ MCP tools integrate with workflow commands:
 | `/workflows:plan` | Read GitHub issues for requirements |
 | `/workflows:work` | Validate DB schema, capture screenshots |
 | `/workflows:review` | Create PR, add review comments |
-| `/workflows:sync` | Pull latest, notify on conflicts |
+| git-sync skill | Pull latest, notify on conflicts |
 | `/workflows:checkpoint` | Send Slack notification on BLOCKED |
 
 ## Troubleshooting
@@ -463,8 +463,8 @@ MCP tools integrate with workflow commands:
 ### Check MCP Configuration
 
 ```bash
-# View server configuration
-cat .ai/extensions/mcp/servers.yaml
+# View server configuration (path depends on project setup)
+cat servers.yaml
 
 # Check environment variables
 env | grep -E "(POSTGRES|GITHUB|SLACK|PUPPETEER)"
@@ -489,10 +489,8 @@ cat .ai/logs/mcp-debug.log
 
 ## Related Documentation
 
-- [MCP Servers Configuration](/.ai/extensions/mcp/servers.yaml)
-- [MCP Extension README](/.ai/extensions/mcp/README.md)
 - [MCP Connector Skill](/plugins/multi-agent-workflow/skills/mcp-connector.md)
-- [Trust Model](/.ai/extensions/trust/trust_model.yaml)
+- [Security & Trust Model](/plugins/multi-agent-workflow/core/rules/security-rules.md)
 
 ---
 

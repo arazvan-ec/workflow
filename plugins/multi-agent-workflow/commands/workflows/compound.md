@@ -831,19 +831,15 @@ Use `/workflows:compound [feature]` to document immediately.
 
 After compound capture, these agents can enhance documentation:
 
-### Quality Review
-- **code-simplicity-reviewer**: Ensures solution is minimal
-- **pattern-recognition-specialist**: Identifies anti-patterns
-
 ### Domain Experts
-- **security-review**: Reviews security issues
-- **performance-review**: Validates optimization approaches
-- **ddd-compliance**: Checks architectural learnings
+- **security-reviewer**: Reviews security issues
+- **performance-reviewer**: Validates optimization approaches
+- **architecture-reviewer**: Checks architectural learnings
 
 ### Integration
 This command integrates with:
 - `/workflows:plan` - Learnings inform future plans
-- `/workflows:validate-solution` - Validation learnings cross-referenced with compound captures
+- Validation integration - Validation learnings cross-referenced with compound captures
 - `learnings-researcher` agent - Searches documented solutions
 - `validation-learning-log` skill - Manages validation Q&A learnings
 - `compound_log.md` - Quick reference for patterns

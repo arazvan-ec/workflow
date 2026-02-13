@@ -14,9 +14,9 @@ The Validation Learning System is a **closed-loop feedback mechanism** that make
 │                    VALIDATION LEARNING LOOP                   │
 │                                                               │
 │   ┌──────────────┐     ┌──────────────┐     ┌──────────────┐│
-│   │   Solution    │────▶│  Validation  │────▶│   Learning   ││
-│   │   Validator   │     │  Learning    │     │   Loader     ││
-│   │   (Agent)     │◀────│  Log (Skill) │◀────│   (Install)  ││
+│   │   Validation  │────▶│  Validation  │────▶│   Learning   ││
+│   │   (in review) │     │  Learning    │     │   Loader     ││
+│   │               │◀────│  Log (Skill) │◀────│   (Install)  ││
 │   └──────────────┘     └──────────────┘     └──────────────┘│
 │         │                     │                     │        │
 │         ▼                     ▼                     ▼        │
@@ -30,9 +30,9 @@ The Validation Learning System is a **closed-loop feedback mechanism** that make
 
 | Component | Type | Purpose | File |
 |-----------|------|---------|------|
-| **Solution Validator** | Agent | Questions AI solutions, detects assumptions and blind spots | `agents/review/solution-validator.md` |
+| **Validation (in review)** | Inline step | Questions AI solutions, detects assumptions and blind spots | Integrated within `/workflows:review` |
 | **Validation Learning Log** | Skill | Records Q&A interactions, manages patterns and preferences | `skills/validation-learning-log/SKILL.md` |
-| **Validation Learning Loader** | Install-time | Pre-loads learnings at project setup for immediate benefit | Integrated in `/workflows:quickstart` |
+| **Validation Learning Loader** | Install-time | Pre-loads learnings at project setup for immediate benefit | Integrated in `/workflows:discover --setup` |
 
 ---
 
@@ -41,7 +41,7 @@ The Validation Learning System is a **closed-loop feedback mechanism** that make
 ### Cycle 1: First Feature (Cold Start)
 
 ```
-Solution Validator:
+Validation step (in review):
   - No learning log exists → Uses defaults
   - Detects 5 assumptions → Asks 4 questions
   - User answers all 4
@@ -57,7 +57,7 @@ Result: Effectiveness = 0% (all questions were new)
 ### Cycle 2: Second Feature (Warm Start)
 
 ```
-Solution Validator:
+Validation step (in review):
   - Reads learning log → Finds 2 applicable patterns
   - Detects 5 assumptions → 2 already answered by log
   - Asks 3 new questions
@@ -74,7 +74,7 @@ Result: Effectiveness = 40% (2 of 5 questions avoided)
 ### Cycle 3: Third Feature (Learning)
 
 ```
-Solution Validator:
+Validation step (in review):
   - Reads learning log → Finds 4 applicable patterns
   - Detects 6 assumptions → 4 already answered
   - Asks 2 new questions
@@ -92,7 +92,7 @@ Result: Effectiveness = 67% (4 of 6 questions avoided)
 ### Cycle N: Mature Workflow (Hot)
 
 ```
-Solution Validator:
+Validation step (in review):
   - Reads learning log → 15 active patterns, 8 preferences
   - Detects 5 assumptions → All answered by log
   - Asks 0 questions
@@ -112,7 +112,7 @@ Result: Effectiveness = 100% (all questions learned)
 ### Where Validation Learning Plugs In
 
 ```
-/workflows:quickstart
+/workflows:discover --setup
   └── Creates validation-learning-log.md (empty)
   └── Optionally imports learnings from shared template
 
@@ -120,7 +120,7 @@ Result: Effectiveness = 100% (all questions learned)
   └── No direct integration (routing is pre-solution)
 
 /workflows:plan
-  └── Solution Validator reviews architecture decisions
+  └── Validation reviews architecture decisions
   └── Learning log provides pattern defaults
   └── Planner reads preferences for design choices
 
@@ -128,16 +128,12 @@ Result: Effectiveness = 100% (all questions learned)
   └── On completion: Reminds to validate solution
   └── Can validate mid-work for complex features
 
-/workflows:validate-solution ◄── PRIMARY ENTRY POINT
-  └── Invokes solution-validator agent
+/workflows:review ◄── PRIMARY ENTRY POINT (validation is integrated)
+  └── Runs validation step inline
   └── Asks user questions
   └── Updates learning log
-  └── Produces validation report
-
-/workflows:review
-  └── Reads validation report (18_validation_report.md)
+  └── Produces validation report (18_validation_report.md)
   └── Adjusts review focus based on validation caveats
-  └── Solution-validator listed as review agent
 
 /workflows:compound
   └── Cross-references validation learnings with compound captures
@@ -153,7 +149,7 @@ Result: Effectiveness = 100% (all questions learned)
 ├── 12_specs.md                 # From /workflows:plan (Phase 2)
 ├── 12_architecture_criteria.md # From /workflows:plan (Phase 3)
 ├── 15_solutions.md             # From /workflows:plan (Phase 3)
-├── 18_validation_report.md     # ◄── NEW: From /workflows:validate-solution
+├── 18_validation_report.md     # ◄── From validation step within /workflows:review
 ├── 20_implementation.md        # From /workflows:work
 ├── 30_qa_report.md             # From /workflows:review
 ├── 40_compound_entry.md        # From /workflows:compound
@@ -234,10 +230,10 @@ IF new answer CONTRADICTS existing pattern:
 
 ### How It Works
 
-During `/workflows:quickstart`, the system can pre-load learnings:
+During `/workflows:discover --setup`, the system can pre-load learnings:
 
 ```
-QUICKSTART STEP (new):
+DISCOVER --SETUP STEP:
   1. Create empty validation-learning-log.md
   2. Check for shared learning templates:
      a. .ai/templates/validation-learnings-template.md (project template)
@@ -314,8 +310,8 @@ The Validation Learning Log and Compound Memory (`compound-memory.md`) serve com
 | Aspect | Compound Memory | Validation Learning Log |
 |--------|----------------|------------------------|
 | **Focus** | Pain points & patterns from completed features | Questions & answers from solution validations |
-| **Written by** | `/workflows:compound` | `/workflows:validate-solution` |
-| **Read by** | Review agents, Planner | Solution validator, Planner, all agents |
+| **Written by** | `/workflows:compound` | Validation step within `/workflows:review` |
+| **Read by** | Review agents, Planner | Planner, all agents |
 | **Updates when** | After feature completion | After every validation |
 | **Contains** | Anti-patterns, 70% boundary data | User preferences, confirmed patterns, Q&A history |
 | **Promotion target** | `project_rules.md` (when universal) | `project_rules.md` (when ≥5 confirmations) |
