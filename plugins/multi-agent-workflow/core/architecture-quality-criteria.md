@@ -52,7 +52,7 @@ git log --oneline --name-only | grep -A 20 "feat:" | grep -v "^$" | wc -l
 > **IMPORTANTE**: Para análisis profundo de SOLID y mapeo a patrones correctivos, consultar:
 > - `core/solid-pattern-matrix.md` - Mapeo Violación → Patrón de Diseño
 > - `skills/workflow-skill-solid-analyzer.md` - Análisis automático de SOLID
-> - `agents/design/solid-architecture-generator.md` - Generación de arquitecturas SOLID
+> - `agents/review/architecture-reviewer.md` - Validación de arquitecturas SOLID
 
 #### S - Single Responsibility
 
@@ -358,7 +358,7 @@ Antes de aprobar arquitectura, verificar:
 
 ### Durante Review (/workflows:review)
 
-El agente `ddd-compliance` verifica automáticamente:
+El agente `architecture-reviewer` verifica automáticamente:
 - Dependencias entre capas
 - Tamaño de clases/funciones
 - Complejidad ciclomática
@@ -424,9 +424,9 @@ Recommendations:
 
 Este archivo es leído por:
 - `criteria-generator.md` - Para incluir criterios base
-- `ddd-compliance.md` - Para verificación automática
+- `architecture-reviewer.md` - Para verificación automática
 - `planner.md` - Durante fase de arquitectura
-- `code-simplicity-reviewer.md` - Durante review
+- `code-reviewer.md` - Durante review
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: workflows:discover
 description: "Deep project analysis to build comprehensive knowledge. Scans codebase, detects patterns, and creates project profile."
-argument_hint: [--full | --refresh | --report]
+argument_hint: [--full | --refresh | --report | --setup]
 ---
 
 # /workflows:discover - Descubrimiento Profundo del Proyecto
@@ -20,6 +20,7 @@ Analiza el proyecto en profundidad para construir un conocimiento completo que p
 
 | Situación | Recomendación |
 |-----------|---------------|
+| **First time using the plugin** | **`/workflows:discover --setup`** |
 | Primera instalación del plugin | `/workflows:discover --full` |
 | Después de cambios mayores (nueva librería, refactor) | `/workflows:discover --refresh` |
 | Ver resumen del conocimiento actual | `/workflows:discover --report` |
@@ -42,6 +43,10 @@ Analiza el proyecto en profundidad para construir un conocimiento completo que p
 
 # Por defecto: análisis inteligente (detecta qué necesita actualizar)
 /workflows:discover
+
+# First-time setup (interactive onboarding + discovery)
+/workflows:discover --setup
+/workflows:discover --setup --reset  # Force reconfiguration
 
 # Spec extraction examples
 /workflows:discover --specs-only           # Only extract specs, skip profile
@@ -131,7 +136,7 @@ Escaneando archivos de configuración...
 
 ### Step 4: Entity Specification Extraction
 
-> **Agent**: `spec-extractor` | **Mode**: Entity Analysis
+> **Agent**: `codebase-analyzer` | **Mode**: Entity Analysis
 
 Extract domain entities and their specifications from the codebase:
 
@@ -191,7 +196,7 @@ entity:
 
 ### Step 5: API Contract Extraction
 
-> **Agent**: `spec-extractor` | **Mode**: API Analysis
+> **Agent**: `codebase-analyzer` | **Mode**: API Analysis
 
 Extract API contracts and endpoint specifications:
 
@@ -271,7 +276,7 @@ api_contract:
 
 ### Step 6: Business Rule Extraction
 
-> **Agent**: `spec-extractor` | **Mode**: Business Rule Analysis
+> **Agent**: `codebase-analyzer` | **Mode**: Business Rule Analysis
 
 Extract business rules and domain logic:
 
@@ -349,7 +354,7 @@ business_rules:
 
 ### Step 7: Architectural Constraint Extraction
 
-> **Agent**: `spec-extractor` | **Mode**: Constraint Analysis
+> **Agent**: `codebase-analyzer` | **Mode**: Constraint Analysis
 
 Extract architectural constraints and design decisions:
 
@@ -766,7 +771,7 @@ Based on this project's characteristics:
 |-----------|---------------------|-----|
 | New Feature | `/workflows:plan` (full) | Complex architecture needs planning |
 | Bug Fix | `/workflows:route` → work | Direct fix with review |
-| Refactor | `/workflows:solid-refactor` | SOLID analysis first |
+| Refactor | `/workflows:plan` + `/workflows:work` | SOLID analysis in plan phase |
 | Performance | Performance Review Agent | Specialized analysis |
 
 ### Trust Level by Area
@@ -913,7 +918,7 @@ workflow:
 | **Architectural Constraints** | [X] | `.ai/project/specs/architectural-constraints/` |
 | **Total Specs** | [X] | See `spec-manifest.yaml` |
 
-> Specs extracted by `spec-extractor` agent. Run `/workflows:discover --specs-only` to update specs without full discovery.
+> Specs extracted by `codebase-analyzer` agent. Run `/workflows:discover --specs-only` to update specs without full discovery.
 
 ## Próximos Pasos
 
@@ -932,6 +937,8 @@ workflow:
 | `--full` | Análisis completo desde cero (sobrescribe) |
 | `--refresh` | Actualiza solo lo que cambió |
 | `--report` | Solo muestra el perfil actual sin re-escanear |
+| `--setup` | Interactive onboarding: auto-detect stack + configure plugin |
+| `--reset` | Force reconfiguration (with --setup) |
 | `--quiet` | Menos output, solo errores |
 | `--extract-specs` | Enable spec extraction (default: true) |
 | `--no-extract-specs` | Disable spec extraction |
@@ -947,7 +954,7 @@ workflow:
 
 ### Spec Extraction Agent
 
-The `spec-extractor` agent is responsible for all specification extraction:
+The `codebase-analyzer` agent is responsible for all specification extraction:
 
 | Mode | Purpose | Output |
 |------|---------|--------|
@@ -965,8 +972,143 @@ El discovery se ejecuta automáticamente cuando:
 2. Han pasado más de 7 días desde el último scan
 3. Se detectan cambios significativos en `package.json` o equivalente
 
+---
+
+## Setup Mode (`--setup`)
+
+Interactive onboarding that auto-detects your project stack and configures the plugin. Replaces the former `/workflows:quickstart` command.
+
+### When to Use
+
+- **First time** using the plugin in a project
+- After `--reset` to reconfigure from scratch
+- When onboarding a new team member to an existing project
+
+### Setup Protocol
+
+#### Setup Step 0: Check if Already Configured
+
+```
+if .ai/project/ directory exists AND --reset flag NOT provided:
+  OUTPUT: "This project is already configured."
+  SHOW: Current configuration summary
+  ASK: "Do you want to reconfigure? (use --reset to force)"
+  EXIT
+```
+
+#### Setup Step 1: Auto-Detect Project Stack
+
+Runs the standard discovery Steps 2-3 (detect stack + analyze structure), then presents:
+
+```markdown
+## Detected Stack
+
+| Component       | Detected           | Source              |
+|----------------|-------------------|---------------------|
+| Backend        | [detected]         | [source file]       |
+| Frontend       | [detected]         | [source file]       |
+| Architecture   | [detected]         | [evidence]          |
+| Database       | [detected]         | [source file]       |
+| Testing        | [detected]         | [source file]       |
+| Containerized  | Yes/No             | [source file]       |
+
+> Correct? If not, I'll adjust. Otherwise, let's continue.
+```
+
+#### Setup Step 2: Ask Only What Cannot Be Detected (2-3 questions max)
+
+**Question 1: Execution Mode**
+
+```
+How do you want to work with the AI agents?
+
+  [1] Agent Executes (Recommended)
+      → AI writes code, runs tests, auto-corrects. You review at checkpoints.
+
+  [2] Hybrid
+      → AI writes code but pauses before each checkpoint for your approval.
+
+  [3] Human Guided
+      → AI plans and instructs. You write the code. AI verifies.
+```
+
+**Question 2: Review Intensity**
+
+```
+How strict should code reviews be?
+
+  [1] Strict (Recommended for teams / production code)
+      → All review agents run. SOLID ≥22/25 required.
+
+  [2] Balanced
+      → Core review agents (security, architecture, code). SOLID ≥18/25.
+
+  [3] Light (Good for prototypes / MVPs)
+      → Only security review + basic code quality. SOLID informational only.
+```
+
+**Question 3: Team Context** (only if not detectable)
+
+```
+Is this a solo project or a team project?
+
+  [1] Solo developer
+  [2] Small team (2-5)
+  [3] Larger team (5+)
+```
+
+#### Setup Step 3: Generate Project Configuration
+
+Based on detection + answers, generate the `.ai/` directory structure:
+
+```bash
+.ai/
+├── project/
+│   ├── specs/
+│   │   ├── entities/
+│   │   ├── api-contracts/
+│   │   ├── business-rules/
+│   │   └── spec-manifest.yaml
+│   ├── features/
+│   ├── compound_log.md
+│   ├── compound-memory.md
+│   ├── validation-learning-log.md
+│   └── analysis/
+└── extensions/
+```
+
+Generate `providers-override.yaml` and initialize `compound-memory.md` and `validation-learning-log.md` with project profile and default calibration.
+
+#### Setup Step 4: Show "The Flow" and Next Step
+
+```markdown
+## You're Ready!
+
+Here's how the workflow works:
+
+  ROUTE → SHAPE → PLAN → WORK → REVIEW → COMPOUND
+
+### Your Next Step
+
+Run this command to start your first feature:
+
+  /workflows:route <describe your feature>
+
+### Quick Reference
+
+| Command             | What it does                    |
+|--------------------|--------------------------------|
+| /workflows:route   | Classify and route your request |
+| /workflows:plan    | Create implementation plan      |
+| /workflows:work    | Execute the plan                |
+| /workflows:review  | Quality review                  |
+| /workflows:compound| Capture learnings               |
+| /workflows:help    | Full reference                  |
+```
+
+---
+
 ## Related Commands
 
-- `/workflows:onboarding` - Para nuevos usuarios
 - `/workflows:status` - Estado actual
 - `/workflows:reload` - Recargar sin re-discovery

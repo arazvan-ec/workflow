@@ -77,7 +77,7 @@ IF providers.parallelization == "worktrees"  →  force worktrees
 
 ```bash
 # Always the same command, regardless of provider
-/workflows:parallel user-auth --roles=backend,frontend,qa
+/workflows:parallel user-auth --mode=stacks
 ```
 
 ### Implementation: Agent Teams (tier: advanced)
@@ -123,8 +123,7 @@ IF providers.parallelization == "worktrees"  →  force worktrees
 When moving from worktrees to Agent Teams:
 
 1. /workflows:parallel still works identically from user perspective
-2. worktree-manager skill becomes optional (not deleted)
-3. 50_state.md remains the persistent state layer
+2. 50_state.md remains the persistent state layer
 4. tmux is no longer needed (but doesn't break anything if installed)
 5. Port allocation is no longer needed (agents share filesystem)
 ```
@@ -139,7 +138,6 @@ When moving from worktrees to Agent Teams:
 # Always the same commands
 /workflows:snapshot --name="checkpoint-1"
 /workflows:restore --name="checkpoint-1"
-/skill:token-advisor --quick
 ```
 
 ### Implementation: Compaction-Aware (tier: advanced)
@@ -154,7 +152,6 @@ When moving from worktrees to Agent Teams:
   - Max messages: 150 (not 50)
 - **`pre_compact.sh` still fires**: Preserves state before server compaction
 - **Snapshots for handoffs only**: Not needed for context exhaustion
-- **token-advisor simplified**: Reports status but rarely triggers urgent actions
 
 **Snapshot behavior**:
 - Snapshots still work identically (for role handoffs, session boundaries)
@@ -176,7 +173,7 @@ When moving from worktrees to Agent Teams:
 | Max session duration | 2h | 4h |
 | Max messages | 50 | 150 |
 | Snapshot frequency | Every 30-45 min | At milestones only |
-| token-advisor urgency | High (critical resource) | Low (auto-managed) |
+| Context urgency | High (critical resource) | Low (auto-managed) |
 
 ---
 
@@ -200,22 +197,20 @@ With 200K-1M context windows, not everything needs forking.
 - Skill reads > 30 files
 - Skill generates > 500 lines of output
 - Skill connects to external services (MCP, APIs)
-- Skill does cross-codebase analysis (consultant, security-review)
+- Skill does cross-codebase analysis (consultant, security-reviewer)
 
 **Inline when** (convert fork to shared):
 - Skill reads < 15 files in a focused area
-- Single-domain analysis (layer-validator on one module)
-- Quick checks (token-advisor --quick)
+- Single-domain, focused analysis on one module
+- Quick checks on focused areas
 
 **Skills that ALWAYS fork regardless of tier**:
 - consultant (7-layer deep analysis, always heavy)
-- security-review (sensitive, isolation is a feature)
+- security-reviewer (sensitive, isolation is a feature)
 - mcp-connector (external services)
 
 **Skills that become inline in selective mode**:
-- token-advisor (quick context check)
 - coverage-checker (when checking single module)
-- changelog-generator (reads git log, not heavy)
 
 ### Implementation: Aggressive Fork (tier: standard, lightweight)
 
@@ -229,8 +224,8 @@ With 200K-1M context windows, not everything needs forking.
 
 ```bash
 # Always the same commands
-/workflows:sync user-auth
 /workflows:status user-auth
+# Git sync is handled automatically via git-sync skill within plan/work
 ```
 
 ### Implementation: Native + State (tier: advanced)
@@ -245,7 +240,7 @@ When Agent Teams is active:
 The existing behavior:
 - All state in `50_state.md`
 - Git commits as sync points
-- `/workflows:sync` for explicit sharing
+- git-sync skill for explicit sharing
 
 ---
 
@@ -334,12 +329,12 @@ providers:
 
 ```bash
 # Always the same command
-/workflows:work user-auth --role=backend
+/workflows:work user-auth
 
 # Force execution mode
-/workflows:work user-auth --role=backend --exec=agent
-/workflows:work user-auth --role=backend --exec=human
-/workflows:work user-auth --role=backend --exec=hybrid
+/workflows:work user-auth --exec=agent
+/workflows:work user-auth --exec=human
+/workflows:work user-auth --exec=hybrid
 ```
 
 ### Implementation: Agent Executes (tier: any model)
@@ -430,5 +425,4 @@ When a new capability becomes available (e.g., a future Claude 5.0 feature):
 - `providers.yaml` — Provider configuration and thresholds
 - `CONTEXT_ENGINEERING.md` — Fork model and context isolation
 - `SESSION_CONTINUITY.md` — Snapshot/restore system
-- `LIFECYCLE_HOOKS.md` — Hook system for state preservation
 - Plugin `CLAUDE.md` — Entry point with provider reference

@@ -629,7 +629,7 @@ PaymentProcessor
    └─ Map to patterns via solid-pattern-matrix.md
 
 3. GENERATE architecture options that FIX violations
-   └─ Use solid-architecture-generator agent
+   └─ Use SOLID patterns from solid-pattern-matrix.md
 
 4. EVALUATE options with SOLID-rigorous criteria
    └─ Reject any option with SOLID <18/25
@@ -645,10 +645,8 @@ PaymentProcessor
 ## Related
 
 - `/workflows:plan` - Main planning workflow
-- `/workflows:interview` - Feature specification interview
-- `/workflows:solid-refactor` - SOLID-focused refactoring workflow
 - `10_architecture.md` - Architecture design document
-- `agents/roles/planner.md` - Planner role context
-- `agents/design/solid-architecture-generator.md` - SOLID architecture generation
+- `core/roles/planner.md` - Planner role context
+- `agents/review/architecture-reviewer.md` - Architecture validation
 - `skills/workflow-skill-solid-analyzer.md` - Automated SOLID analysis
 - `core/solid-pattern-matrix.md` - Violation → Pattern mapping

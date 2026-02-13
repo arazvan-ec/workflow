@@ -47,4 +47,4 @@ When multiple agents work in parallel:
 1. Each agent works on its own branch or worktree
 2. Agents communicate state via `50_state.md` (committed and pushed)
 3. Before starting work, always read other agents' state
-4. Use `/workflows:sync` to merge work between agents
+4. Use the git-sync skill to merge work between agents

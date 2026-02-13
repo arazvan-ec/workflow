@@ -76,7 +76,7 @@ USER REQUEST
         │NO
         ▼
 ┌────────────────┐
-│ Is it a        │──YES──▶ Invoke bug-reproducer agent
+│ Is it a        │──YES──▶ Invoke diagnostic-agent for reproduction
 │ bug fix?       │         Then /workflows:plan (implementation-only)
 └───────┬────────┘
         │NO
@@ -88,7 +88,7 @@ USER REQUEST
         │NO
         ▼
 ┌────────────────┐
-│ Is it          │──YES──▶ Invoke codebase-analyzer or git-historian
+│ Is it          │──YES──▶ Invoke codebase-analyzer
 │ investigation? │
 └───────┬────────┘
         │NO
@@ -113,8 +113,8 @@ USER REQUEST
 | User Need | Complexity | Multi-Agent | Recommended Workflow | Command |
 |-----------|------------|-------------|---------------------|---------|
 | Any task | Simple (≤3 files) | No | quick | `/workflows:quick` |
-| New feature (unclear scope) | Any | Maybe | shape-first | `/workflows:discuss` (optional) then `/workflows:shape` then `/workflows:plan` |
-| New feature (clear scope) | Medium/Complex | Yes | task-breakdown | `/workflows:discuss` (optional) then `/workflows:plan --workflow=task-breakdown` |
+| New feature (unclear scope) | Any | Maybe | shape-first | `/workflows:shape` then `/workflows:plan` |
+| New feature (clear scope) | Medium/Complex | Yes | task-breakdown | `/workflows:plan --workflow=task-breakdown` |
 | New feature (clear scope) | Simple | No | default | `/workflows:plan --workflow=default` |
 | Bug fix | Any | No | implementation-only | `/workflows:plan --workflow=implementation-only` |
 | Refactoring | Complex | Yes | task-breakdown | `/workflows:plan --workflow=task-breakdown` |
@@ -403,21 +403,20 @@ The router can leverage forked sub-agents for intelligent parallel analysis befo
 │                                                      │
 │  User Request → Spawn parallel analysis workers      │
 │                                                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌──────────────┐ │
-│  │  consultant  │  │ spec-analyzer│  │ git-historian │ │
-│  │ (fork)       │  │ (fork)       │  │ (fork)       │ │
-│  │             │  │             │  │             │ │
-│  │ Quick stack │  │ Check specs │  │ Recent      │ │
-│  │ analysis    │  │ exist?      │  │ changes in  │ │
-│  │             │  │             │  │ area?       │ │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬───────┘ │
-│         │                │                │         │
-│         ▼                ▼                ▼         │
+│  ┌─────────────┐  ┌─────────────┐                   │
+│  │  consultant  │  │ spec-analyzer│                   │
+│  │ (fork)       │  │ (fork)       │                   │
+│  │             │  │             │                   │
+│  │ Quick stack │  │ Check specs │                   │
+│  │ analysis    │  │ exist?      │                   │
+│  │             │  │             │                   │
+│  └──────┬──────┘  └──────┬──────┘                   │
+│         │                │                           │
+│         ▼                ▼                           │
 │  ┌──────────────────────────────────────────────┐   │
 │  │          Aggregate Results                    │   │
 │  │  → Complexity assessment                      │   │
 │  │  → Existing specs status                      │   │
-│  │  → Change history context                     │   │
 │  └──────────────────────────────────────────────┘   │
 │                        │                             │
 │                        ▼                             │
@@ -454,14 +453,6 @@ purpose: Check if specs exist for requested feature area
 output: { specs_exist, coverage_gaps, related_features }
 ```
 
-#### 3. Git Historian
-```yaml
-agent: git-historian
-context: fork
-purpose: Analyze recent changes in relevant code areas
-output: { recent_changes, hotspots, active_contributors }
-```
-
 ### Hooks as Inter-Agent Event Bus
 
 Forked sub-agents emit hooks that the Queen Agent can observe:
@@ -495,19 +486,14 @@ hooks:
 - Related: user-authentication has auth patterns to follow
 - Gap: No payment domain entities exist
 
-**Git Historian (0.6s)**:
-- No recent changes in payment area (greenfield)
-- Auth area stable (good foundation)
-- 3 hotspots in Infrastructure/ layer
-
 ### Informed Routing Decision:
 
 Based on aggregated evidence:
 - **Workflow**: task-breakdown (HIGH complexity + no existing specs)
 - **Trust level**: LOW (payment = sensitive)
-- **Required reviews**: security-review + performance-review
+- **Required reviews**: security-reviewer + performance-reviewer
 - **Parallelization**: By layer (DDD) recommended
-- **Estimated phases**: Plan (extended) → Backend → Frontend → QA
+- **Estimated phases**: Plan (extended) → Work → Review
 
 This decision is evidence-based, not heuristic-based.
 ```

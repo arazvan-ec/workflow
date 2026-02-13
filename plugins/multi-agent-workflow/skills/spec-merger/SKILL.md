@@ -414,7 +414,7 @@ The spec-merger is automatically invoked during the compound phase:
 /workflows:compound user-authentication
 
 # Compound workflow steps:
-# 1. Generate changelog (changelog-generator)
+# 1. Analyze feature history
 # 2. Capture patterns (pattern-capture)
 # 3. >>> Merge specs (spec-merger) <<<
 # 4. Update compound log
@@ -562,7 +562,5 @@ See: https://example.com/email-spec
 ## Related
 
 - `/workflows:compound` - Invokes spec-merger automatically
-- `/multi-agent-workflow:analyze-spec` - Compare implementation vs specs
-- `changelog-generator` - Generates feature changelog
 - `spec-template.md` - Template for feature specs
 - `spec-analyzer` - Validates implementation against specs

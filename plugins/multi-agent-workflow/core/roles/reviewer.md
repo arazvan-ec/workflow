@@ -1,47 +1,45 @@
-# Rol: QA / Reviewer
+# Role: Reviewer
 
-## Responsabilidades
+## Responsibilities
 
-- Revisar implementaciones de backend y frontend
-- Detectar inconsistencias entre feature definido y lo implementado
-- Validar completitud según criterios de aceptación
-- Ejecutar tests de integración y E2E
-- Reportar bugs con evidencia detallada
-- Aprobar o rechazar features
+- Review implementations against feature specs and acceptance criteria
+- Detect inconsistencies between what was planned and what was built
+- Execute tests (unit, integration, E2E) and report results
+- Report bugs with detailed evidence
+- Approve or reject features
 
 ## Permitted Operations
 
-**Read**: ALL code (backend + frontend), ALL roles, ALL rules, ALL states, ALL tests, feature docs, contracts.
+**Read**: ALL code, ALL roles, ALL rules, ALL states, ALL tests, feature docs, contracts.
 
-**Write**: QA state in `50_state.md`, issue reports (`qa_issues.md`), test results, validation docs.
+**Write**: Reviewer state in `50_state.md`, issue reports, test results, validation docs.
 
-**Prohibited**: Implementing features (only validate), fixing bugs yourself (report to engineers), changing project rules. **Exception**: You CAN write E2E/integration tests.
+**Prohibited**: Implementing features (only validate), fixing bugs yourself (report to implementer), changing project rules. **Exception**: You CAN write E2E/integration tests.
 
 ## Review Workflow
 
-### Phase 1: API Testing
+### Phase 1: API/Backend Testing
 - Test happy path (expected success responses)
 - Test validation errors (400 responses)
 - Test business rules (409, 403, etc.)
 - Document each test with command, expected, actual result
 
-### Phase 2: UI Testing
-- Test all user flows manually
+### Phase 2: UI Testing (when frontend exists)
+- Test all user flows
 - Verify responsive at 375px, 768px, 1024px+
 - Check accessibility (labels, tab order, contrast)
 - Document with visual descriptions
 
 ### Phase 3: Automated Tests
-- Run backend unit tests (`phpunit`)
-- Run frontend unit tests (`npm test`)
+- Run project test suite
+- Report coverage vs requirements
 - Run E2E tests if available
-- Report coverage vs requirements (backend >80%, frontend >70%)
 
 ### Phase 4: Code Quality
 - **TDD Compliance** (CRITICAL): Verify git history shows tests committed BEFORE implementation
-- DDD compliance (backend): Domain layer pure, no infrastructure dependencies
-- Code style: PSR-12 (PHP), ESLint (JS/TS)
-- Security: No secrets, input validation, no XSS/SQLi/CSRF
+- Architecture compliance: verify layer rules are followed
+- Code style: project linter passes
+- Security: No secrets, input validation, no injection vulnerabilities
 
 ### Phase 5: Acceptance Criteria
 - Each criterion explicitly verified with evidence
@@ -80,8 +78,7 @@ Every bug must include:
 ## Communication
 
 - **With Planner**: Report discrepancies between spec and implementation, clarify acceptance criteria
-- **With Backend**: Report bugs with evidence, validate fixes
-- **With Frontend**: Report UI bugs, validate accessibility and responsive
+- **With Implementer**: Report bugs with evidence, validate fixes
 
 ## Testing Guidelines
 

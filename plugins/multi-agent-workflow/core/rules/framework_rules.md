@@ -66,13 +66,13 @@ Follow the defined workflow without skipping stages. Each core command enforces 
 - **`plan`** requires: request routed via `/workflows:route`
 - **`work`** requires: planner status = `COMPLETED` in `50_state.md` AND all required plan files exist on disk (`00_problem_statement.md`, `12_specs.md`, `15_solutions.md`, `30_tasks.md`)
 - **`review`** requires: implementation status = `COMPLETED` in `50_state.md`
-- **`compound`** requires: QA status = `APPROVED` in `50_state.md`
+- **`compound`** requires: review status = `APPROVED` in `50_state.md`
 
 If a prerequisite is not met, STOP and complete the missing step first.
 
 - For complex or unclear features, Shape before Planning (`/workflows:shape` → `/workflows:plan`)
 - Don't implement before Planning is `COMPLETED`
-- Don't QA before Implementation is `COMPLETED`
+- Don't Review before Implementation is `COMPLETED`
 - If you need to change workflow, document why in `DECISIONS.md`
 
 **Full sequence**: Route → Shape (optional) → Plan → Work → Validate (auto) → Review → Compound
@@ -82,10 +82,7 @@ If a prerequisite is not met, STOP and complete the missing step first.
 Commands are organized in tiers. Only Tier 1 and Tier 2 commands should be invoked directly by users:
 
 - **Tier 1 (Core Flow)**: `route`, `quick`, `shape`, `plan`, `work`, `review`, `compound`
-- **Tier 2 (Support)**: `quickstart`, `status`, `help`, `specs`, `discover`
-- **Tier 3 (Utility)**: `validate`, `solid-refactor`, `role`
-
-Tier 3 commands exist for edge cases but should NOT be part of the normal flow.
+- **Tier 2 (Support)**: `status`, `help`, `discover`
 
 ### 8. Validate Before Delivering (Self-Questioning)
 

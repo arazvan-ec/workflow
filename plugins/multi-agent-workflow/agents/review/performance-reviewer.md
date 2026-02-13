@@ -1,16 +1,24 @@
 ---
-name: performance-review
-description: "Reviews code for N+1 queries, missing indexes, bundle size, caching opportunities, and API response time issues."
+name: performance-reviewer
+description: "Reviews code for N+1 queries, missing indexes, bundle size, caching opportunities, and API response time issues. Context-activated when DB/ORM, API routes, or frontend build system detected."
 model: inherit
 context: fork
 hooks:
   Stop:
-    - command: "echo '[performance-review] Performance analysis complete.'"
+    - command: "echo '[performance-reviewer] Performance analysis complete.'"
 ---
 
-# Agent: Performance Review
+# Agent: Performance Reviewer
 
-Specialized agent for performance analysis and optimization recommendations.
+Context-activated agent for performance analysis and optimization recommendations.
+
+## Activation Signals
+
+This agent activates when any of these signals are present:
+- Database/ORM detected (migrations, schema files, ORM config)
+- API routes present (REST endpoints, GraphQL schema)
+- Frontend build system detected (webpack, vite, esbuild)
+- Explicit invocation: `--agent=performance`
 
 ## Purpose
 
@@ -84,7 +92,7 @@ Review code for performance issues and recommend optimizations.
 ```markdown
 ## Performance Review: ${FEATURE_ID}
 
-**Reviewer**: Performance Review Agent
+**Reviewer**: Performance Reviewer Agent
 **Date**: ${DATE}
 **Overall Score**: A | B | C | D | F
 

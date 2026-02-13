@@ -126,27 +126,22 @@ The checkpoint updates `50_state.md`:
 - **Completed**: User entity, Email VO, Password VO, Repository interface
 - **Next Task**: CreateUserUseCase (Task BE-005)
 - **Files to Read**:
-  - backend.md (TDD section)
+  - implementer.md (TDD section)
   - 30_tasks.md (Task BE-005)
   - src/Domain/Entity/User.php (reference)
 ```
 
-## Checkpoint Types by Role
+## Checkpoint Types by Concern
 
-### Backend Checkpoints
+### Implementation Checkpoints
 1. **Domain Layer**: Entities, Value Objects, Domain Services
 2. **Application Layer**: Use Cases, DTOs
-3. **Infrastructure Layer**: Repositories, Controllers
-4. **API Endpoints**: REST endpoints with tests
+3. **Infrastructure Layer**: Repositories, Controllers, Adapters
+4. **API Endpoints**: REST/GraphQL endpoints with tests
+5. **UI Components**: Component structure, forms, integration
+6. **Accessibility**: Score >90
 
-### Frontend Checkpoints
-1. **Component Structure**: Props, state, TypeScript types
-2. **Form Logic**: Validation, event handlers
-3. **API Integration**: Real API or mocks
-4. **Responsive Design**: Mobile, tablet, desktop
-5. **Accessibility**: Lighthouse score >90
-
-### QA Checkpoints
+### Review Checkpoints
 1. **API Testing**: All endpoints tested
 2. **UI Testing**: All flows verified
 3. **Test Execution**: All suites passing

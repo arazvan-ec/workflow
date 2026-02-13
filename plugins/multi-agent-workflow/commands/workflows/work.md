@@ -1,7 +1,7 @@
 ---
 name: workflows:work
 description: "Execute implementation with configurable parallelization modes and execution mode (agent-executes, human-guided, or hybrid)."
-argument_hint: <feature-name> --mode=<roles|layers|stacks> [--role=<role>] [--layer=<layer>] [--exec=auto|agent|human|hybrid] [--isolation=session|task]
+argument_hint: <feature-name> [--mode=<layers|stacks>] [--layer=<layer>] [--stack=<stack>] [--exec=auto|agent|human|hybrid] [--isolation=session|task]
 ---
 
 # Multi-Agent Workflow: Work
@@ -47,16 +47,15 @@ You do NOT need to invoke these separately.
 ## Usage
 
 ```bash
-# By Role (standard)
-/workflows:work user-auth --mode=roles --role=backend
-/workflows:work user-auth --mode=roles --role=frontend
+# Default (sequential tasks from 30_tasks.md)
+/workflows:work user-auth
 
 # By Layer (DDD)
 /workflows:work user-auth --mode=layers --layer=domain
 /workflows:work user-auth --mode=layers --layer=application
 /workflows:work user-auth --mode=layers --layer=infrastructure
 
-# By Stack
+# By Stack (parallel backend/frontend)
 /workflows:work user-auth --mode=stacks --stack=backend
 /workflows:work user-auth --mode=stacks --stack=frontend
 ```
@@ -134,7 +133,7 @@ PER-TASK ISOLATION PROTOCOL:
 
 FOR each task in 30_tasks.md:
   1. LAUNCH Task subagent (context: fork) with ONLY:
-     - Role definition (e.g., backend.md)
+     - Role definition (implementer.md)
      - Task definition from 30_tasks.md
      - Reference files listed in the task
      - 15_solutions.md (for SOLID patterns to follow)
@@ -182,18 +181,6 @@ Standard behavior: all tasks execute in the same context window. The Bounded Cor
 
 ## Parallelization Modes
 
-### Mode: Roles (Standard)
-```
-Planner → Backend + Frontend (parallel) → QA
-```
-
-**Roles available**: `backend`, `frontend`
-
-**Best for**:
-- Full-stack features with separate concerns
-- Teams with distinct frontend/backend developers
-- Standard feature development
-
 ### Mode: Layers (DDD)
 ```
 Domain + Application + Infrastructure (can run parallel)
@@ -223,10 +210,11 @@ Backend complete + Frontend complete (parallel)
 ### Step 1: Load Context
 
 ```bash
-# Based on mode, load appropriate agent
---mode=roles --role=backend → Read: agents/roles/backend.md
---mode=roles --role=frontend → Read: agents/roles/frontend.md
---mode=layers --layer=domain → Read: agents/roles/backend.md + rules/ddd_rules.md
+# Load implementer role + mode-specific context
+--mode=layers --layer=domain → Read: core/roles/implementer.md + rules/ddd_rules.md
+--mode=stacks --stack=backend → Read: core/roles/implementer.md (backend tasks)
+--mode=stacks --stack=frontend → Read: core/roles/implementer.md (frontend tasks)
+(default, no mode) → Read: core/roles/implementer.md (all tasks sequentially)
 ```
 
 ### Step 2: Git Sync
@@ -247,7 +235,7 @@ Read: .ai/project/features/${FEATURE_ID}/30_tasks.md
 
 **For Roles mode**:
 - Check Planner status is COMPLETED
-- If `frontend`: Check if backend API ready or mock needed
+- If frontend stack: Check if backend API ready or mock needed
 
 **For Layers mode**:
 - Domain: Can start immediately
@@ -422,7 +410,7 @@ GOAL VERIFICATION (after tests pass):
 | Infrastructure | DIP must score ≥4/5 |
 | Full feature | Total score must be ≥18/25 |
 
-## Role-Specific Workflows
+## Stack-Specific Workflows
 
 ### Backend Workflow (Layers: domain → application → infrastructure)
 
@@ -484,7 +472,7 @@ Checkpoint 5: Accessibility
 Update `50_state.md` at each checkpoint:
 
 ```markdown
-## Backend Engineer
+## Implementer
 **Status**: IN_PROGRESS
 **Checkpoint**: Domain layer complete
 **Timestamp**: 2026-01-16T14:30:00Z
@@ -522,7 +510,7 @@ Even if no checkpoint is triggered, the state file is updated.
 ### Task-Level State Tracker (in 50_state.md)
 
 ```markdown
-## <Role> Engineer
+## Implementer
 **Status**: IN_PROGRESS
 **Last Updated**: ${ISO_TIMESTAMP}
 
@@ -609,19 +597,17 @@ If blocked after max iterations:
 
 ## Verification Commands
 
-### Backend
-```bash
-php bin/phpunit                          # All tests
-php bin/phpunit --coverage-text          # Coverage check
-./vendor/bin/php-cs-fixer fix --dry-run  # Style check
-```
+Use project-detected test commands. Common patterns:
 
-### Frontend
 ```bash
-npm test                    # All tests
-npm test -- --coverage      # Coverage check
-npm run lint               # Linting
-npm run type-check         # TypeScript
+# Run tests (detected from project config)
+/workflow-skill:test-runner
+
+# Check SOLID compliance
+/workflow-skill:solid-analyzer --path=src/modified-path
+
+# Fix linting
+/workflow-skill:lint-fixer
 ```
 
 ## Compound Effect

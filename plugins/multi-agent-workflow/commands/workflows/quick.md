@@ -136,7 +136,7 @@ If no feature context exists, no state file is created (truly ad-hoc task).
 - Quick Mode tasks are logged in `50_state.md` if a feature context exists
 - Quick Mode tasks can be captured in `/workflows:compound` if they reveal patterns
 - If Quick Mode assessment determines task is too complex → redirect to full workflow
-- Quick Mode does NOT trigger validate-solution or review (task is too small)
+- Quick Mode does NOT trigger multi-agent review (task is too small)
 
 ## Escape to Full Workflow
 

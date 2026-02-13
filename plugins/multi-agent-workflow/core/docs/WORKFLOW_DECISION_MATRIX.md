@@ -17,8 +17,8 @@
 │     └── Compleja (> 2h)   → /workflows:plan --workflow=task-breakdown   │
 │                                                                         │
 │  🐛 BUG FIX                                                             │
-│     └── Reproducible      → bug-reproducer → implementation-only        │
-│     └── Intermitente      → git-historian + codebase-analyzer           │
+│     └── Reproducible      → diagnostic-agent → implementation-only      │
+│     └── Intermitente      → codebase-analyzer                           │
 │                                                                         │
 │  🔄 REFACTORING                                                         │
 │     └── Localizado        → /workflows:work (directo)                   │
@@ -26,18 +26,15 @@
 │                                                                         │
 │  🔍 INVESTIGACIÓN                                                       │
 │     └── Código            → codebase-analyzer agent                     │
-│     └── Historia          → git-historian agent                         │
-│     └── Dependencias      → dependency-auditor agent                    │
 │                                                                         │
 │  📝 DOCUMENTACIÓN                                                       │
 │     └── Técnica           → /workflows:work --role=planner              │
-│     └── API               → api-designer agent                          │
 │                                                                         │
 │  ✅ CODE REVIEW                                                         │
 │     └── General           → /workflows:review                           │
-│     └── Seguridad         → security-review agent                       │
-│     └── Performance       → performance-review agent                    │
-│     └── DDD               → ddd-compliance agent                        │
+│     └── Seguridad         → security-reviewer agent                     │
+│     └── Performance       → performance-reviewer agent                  │
+│     └── Architecture      → architecture-reviewer agent                 │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -108,7 +105,7 @@ Q3: ¿Qué stack necesita?
     │
     ▼
 Q4: ¿Se integra con servicios externos?
-    ├── Sí → Definir contratos primero (api-designer)
+    ├── Sí → Definir contratos primero (en `/workflows:plan`)
     └── No → Proceder normalmente
     │
     ▼
@@ -128,7 +125,7 @@ Q1: ¿Funcionaba antes?
     │
     ▼
 Q2: ¿Puedes reproducirlo consistentemente?
-    ├── Sí → Invocar bug-reproducer
+    ├── Sí → Invocar diagnostic-agent
     └── No (intermitente) → Necesita investigación profunda
     │
     ▼
@@ -147,9 +144,9 @@ Q4: ¿En qué entorno ocurre?
 
 ```
 Q1: ¿Cuál es la motivación?
-    ├── Performance → performance-review primero
-    ├── Mantenibilidad → code-review primero
-    ├── Seguridad → security-review primero
+    ├── Performance → performance-reviewer primero
+    ├── Mantenibilidad → code-reviewer primero
+    ├── Seguridad → security-reviewer primero
     └── Nuevos requerimientos → Tratar como feature
     │
     ▼
@@ -275,7 +272,7 @@ When automatically classifying a request, calculate confidence:
 # When routing, check trust level of affected files
 if affected_files match low_trust_patterns:
   force_workflow: task-breakdown
-  force_review: security-review OR pair-programming
+  force_review: security-reviewer OR pair-programming
 
 if affected_files match medium_trust_patterns:
   minimum_workflow: default
@@ -288,11 +285,11 @@ if affected_files match high_trust_patterns:
 
 | Need Type | Primary Agent | Supporting Agents |
 |-----------|---------------|-------------------|
-| Feature | Planner | Backend, Frontend, QA |
-| Bug | bug-reproducer | codebase-analyzer |
-| Investigation | codebase-analyzer | git-historian, dependency-auditor |
-| Review | code-review-ts | security-review, performance-review |
-| Documentation | api-designer | - |
+| Feature | Planner | Implementer, Reviewer |
+| Bug | diagnostic-agent | codebase-analyzer |
+| Investigation | codebase-analyzer | - |
+| Review | code-reviewer | security-reviewer, performance-reviewer |
+| Documentation | Planner | - |
 
 ---
 

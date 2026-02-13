@@ -32,8 +32,8 @@ Manages the persistent learning log that captures all validation interactions (q
 # Validation Learning Log
 
 > Auto-managed by the validation-learning-log skill.
-> Read by: solution-validator agent, planner, review agents.
-> Written by: solution-validator agent, /workflows:compound.
+> Read by: planner, review agents.
+> Written by: /workflows:compound, /workflows:review.
 > Last updated: ${TIMESTAMP}
 
 ## Metadata
@@ -99,7 +99,7 @@ Manages the persistent learning log that captures all validation interactions (q
 
 Record a new validation interaction.
 
-**Input**: Validation report from solution-validator agent
+**Input**: Validation report from validation workflow
 **Process**:
 
 ```
@@ -212,12 +212,12 @@ Generate a report on validation learning effectiveness.
 
 ## Integration Points
 
-### With solution-validator agent
-- **Before validation**: Agent queries log (`--query`) for applicable learnings
-- **After validation**: Agent records entry (`--record`) with results
+### With validation workflow
+- **Before validation**: Workflow queries log (`--query`) for applicable learnings
+- **After validation**: Workflow records entry (`--record`) with results
 - **Loop**: Each validation makes the next one smarter
 
-### With /workflows:quickstart
+### With /workflows:discover --setup
 - **On install**: Creates empty `validation-learning-log.md` with structure
 - **Seed data**: Can import learnings from other projects (`--import`)
 

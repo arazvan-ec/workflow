@@ -29,7 +29,7 @@ For the core routing protocol, see `CLAUDE.md`.
 | User Need | Ask About | Route To |
 |-----------|-----------|----------|
 | New functionality | Complexity, stack, integrations | `/workflows:plan` |
-| Bug fix | Reproducibility, error messages | `bug-reproducer` then `/workflows:work` |
+| Bug fix | Reproducibility, error messages | `diagnostic-agent` then `/workflows:work` |
 | Refactoring | Scope, motivation, tests | Depends on scope |
 | Investigation | What to learn, where to look | Research agents |
 | Code review | What to review, concerns | `/workflows:review` |

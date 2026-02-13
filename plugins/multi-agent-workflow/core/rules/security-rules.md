@@ -55,4 +55,4 @@ Lifecycle hooks automatically enforce trust boundaries:
 
 - `PreToolUse` blocks modifications to `auth/`, `security/`, `payment/` paths without pair review
 - All actions in sensitive areas are logged to `.ai/logs/` for audit
-- See `core/docs/LIFECYCLE_HOOKS.md` for hook configuration details
+- See `core/docs/CONTEXT_ENGINEERING.md` for hook configuration details

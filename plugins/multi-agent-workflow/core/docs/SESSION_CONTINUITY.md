@@ -59,7 +59,6 @@ With the **compaction-aware provider** (Opus 4.6+), the Compaction API auto-summ
 /context              # Check current token usage
 /compact              # Summarize and reduce context
 /clear                # Fresh start (loses current context)
-/skill:token-advisor  # Get optimization suggestions
 ```
 
 ### Proactive Session Strategy
@@ -76,7 +75,7 @@ Session Start
     │   └── Decision: continue or fresh start?
     │
     └── Before complex task:
-        └── /skill:token-advisor --quick
+        └── /context (check capacity)
 ```
 
 ### Token-Efficient Habits
@@ -385,9 +384,9 @@ echo "!.ai/snapshots/.gitkeep" >> .gitignore
    /workflows:restore --name="domain-layer-complete"
    ```
 
-4. **Sync with remote:**
+4. **Sync with remote** (git-sync is handled automatically within plan/work):
    ```bash
-   /workflows:sync user-auth
+   git pull origin feature/user-auth
    ```
 
 5. **Verify current state:**
@@ -397,7 +396,7 @@ echo "!.ai/snapshots/.gitkeep" >> .gitignore
 
 6. **Continue work:**
    ```bash
-   /workflows:work user-auth --role=backend
+   /workflows:work user-auth
    ```
 
 ### Handling Stale Snapshots
@@ -540,7 +539,7 @@ Session Start
 3. **Name descriptively** - You'll thank yourself later
 4. **Summarize well** - Future you needs context
 5. **Restore confidently** - The system handles the details
-6. **Sync after restore** - Get latest changes
+6. **Pull latest changes after restore** - Get latest from remote
 7. **Verify before continuing** - Check status first
 
 ---
@@ -559,9 +558,8 @@ Session Start
 
 # Full restoration flow
 /workflows:restore --name="my-snapshot"
-/workflows:sync my-feature
 /workflows:status my-feature
-/workflows:work my-feature --role=backend
+/workflows:work my-feature
 ```
 
 ---

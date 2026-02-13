@@ -60,7 +60,7 @@ Display this card:
 | Start something new              | /workflows:route "description"    |
 | Check progress                   | /workflows:status feature-name    |
 | Analyze a new project            | /workflows:discover               |
-| Manage specifications            | /workflows:specs                  |
+| First time setup                 | /workflows:discover --setup       |
 | First time with the plugin       | /workflows:help concepts          |
 
 ### Resources
@@ -99,16 +99,7 @@ Display the tiered command structure:
 |----------------------|--------------------------------------|
 | /workflows:status    | View all roles' progress             |
 | /workflows:help      | This help                            |
-| /workflows:specs     | Manage living specifications         |
-| /workflows:discover  | Auto-analyze project architecture    |
-
-### Tier 3: Utility (use when needed, not part of normal flow)
-
-| Command                | Purpose                              |
-|------------------------|--------------------------------------|
-| /workflows:validate    | Validate specs manually              |
-| /workflows:solid-refactor | SOLID-guided refactoring          |
-| /workflows:role        | Switch/assign role explicitly        |
+| /workflows:discover  | Auto-analyze project + first-time setup (--setup) |
 ```
 
 ### Topic: agents
@@ -116,25 +107,22 @@ Display the tiered command structure:
 ```markdown
 ## Agents
 
-### Role Agents (4) -- invoked by plan, work, review
+### Role Agents (3) -- invoked by plan, work, review
 
-| Agent       | Function                         |
-|-------------|----------------------------------|
-| Planner     | Architecture and specification   |
-| Backend     | API and server implementation    |
-| Frontend    | UI and component implementation  |
-| QA          | Testing and validation           |
+| Agent       | Function                             |
+|-------------|--------------------------------------|
+| Planner     | Architecture and specification       |
+| Implementer | Code implementation (any stack)      |
+| Reviewer    | Testing and validation               |
 
-### Review Agents (6) -- invoked by /workflows:review (context: fork)
+### Review Agents (4) -- invoked by /workflows:review (context: fork)
 
-| Agent                       | Speciality                  |
-|-----------------------------|-----------------------------|
-| Security Review             | OWASP, vulnerabilities      |
-| Performance Review          | N+1, memory leaks           |
-| DDD Compliance              | Domain-Driven architecture  |
-| Code Review TS              | TypeScript standards        |
-| Code Simplicity Reviewer    | Simplicity and readability  |
-| Pattern Recognition         | Anti-pattern detection      |
+| Agent                       | Speciality                              |
+|-----------------------------|-----------------------------------------|
+| Code Reviewer               | Stack-agnostic code quality             |
+| Security Reviewer           | OWASP, vulnerabilities                  |
+| Performance Reviewer        | N+1, memory leaks, bundle size          |
+| Architecture Reviewer       | DDD + SOLID architecture (context-activated) |
 
 ### Research Agents (2) -- invoked by route, plan (context: fork)
 
@@ -143,20 +131,12 @@ Display the tiered command structure:
 | Codebase Analyzer           | Structure analysis          |
 | Learnings Researcher        | Past successful patterns    |
 
-### Workflow Agents (3) -- invoked by work, review
+### Workflow Agents (2) -- invoked by work, review
 
 | Agent                       | Speciality                  |
 |-----------------------------|-----------------------------|
 | Spec Analyzer               | Validate vs specifications  |
-| Spec Extractor              | Extract specs from code     |
-| Diagnostic Agent            | Debug persistent failures   |
-
-### Design Agents (2) -- invoked by plan, review
-
-| Agent                       | Speciality                  |
-|-----------------------------|-----------------------------|
-| API Designer                | RESTful contracts           |
-| UI Verifier                 | UI/UX validation            |
+| Diagnostic Agent            | Bug reproduction + BCP escalation |
 
 All agents are invoked automatically by the core commands.
 You rarely need to invoke them directly.
