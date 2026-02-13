@@ -327,7 +327,7 @@ Generate the criteria document:
 The skill generates:
 
 ```
-.ai/project/features/{feature-id}/
+openspec/changes/{feature-id}/
 ├── 12_architecture_criteria.md   # Main criteria document
 ├── 12a_criteria_evaluation.md    # Evaluation matrix (if --evaluate)
 └── 12b_criteria_interview.md     # Developer consultation log

@@ -6,7 +6,7 @@ hooks:
     - matcher: Write
       command: "echo '[checkpoint] Updating state file...'"
   Stop:
-    - command: "echo '[checkpoint] Checkpoint saved to 50_state.md'"
+    - command: "echo '[checkpoint] Checkpoint saved to tasks.md'"
 ---
 
 # Checkpoint Skill
@@ -55,7 +55,7 @@ After the correction loop completes (tests pass), verify against the task's acce
 
 ```
 GOAL VERIFICATION:
-  1. Read acceptance criteria for current task from 30_tasks.md
+  1. Read acceptance criteria for current task from tasks.md
   2. For each criterion:
      AUTOMATED: testable via command → run → verify output
      OBSERVABLE: requires code inspection → grep/read files → verify behavior
@@ -64,7 +64,7 @@ GOAL VERIFICATION:
 
   all verified      → checkpoint COMPLETE
   criterion FAILED  → re-enter correction loop (TYPE 2: missing functionality)
-  criterion MANUAL  → checkpoint PENDING_REVIEW (add to 50_state.md notes)
+  criterion MANUAL  → checkpoint PENDING_REVIEW (add to tasks.md notes)
 ```
 
 **Why this matters**: Tests can pass while the feature is still incomplete. A test suite might verify that a function exists but not that it handles all acceptance criteria. Goal-backward verification catches these gaps.
@@ -112,7 +112,7 @@ Example:
 
 ### Checkpoint Document Format
 
-The checkpoint updates `50_state.md`:
+The checkpoint updates `tasks.md`:
 
 ```markdown
 ## Backend Engineer
@@ -127,7 +127,7 @@ The checkpoint updates `50_state.md`:
 - **Next Task**: CreateUserUseCase (Task BE-005)
 - **Files to Read**:
   - implementer.md (TDD section)
-  - 30_tasks.md (Task BE-005)
+  - tasks.md (Task BE-005)
   - src/Domain/Entity/User.php (reference)
 ```
 

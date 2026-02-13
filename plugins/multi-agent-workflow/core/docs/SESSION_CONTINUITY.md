@@ -475,7 +475,7 @@ If restored context feels incomplete:
 
 1. **Read the full state file:**
    ```bash
-   cat .ai/project/features/<feature>/50_state.md
+   cat openspec/changes/<feature>/tasks.md
    ```
 
 2. **Review recent commits:**
@@ -485,12 +485,12 @@ If restored context feels incomplete:
 
 3. **Check task files:**
    ```bash
-   cat .ai/project/features/<feature>/30_tasks.md
+   cat openspec/changes/<feature>/tasks.md
    ```
 
 4. **Re-read feature spec:**
    ```bash
-   cat .ai/project/features/<feature>/FEATURE.md
+   cat openspec/changes/<feature>/proposal.md
    ```
 
 ---

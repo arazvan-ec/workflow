@@ -36,9 +36,9 @@ A compound engineering framework for coordinating multiple AI agents on software
 ### Flow Guards (enforced)
 
 - `plan` requires: routing completed
-- `work` requires: plan status = COMPLETED in `50_state.md`
-- `review` requires: work status = COMPLETED in `50_state.md`
-- `compound` requires: review status = APPROVED in `50_state.md`
+- `work` requires: plan status = COMPLETED in `tasks.md` Workflow State
+- `review` requires: work status = COMPLETED in `tasks.md` Workflow State
+- `compound` requires: review status = APPROVED in `tasks.md` Workflow State
 
 ---
 
@@ -106,7 +106,7 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 
 ## State Management
 
-All roles communicate via `50_state.md`. Status values: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, `APPROVED`, `REJECTED`.
+All roles communicate via `tasks.md` (Workflow State section in `openspec/changes/{slug}/tasks.md`). Status values: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, `APPROVED`, `REJECTED`.
 
 ## Best Practices
 

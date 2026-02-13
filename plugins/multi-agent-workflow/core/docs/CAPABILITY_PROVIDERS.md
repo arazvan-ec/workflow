@@ -85,13 +85,13 @@ IF providers.parallelization == "worktrees"  →  force worktrees
 **Prerequisites**: Claude Opus 4.6+, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
 
 **Behavior**:
-1. Orchestrator (current session) creates shared task list from `50_state.md`
+1. Orchestrator (current session) creates shared task list from `tasks.md`
 2. Spawns teammates via `TeammateTool` for each role
 3. Each teammate gets: role definition, feature state, task assignments
 4. Teammates work in independent context windows
 5. Direct inter-agent communication for coordination
 6. Orchestrator monitors progress and resolves conflicts
-7. Results synchronized back to `50_state.md`
+7. Results synchronized back to `tasks.md`
 
 **Advantages over worktrees**:
 - No tmux/filesystem setup required
@@ -100,7 +100,7 @@ IF providers.parallelization == "worktrees"  →  force worktrees
 - Native progress tracking
 
 **What stays the same**:
-- `50_state.md` still updated (persistent state)
+- `tasks.md` still updated (persistent state)
 - Role definitions still apply (one role per agent)
 - Quality gates still enforced (checkpoints, Bounded Correction Protocol)
 
@@ -112,7 +112,7 @@ IF providers.parallelization == "worktrees"  →  force worktrees
 1. Creates git worktrees for each role
 2. Launches tmux session with panes
 3. Sets environment variables per pane
-4. Coordination via `50_state.md` + git sync
+4. Coordination via `tasks.md` + git sync
 5. Manual cleanup on completion
 
 **This is the existing behavior** — no changes needed.
@@ -123,7 +123,7 @@ IF providers.parallelization == "worktrees"  →  force worktrees
 When moving from worktrees to Agent Teams:
 
 1. /workflows:parallel still works identically from user perspective
-2. 50_state.md remains the persistent state layer
+2. tasks.md remains the persistent state layer
 4. tmux is no longer needed (but doesn't break anything if installed)
 5. Port allocation is no longer needed (agents share filesystem)
 ```
@@ -232,13 +232,13 @@ With 200K-1M context windows, not everything needs forking.
 
 When Agent Teams is active:
 - **In-session**: Direct teammate communication
-- **Cross-session**: `50_state.md` (persistent)
+- **Cross-session**: `tasks.md` (persistent)
 - **Conflict resolution**: Orchestrator mediates
 
 ### Implementation: State + Git (tier: standard)
 
 The existing behavior:
-- All state in `50_state.md`
+- All state in `tasks.md`
 - Git commits as sync points
 - git-sync skill for explicit sharing
 
@@ -316,9 +316,9 @@ providers:
   fork_strategy: auto
   coordination: auto
 
-# Coordination is ALWAYS compatible because 50_state.md is shared.
+# Coordination is ALWAYS compatible because tasks.md is shared.
 # An Opus 4.6 agent using Agent Teams and an Opus 4.5 agent using
-# worktrees can collaborate via the same 50_state.md file.
+# worktrees can collaborate via the same tasks.md file.
 ```
 
 ---
@@ -339,7 +339,7 @@ providers:
 
 ### Implementation: Agent Executes (tier: any model)
 
-The agent IS the engineer. For each task in `30_tasks.md`:
+The agent IS the engineer. For each task in `tasks.md`:
 
 ```
 EXECUTION LOOP (per task):
@@ -353,13 +353,13 @@ EXECUTION LOOP (per task):
   8. CHECK SOLID compliance (solid-analyzer skill)
   9. IF SOLID < threshold → refactor + re-run tests
   10. FIX lint issues (lint-fixer skill)
-  11. CHECKPOINT (update 50_state.md)
+  11. CHECKPOINT (update tasks.md)
   12. → Next task
 ```
 
 **Key principle**: The agent uses Claude Code's native Write/Edit tools to generate code. No scaffolding engine needed — Claude already knows how to write code. The plugin provides the **structure** (what to write, in what order, following what patterns).
 
-**Pattern Learning**: Before generating, the agent reads an existing file as reference (e.g., `src/Domain/Entity/Order.php` when creating `User.php`). This is specified in each task's "Reference" field in `30_tasks.md`.
+**Pattern Learning**: Before generating, the agent reads an existing file as reference (e.g., `src/Domain/Entity/Order.php` when creating `User.php`). This is specified in each task's "Reference" field in `tasks.md`.
 
 ### Implementation: Human Guided (legacy)
 
@@ -381,7 +381,7 @@ The agent generates code AND tests, but pauses before each checkpoint for human 
    ├── Is the task in a LOW trust area (auth/, security/, payment/)?
    │   YES → hybrid (agent generates but human reviews)
    │
-   ├── Does the task have a "Reference" file in 30_tasks.md?
+   ├── Does the task have a "Reference" file in tasks.md?
    │   YES → agent-executes (pattern exists to follow)
    │
    └── OTHERWISE → agent-executes (default for well-planned tasks)

@@ -207,7 +207,7 @@ If a feature needs more than 9 slices, it should be split into separate features
 The breadboarder adds to the feature directory:
 
 ```
-.ai/project/features/${FEATURE_ID}/
+openspec/changes/${FEATURE_ID}/
 ├── 01_shaped_brief.md       # (from shaper)
 ├── 02_breadboard.md          # Breadboard tables + Mermaid diagram
 ├── 03_slices.md              # Slice definitions with demo statements

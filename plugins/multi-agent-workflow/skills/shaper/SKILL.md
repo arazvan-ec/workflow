@@ -5,7 +5,7 @@ model: opus
 context: fork
 hooks:
   Stop:
-    - command: "echo '[shaper] Shaping complete. Documents saved to .ai/project/features/'"
+    - command: "echo '[shaper] Shaping complete. Documents saved to openspec/changes/'"
 ---
 
 # Shaper Skill
@@ -243,7 +243,7 @@ Changes ripple in both directions between levels.
 The shaper skill produces files in the feature directory:
 
 ```
-.ai/project/features/${FEATURE_ID}/
+openspec/changes/${FEATURE_ID}/
 ├── 01_shaped_brief.md      # Main shaping document (R, shapes, fit checks)
 ├── spike-a2.md             # Spike documents (one per investigation)
 ├── spike-a5.md

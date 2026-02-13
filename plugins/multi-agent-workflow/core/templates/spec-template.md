@@ -6,7 +6,7 @@ This template defines the structure for **functional specifications** (Phase 2).
 
 ---
 
-## Template: 12_specs.md (Phase 2 Output)
+## Template: specs.md (Phase 2 Output)
 
 ```markdown
 # Functional Specifications: ${FEATURE_ID}
@@ -19,7 +19,7 @@ This template defines the structure for **functional specifications** (Phase 2).
 ## About This Document
 
 This document defines **WHAT** the system must do (functional requirements).
-**HOW** to implement (including SOLID compliance) is defined in `15_solutions.md`.
+**HOW** to implement (including SOLID compliance) is defined in `design.md`.
 
 ---
 
@@ -112,7 +112,7 @@ These are non-functional requirements that affect HOW we build.
 ❌ **SOLID compliance** - This is a design CONSTRAINT applied in Phase 3
 ❌ **Design patterns** - These are selected when designing solutions
 ❌ **Class structure** - This is part of the technical solution
-❌ **Implementation details** - HOW belongs in `15_solutions.md`
+❌ **Implementation details** - HOW belongs in `design.md`
 
 ---
 
@@ -129,7 +129,7 @@ These are non-functional requirements that affect HOW we build.
 
 ---
 
-## Template: 15_solutions.md (Phase 3 Output)
+## Template: design.md (Phase 3 Output)
 
 This is where SOLID becomes mandatory:
 
@@ -233,14 +233,14 @@ This is where SOLID becomes mandatory:
 
 | Document | Phase | Contains | SOLID? |
 |----------|-------|----------|--------|
-| `12_specs.md` | Phase 2 | WHAT (functional requirements) | ❌ No |
-| `15_solutions.md` | Phase 3 | HOW (technical design) | ✅ **YES** |
+| `specs.md` | Phase 2 | WHAT (functional requirements) | ❌ No |
+| `design.md` | Phase 3 | HOW (technical design) | ✅ **YES** |
 
 ---
 
 ## Related
 
 - `/workflows:plan` - Uses these templates
-- `/workflow-skill:criteria-generator` - Generates 12_specs.md
-- `/workflow-skill:solid-analyzer` - Validates SOLID in 15_solutions.md
+- `/workflow-skill:criteria-generator` - Generates specs.md
+- `/workflow-skill:solid-analyzer` - Validates SOLID in design.md
 - `core/solid-pattern-matrix.md` - Pattern recommendations

@@ -169,12 +169,12 @@ Every request follows this flow. Stages cannot be skipped.
 
 ### Important Files
 
-| File            | Purpose                        | Location                              |
-|-----------------|--------------------------------|---------------------------------------|
-| 50_state.md     | Source of truth for progress   | .ai/project/features/{feature}/       |
-| 30_tasks.md     | Task breakdown by role         | .ai/project/features/{feature}/       |
-| FEATURE_*.md    | Feature definition             | .ai/project/features/{feature}/       |
-| 15_solutions.md | Technical design with SOLID    | .ai/project/features/{feature}/       |
+| File          | Purpose                        | Location                           |
+|---------------|--------------------------------|------------------------------------|
+| proposal.md   | Problem + scope + criteria     | openspec/changes/{feature}/        |
+| specs.md      | Functional specs + integration | openspec/changes/{feature}/        |
+| design.md     | Technical design with SOLID    | openspec/changes/{feature}/        |
+| tasks.md      | Tasks + verify + workflow state| openspec/changes/{feature}/        |
 
 ### Task States
 
@@ -196,11 +196,11 @@ See GLOSSARY.md for full definitions.
 /workflows:route "describe what you need"
 
 ### "Context window is getting heavy"
-Commit your work, start a new Claude session, and resume from `50_state.md`.
+Commit your work, start a new Claude session, and resume from `tasks.md` Workflow State.
 
 ### "Something failed and I don't know what"
 /workflows:status my-feature
-Check 50_state.md for BLOCKED status with details.
+Check tasks.md Workflow State for BLOCKED status with details.
 
 ### "Tests won't pass"
 The Bounded Correction Protocol auto-corrects up to 10 times.

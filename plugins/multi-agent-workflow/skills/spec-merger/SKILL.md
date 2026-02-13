@@ -13,7 +13,7 @@ Merge feature specifications into project-level specifications after feature com
 
 ## What This Skill Does
 
-- Compares feature specs (`12_specs.md`, `15_solutions.md`) with project specs
+- Compares feature specs (`openspec/changes/{slug}/specs.md`, `design.md`) with project specs (`openspec/specs/`)
 - Identifies new entities, endpoints, and rules to add
 - Identifies modifications to existing specifications
 - Merges changes while preserving manual edits
@@ -65,19 +65,19 @@ Merge feature specifications into project-level specifications after feature com
 
 ```bash
 # Load feature specs
-Read: .ai/project/features/${FEATURE_ID}/12_specs.md
-Read: .ai/project/features/${FEATURE_ID}/15_solutions.md
-Read: .ai/project/features/${FEATURE_ID}/20_api_contracts.md
+Read: openspec/changes/${FEATURE_ID}/specs.md
+Read: openspec/changes/${FEATURE_ID}/design.md
+Read: openspec/changes/${FEATURE_ID}/specs.md
 ```
 
 ### Step 2: Load Project Specifications
 
 ```bash
 # Load project-level specs
-Read: .ai/project/specs/entities.md
-Read: .ai/project/specs/api-contracts.md
-Read: .ai/project/specs/business-rules.md
-Read: .ai/project/specs/spec-manifest.yaml
+Read: openspec/specs/entities.md
+Read: openspec/specs/api-contracts.md
+Read: openspec/specs/business-rules.md
+Read: openspec/specs/spec-manifest.yaml
 ```
 
 ### Step 3: Diff Analysis
@@ -307,10 +307,10 @@ SKIP: POST /api/users (no changes)
 
 | File | Changes |
 |------|---------|
-| `.ai/project/specs/entities.md` | +3 entities, ~1 modified |
-| `.ai/project/specs/api-contracts.md` | +2 endpoints, ~1 modified |
-| `.ai/project/specs/business-rules.md` | +2 rules |
-| `.ai/project/specs/spec-manifest.yaml` | Updated timestamps |
+| `openspec/specs/entities.md` | +3 entities, ~1 modified |
+| `openspec/specs/api-contracts.md` | +2 endpoints, ~1 modified |
+| `openspec/specs/business-rules.md` | +2 rules |
+| `openspec/specs/spec-manifest.yaml` | Updated timestamps |
 
 ---
 
@@ -321,7 +321,7 @@ SKIP: POST /api/users (no changes)
 /multi-agent-workflow:validate-specs
 
 # View updated manifest
-cat .ai/project/specs/spec-manifest.yaml
+cat openspec/specs/spec-manifest.yaml
 ```
 ```
 
@@ -480,10 +480,10 @@ See: https://example.com/email-spec
 /multi-agent-workflow:merge-specs user-management
 
 # Creates:
-# - .ai/project/specs/entities.md
-# - .ai/project/specs/api-contracts.md
-# - .ai/project/specs/business-rules.md
-# - .ai/project/specs/spec-manifest.yaml
+# - openspec/specs/entities.md
+# - openspec/specs/api-contracts.md
+# - openspec/specs/business-rules.md
+# - openspec/specs/spec-manifest.yaml
 ```
 
 ### Scenario 2: Incremental Feature
@@ -527,7 +527,7 @@ See: https://example.com/email-spec
 
 # Output:
 # ERROR: Feature 'nonexistent-feature' not found
-# Expected: .ai/project/features/nonexistent-feature/12_specs.md
+# Expected: openspec/changes/nonexistent-feature/specs.md
 # Run: /workflows:plan nonexistent-feature
 ```
 
@@ -536,7 +536,7 @@ See: https://example.com/email-spec
 ```bash
 # Error: Malformed specs
 # Output:
-# ERROR: Invalid spec format in 12_specs.md
+# ERROR: Invalid spec format in specs.md
 # Line 45: Missing 'Acceptance Criteria' section for SPEC-F03
 # Fix the spec file and retry.
 ```

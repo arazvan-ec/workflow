@@ -74,7 +74,7 @@ Every request starts with routing. No exceptions.
 
 ### Flow Guards
 
-Commands enforce ordering via `50_state.md`:
+Commands enforce ordering via `tasks.md` Workflow State (in `openspec/changes/{slug}/tasks.md`):
 - `plan` requires routing completed
 - `work` requires plan status = COMPLETED
 - `review` requires work status = COMPLETED

@@ -8,7 +8,7 @@ Stack-agnostic implementation role. Handles backend, frontend, or full-stack tas
 - Follow project architecture patterns and conventions
 - Write tests first (TDD mandatory)
 - Collaborate with planner and reviewer
-- Update `50_state.md` with progress and blockers
+- Update `tasks.md` with progress and blockers
 
 ## Execution Mode
 
@@ -20,9 +20,9 @@ Adapts behavior based on `execution_mode` in `core/providers.yaml`:
 
 ## Agent-Executes Workflow (per task)
 
-1. **Read** task from `30_tasks.md` (acceptance criteria, SOLID requirements, reference file)
+1. **Read** task from `tasks.md` (acceptance criteria, SOLID requirements, reference file)
 2. **Read** reference file to learn existing pattern
-3. **Check** dependencies (if frontend: check API readiness in `50_state.md` — mock if needed)
+3. **Check** dependencies (if frontend: check API readiness in `tasks.md` — mock if needed)
 4. **Write test FIRST** (TDD Red) — use Write tool
 5. **Run test** to confirm failure (test-runner skill)
 6. **Write implementation** following reference pattern — use Write/Edit tools
@@ -30,15 +30,15 @@ Adapts behavior based on `execution_mode` in `core/providers.yaml`:
 8. **If tests fail** → Bounded Correction Protocol (see `core/rules/testing-rules.md`)
 9. **Check SOLID** (solid-analyzer skill) — must meet task thresholds
 10. **Fix lint** (lint-fixer skill)
-11. **Checkpoint** — update `50_state.md`
+11. **Checkpoint** — update `tasks.md`
 
 > **TDD workflow, Bounded Correction Protocol, and deviation types**: See `core/rules/testing-rules.md`. Loaded automatically for all roles.
 
 ## Permitted Operations
 
-**Read**: Feature state (`50_state.md`), contracts, rules, existing code, this role file.
+**Read**: Feature state (`tasks.md`), contracts, rules, existing code, this role file.
 
-**Write**: Source code (`src/`), tests (`tests/`), mocks, `50_state.md` updates, `30_tasks.md` progress.
+**Write**: Source code (`src/`), tests (`tests/`), mocks, `tasks.md` updates, `tasks.md` progress.
 
 **Prohibited**: Changing project rules, skipping workflow stages, making global design decisions (that's the Planner's job).
 
@@ -46,8 +46,8 @@ Adapts behavior based on `execution_mode` in `core/providers.yaml`:
 
 1. Read this role file
 2. Read project rules (`core/rules/`)
-3. Read current `50_state.md`
-4. Read the task from `30_tasks.md`
+3. Read current `tasks.md`
+4. Read the task from `tasks.md`
 
 ## Implementation Pattern
 
@@ -80,12 +80,12 @@ The implementer detects the project stack at runtime and adapts:
 
 ## Communication
 
-- **With Planner**: Report blocks in `50_state.md`, ask about design decisions
+- **With Planner**: Report blocks in `tasks.md`, ask about design decisions
 - **With Reviewer**: Facilitate tests, explain technical decisions, fix reported issues
 
 ## If Blocked
 
-Update `50_state.md` with `BLOCKED` or `WAITING_API` status, describe what's needed, wait for Planner.
+Update `tasks.md` with `BLOCKED` or `WAITING_API` status, describe what's needed, wait for Planner.
 
 ## Quality Criteria
 

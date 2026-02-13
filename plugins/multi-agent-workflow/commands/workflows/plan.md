@@ -18,7 +18,7 @@ PREREQUISITE CHECK:
      - YES: Continue to planning
      - NO: STOP. Run /workflows:route first, then return here.
 
-  2. If 50_state.md exists for this feature, is this a continuation?
+  2. If tasks.md exists in openspec/changes/{slug}/ for this feature, is this a continuation?
      - YES (planner = IN_PROGRESS): Resume planning from last checkpoint
      - YES (planner = COMPLETED): Plan already exists. Confirm re-planning with user.
      - NO: Fresh start, proceed normally.
@@ -66,7 +66,7 @@ PHASE COMPLETION PROTOCOL (applies to every phase):
 
 1. GENERATE the phase output in full
 2. WRITE the output file to disk immediately (use Write tool)
-3. UPDATE 50_state.md with phase completion status + timestamp
+3. UPDATE tasks.md Workflow State with phase completion status + timestamp
 4. VERIFY the file exists on disk (use Read tool to confirm)
 5. ONLY THEN advance to the next phase
 
@@ -74,33 +74,37 @@ If step 2 fails, RETRY the write. Do NOT proceed to next phase
 with unwritten output.
 ```
 
-### Planning Progress Tracker (in 50_state.md)
+### Planning Progress Tracker (in tasks.md Workflow State)
 
-At the START of planning, create `50_state.md` with this structure:
+At the START of planning, create `openspec/changes/${FEATURE_ID}/tasks.md` with this initial structure:
 
 ```markdown
-## Planner
-**Status**: IN_PROGRESS
+# Implementation Tasks
+
+## Progress
+| Task | Status | Verify | Completed At |
+|------|--------|--------|--------------|
+(populated in Phase 4)
+
+## Task Details
+(populated in Phase 4)
+
+## Workflow State
+**Planner**: IN_PROGRESS | **Implementer**: PENDING | **Reviewer**: PENDING
 **Feature**: ${FEATURE_ID}
 **Started**: ${ISO_TIMESTAMP}
 **Last Updated**: ${ISO_TIMESTAMP}
+**Last Phase**: (none) | **Resume Point**: Step 0
 
 ### Planning Progress
 | Phase | Status | Output File | Written At |
 |-------|--------|-------------|------------|
 | Step 0 (Load Specs) | PENDING | (context only) | - |
-| Phase 1 (Understand) | PENDING | 00_problem_statement.md | - |
-| Phase 2 (Specs) | PENDING | 12_specs.md | - |
-| Phase 2b (Integration) | PENDING | 13_integration_analysis.md | - |
-| Phase 3 (Solutions) | PENDING | 15_solutions.md | - |
-| Phase 3b (Impact) | PENDING | 16_architectural_impact.md | - |
-| Phase 4 (Tasks) | PENDING | 30_tasks.md | - |
-| Completeness Check | PENDING | FEATURE_${ID}.md | - |
-
-### Resume Point
-**Last Completed Phase**: (none)
-**Next Phase**: Step 0
-**Files Written So Far**: (none)
+| Phase 1 (Understand) | PENDING | proposal.md | - |
+| Phase 2 (Specs) | PENDING | specs.md | - |
+| Phase 3 (Design) | PENDING | design.md | - |
+| Phase 4 (Tasks) | PENDING | tasks.md | - |
+| Completeness Check | PENDING | (summary in proposal.md) | - |
 ```
 
 ### Per-Phase Write Directives
@@ -109,42 +113,43 @@ After completing each phase, you MUST execute these exact steps:
 
 **After Step 0 (Load Specs)**:
 ```
-1. UPDATE 50_state.md: Step 0 → COMPLETED, timestamp
+1. UPDATE tasks.md Workflow State: Step 0 → COMPLETED, timestamp
 2. No output file for this step (context only)
 ```
 
 **After Phase 1 (Understand)**:
 ```
-1. WRITE .ai/project/features/${FEATURE_ID}/00_problem_statement.md
+1. WRITE openspec/changes/${FEATURE_ID}/proposal.md
 2. VERIFY file exists and has substantive content (not just headers)
-3. UPDATE 50_state.md: Phase 1 → COMPLETED, timestamp, file path
-4. UPDATE Resume Point: Last = Phase 1, Next = Phase 2
+3. UPDATE tasks.md Workflow State: Phase 1 → COMPLETED, timestamp, file path
+4. UPDATE Resume Point: Last Phase = Phase 1, Resume Point = Phase 2
 ```
 
 **After Phase 2 (Specs)**:
 ```
-1. WRITE .ai/project/features/${FEATURE_ID}/12_specs.md
-2. VERIFY file exists and has substantive content
-3. WRITE .ai/project/features/${FEATURE_ID}/13_integration_analysis.md (if applicable)
-4. UPDATE 50_state.md: Phase 2 → COMPLETED, Phase 2b → COMPLETED, timestamps
-5. UPDATE Resume Point: Last = Phase 2, Next = Phase 3
+1. RUN Integration Analysis pre-hook (reads openspec/specs/, generates impact context)
+2. GENERATE specs.md with impact context injected
+3. RUN Quality Gate post-hook (4 checks, max 3 iterations)
+4. WRITE openspec/changes/${FEATURE_ID}/specs.md
+5. VERIFY file exists and has substantive content
+6. UPDATE tasks.md Workflow State: Phase 2 → COMPLETED, timestamp
+7. UPDATE Resume Point: Last Phase = Phase 2, Resume Point = Phase 3
 ```
 
-**After Phase 3 (Solutions)**:
+**After Phase 3 (Design)**:
 ```
-1. WRITE .ai/project/features/${FEATURE_ID}/15_solutions.md
+1. WRITE openspec/changes/${FEATURE_ID}/design.md
 2. VERIFY file exists and has substantive content
-3. WRITE .ai/project/features/${FEATURE_ID}/16_architectural_impact.md (if applicable)
-4. UPDATE 50_state.md: Phase 3 → COMPLETED, Phase 3b → COMPLETED, timestamps
-5. UPDATE Resume Point: Last = Phase 3, Next = Phase 4
+3. UPDATE tasks.md Workflow State: Phase 3 → COMPLETED, timestamp
+4. UPDATE Resume Point: Last Phase = Phase 3, Resume Point = Phase 4
 ```
 
 **After Phase 4 (Tasks)**:
 ```
-1. WRITE .ai/project/features/${FEATURE_ID}/30_tasks.md
-2. VERIFY file(s) exist with substantive content
-3. WRITE .ai/project/features/${FEATURE_ID}/FEATURE_${FEATURE_ID}.md (summary)
-4. UPDATE 50_state.md: Phase 4 → COMPLETED, Completeness Check → PENDING
+1. UPDATE openspec/changes/${FEATURE_ID}/tasks.md (Progress + Task Details sections)
+2. VERIFY file has substantive content
+3. APPEND summary section to proposal.md
+4. UPDATE tasks.md Workflow State: Phase 4 → COMPLETED, Completeness Check → PENDING
 5. PROCEED to Completeness Verification
 ```
 
@@ -152,20 +157,20 @@ After completing each phase, you MUST execute these exact steps:
 
 ## Shaping Integration (Optional Pre-Phase)
 
-If `/workflows:shape` was run before planning, the following artifacts are available:
+If `/workflows:shape` was run before planning, the following artifacts are available in `openspec/changes/${FEATURE_ID}/`:
 
 | File | Content | How Planner Uses It |
 |------|---------|---------------------|
 | `01_shaped_brief.md` | Frame, requirements (R), shape, fit check | Accelerates Phase 1 (Understand) and Phase 2 (Specs) |
-| `02_breadboard.md` | Places, affordances, wiring diagram | Informs Phase 3 (Solutions) with concrete mechanisms |
-| `03_slices.md` | Vertical slices with demo statements | Becomes the task group structure in Phase 3 |
-| `spike-*.md` | Technical investigation findings | Provides context for solution decisions |
+| `02_breadboard.md` | Places, affordances, wiring diagram | Informs Phase 3 (Design) with concrete mechanisms |
+| `03_slices.md` | Vertical slices with demo statements | Becomes the task group structure in Phase 4 |
+| `spike-*.md` | Technical investigation findings | Provides context for design decisions |
 
 When shaped brief exists, the planner should:
 1. **Phase 1**: Use the Frame as the problem statement (verify with user, don't re-derive)
 2. **Phase 2**: Use Requirements (R) as foundation for functional specs (add formal structure)
-3. **Phase 3**: Use Shape parts as starting point for solutions (add SOLID analysis)
-4. **Tasks**: Use Slices (V1, V2...) to structure task groups vertically
+3. **Phase 3**: Use Shape parts as starting point for design (add SOLID analysis)
+4. **Phase 4**: Use Slices (V1, V2...) to structure task groups vertically
 
 ---
 
@@ -188,9 +193,9 @@ IF "minimal":  Execute Step 0 + Phase 1 + Phase 4 ONLY (skip Phase 2 specs and P
 
 | Depth | Phases | Output Files | Best For |
 |-------|--------|-------------|----------|
-| **full** | All phases + integration + SOLID + impact | All files | Complex features, multi-layer, security |
-| **standard** | Phase 1-4, no detailed impact | 00, 12, 15, 30, 50, FEATURE | Medium features, single-layer |
-| **minimal** | Phase 1 + Phase 4 only | 00, 30, 50, FEATURE | Simple features, bug fixes |
+| **full** | All phases + integration + SOLID + impact | proposal, specs, design, tasks | Complex features, multi-layer, security |
+| **standard** | Phase 1-4, no detailed impact | proposal, specs, design, tasks | Medium features, single-layer |
+| **minimal** | Phase 1 + Phase 4 only | proposal, tasks | Simple features, bug fixes |
 
 When `planning_depth` is `minimal`, the Quality Gates for Phase 2 and Phase 3 are skipped (those phases don't execute).
 
@@ -249,12 +254,12 @@ Before planning any new feature, load and understand the existing project archit
 
 ```bash
 # Check if pre-planning phase captured preferences
-PREFERENCES=".ai/project/features/${FEATURE_ID}/01_preferences.md"
+PREFERENCES="openspec/changes/${FEATURE_ID}/01_preferences.md"
 if [ -f "$PREFERENCES" ]; then
   echo "Preferences found from pre-planning. Loading into planning context."
   # Read technology choices, architecture preferences, code style, constraints
   # Do NOT re-ask questions already answered in 01_preferences.md
-  # Use preferences to guide Phase 1 constraints and Phase 3 solutions
+  # Use preferences to guide Phase 1 constraints and Phase 3 design
 fi
 ```
 
@@ -262,7 +267,7 @@ fi
 
 ```bash
 # Check if shaping was done before planning
-SHAPED_BRIEF=".ai/project/features/${FEATURE_ID}/01_shaped_brief.md"
+SHAPED_BRIEF="openspec/changes/${FEATURE_ID}/01_shaped_brief.md"
 if [ -f "$SHAPED_BRIEF" ]; then
   echo "Shaped brief found. Using as input for planning."
   # Read shaped brief, breadboard, slices
@@ -273,8 +278,8 @@ fi
 ### Step 0.1: Read Existing Specifications
 
 ```bash
-# Load all existing project specs
-SPECS_BASE=".ai/project/specs"
+# Load all existing project specs (BASELINE — read-only, only compound writes here)
+SPECS_BASE="openspec/specs"
 
 # Entities - the domain model
 ls -la ${SPECS_BASE}/entities/*.yaml
@@ -393,7 +398,7 @@ Before proceeding, ensure you understand:
 
 ### Phase 1 Quality Gate (BCP for Planning)
 
-Before writing `00_problem_statement.md`, self-validate with bounded iteration:
+Before writing `proposal.md`, self-validate with bounded iteration:
 
 ```
 PHASE 1 QUALITY CHECK (max 3 iterations):
@@ -472,7 +477,7 @@ Phase 2 defines **WHAT** the system must do - the functional requirements from t
 # Generate functional specs interactively
 /workflow-skill:criteria-generator --feature=${FEATURE_ID} --interview
 
-# Output: .ai/project/features/${FEATURE_ID}/12_specs.md
+# Output: openspec/changes/${FEATURE_ID}/specs.md
 ```
 
 ### Integration Analysis (when --show-impact=true)
@@ -556,7 +561,7 @@ API CONTRACT DESIGN PROTOCOL:
    - Rate limiting: if applicable
 
 3. CONSISTENCY: Match existing project conventions
-   - Read existing API contracts in .ai/project/specs/api-contracts/
+   - Read existing API contracts in openspec/specs/api-contracts/
    - Follow the same response envelope format
    - Use consistent error response structure
    - Match pagination style (cursor vs offset)
@@ -565,8 +570,7 @@ API CONTRACT DESIGN PROTOCOL:
    - If existing endpoints use /api/v1/, new endpoints must too
    - If no versioning exists, don't introduce it unnecessarily
 
-5. OUTPUT: Write contracts to 20_api_contracts.md (task-breakdown workflow)
-   or include in 13_integration_analysis.md (default workflow)
+5. OUTPUT: Include contracts in specs.md Integration Analysis section
 ```
 
 #### Step 2.C: Conflict Detection
@@ -586,7 +590,7 @@ Before proceeding to Phase 3, verify no unresolved conflicts:
 
 ### Phase 2 Quality Gate (BCP for Planning)
 
-Before writing `12_specs.md`, self-validate with bounded iteration:
+Before writing `specs.md`, self-validate with bounded iteration:
 
 ```
 PHASE 2 QUALITY CHECK (max 3 iterations):
@@ -610,7 +614,7 @@ PHASE 2 QUALITY CHECK (max 3 iterations):
       - Must identify at least extended/modified/new for entities AND endpoints
       - FAIL if all sections say "None" for a non-trivial feature
 
-    IF all checks pass → WRITE files, advance to Phase 3
+    IF all checks pass → WRITE specs.md, advance to Phase 3
     IF any check fails → revise, iteration += 1
 
   IF 3 iterations exhausted:
@@ -623,7 +627,7 @@ PHASE 2 QUALITY CHECK (max 3 iterations):
 
 ---
 
-## PHASE 3: PLAN WITH SOLUTIONS
+## PHASE 3: DESIGN
 
 Phase 3 defines **HOW** to implement each spec. This is where **SOLID becomes mandatory**.
 
@@ -724,7 +728,7 @@ Before finalizing the plan:
 
 ```bash
 # Validate proposed design achieves SOLID score
-/workflow-skill:solid-analyzer --validate --design=15_solutions.md
+/workflow-skill:solid-analyzer --validate --design=design.md
 
 # Must achieve:
 # - ≥18/25 to proceed to implementation
@@ -830,7 +834,7 @@ After designing solutions, analyze the architectural impact across the codebase.
 
 ### Phase 3 Quality Gate (BCP for Planning)
 
-Before writing `15_solutions.md`, self-validate with bounded iteration:
+Before writing `design.md`, self-validate with bounded iteration:
 
 ```
 PHASE 3 QUALITY CHECK (max 3 iterations):
@@ -853,7 +857,7 @@ PHASE 3 QUALITY CHECK (max 3 iterations):
       - Must identify files to CREATE and files to MODIFY
       - FAIL if change scope is empty or says "TBD"
 
-    IF all checks pass → WRITE files, advance to Phase 4
+    IF all checks pass → WRITE design.md, advance to Phase 4
     IF any check fails → revise, iteration += 1
 
   IF 3 iterations exhausted:
@@ -871,58 +875,57 @@ PHASE 3 QUALITY CHECK (max 3 iterations):
 ```bash
 # 0. STEP 0: Load Project Specs (Architecture Context)
 FEATURE_ID="user-authentication"
-mkdir -p .ai/project/features/${FEATURE_ID}
+mkdir -p openspec/changes/${FEATURE_ID}
 
-# CREATE 50_state.md with Planning Progress Tracker ← WRITE IMMEDIATELY
+# CREATE tasks.md with Planning Progress Tracker ← WRITE IMMEDIATELY
 # (see Incremental Persistence Protocol for template)
-# Read existing entities, api-contracts, business-rules, architectural-constraints
+# Read existing entities, api-contracts, business-rules, architectural-constraints from openspec/specs/
 # Display summary of existing architecture
-# UPDATE 50_state.md: Step 0 → COMPLETED
+# UPDATE tasks.md Workflow State: Step 0 → COMPLETED
 
 # 1. PHASE 1: Understand
 # - Analyze request IN CONTEXT of existing specs
 # - Ask clarifying questions if needed
 # - Document problem statement
 # - RUN Phase 1 Quality Gate (max 3 iterations)
-# - WRITE .ai/project/features/${FEATURE_ID}/00_problem_statement.md ← IMMEDIATELY
+# - WRITE openspec/changes/${FEATURE_ID}/proposal.md ← IMMEDIATELY
 # - VERIFY file exists on disk
-# - UPDATE 50_state.md: Phase 1 → COMPLETED with timestamp
+# - UPDATE tasks.md Workflow State: Phase 1 → COMPLETED with timestamp
 
 # 2. PHASE 2: Specs + Integration Analysis
+# - RUN Integration Analysis pre-hook (reads openspec/specs/, generates impact context)
 /workflow-skill:criteria-generator --feature=${FEATURE_ID} --interview
-# - Define functional specs (WHAT the system must do)
-# - Identify EXTENDED, MODIFIED, NEW entities/endpoints
+# - Define functional specs with Gherkin scenarios (WHAT the system must do)
+# - Include integration analysis (EXTENDED, MODIFIED, NEW, CONFLICT) with impact context
 # - Detect conflicts with existing specs
-# - RUN Phase 2 Quality Gate (max 3 iterations)
-# - WRITE .ai/project/features/${FEATURE_ID}/12_specs.md ← IMMEDIATELY
-# - WRITE .ai/project/features/${FEATURE_ID}/13_integration_analysis.md ← IMMEDIATELY
-# - VERIFY files exist on disk
-# - UPDATE 50_state.md: Phase 2 → COMPLETED with timestamp
+# - RUN Quality Gate post-hook (4 checks, max 3 iterations)
+# - WRITE openspec/changes/${FEATURE_ID}/specs.md ← IMMEDIATELY
+# - VERIFY file exists on disk
+# - UPDATE tasks.md Workflow State: Phase 2 → COMPLETED with timestamp
 
-# 3. PHASE 3: Solutions with SOLID + Architectural Impact
+# 3. PHASE 3: Design (Solutions + SOLID + Architectural Impact)
 /workflow-skill:solid-analyzer --path=src/relevant-path  # Get baseline
 # - Design solutions using patterns
 # - Verify SOLID score ≥22/25
 # - Analyze layers affected, modules touched, change scope
 # - RUN Phase 3 Quality Gate (max 3 iterations)
-# - WRITE .ai/project/features/${FEATURE_ID}/15_solutions.md ← IMMEDIATELY
-# - WRITE .ai/project/features/${FEATURE_ID}/16_architectural_impact.md ← IMMEDIATELY
-# - VERIFY files exist on disk
-# - UPDATE 50_state.md: Phase 3 → COMPLETED with timestamp
+# - WRITE openspec/changes/${FEATURE_ID}/design.md ← IMMEDIATELY
+# - VERIFY file exists on disk
+# - UPDATE tasks.md Workflow State: Phase 3 → COMPLETED with timestamp
 
-# 4. Create task breakdown
-# Each task includes SOLID requirements + integration notes
-# - WRITE .ai/project/features/${FEATURE_ID}/30_tasks.md ← IMMEDIATELY
-# - WRITE .ai/project/features/${FEATURE_ID}/FEATURE_${FEATURE_ID}.md ← IMMEDIATELY
-# - VERIFY files exist on disk
-# - UPDATE 50_state.md: Phase 4 → COMPLETED with timestamp
+# 4. PHASE 4: Tasks
+# Each task includes SOLID requirements + integration notes + verify conditions
+# - UPDATE openspec/changes/${FEATURE_ID}/tasks.md (Progress + Task Details) ← IMMEDIATELY
+# - APPEND summary section to proposal.md
+# - VERIFY file has substantive content
+# - UPDATE tasks.md Workflow State: Phase 4 → COMPLETED with timestamp
 
 # 5. RUN Plan Completeness Verification (MANDATORY)
 # - Verify all files exist on disk
 # - Verify substantive content (not just headers)
 # - Cross-reference against original request
 # - User confirmation
-# - UPDATE 50_state.md: Planner → COMPLETED
+# - UPDATE tasks.md Workflow State: Planner → COMPLETED
 ```
 
 ---
@@ -1009,7 +1012,7 @@ Before marking planning as COMPLETED:
 
 ## Plan Completeness Verification (MANDATORY before marking COMPLETED)
 
-Before setting planner status to `COMPLETED` in `50_state.md`, execute this verification:
+Before setting planner status to `COMPLETED` in `tasks.md` Workflow State, execute this verification:
 
 ```
 PLAN COMPLETENESS GATE:
@@ -1019,24 +1022,15 @@ PLAN COMPLETENESS GATE:
   For each required file, use Read tool to verify it exists and is non-empty:
 
   REQUIRED_FILES = [
-    "00_problem_statement.md",   # Phase 1 output
-    "12_specs.md",               # Phase 2 output
-    "15_solutions.md",           # Phase 3 output
-    "30_tasks.md",               # Phase 4 output
-    "50_state.md",               # State tracking
-    "FEATURE_${FEATURE_ID}.md"   # Summary
-  ]
-
-  OPTIONAL_FILES = [
-    "13_integration_analysis.md",  # Phase 2b (when --show-impact=true)
-    "16_architectural_impact.md",  # Phase 3b (when --show-impact=true)
-    "10_architecture.md",          # task-breakdown workflow only
-    "20_api_contracts.md",         # task-breakdown workflow only
+    "proposal.md",   # Phase 1 output
+    "specs.md",      # Phase 2 output
+    "design.md",     # Phase 3 output
+    "tasks.md",      # Phase 4 output + state tracking
   ]
 
   missing = []
   for file in REQUIRED_FILES:
-    path = ".ai/project/features/${FEATURE_ID}/${file}"
+    path = "openspec/changes/${FEATURE_ID}/${file}"
     if NOT exists(path) OR is_empty(path):
       missing.append(file)
 
@@ -1060,8 +1054,8 @@ PLAN COMPLETENESS GATE:
 
   STEP 3: Cross-reference against original request
   ─────────────────────────────────────────────────
-  Read the original user request (from 00_problem_statement.md "Original Request")
-  Read 12_specs.md and 30_tasks.md
+  Read the original user request (from proposal.md "Original Request")
+  Read specs.md and tasks.md
   Verify:
     - Every distinct requirement from the request maps to at least one spec
     - Every spec maps to at least one task
@@ -1071,7 +1065,7 @@ PLAN COMPLETENESS GATE:
     LIST the gaps
     ASK user: "The plan may not fully cover: [gaps]. Should I add these?"
     IF yes: generate missing specs/tasks and write them
-    IF no: document user's decision in 50_state.md
+    IF no: document user's decision in tasks.md Workflow State notes
 
   STEP 4: User confirmation (recommended)
   ────────────────────────────────────────
@@ -1081,17 +1075,17 @@ PLAN COMPLETENESS GATE:
      - ${M} tasks created (${B} backend, ${F} frontend, ${Q} QA)
      - ${X} files to create, ${Y} files to modify
      - Estimated SOLID score: ${SCORE}/25
-     - All output files written to .ai/project/features/${FEATURE_ID}/
+     - All output files written to openspec/changes/${FEATURE_ID}/
 
      Ready to proceed to /workflows:work? (yes/review/revise)"
 
-  IF "review": Display the full FEATURE_${ID}.md for user review
+  IF "review": Display the summary section of proposal.md for user review
   IF "revise": Ask what to change, update relevant files
   IF "yes" or no response: Mark COMPLETED
 
   STEP 5: Mark planning COMPLETED
   ────────────────────────────────
-  UPDATE 50_state.md:
+  UPDATE tasks.md Workflow State:
     Planner Status → COMPLETED
     Completeness Check → COMPLETED
     All phases → COMPLETED with timestamps
@@ -1102,189 +1096,151 @@ PLAN COMPLETENESS GATE:
 
 ## Output Files
 
-### For `default` workflow:
+### OpenSpec Structure (all workflows):
 ```
-.ai/project/features/${FEATURE_ID}/
-├── 00_problem_statement.md    # Phase 1: Understanding
-├── 12_specs.md                # Phase 2: Functional specs (WHAT)
-├── 13_integration_analysis.md # Phase 2: Integration with existing specs (NEW)
-├── 15_solutions.md            # Phase 3: Solutions with SOLID (HOW)
-├── 16_architectural_impact.md # Phase 3: Layers/modules affected (NEW)
-├── 30_tasks.md                # Task breakdown
-├── 50_state.md                # State tracking
-└── FEATURE_${FEATURE_ID}.md   # Summary
+openspec/changes/${FEATURE_ID}/
+├── proposal.md   # Phase 1: Problem statement, motivation, scope, success criteria
+├── specs.md      # Phase 2: Functional specs (WHAT) + Integration Analysis
+├── design.md     # Phase 3: Solutions + SOLID + Architectural Impact (HOW)
+└── tasks.md      # Phase 4: Task breakdown + verify conditions + Workflow State
 ```
 
-### For `task-breakdown` workflow:
-```
-.ai/project/features/${FEATURE_ID}/
-├── 00_problem_statement.md
-├── 10_architecture.md
-├── 12_specs.md                # Functional specs only
-├── 13_integration_analysis.md # Integration analysis (NEW)
-├── 15_solutions.md            # Solutions with SOLID patterns
-├── 15_data_model.md
-├── 16_architectural_impact.md # Architectural impact (NEW)
-├── 20_api_contracts.md
-├── 30_tasks.md
-├── 35_dependencies.md
-├── 50_state.md
-└── FEATURE_${FEATURE_ID}.md
-```
-
----
-
-## Integration Analysis Output
-
-When `--show-impact=true` (default), the planning process generates a comprehensive integration analysis.
-
-### 13_integration_analysis.md Structure
+### specs.md Structure
 
 ```markdown
-# Integration Analysis: ${FEATURE_ID}
+# Functional Specifications: ${FEATURE_ID}
 
-## Summary
-- Entities: X extended, Y modified, Z new
-- Endpoints: X extended, Y modified, Z new
-- Business Rules: X conflicts, Y new
-- Status: [CLEAR | CONFLICTS_DETECTED]
+## Requirements
+- SPEC-F01: [Functional Requirement 1]
+  - Acceptance Criteria: ...
+  - Verification: ...
+- SPEC-F02: ...
 
-## Entities Impact
-### Extended
-[List of existing entities that gain new properties/methods]
+## Scenarios (Gherkin)
+GIVEN [precondition]
+WHEN [action]
+THEN [expected result]
 
-### Modified
-[List of existing entities with changed behavior]
+## Integration Analysis
+### Entities Impact
+| Entity | Change Type | Details |
+(EXTENDED / MODIFIED / NEW / CONFLICT)
 
-### New
-[List of new entities created by this feature]
+### API Contracts Impact
+[Extended, Modified, New endpoints]
 
-## API Contracts Impact
-### Extended
-[Existing endpoints with new parameters/responses]
+### Business Rules Impact
+[Conflicts with existing rules + new rules]
 
-### Modified
-[Existing endpoints with changed behavior]
-
-### New
-[New endpoints created by this feature]
-
-## Business Rules Impact
-### Conflicts
-[Potential conflicts with existing rules and resolutions]
-
-### New
-[New business rules added by this feature]
-
-## Compatibility Assessment
-- Backward Compatible: [YES | NO | PARTIAL]
-- Migration Required: [YES | NO]
-- Breaking Changes: [List if any]
+### Backward Compatibility
+[Assessment: YES | NO | PARTIAL, migration needs, breaking changes]
 ```
 
-### 16_architectural_impact.md Structure
+### design.md Structure
 
 ```markdown
-# Architectural Impact: ${FEATURE_ID}
+# Technical Design: ${FEATURE_ID}
 
-## Summary
-- Layers affected: [Domain, Application, Infrastructure, Presentation]
-- Modules touched: X existing, Y new
-- Change scope: X files to create, Y files to modify
+## Solution Approach
+[Per-requirement solution mapping: SPEC-F01 → Solution, etc.]
 
-## Layer Analysis
-[Table showing each layer's impact level and changes required]
+## SOLID Analysis
+- Baseline score: X/25
+- Pattern selection (violation → pattern)
+- Target score: ≥22/25
 
-## Modules Touched
-[Table of existing modules with files touched and risk level]
+## Architectural Impact
+- Layers affected (Domain/Application/Infrastructure)
+- Modules touched
+- Change scope estimation (files to CREATE/MODIFY, LOC, complexity)
+- Risk assessment
 
-## Change Scope
-- Files to CREATE: N
-- Files to MODIFY: N
-- Total files affected: N
-- Estimated LOC: N added, N modified
-- Complexity: [LOW | MEDIUM | HIGH]
-- Estimated effort: [time estimate]
-
-## Risk Assessment
-[Table of risks with probability, impact, and mitigation strategies]
+## Key Decisions
+[Architecture decisions with rationale]
 ```
 
 ---
 
 ## Example: Complete Plan
 
+The 4 OpenSpec files for `openspec/changes/user-authentication/`:
+
+### proposal.md
 ```markdown
-# Feature Plan: user-authentication
+# User Authentication
 
-## STEP 0: Architecture Context
-
-### Existing Specs Loaded
-- Entities: 5 (Product, Order, OrderItem, Category, Inventory)
-- API Contracts: 12 endpoints
-- Business Rules: 8 rules
-- Architectural Constraints: 4 constraints
-
-### Relevant to This Feature
-- No existing User entity (greenfield for auth)
-- AC-002: "Auth required for write operations" - this feature enables it
-
-## PHASE 1: Problem Statement
-
+## Problem
 We need user authentication with email/password.
-Users should register, login, and logout.
 
-## PHASE 2: Specs + Integration Analysis
+## Motivation
+Users should register, login, and logout. Enables AC-002 for auth on write ops.
 
-### Functional Specs (WHAT)
+## Scope
+**In**: Registration, login, logout, token management
+**Out**: OAuth, social login, 2FA
 
-#### SPEC-F01: User Registration
-- User can register with email and password
-- Email must be unique
-- Password must be ≥8 characters
+## Success Criteria
+1. User can register with unique email and password ≥8 chars
+2. User can login and receive auth token
+3. User can logout and invalidate token
+```
 
-#### SPEC-F02: User Login
-- User can login with email and password
-- Returns authentication token on success
+### specs.md
+```markdown
+# Functional Specifications: user-authentication
 
-#### SPEC-F03: User Logout
-- User can invalidate their token
+## Requirements
+- SPEC-F01: User can register with email and password
+  - Email must be unique
+  - Password must be ≥8 characters
+- SPEC-F02: User can login with email and password
+  - Returns authentication token on success
+- SPEC-F03: User can invalidate their token
 
-### Integration Analysis
+## Scenarios
+GIVEN a new user with valid email and password
+WHEN they submit registration
+THEN account is created and confirmation returned
 
-#### Entities Impact
-| Type | Entity | Details |
-|------|--------|---------|
-| NEW | User | Core auth entity |
-| NEW | RefreshToken | Token management |
-| EXTENDED | Order | Add `user_id` foreign key |
+GIVEN a registered user with correct credentials
+WHEN they submit login
+THEN an authentication token is returned
 
-#### API Contracts Impact
-| Type | Endpoint | Details |
-|------|----------|---------|
-| NEW | POST /api/auth/register | User registration |
-| NEW | POST /api/auth/login | User login |
-| NEW | POST /api/auth/logout | User logout |
-| MODIFIED | POST /api/orders | Require auth header |
+## Integration Analysis
+### Entities Impact
+| Entity | Change Type | Details |
+|--------|-------------|---------|
+| User | NEW | Core auth entity |
+| RefreshToken | NEW | Token management |
+| Order | EXTENDED | Add `user_id` foreign key |
 
-#### Business Rules Impact
-| Type | Rule | Details |
+### API Contracts Impact
+| Endpoint | Change Type | Details |
+|----------|-------------|---------|
+| POST /api/auth/register | NEW | User registration |
+| POST /api/auth/login | NEW | User login |
+| POST /api/auth/logout | NEW | User logout |
+| POST /api/orders | MODIFIED | Require auth header |
+
+### Business Rules Impact
+| Rule | Type | Details |
 |------|------|---------|
-| NEW | BR-AUTH-01 | Email must be unique |
-| NEW | BR-AUTH-02 | Password ≥8 characters |
-| ENABLES | AC-002 | Auth now possible for write ops |
+| BR-AUTH-01 | NEW | Email must be unique |
+| BR-AUTH-02 | NEW | Password ≥8 characters |
+| AC-002 | ENABLES | Auth now possible for write ops |
 
-#### Conflicts
-- None detected
+### Backward Compatibility
+- Backward Compatible: YES (new endpoints, existing Order gets optional user_id)
+- Migration Required: YES (add user_id to orders table)
+```
 
-## PHASE 3: Solutions + Architectural Impact
+### design.md
+```markdown
+# Technical Design: user-authentication
 
-### SOLID Baseline
-Current code: N/A for auth (greenfield)
-Target score: ≥22/25
+## Solution Approach
 
 ### Solution for SPEC-F01 & F02
-
 **Patterns Selected**:
 | Need | Pattern | SOLID |
 |------|---------|-------|
@@ -1294,7 +1250,6 @@ Target score: ≥22/25
 | Token generation | Factory Method | DIP |
 
 **Class Design**:
-```
 Domain/
 ├── Entity/User.php           (SRP: data only)
 ├── ValueObject/Email.php     (SRP: validation)
@@ -1307,13 +1262,14 @@ Application/
 Infrastructure/
 ├── Repository/DoctrineUserRepository.php
 └── Service/BcryptPasswordHasher.php
-```
 
-**Expected SOLID Score**: 24/25
+## SOLID Analysis
+- Baseline score: N/A (greenfield)
+- Pattern selection: Value Object (SRP), Strategy (OCP), Repository (DIP), Factory Method (DIP)
+- Target score: 24/25
 
-### Architectural Impact
-
-#### Layers Affected
+## Architectural Impact
+### Layers Affected
 | Layer | Impact | Files |
 |-------|--------|-------|
 | Domain | HIGH | 5 new files |
@@ -1321,30 +1277,33 @@ Infrastructure/
 | Infrastructure | MEDIUM | 4 new files |
 | Presentation | LOW | 1 new controller |
 
-#### Modules Touched
+### Modules Touched
 | Module | Files | Risk |
 |--------|-------|------|
 | src/Auth/ (NEW) | 12 | N/A |
 | src/Order/ | 2 | LOW |
 | config/ | 2 | LOW |
 
-#### Change Scope
-- Files to CREATE: 14
-- Files to MODIFY: 4
-- Total: 18 files
-- Estimated effort: 2 days
+### Change Scope
+- Files to CREATE: 14, Files to MODIFY: 4, Total: 18
+- Complexity: MEDIUM
+
+## Key Decisions
+- Greenfield module: no existing auth to extend
+- JWT tokens with refresh token rotation
 ```
 
 ---
 
 ## Summary: Architecture-First Planning
 
-| Step/Phase | Content | SOLID? | Integration? |
-|------------|---------|--------|--------------|
-| **Step 0: Load Specs** | Existing architecture context | ❌ No | ✅ **YES - CONTEXT** |
-| Phase 1: Understand | Problem statement | ❌ No | ❌ No |
-| **Phase 2: Specs** | Functional requirements (WHAT) | ❌ No | ✅ **YES - ANALYSIS** |
-| **Phase 3: Solutions** | Technical design (HOW) | ✅ **YES - MANDATORY** | ✅ **YES - IMPACT** |
+| Step/Phase | Content | Output File | SOLID? | Integration? |
+|------------|---------|-------------|--------|--------------|
+| **Step 0: Load Specs** | Existing architecture context | (context only) | ❌ No | ✅ **YES - CONTEXT** |
+| Phase 1: Understand | Problem statement | `proposal.md` | ❌ No | ❌ No |
+| **Phase 2: Specs** | Functional requirements (WHAT) | `specs.md` | ❌ No | ✅ **YES - ANALYSIS** |
+| **Phase 3: Design** | Technical design (HOW) | `design.md` | ✅ **YES - MANDATORY** | ✅ **YES - IMPACT** |
+| Phase 4: Tasks | Task breakdown + verify + state | `tasks.md` | ❌ No | ❌ No |
 
 **SOLID is a design CONSTRAINT in Phase 3, not a functional SPEC in Phase 2.**
 
@@ -1381,10 +1340,10 @@ Every planning session should answer:
 - `core/architecture-quality-criteria.md` - Quality metrics
 - `skills/workflow-skill-solid-analyzer.md` - SOLID analysis tool
 
-## Project Specs Location
+## Project Specs Location (BASELINE — read-only)
 
 ```
-.ai/project/specs/
+openspec/specs/
 ├── entities/                  # Domain entities YAML specs
 │   ├── user.yaml
 │   ├── order.yaml
@@ -1397,4 +1356,14 @@ Every planning session should answer:
 │   └── rules.yaml
 └── architectural-constraints/ # System boundaries
     └── constraints.yaml
+```
+
+## Active Changes Location
+
+```
+openspec/changes/${FEATURE_ID}/
+├── proposal.md   # Phase 1: Problem + motivation + scope + criteria
+├── specs.md      # Phase 2: Requirements + Gherkin + Integration Analysis
+├── design.md     # Phase 3: Solutions + SOLID + Architectural Impact
+└── tasks.md      # Phase 4: Tasks + verify conditions + Workflow State
 ```

@@ -12,7 +12,7 @@
 
 **Read**: ALL code, ALL roles, ALL rules, ALL states, ALL tests, feature docs, contracts.
 
-**Write**: Reviewer state in `50_state.md`, issue reports, test results, validation docs.
+**Write**: Reviewer state in `tasks.md`, issue reports, test results, validation docs.
 
 **Prohibited**: Implementing features (only validate), fixing bugs yourself (report to implementer), changing project rules. **Exception**: You CAN write E2E/integration tests.
 

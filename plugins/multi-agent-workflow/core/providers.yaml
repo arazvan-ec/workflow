@@ -24,7 +24,7 @@ providers:
   # worktrees: Git worktrees + terminal multiplexer (any model)
   #   - Filesystem-level isolation via git worktrees
   #   - Terminal multiplexer for visual session management
-  #   - Manual coordination via 50_state.md + git sync
+  #   - Manual coordination via tasks.md + git sync
   #   - Requires: git >= 2.30 + terminal multiplexer (see terminal_orchestrator)
   #
   parallelization: auto  # auto | agent-teams | worktrees
@@ -95,7 +95,7 @@ providers:
   #   - Reason: Protect limited context window at all costs
   #
   # per-task: Fork for each individual execution task (GSD-style fresh context)
-  #   - Each task in 30_tasks.md runs in its own isolated context
+  #   - Each task in tasks.md runs in its own isolated context
   #   - Subagent receives ONLY: role.md + task definition + reference files
   #   - 200K tokens purely for implementation, zero accumulated context
   #   - Prevents context rot on long implementation sessions
@@ -109,15 +109,15 @@ providers:
   # --- Coordination ---
   # How agents communicate and share state
   #
-  # Note: 50_state.md is ALWAYS used regardless of provider.
+  # Note: tasks.md is ALWAYS used regardless of provider.
   # This setting controls the ADDITIONAL coordination layer.
   #
-  # native-plus-state: Agent Teams communication + 50_state.md (Opus 4.6+)
+  # native-plus-state: Agent Teams communication + tasks.md (Opus 4.6+)
   #   - Shared task list (in-memory, managed by orchestrator)
   #   - Direct teammate communication
-  #   - 50_state.md for persistent state across sessions
+  #   - tasks.md for persistent state across sessions
   #
-  # state-plus-git: 50_state.md + git sync (any model)
+  # state-plus-git: tasks.md + git sync (any model)
   #   - All coordination via file-based state
   #   - Git commits as synchronization points
   #   - git-sync skill for explicit state sharing
@@ -201,7 +201,7 @@ thresholds:
 
   # Correction limits (Bounded Correction Protocol)
   # Scale-adaptive iteration limits based on task complexity.
-  # The planner assigns complexity in 30_tasks.md. If not specified,
+  # The planner assigns complexity in tasks.md. If not specified,
   # the agent infers from scope (files referenced, pattern availability).
   correction_limits:
     simple: 5       # Fix, patch, refactor, single-file changes

@@ -61,10 +61,10 @@ Analiza el proyecto en profundidad para construir un conocimiento completo que p
 
 ```bash
 mkdir -p .ai/project/intelligence
-mkdir -p .ai/project/specs/entities
-mkdir -p .ai/project/specs/api-contracts
-mkdir -p .ai/project/specs/business-rules
-mkdir -p .ai/project/specs/architectural-constraints
+mkdir -p openspec/specs/entities
+mkdir -p openspec/specs/api-contracts
+mkdir -p openspec/specs/business-rules
+mkdir -p openspec/specs/architectural-constraints
 ```
 
 ### Step 2: Detect Project Type and Stack
@@ -151,7 +151,7 @@ Scanning for domain entities and models...
 | [EntityName] | `src/domain/entities/` | Aggregate/Entity/VO | X attrs | X relations |
 
 ### Entity Specification Format
-For each entity, generate `.ai/project/specs/entities/[entity-name].yaml`:
+For each entity, generate `openspec/specs/entities/[entity-name].yaml`:
 
 ```yaml
 entity:
@@ -214,7 +214,7 @@ Scanning for API definitions...
 | `*.graphql` | GraphQL schemas | X |
 
 ### Contract Specification Format
-For each API group, generate `.ai/project/specs/api-contracts/[api-name].yaml`:
+For each API group, generate `openspec/specs/api-contracts/[api-name].yaml`:
 
 ```yaml
 api_contract:
@@ -295,7 +295,7 @@ Analyzing domain logic for business rules...
 | Policy Classes | `src/domain/policies/` | X |
 
 ### Business Rule Specification Format
-Generate `.ai/project/specs/business-rules/[domain-area].yaml`:
+Generate `openspec/specs/business-rules/[domain-area].yaml`:
 
 ```yaml
 business_rules:
@@ -373,7 +373,7 @@ Analyzing codebase for architectural constraints...
 | Performance Constraints | Caching/optimization | X |
 
 ### Constraint Specification Format
-Generate `.ai/project/specs/architectural-constraints/[category].yaml`:
+Generate `openspec/specs/architectural-constraints/[category].yaml`:
 
 ```yaml
 architectural_constraints:
@@ -449,7 +449,7 @@ architectural_constraints:
 
 ### Step 8: Generate Spec Manifest
 
-Create `.ai/project/specs/spec-manifest.yaml` to index all extracted specs:
+Create `openspec/specs/spec-manifest.yaml` to index all extracted specs:
 
 ```yaml
 # Auto-generated spec manifest
@@ -894,11 +894,11 @@ workflow:
 
 ### Spec Files (if --extract-specs enabled)
 
-✅ `.ai/project/specs/entities/*.yaml` - Entity specifications
-✅ `.ai/project/specs/api-contracts/*.yaml` - API contract definitions
-✅ `.ai/project/specs/business-rules/*.yaml` - Business rule documentation
-✅ `.ai/project/specs/architectural-constraints/*.yaml` - Architecture constraints
-✅ `.ai/project/specs/spec-manifest.yaml` - Spec index and metadata
+✅ `openspec/specs/entities/*.yaml` - Entity specifications
+✅ `openspec/specs/api-contracts/*.yaml` - API contract definitions
+✅ `openspec/specs/business-rules/*.yaml` - Business rule documentation
+✅ `openspec/specs/architectural-constraints/*.yaml` - Architecture constraints
+✅ `openspec/specs/spec-manifest.yaml` - Spec index and metadata
 
 ## Conocimiento Capturado
 
@@ -912,10 +912,10 @@ workflow:
 
 | Spec Type | Count | Files Generated |
 |-----------|-------|-----------------|
-| **Entities** | [X] | `.ai/project/specs/entities/` |
-| **API Contracts** | [X] | `.ai/project/specs/api-contracts/` |
-| **Business Rules** | [X] | `.ai/project/specs/business-rules/` |
-| **Architectural Constraints** | [X] | `.ai/project/specs/architectural-constraints/` |
+| **Entities** | [X] | `openspec/specs/entities/` |
+| **API Contracts** | [X] | `openspec/specs/api-contracts/` |
+| **Business Rules** | [X] | `openspec/specs/business-rules/` |
+| **Architectural Constraints** | [X] | `openspec/specs/architectural-constraints/` |
 | **Total Specs** | [X] | See `spec-manifest.yaml` |
 
 > Specs extracted by `codebase-analyzer` agent. Run `/workflows:discover --specs-only` to update specs without full discovery.

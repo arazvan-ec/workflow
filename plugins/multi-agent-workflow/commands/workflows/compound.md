@@ -49,10 +49,10 @@ Before executing, verify the flow has been followed:
 
 ```
 PREREQUISITE CHECK:
-  1. Does 50_state.md exist for this feature?
+  1. Does tasks.md exist for this feature?
      - NO: STOP. This feature has not been through the workflow.
 
-  2. Is QA status = APPROVED in 50_state.md?
+  2. Is QA status = APPROVED in tasks.md?
      - NO (REJECTED): STOP. Review was rejected. Fix issues and re-review first.
      - NO (other): STOP. Review has not been completed. Run /workflows:review first.
      - YES: Proceed with compound capture.
@@ -161,7 +161,7 @@ Document what should be avoided AND where progress slowed:
 **Rule**: Always write integration tests for new endpoints
 
 ### Anti-Pattern 2: Incomplete API Contract
-**Where**: FEATURE_X.md missing error response formats
+**Where**: proposal.md missing error response formats
 **What happened**: Frontend had to guess error handling
 **Cost**: 3 back-and-forth messages to clarify
 **Rule**: Always specify all error responses in contracts
@@ -289,21 +289,21 @@ Records what project specifications were created or modified by this feature.
 #### Entities
 | Entity | Action | File |
 |--------|--------|------|
-| User | CREATED | .ai/project/specs/entities/user.md |
-| EmailVO | CREATED | .ai/project/specs/entities/email-vo.md |
+| User | CREATED | openspec/specs/entities/user.md |
+| EmailVO | CREATED | openspec/specs/entities/email-vo.md |
 
 #### API Contracts
 | Endpoint | Action | File |
 |----------|--------|------|
-| POST /api/users | CREATED | .ai/project/specs/api-contracts/users.md |
-| GET /api/users/{id} | CREATED | .ai/project/specs/api-contracts/users.md |
+| POST /api/users | CREATED | openspec/specs/api-contracts/users.md |
+| GET /api/users/{id} | CREATED | openspec/specs/api-contracts/users.md |
 
 #### Business Rules
 | Rule ID | Action | File |
 |---------|--------|------|
-| BR-AUTH-001 | CREATED | .ai/project/specs/business-rules/authentication.md |
-| BR-AUTH-002 | CREATED | .ai/project/specs/business-rules/authentication.md |
-| BR-AUTH-003 | CREATED | .ai/project/specs/business-rules/authentication.md |
+| BR-AUTH-001 | CREATED | openspec/specs/business-rules/authentication.md |
+| BR-AUTH-002 | CREATED | openspec/specs/business-rules/authentication.md |
+| BR-AUTH-003 | CREATED | openspec/specs/business-rules/authentication.md |
 
 #### Spec Manifest Update
 - Timestamp: 2026-01-16T14:30:00Z
@@ -329,8 +329,8 @@ If new templates discovered:
 
 ```bash
 # Save successful patterns as templates
-cp .ai/project/features/user-auth/FEATURE_user-auth.md \
-   .ai/workflow/templates/FEATURE_auth_template.md
+cp openspec/changes/user-auth/proposal.md \
+   .ai/workflow/templates/proposal_auth_template.md
 ```
 
 ### Step 7: Spec Diff Analysis (NEW)
@@ -339,13 +339,13 @@ Compare feature specifications with existing project specs to identify changes:
 
 ```bash
 # Feature spec files to analyze
-FEATURE_SPECS=".ai/project/features/${FEATURE_ID}/12_specs.md"
-FEATURE_SOLUTIONS=".ai/project/features/${FEATURE_ID}/15_solutions.md"
+FEATURE_SPECS="openspec/changes/${FEATURE_ID}/specs.md"
+FEATURE_SOLUTIONS="openspec/changes/${FEATURE_ID}/design.md"
 
 # Project spec directories
-PROJECT_ENTITIES=".ai/project/specs/entities/"
-PROJECT_API=".ai/project/specs/api-contracts/"
-PROJECT_RULES=".ai/project/specs/business-rules/"
+PROJECT_ENTITIES="openspec/specs/entities/"
+PROJECT_API="openspec/specs/api-contracts/"
+PROJECT_RULES="openspec/specs/business-rules/"
 ```
 
 #### Spec Diff Report Generation
@@ -356,25 +356,25 @@ PROJECT_RULES=".ai/project/specs/business-rules/"
 ### New Entities Detected
 | Entity | Source File | Status |
 |--------|-------------|--------|
-| User | 12_specs.md:45 | NEW |
-| EmailVO | 15_solutions.md:23 | NEW |
+| User | specs.md:45 | NEW |
+| EmailVO | design.md:23 | NEW |
 
 ### Modified Entities
 | Entity | Changes | Source |
 |--------|---------|--------|
-| Account | +passwordHash field | 12_specs.md:67 |
+| Account | +passwordHash field | specs.md:67 |
 
 ### New API Endpoints
 | Endpoint | Method | Source |
 |----------|--------|--------|
-| /api/users | POST | 15_solutions.md:89 |
-| /api/users/{id} | GET | 15_solutions.md:95 |
+| /api/users | POST | design.md:89 |
+| /api/users/{id} | GET | design.md:95 |
 
 ### New Business Rules
 | Rule ID | Description | Source |
 |---------|-------------|--------|
-| BR-AUTH-001 | Email must be unique | 12_specs.md:120 |
-| BR-AUTH-002 | Password min 8 chars | 12_specs.md:125 |
+| BR-AUTH-001 | Email must be unique | specs.md:120 |
+| BR-AUTH-002 | Password min 8 chars | specs.md:125 |
 
 ### New Patterns Identified
 | Pattern | Location | Reusability |
@@ -385,20 +385,20 @@ PROJECT_RULES=".ai/project/specs/business-rules/"
 
 #### Diff Analysis Process
 
-1. **Parse feature specs** (12_specs.md):
+1. **Parse feature specs** (specs.md):
    - Extract entity definitions
    - Extract acceptance criteria
    - Extract business rules
 
-2. **Parse feature solutions** (15_solutions.md):
+2. **Parse feature solutions** (design.md):
    - Extract implementation patterns
    - Extract API contracts
    - Extract architectural decisions
 
 3. **Compare with existing project specs**:
-   - Check `.ai/project/specs/entities/` for existing entities
-   - Check `.ai/project/specs/api-contracts/` for existing endpoints
-   - Check `.ai/project/specs/business-rules/` for existing rules
+   - Check `openspec/specs/entities/` for existing entities
+   - Check `openspec/specs/api-contracts/` for existing endpoints
+   - Check `openspec/specs/business-rules/` for existing rules
 
 4. **Generate diff report**:
    - NEW: Entity/endpoint/rule not in project specs
@@ -420,7 +420,7 @@ fi
 #### 8.1 Update Entity Specs
 
 ```markdown
-# .ai/project/specs/entities/user.md (created/updated)
+# openspec/specs/entities/user.md (created/updated)
 
 ---
 entity: User
@@ -452,7 +452,7 @@ source_feature: user-authentication
 #### 8.2 Update API Contract Specs
 
 ```markdown
-# .ai/project/specs/api-contracts/users.md (created/updated)
+# openspec/specs/api-contracts/users.md (created/updated)
 
 ---
 api_group: users
@@ -492,7 +492,7 @@ source_feature: user-authentication
 #### 8.3 Update Business Rules Specs
 
 ```markdown
-# .ai/project/specs/business-rules/authentication.md (created/updated)
+# openspec/specs/business-rules/authentication.md (created/updated)
 
 ---
 domain: authentication
@@ -523,7 +523,7 @@ source_feature: user-authentication
 #### 8.4 Update Spec Manifest
 
 ```yaml
-# .ai/project/specs/spec-manifest.yaml
+# openspec/specs/spec-manifest.yaml
 
 version: "1.0"
 last_updated: "2026-01-16T14:30:00Z"
@@ -568,12 +568,11 @@ history:
 #### Using the Spec-Merger Skill
 
 ```bash
-# Invoke spec-merger skill for intelligent merging
+# Invoke spec-merger skill for intelligent merging (wraps /opsx:archive)
 /workflow-skill:spec-merger \
   --feature="${FEATURE_ID}" \
-  --source-specs=".ai/project/features/${FEATURE_ID}/12_specs.md" \
-  --source-solutions=".ai/project/features/${FEATURE_ID}/15_solutions.md" \
-  --target-dir=".ai/project/specs/" \
+  --source="openspec/changes/${FEATURE_ID}/" \
+  --target="openspec/specs/" \
   --mode=merge  # merge | overwrite | dry-run
 ```
 
@@ -628,11 +627,11 @@ Spec Diff Analysis:
   New business rules: 3
 
 Project Specs Updated:
-  ✓ .ai/project/specs/entities/user.md (CREATED)
-  ✓ .ai/project/specs/entities/email-vo.md (CREATED)
-  ✓ .ai/project/specs/api-contracts/users.md (CREATED)
-  ✓ .ai/project/specs/business-rules/authentication.md (CREATED)
-  ✓ .ai/project/specs/spec-manifest.yaml (UPDATED)
+  ✓ openspec/specs/entities/user.md (CREATED)
+  ✓ openspec/specs/entities/email-vo.md (CREATED)
+  ✓ openspec/specs/api-contracts/users.md (CREATED)
+  ✓ openspec/specs/business-rules/authentication.md (CREATED)
+  ✓ openspec/specs/spec-manifest.yaml (UPDATED)
 
 Spec Manifest History Entry:
   - date: 2026-01-16
@@ -647,7 +646,7 @@ Next feature recommendation:
 - Use Email VO pattern
 - Follow RegistrationForm pattern
 - Reference: .ai/project/compound_log.md
-- Reference: .ai/project/specs/ (updated specs)
+- Reference: openspec/specs/ (updated specs)
 
 Compound log updated: .ai/project/compound_log.md
 ```
@@ -668,11 +667,11 @@ Spec Diff Analysis:
   New business rules: 3
 
 Project Specs Updated:
-  ✓ .ai/project/specs/entities/user.md (CREATED)
-  ✓ .ai/project/specs/entities/email-vo.md (CREATED)
-  ✓ .ai/project/specs/api-contracts/users.md (CREATED)
-  ✓ .ai/project/specs/business-rules/authentication.md (CREATED)
-  ✓ .ai/project/specs/spec-manifest.yaml (UPDATED)
+  ✓ openspec/specs/entities/user.md (CREATED)
+  ✓ openspec/specs/entities/email-vo.md (CREATED)
+  ✓ openspec/specs/api-contracts/users.md (CREATED)
+  ✓ openspec/specs/business-rules/authentication.md (CREATED)
+  ✓ openspec/specs/spec-manifest.yaml (UPDATED)
 
 Note: Pattern capture and other compound steps skipped (--specs-only mode)
 To run full compound: /workflows:compound user-authentication
@@ -844,7 +843,8 @@ This command integrates with:
 - `validation-learning-log` skill - Manages validation Q&A learnings
 - `compound_log.md` - Quick reference for patterns
 - `spec-merger` skill - Intelligent spec merging and conflict resolution
-- `.ai/project/specs/` - Project specifications (entities, API contracts, business rules)
+- `openspec/specs/` - Project specifications baseline (entities, API contracts, business rules)
+- `openspec/config.yaml` - Rules from feedback loop (70% boundary analysis)
 - `spec-manifest.yaml` - Central registry of all project specifications
 
 ### Spec Update Flow
@@ -854,8 +854,8 @@ Feature Complete
        │
        ▼
 ┌──────────────────┐
-│ Spec Diff        │ Compare 12_specs.md & 15_solutions.md
-│ Analysis         │ with existing project specs
+│ Spec Diff        │ Compare openspec/changes/{slug}/specs.md & design.md
+│ Analysis         │ with existing openspec/specs/
 └────────┬─────────┘
          │
          ▼
@@ -897,18 +897,26 @@ Feature Complete
 After compound with spec updates:
 
 ```
-.ai/project/specs/
-├── spec-manifest.yaml          # Central registry with history
-├── entities/
-│   ├── user.md                 # User entity spec
-│   ├── email-vo.md             # Email value object spec
-│   └── ...
-├── api-contracts/
-│   ├── users.md                # Users API endpoints
-│   ├── auth.md                 # Auth API endpoints
-│   └── ...
-└── business-rules/
-    ├── authentication.md       # Auth domain rules
-    ├── user-management.md      # User domain rules
-    └── ...
+openspec/
+├── config.yaml                  # Rules from feedback loop (70% boundary)
+├── specs/                       # BASELINE — updated only by compound
+│   ├── spec-manifest.yaml       # Central registry with history
+│   ├── entities/
+│   │   ├── user.md              # User entity spec
+│   │   ├── email-vo.md          # Email value object spec
+│   │   └── ...
+│   ├── api-contracts/
+│   │   ├── users.md             # Users API endpoints
+│   │   ├── auth.md              # Auth API endpoints
+│   │   └── ...
+│   └── business-rules/
+│       ├── authentication.md    # Auth domain rules
+│       ├── user-management.md   # User domain rules
+│       └── ...
+└── changes/                     # Active feature changes
+    └── ${FEATURE_ID}/
+        ├── proposal.md
+        ├── specs.md
+        ├── design.md
+        └── tasks.md
 ```

@@ -14,7 +14,7 @@ Before executing, verify the flow has been followed:
 
 ```
 PREREQUISITE CHECK:
-  1. Does 50_state.md exist for this feature?
+  1. Does tasks.md exist for this feature?
      - NO: STOP. This feature has not been planned or worked on.
 
   2. Is the implementation work COMPLETED?
@@ -148,16 +148,16 @@ npm run test:e2e -- feature-name
 
 2. **SOLID Design Implementation (CRITICAL)**:
 
-   > QA verifica que se IMPLEMENTÓ el diseño SOLID de 15_solutions.md,
+   > QA verifica que se IMPLEMENTÓ el diseño SOLID de design.md,
    > NO diseña ni juzga si el diseño es correcto (eso es Phase 3).
 
-   - [ ] Patterns from 15_solutions.md were correctly implemented
+   - [ ] Patterns from design.md were correctly implemented
    - [ ] Class structure matches the design document
    - [ ] SOLID score matches or exceeds expected score from design
 
    Verification:
    # 1. Read expected design
-   Read: .ai/project/features/${FEATURE_ID}/15_solutions.md
+   Read: openspec/changes/${FEATURE_ID}/design.md
 
    # 2. Verify implementation matches design
    /workflow-skill:solid-analyzer --path=src --validate
@@ -168,7 +168,7 @@ npm run test:e2e -- feature-name
    # If actual < expected: REJECT - implementation doesn't match design
 
    SOLID Checklist (verify design was followed):
-   - [ ] **S** - SRP: Classes structured as designed in 15_solutions.md
+   - [ ] **S** - SRP: Classes structured as designed in design.md
    - [ ] **O** - OCP: Patterns (Strategy, Decorator) implemented as specified
    - [ ] **L** - LSP: Inheritance used as designed
    - [ ] **I** - ISP: Interfaces match design (size, roles)
@@ -190,7 +190,7 @@ npm run test:e2e -- feature-name
 
 ### Phase 5: Acceptance Criteria Validation
 
-For each criterion in FEATURE_X.md:
+For each criterion in proposal.md:
 
 ```markdown
 Criterion 1: "User can register with email/name/password"
@@ -241,7 +241,7 @@ Criterion 3: "User redirected after registration"
 - ✅ All acceptance criteria met (with evidence)
 - ✅ No critical/major bugs (P0/P1)
 - ✅ All automated tests passing
-- ✅ **SOLID design was implemented** (matches 15_solutions.md)
+- ✅ **SOLID design was implemented** (matches design.md)
 - ✅ Code meets quality standards
 - ✅ Documentation complete
 
@@ -249,7 +249,7 @@ Criterion 3: "User redirected after registration"
 - ❌ Any acceptance criterion fails
 - ❌ Critical or major bug found
 - ❌ Automated tests failing
-- ❌ **Implementation doesn't match SOLID design** (15_solutions.md)
+- ❌ **Implementation doesn't match SOLID design** (design.md)
 - ❌ Security vulnerability present
 - ❌ Code quality below standards
 
@@ -275,7 +275,7 @@ Criterion 3: "User redirected after registration"
 - E2E Tests: X/Y passing
 
 ## SOLID Design Implementation
-- **Expected Score** (from 15_solutions.md): [X]/25
+- **Expected Score** (from design.md): [X]/25
 - **Actual Score**: [Y]/25
 - **Status**: ✅ MATCHES DESIGN | ❌ DOESN'T MATCH DESIGN
 - **Patterns from Design**:
@@ -304,7 +304,7 @@ Criterion 3: "User redirected after registration"
 
 **Must fix before approval**:
 1. Fix Issue #1 (Backend)
-2. [If design not followed]: Implement patterns as specified in 15_solutions.md
+2. [If design not followed]: Implement patterns as specified in design.md
 
 **Next steps**:
 - Backend fixes Issue #1
@@ -314,13 +314,13 @@ Criterion 3: "User redirected after registration"
 
 ## State Update
 
-After review, update `50_state.md`:
+After review, update `tasks.md`:
 
 ```markdown
 ## QA / Reviewer
 **Status**: APPROVED | REJECTED
 **Review Date**: 2026-01-16
-**SOLID Design Match**: ✅ Implementation matches 15_solutions.md
+**SOLID Design Match**: ✅ Implementation matches design.md
 **Critical Issues**: 0 | [count]
 **Minor Issues**: [count]
 

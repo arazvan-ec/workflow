@@ -118,7 +118,7 @@ The diagnostic agent receives in BCP mode:
 | 3 | ${approach_3} | ${result_3} |
 
 ### Context Files
-- Task definition from 30_tasks.md
+- Task definition from tasks.md
 - Current implementation files
 - Test file showing the failure
 - Error output / stack trace
@@ -135,7 +135,7 @@ CLASSIFY the error into one of these categories:
    → Fix: Different algorithm or approach
 
 2. DESIGN_MISMATCH: Implementation doesn't match the planned design
-   → Fix: Re-read 15_solutions.md and align
+   → Fix: Re-read design.md and align
 
 3. DEPENDENCY_ISSUE: Missing or incompatible dependency
    → Fix: Check imports, versions, configuration
@@ -233,6 +233,6 @@ The diagnostic agent returns a structured summary to the Bounded Correction Prot
 ## Integration with Compound Learning
 
 After the task completes (whether fixed or blocked):
-- The diagnostic report is stored in `50_state.md` under the task entry
+- The diagnostic report is stored in `tasks.md` under the task entry
 - During `/workflows:compound`, diagnostic patterns feed into anti-pattern documentation
 - Recurring diagnostics of the same category across features trigger rule updates

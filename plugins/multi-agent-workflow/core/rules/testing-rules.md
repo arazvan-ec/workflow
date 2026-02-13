@@ -43,7 +43,7 @@ The correction protocol detects and addresses three types of deviations, not jus
 ### Deviation Types
 
 1. **TYPE 1 — Test Failure**: Tests fail with errors. Fix the implementation (NEVER the test, unless the test itself is wrong).
-2. **TYPE 2 — Missing Functionality**: Tests pass but acceptance criteria from `30_tasks.md` are not met. Add the missing implementation.
+2. **TYPE 2 — Missing Functionality**: Tests pass but acceptance criteria from `tasks.md` are not met. Add the missing implementation.
 3. **TYPE 3 — Incomplete Pattern**: Implementation doesn't match the reference file pattern. Compare against the reference and complete the pattern.
 
 ### Correction Loop
@@ -57,7 +57,7 @@ while (tests_failing OR deviation_detected) and iteration < max_iterations:
         analyze test error output
         fix implementation code (NOT the test)
     ELSE IF TYPE 2 (missing functionality):
-        compare implementation vs acceptance criteria in 30_tasks.md
+        compare implementation vs acceptance criteria in tasks.md
         identify gap → add missing implementation
     ELSE IF TYPE 3 (incomplete pattern):
         compare vs reference file from task definition
@@ -96,6 +96,6 @@ The `max_iterations` value is resolved from `providers.yaml` → `thresholds.cor
 | **moderate** | 10 | Standard feature, multi-file implementation |
 | **complex** | 15 | New architecture, multi-layer integration, novel patterns |
 
-**Resolution order**: Task definition in `30_tasks.md` → inferred from scope → `correction_limits.default` (10).
+**Resolution order**: Task definition in `tasks.md` → inferred from scope → `correction_limits.default` (10).
 
 This bounded protocol prevents infinite loops while detecting problems beyond simple test failures.
