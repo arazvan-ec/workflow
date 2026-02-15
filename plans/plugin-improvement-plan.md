@@ -3,7 +3,8 @@
 **Fecha**: 2026-02-15
 **Estado**: PENDIENTE
 **Branch**: `claude/plugin-improvement-plan-qZo70`
-**Alcance**: 22+ archivos, 10 fases, 3 niveles de prioridad
+**Alcance**: 22+ archivos, 14 fases, 3 niveles de prioridad
+**Fuentes**: Análisis interno del codebase + Revisión de mejores prácticas 2025-2026
 
 ---
 
@@ -16,6 +17,10 @@
 - Compound Engineering como filosofía es innovador
 - Los principios Karpathy están bien documentados
 - La transición a SOLID contextual (sin scores numéricos) ya está iniciada
+- Planificación primero (80/20) — alineado con Addy Osmani
+- Persistencia incremental — protege contra interrupciones
+- Quality Gates con iteración acotada — evita loops infinitos
+- Análisis de integración — mentalidad de extensión vs. aislamiento
 
 ### Problemas detectados (por severidad)
 
@@ -46,6 +51,21 @@
 | `/workflows:restore` | SESSION_CONTINUITY.md (20+ refs) | NO EXISTE |
 | `/workflows:reload` | discover.md:1214 | NO EXISTE |
 | `/workflows:parallel` | CAPABILITY_PROVIDERS.md (5+ refs) | NO EXISTE |
+
+### Gaps vs. Mejores Prácticas 2025-2026
+
+| # | Gap | Fuente | Impacto |
+|---|-----|--------|---------|
+| A | Sin Reflection Pattern — Quality Gates son checks estáticos, no auto-crítica | Agentic workflows (ByteByteGo, Google Cloud) | Alto |
+| B | Sin Feedback Loop — proceso lineal sin retroalimentación | Microsoft Engineering, OpenAI Cookbook | Medio |
+| C | Sin Chunking explícito — outputs monolíticos causan "jumbled mess" | Addy Osmani | Medio |
+| D | Sin Test Contract Sketch temprano — tests solo aparecen en implementación | CodeSIM, RTADev | Alto |
+| E | Sin Right-Sizing de modelo por fase | UiPath, Google Cloud | Bajo |
+| F | HITL débil — solo al inicio y final, no en decisiones de alto riesgo | Parseur, Permit.io, "Human Above the Loop" | Alto |
+| G | Sin Security Threat Analysis en diseño | OWASP, AWS | Medio |
+| H | SOLID auto-scoring rígido — LLM se auto-asigna scores altos | LangChain State of Agent Engineering | Alto |
+| I | Sin Decision Log — decisiones no trazables | Qodo, "Attribution-Based Review" | Medio |
+| J | Sin Rollback/Recovery entre fases | Producción agentic (arXiv, Digital Applied) | Bajo |
 
 ---
 
@@ -143,6 +163,11 @@ SOLUCIÓN:
 - Last completed task: {N}
 - Next action: {descripción}
 - Blocked by: {descripción o N/A}
+
+## Decision Log (written incrementally by each phase) [NEW — Gap I]
+| Decision | Alternatives Considered | Rationale | Phase |
+|----------|------------------------|-----------|-------|
+| {decisión} | {alternativas descartadas} | {por qué} | {fase} |
 
 ## QA Summary (written by Review)
 - Code Review: PASS / FAIL / PENDING
@@ -263,6 +288,13 @@ ACCIONES:
    Después de setup, todo request va por /workflows:route."
 
 5. Verificar que help.md refleja este flujo de decisión actualizado.
+
+6. [NEW — Gap F: HITL entre fases] Añadir checkpoints Human-in-the-Loop obligatorios:
+   - Entre Phase 2 y Phase 3 de plan.md: "¿Las specs capturan lo que quieres?"
+   - Entre Phase 3 y Phase 4 de plan.md: "¿El diseño técnico te parece correcto?"
+   - En plan.md, cada transición Phase N → Phase N+1 debe incluir:
+     "Present summary to user. If user has corrections → apply and re-validate Quality Gate. If user approves → advance."
+   - Esto evita que el plan avance 4 fases para descubrir al final que las specs estaban mal.
 ```
 
 **Archivos a modificar**: route.md, plan.md, quick.md, discover.md, help.md
@@ -308,6 +340,14 @@ ACCIONES:
 3. En work.md Step 5/7: "Apply SOLID Verdict Matrix for Work column"
 4. En review.md Phase 4: "Apply SOLID Verdict Matrix for Review column"
 5. En solid-analyzer skill: emitir veredicto que incluya relevance level para que el consumidor pueda aplicar la matrix
+
+6. [NEW — Gap H: SOLID Justification vs auto-score]
+   Cambiar de auto-scoring numérico a "SOLID Justification":
+   - El agente debe JUSTIFICAR textualmente cada principio aplicado con referencia a código/archivos concretos
+   - Formato requerido por principio: "SRP: {archivo} tiene responsabilidad única porque {razón}. Evidencia: {referencia a código}"
+   - El score numérico puede mantenerse como RESUMEN, pero la justificación textual es lo que realmente importa
+   - El usuario o un segundo agente valida las justificaciones — no el mismo agente que las escribió
+   - Eliminar cualquier "22/25" o "18/25" auto-asignado sin justificación
 ```
 
 **Archivos a modificar**: architecture-reference.md, plan.md, work.md, review.md, solid-analyzer skill
@@ -525,30 +565,205 @@ ELIMINAR: Todas las referencias a /workflows:snapshot, /workflows:restore, /work
 
 ---
 
+### Fase 11: Reflection Pattern en Quality Gates
+
+> [NEW — Gap A: Reflection Pattern]
+
+**Objetivo**: Que los Quality Gates incluyan auto-crítica real, no solo checks de checklist.
+
+**Prompt para ejecutar esta fase**:
+
+```
+Los Quality Gates actuales verifican condiciones estáticas (archivo existe, secciones presentes). Falta un paso de reflexión donde el agente revise críticamente su propio output.
+
+PROBLEMA: El agente genera output → verifica checklist → avanza. Nunca se pregunta "¿esto realmente tiene sentido?" o "¿qué debilidades tiene mi output?"
+
+SOLUCIÓN: Añadir un paso de "Self-Review" en cada Quality Gate de plan.md:
+
+Antes de verificar la checklist formal, el agente debe:
+1. Cambiar de rol mental: de "planificador" a "revisor crítico"
+2. Responder estas preguntas sobre su propio output:
+   - "¿Qué suposiciones estoy haciendo que no he validado?"
+   - "¿Qué podría fallar con este diseño/spec/task?"
+   - "¿Hay gaps lógicos entre lo que el usuario pidió y lo que estoy proponiendo?"
+   - "¿Estoy sobre-diseñando o sub-diseñando?"
+3. Si identifica debilidades → corregir ANTES de pasar la checklist formal
+4. Documentar las debilidades encontradas y cómo se resolvieron en el Decision Log
+
+Formato en plan.md para cada Quality Gate:
+```
+### Quality Gate: Phase N
+#### Step 1: Self-Review (Reflection)
+- Switch to critical reviewer role
+- Identify weaknesses, unvalidated assumptions, logical gaps
+- Fix issues found. Log in Decision Log.
+#### Step 2: Formal Checklist
+- [existing checks]
+```
+
+ARCHIVOS A ACTUALIZAR: plan.md (4 Quality Gates), work.md (checkpoint validation), review.md (QA checklist)
+```
+
+**Archivos a modificar**: plan.md, work.md, review.md
+
+---
+
+### Fase 12: Test Contract Sketch + Security Threat Analysis en diseño
+
+> [NEW — Gaps D + G: Testing temprano + Seguridad]
+
+**Objetivo**: Validar que specs sean testeables y seguras antes de llegar a implementación.
+
+**Prompt para ejecutar esta fase**:
+
+```
+Dos gaps críticos en el diseño: no se valida testeabilidad temprana ni se analiza seguridad.
+
+PROBLEMA 1 (Gap D): Los tests solo aparecen como "Tests to Write FIRST" dentro de cada task en Phase 4.
+No hay validación de que las specs sean testeables a nivel de contrato antes de implementar.
+
+PROBLEMA 2 (Gap G): El plan menciona SOLID exhaustivamente pero no tiene seguridad.
+No hay threat modeling como parte del diseño.
+
+SOLUCIÓN: Añadir 2 sub-pasos en plan.md Phase 2 y Phase 3:
+
+EN PHASE 2 (después de generar specs):
+Sub-paso 2.5: "Test Contract Sketch"
+- Para cada spec principal, bosquejar 2-3 tests de aceptación en formato Given/When/Then
+- No código — solo contratos: "Given {precondición}, When {acción}, Then {resultado esperado}"
+- Si un spec no puede expresarse como test de aceptación → el spec es ambiguo → volver a refinar
+- Escribir en specs.md sección "## Acceptance Test Contracts"
+
+EN PHASE 3 (después de diseño técnico):
+Sub-paso 3.5: "Security Threat Analysis"
+- Identificar superficie de ataque de la nueva feature
+- Verificar: validación de inputs en boundaries, autenticación/autorización requerida, datos sensibles involucrados
+- Si el cambio expone nuevos endpoints/inputs → documentar mitigaciones en design.md sección "## Security Considerations"
+- Si no hay superficie de ataque nueva → documentar "No new attack surface" y seguir
+
+ARCHIVOS A ACTUALIZAR: plan.md (Phase 2 y Phase 3)
+```
+
+**Archivos a modificar**: plan.md
+
+---
+
+### Fase 13: Chunking, Feedback Loop y Rollback Protocol
+
+> [NEW — Gaps B + C + J: Retroalimentación, chunking y recovery]
+
+**Objetivo**: Prevenir outputs monolíticos, capturar aprendizaje, y permitir volver atrás.
+
+**Prompt para ejecutar esta fase**:
+
+```
+Tres gaps relacionados con la robustez del proceso.
+
+GAP C — CHUNKING:
+Los LLMs fallan con outputs monolíticos. El plan pide generar archivos enteros de una vez.
+
+SOLUCIÓN: Añadir directivas de "max chunk size" en plan.md:
+- Phase 2: "Si hay más de 5 specs, generar en grupos de 3, verificar cada grupo, luego consolidar"
+- Phase 3: "Si el diseño tiene más de 3 componentes, diseñar uno a uno, verificar coherencia, luego integrar"
+- Phase 4: "Si hay más de 8 tasks, generar en bloques de 5, validar dependencias entre bloques"
+- Regla general: "Ningún output individual debe exceder 200 líneas. Si lo hace, dividir en sub-outputs."
+
+GAP B — FEEDBACK LOOP:
+El proceso es lineal sin retroalimentación para futuras ejecuciones.
+
+SOLUCIÓN: Añadir en compound.md un paso final "Retrospective":
+- Después de que compound actualiza el profile, generar `openspec/changes/{slug}/99_retrospective.md`:
+  - Decisiones que fueron revisadas o rechazadas por el usuario
+  - Patterns que funcionaron bien
+  - Gaps descubiertos tarde en el proceso
+  - Tiempo estimado vs real por fase (si disponible)
+- En plan.md Phase 1, añadir: "Si existe algún 99_retrospective.md previo, leerlo para evitar repetir errores"
+
+GAP J — ROLLBACK:
+No hay guía sobre qué hacer si una fase produce resultados incorrectos.
+
+SOLUCIÓN: Añadir en framework_rules.md sección "Rollback Protocol":
+- "Si el Quality Gate de Phase N falla después de 3 iteraciones:
+  1. Registrar en Decision Log: qué falló y por qué
+  2. Presentar al usuario: opciones son (a) volver a Phase N-1 y revisar supuestos, (b) continuar con excepción documentada, (c) cancelar feature
+  3. Si el usuario elige (a): marcar Phase N como PENDING en tasks.md, Phase N-1 como IN_PROGRESS
+  4. El output de Phase N-1 se preserva como borrador — no se elimina"
+
+ARCHIVOS A ACTUALIZAR: plan.md, compound.md, framework_rules.md
+```
+
+**Archivos a modificar**: plan.md, compound.md, framework_rules.md
+
+---
+
+### Fase 14: Right-Sizing de modelo por fase
+
+> [NEW — Gap E: Estrategia de modelo]
+
+**Objetivo**: Recomendar qué tipo de modelo usar en cada fase para optimizar coste/calidad.
+
+**Prompt para ejecutar esta fase**:
+
+```
+Las mejores prácticas recomiendan usar modelos grandes para razonamiento complejo
+y modelos pequeños para verificación/templating.
+
+SOLUCIÓN: Añadir en CAPABILITY_PROVIDERS.md una sección "Model Recommendations by Phase":
+
+| Fase | Tipo de modelo recomendado | Razón |
+|------|---------------------------|-------|
+| Phase 1 (Understand) | Grande (reasoning) | Análisis profundo del codebase y requisitos |
+| Phase 2 (Specs) | Grande (reasoning + creativity) | Generar specs requiere creatividad + estructura |
+| Phase 3 (Design) | Grande (reasoning) | Decisiones arquitectónicas complejas |
+| Quality Gates | Pequeño/rápido | Verificación contra checklist, no requiere creatividad |
+| Phase 4 (Tasks) | Mediano | Templating estructurado, menos razonamiento |
+| Work (implementación) | Grande | Generación de código requiere máxima calidad |
+| Review | Mediano-Grande | Análisis crítico pero sobre artefactos ya existentes |
+| Compound | Pequeño-Mediano | Actualización de profiles, merge de specs |
+
+NOTA: Esto es una RECOMENDACIÓN, no un enforcement. El plugin es model-agnostic.
+Los capability providers ya abstraen el modelo. Esta tabla guía al usuario sobre
+qué modelo configurar en cada provider.
+
+ARCHIVOS A ACTUALIZAR: CAPABILITY_PROVIDERS.md (sección nueva)
+```
+
+**Archivos a modificar**: CAPABILITY_PROVIDERS.md
+
+---
+
 ## Orden de Ejecución Recomendado
 
 ```
-PRIORIDAD 1 (corrección):
-  Fase 1: Referencias rotas          ← Confiabilidad básica
-  Fase 2: Estado de workflow          ← Reanudación funcional
-  Fase 3: Reducir contexto           ← Rendimiento del agente
-  Fase 4: Clarificar routing         ← UX del usuario
+PRIORIDAD 1 — Corrección (sin esto el plugin es unreliable):
+  Fase 1:  Referencias rotas              ← Confiabilidad básica
+  Fase 2:  Estado de workflow + Decision Log  ← Reanudación funcional + trazabilidad [Gap I]
+  Fase 3:  Reducir contexto               ← Rendimiento del agente
+  Fase 4:  Clarificar routing + HITL       ← UX del usuario + checkpoints humanos [Gap F]
 
-PRIORIDAD 2 (coherencia):
-  Fase 5: SOLID enforcement          ← Calidad de diseño
-  Fase 6: Flujo de specs             ← Compound engineering real
-  Fase 7: Terminología               ← Comunicación entre agentes
+PRIORIDAD 2 — Coherencia (calidad del output):
+  Fase 5:  SOLID enforcement + Justification  ← Calidad de diseño sin gaming [Gap H]
+  Fase 6:  Flujo de specs                 ← Compound engineering real
+  Fase 7:  Terminología                   ← Comunicación entre agentes
+  Fase 11: Reflection Pattern             ← Quality Gates con auto-crítica real [Gap A]
 
-PRIORIDAD 3 (estructura):
-  Fase 8: Simplificar plan.md        ← Context budget
-  Fase 9: Rutas de error             ← Robustez
-  Fase 10: SESSION_CONTINUITY        ← Documentación limpia
+PRIORIDAD 3 — Estructura (robustez y optimización):
+  Fase 8:  Simplificar plan.md            ← Context budget
+  Fase 9:  Rutas de error                 ← Robustez
+  Fase 10: SESSION_CONTINUITY             ← Documentación limpia
+  Fase 12: Test Contracts + Security      ← Validación temprana [Gaps D + G]
+  Fase 13: Chunking + Feedback + Rollback ← Robustez del proceso [Gaps B + C + J]
+  Fase 14: Right-sizing de modelo         ← Optimización de coste [Gap E]
 ```
 
 Dependencias:
 - Fase 2 antes de Fase 4 (routing necesita saber el formato de tasks.md)
 - Fase 5 antes de Fase 6 (las specs necesitan saber qué valida SOLID)
 - Fase 7 se puede hacer en paralelo con cualquier otra
+- Fase 11 después de Fase 8 (simplificar plan.md antes de añadir Reflection Pattern)
+- Fase 12 después de Fase 8 (añadir sub-pasos a un plan.md ya simplificado)
+- Fase 13 después de Fases 9 y 11 (rollback complementa error recovery y reflection)
+- Fase 14 es independiente, puede hacerse en cualquier momento
 - Fases 8-10 son independientes entre sí
 
 ---
@@ -560,7 +775,7 @@ Si deseas ejecutar todas las fases en una sola sesión larga, usa este prompt:
 ```
 Estoy mejorando el plugin multi-agent-workflow v3.1.0. El plan completo está en plans/plugin-improvement-plan.md.
 
-Ejecuta las fases en este orden: 1, 2, 3, 4, 5, 7, 6, 8, 9, 10.
+Ejecuta las fases en este orden: 1, 2, 3, 4, 5, 7, 6, 11, 8, 12, 9, 10, 13, 14.
 
 Para cada fase:
 1. Lee el prompt específico en el plan
@@ -614,10 +829,19 @@ wc -l plugins/multi-agent-workflow/core/docs/SESSION_CONTINUITY.md  # objetivo: 
 | Líneas en plan.md | 1365 | ~700 |
 | Líneas en SESSION_CONTINUITY.md | 570 | ~200 |
 | Formatos de tasks.md | 3-4 | 1 |
-| Definición SOLID enforcement | Ambigua | Matriz única |
+| Definición SOLID enforcement | Ambigua | Matriz única + justificación textual |
 | Specs migran a baseline | No | Sí |
 | Rutas de error documentadas | 0 | 6 workflows |
 | Terminología consistente | No | Glosario + enforcement |
+| Quality Gates con Reflection | No | Sí (4 gates + work + review) |
+| HITL checkpoints entre fases | 2 (inicio/fin) | 4 (Phase 2→3, 3→4, + inicio/fin) |
+| Decision Log / Trazabilidad | No | Sí (en tasks.md) |
+| Test Contracts tempranos | No | Sí (Phase 2.5) |
+| Security Analysis en diseño | No | Sí (Phase 3.5) |
+| Chunking de outputs | No | Sí (directivas por fase) |
+| Feedback Loop / Retrospectiva | No | Sí (99_retrospective.md) |
+| Rollback Protocol | No | Sí (en framework_rules.md) |
+| Model recommendations por fase | No | Sí (en CAPABILITY_PROVIDERS.md) |
 
 ---
 
@@ -630,6 +854,29 @@ wc -l plugins/multi-agent-workflow/core/docs/SESSION_CONTINUITY.md  # objetivo: 
 - TDD como metodología
 - BCP como protocolo de corrección
 - Compound Engineering como filosofía
-- SOLID contextual (sin scores numéricos) — la transición ya iniciada se mantiene
+- SOLID contextual — se mantiene pero ahora con justificación textual obligatoria (no solo scores)
 - Capability Providers y model-agnostic design
 - Context Activation Model (Fowler taxonomy)
+
+---
+
+## Fuentes
+
+### Análisis interno
+- Revisión completa del codebase del plugin (22+ archivos, ~8500 líneas)
+- Validación manual de todas las referencias internas
+
+### Mejores prácticas 2025-2026
+- [Addy Osmani — LLM coding workflow 2026](https://addyosmani.com/blog/llm-coding-workflow/)
+- [ByteByteGo — Top AI Agentic Workflow Patterns](https://bytebytego.com/)
+- [Google Cloud — Design patterns for agentic AI](https://cloud.google.com/architecture)
+- [AWS — Agentic AI patterns](https://aws.amazon.com/architecture/)
+- [Microsoft — AI Agent Orchestration Patterns](https://learn.microsoft.com/)
+- [UiPath — 10 best practices for reliable AI agents](https://www.uipath.com/)
+- [Microsoft Engineering — AI-Powered Code Reviews](https://devblogs.microsoft.com/)
+- [LangChain — State of Agent Engineering](https://www.langchain.com/)
+- [Permit.io — HITL for AI Agents Best Practices](https://www.permit.io/)
+- [Qodo — AI Code Review Pattern Predictions 2026](https://www.qodo.ai/)
+- [arXiv — Production-Grade Agentic AI Workflows](https://arxiv.org/)
+- [Digital Applied — Practical Agentic Engineering 2025](https://digitalapplied.com/)
+- [CodeSIM, RTADev — Early test validation research](https://arxiv.org/)
