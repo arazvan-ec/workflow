@@ -26,7 +26,8 @@ Display the current status of all roles working on a feature.
 ### Step 1: Read State File
 
 ```bash
-cat .ai/project/features/$ARGUMENTS/50_state.md
+cat openspec/changes/$ARGUMENTS/tasks.md
+# Read the "## Workflow State" section for role statuses
 ```
 
 ### Step 2: Parse and Display Status

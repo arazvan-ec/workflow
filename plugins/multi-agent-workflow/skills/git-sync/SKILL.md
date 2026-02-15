@@ -60,7 +60,7 @@ git status
 
 ## Conflict Resolution
 
-If conflicts occur in `50_state.md`:
+If conflicts occur in `tasks.md`:
 
 1. Each role has its own section - keep both
 2. Merge sections manually:

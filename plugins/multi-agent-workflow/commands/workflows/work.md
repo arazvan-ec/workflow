@@ -14,10 +14,10 @@ Before executing, verify the flow has been followed:
 
 ```
 PREREQUISITE CHECK:
-  1. Does 50_state.md exist for this feature?
+  1. Does tasks.md exist for this feature?
      - NO: STOP. Run /workflows:plan first.
 
-  2. Is planner status = COMPLETED in 50_state.md?
+  2. Is planner status = COMPLETED in tasks.md?
      - NO (PENDING or IN_PROGRESS): STOP. Planning not finished. Run /workflows:plan.
      - NO (BLOCKED): STOP. Planning is blocked. Resolve blocker first.
      - YES: Continue to work.
@@ -37,7 +37,7 @@ The following are executed automatically as part of `/workflows:work`:
 - **Git sync** (Step 2) -- pulls latest changes before starting
 - **Solution Validation** (Step 4.5) -- validates approach before TDD cycle
 - **TDD enforcement** (Step 5) -- Red-Green-Refactor cycle
-- **SOLID verification** (Step 7) -- checks score at each checkpoint
+- **SOLID verification** (Step 7) -- checks compliance at each checkpoint via solid-analyzer
 - **Bounded Correction Protocol** (Step 6) -- auto-corrects with scale-adaptive limits
 - **Checkpoint** (Step 7) -- saves progress + commits after each logical unit
 - **Snapshot** -- triggered when context exceeds 70% capacity
@@ -47,7 +47,7 @@ You do NOT need to invoke these separately.
 ## Usage
 
 ```bash
-# Default (sequential tasks from 30_tasks.md)
+# Default (sequential tasks from tasks.md)
 /workflows:work user-auth
 
 # By Layer (DDD)
@@ -71,7 +71,7 @@ Before executing tasks, resolve the execution mode:
    ├── Is the task in a LOW trust area (auth/, security/, payment/)?
    │   YES → hybrid (agent generates, human reviews)
    │
-   ├── Does the task have a "Reference" file in 30_tasks.md?
+   ├── Does the task have a "Reference" file in tasks.md?
    │   YES → agent-executes (pattern exists to follow)
    │
    └── OTHERWISE → agent-executes (default)
@@ -81,7 +81,7 @@ Before executing tasks, resolve the execution mode:
 
 ### Agent Executes (default)
 
-The agent generates code following the plan. For each task in `30_tasks.md`:
+The agent generates code following the plan. For each task in `tasks.md`:
 
 ` ` `
 TASK EXECUTION LOOP:
@@ -92,9 +92,9 @@ TASK EXECUTION LOOP:
   5. WRITE implementation following pattern — Write/Edit tools
   6. RUN tests (test-runner)
   7. IF fail → analyze + fix (BCP, max 10 iterations)
-  8. CHECK SOLID (solid-analyzer) — must meet task thresholds
+  8. CHECK SOLID (solid-analyzer --mode=verify) — must be COMPLIANT
   9. FIX lint (lint-fixer)
-  10. CHECKPOINT → update 50_state.md
+  10. CHECKPOINT → update tasks.md
   11. → Next task
 ` ` `
 
@@ -126,17 +126,17 @@ Resolve task isolation from `--isolation` flag or `fork_strategy` provider:
 
 ### Per-Task Isolation (`--isolation=task`)
 
-Inspired by GSD's "fresh context per task" pattern. Each task in `30_tasks.md` executes in its own isolated subagent context, preventing context rot on long sessions.
+Inspired by GSD's "fresh context per task" pattern. Each task in `tasks.md` executes in its own isolated subagent context, preventing context rot on long sessions.
 
 ```
 PER-TASK ISOLATION PROTOCOL:
 
-FOR each task in 30_tasks.md:
+FOR each task in tasks.md:
   1. LAUNCH Task subagent (context: fork) with ONLY:
      - Role definition (implementer.md)
-     - Task definition from 30_tasks.md
+     - Task definition from tasks.md
      - Reference files listed in the task
-     - 15_solutions.md (for SOLID patterns to follow)
+     - design.md (for SOLID patterns to follow)
      → 200K tokens purely for this task, zero accumulated context
 
   2. Subagent executes:
@@ -147,12 +147,12 @@ FOR each task in 30_tasks.md:
   3. Subagent returns summary:
      - Files created/modified
      - Tests: X passing, Y% coverage
-     - SOLID score
+     - SOLID: COMPLIANT/NEEDS_WORK (per-principle details)
      - Issues encountered (if any)
 
   4. Main agent:
      - Atomic git commit for this task
-     - UPDATE 50_state.md with task completion
+     - UPDATE tasks.md with task completion
      - Verify subagent output meets acceptance criteria
      - Launch next task with fresh context
 
@@ -226,9 +226,9 @@ git pull origin feature/${FEATURE_ID} || git pull origin main
 ### Step 3: Load Feature Context
 
 ```bash
-Read: .ai/project/features/${FEATURE_ID}/50_state.md
-Read: .ai/project/features/${FEATURE_ID}/FEATURE_*.md
-Read: .ai/project/features/${FEATURE_ID}/30_tasks.md
+Read: openspec/changes/${FEATURE_ID}/tasks.md      # Tasks + Workflow State
+Read: openspec/changes/${FEATURE_ID}/proposal.md    # Problem + success criteria
+Read: openspec/changes/${FEATURE_ID}/design.md      # Solutions + SOLID patterns
 ```
 
 ### Step 4: Verify Prerequisites
@@ -247,14 +247,14 @@ Read: .ai/project/features/${FEATURE_ID}/30_tasks.md
 Before starting the TDD cycle for each task, validate the approach is sound:
 
 ```
-SOLUTION VALIDATION (for each task in 30_tasks.md):
+SOLUTION VALIDATION (for each task in tasks.md):
 
 1. REFERENCE CHECK: Does a reference file exist for this task?
    - YES: Read reference file. Confirm approach follows the same pattern.
-   - NO: Check 15_solutions.md for architectural guidance. Confirm alignment.
+   - NO: Check design.md for architectural guidance. Confirm alignment.
 
 2. INTEGRATION CHECK: Will this conflict with completed checkpoints?
-   - Read completed checkpoints in 50_state.md
+   - Read completed checkpoints in tasks.md
    - Verify interfaces match (DTO shapes, method signatures, API contracts)
    - If conflict detected → STOP. Consult planner before proceeding.
 
@@ -263,7 +263,7 @@ SOLUTION VALIDATION (for each task in 30_tasks.md):
    - If approach contradicts a decision → STOP. Consult planner.
 
 4. COMPLEXITY ASSESSMENT: Resolve max_iterations for this task
-   - Read task complexity from 30_tasks.md (or infer from scope)
+   - Read task complexity from tasks.md (or infer from scope)
    - Set max_iterations from providers.yaml correction_limits
    - simple: 5, moderate: 10, complex: 15
 
@@ -289,17 +289,16 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 1. 🔴 RED: Write test FIRST (must fail)
 2. 🟢 GREEN: Write minimum code to pass
 3. 🔵 REFACTOR: Improve while keeping tests green
-4. ✅ SOLID: Verify code follows SOLID patterns from 15_solutions.md
+4. ✅ SOLID: Verify code follows SOLID patterns from design.md
 ```
 
 **SOLID Verification During Implementation**:
 
 ```bash
 # After each logical unit, verify SOLID compliance
-/workflow-skill:solid-analyzer --path=src/modified-path
+/workflow-skill:solid-analyzer --mode=verify --path=src/modified-path --design=design.md
 
-# Must match expected score from 15_solutions.md
-# If score < expected, refactor before proceeding
+# Must be COMPLIANT. If NEEDS_WORK, refactor before proceeding. If NON_COMPLIANT, enter BCP correction loop.
 ```
 
 ### Step 6: Bounded Auto-Correction Protocol + Diagnostic Escalation
@@ -345,7 +344,7 @@ while (tests_failing or deviation_detected) and iterations < MAX_ITERATIONS:
             analyze_error()
             fix_code()          # NEVER fix the test
         elif TYPE_2_MISSING_FUNCTIONALITY:
-            compare_vs_acceptance_criteria()  # from 30_tasks.md
+            compare_vs_acceptance_criteria()  # from tasks.md
             add_missing_implementation()
         elif TYPE_3_INCOMPLETE_PATTERN:
             compare_vs_reference_file()       # from task definition
@@ -373,8 +372,8 @@ elif not is_blocked:
 After each logical unit:
 
 ```bash
-# 1. Verify SOLID score
-/workflow-skill:solid-analyzer --path=src/modified-path
+# 1. Verify SOLID compliance
+/workflow-skill:solid-analyzer --mode=verify --path=src/modified-path --design=design.md
 
 # 2. Goal-Backward Verification (from GSD Verify)
 # Verify against acceptance criteria, not just test results
@@ -384,7 +383,7 @@ After each logical unit:
 
 ```
 GOAL VERIFICATION (after tests pass):
-  1. Read acceptance criteria for current task from 30_tasks.md
+  1. Read acceptance criteria for current task from tasks.md
   2. For each criterion:
      - AUTOMATED: If testable via command → run command → verify output
      - OBSERVABLE: If requires code inspection → read files → verify behavior exists
@@ -403,12 +402,14 @@ GOAL VERIFICATION (after tests pass):
 
 **Checkpoint SOLID Requirements**:
 
-| Checkpoint Type | SOLID Requirement |
-|-----------------|-------------------|
-| Domain layer | SRP, DIP must score ≥4/5 |
-| Application layer | SRP, OCP must score ≥4/5 |
-| Infrastructure | DIP must score ≥4/5 |
-| Full feature | Total score must be ≥18/25 |
+Gate: no principle may be NON_COMPLIANT. NEEDS_WORK triggers refactor before proceeding.
+
+| Checkpoint Type | Verification |
+|-----------------|-------------|
+| Domain layer | solid-analyzer --mode=verify --path=src/Domain --design=design.md |
+| Application layer | solid-analyzer --mode=verify --path=src/Application --design=design.md |
+| Infrastructure | solid-analyzer --mode=verify --path=src/Infrastructure --design=design.md |
+| Full feature | solid-analyzer --mode=verify --path=src --design=design.md --scope=full |
 
 ## Stack-Specific Workflows
 
@@ -419,28 +420,28 @@ Checkpoint 1: Domain Layer
 - Entities, Value Objects
 - Verification: php bin/phpunit tests/Unit/Domain/
 - Coverage: >80%
-- **SOLID**: SRP ≥4/5, DIP ≥4/5 (no infrastructure imports)
-- Run: /workflow-skill:solid-analyzer --path=src/Domain
+- **SOLID**: solid-analyzer --mode=verify verifies principles according to architecture-profile.yaml
+- Run: /workflow-skill:solid-analyzer --mode=verify --path=src/Domain --design=design.md
 
 Checkpoint 2: Application Layer
 - Use Cases, DTOs
 - Verification: php bin/phpunit tests/Unit/Application/
 - Coverage: >80%
-- **SOLID**: SRP ≥4/5, OCP ≥4/5
-- Run: /workflow-skill:solid-analyzer --path=src/Application
+- **SOLID**: solid-analyzer --mode=verify verifies principles according to architecture-profile.yaml
+- Run: /workflow-skill:solid-analyzer --mode=verify --path=src/Application --design=design.md
 
 Checkpoint 3: Infrastructure Layer
 - Repositories, Controllers
 - Verification: php bin/phpunit tests/Integration/
 - Schema validation
-- **SOLID**: DIP ≥4/5 (implements interfaces from Domain)
-- Run: /workflow-skill:solid-analyzer --path=src/Infrastructure
+- **SOLID**: solid-analyzer --mode=verify verifies principles according to architecture-profile.yaml
+- Run: /workflow-skill:solid-analyzer --mode=verify --path=src/Infrastructure --design=design.md
 
 Checkpoint 4: API Endpoints
 - REST endpoints
 - Verification: curl tests, API contract validation
-- **SOLID Total**: Must achieve ≥18/25 overall
-- Run: /workflow-skill:solid-analyzer --path=src --validate
+- **SOLID**: solid-analyzer --mode=verify verifies principles according to architecture-profile.yaml
+- Run: /workflow-skill:solid-analyzer --mode=verify --path=src --design=design.md --scope=full
 ```
 
 ### Frontend Workflow
@@ -469,7 +470,7 @@ Checkpoint 5: Accessibility
 
 ## State Updates
 
-Update `50_state.md` at each checkpoint:
+Update `tasks.md` at each checkpoint:
 
 ```markdown
 ## Implementer
@@ -477,37 +478,37 @@ Update `50_state.md` at each checkpoint:
 **Checkpoint**: Domain layer complete
 **Timestamp**: 2026-01-16T14:30:00Z
 **Tests**: 15/15 passing, 92% coverage
-**SOLID Score**: 21/25 (SRP: 5, OCP: 4, LSP: 4, ISP: 4, DIP: 4)
+**SOLID**: COMPLIANT (SRP: ✓, OCP: ✓, LSP: N/A, ISP: ✓, DIP: ✓)
 **Iterations**: 3
 
 ### Resume Information
 - **Completed**: User entity, Email VO
 - **Next Task**: CreateUserUseCase (BE-005)
 - **Files to Read on Resume**:
-  - 30_tasks.md (Task BE-005)
+  - tasks.md (Task BE-005)
   - src/Domain/Entity/User.php
-- **SOLID Notes**: DIP verified - no infrastructure imports in Domain
+- **SOLID**: COMPLIANT (SRP: ✓, OCP: ✓, LSP: N/A, ISP: ✓, DIP: ✓)
 ```
 
 ## Per-Task State Persistence (MANDATORY)
 
-> **CRITICAL RULE**: Update `50_state.md` after completing EACH individual task, not just at checkpoints. If a session is interrupted between tasks, the resume point must be documented.
+> **CRITICAL RULE**: Update `tasks.md` after completing EACH individual task, not just at checkpoints. If a session is interrupted between tasks, the resume point must be documented.
 
-After completing each task in `30_tasks.md`:
+After completing each task in `tasks.md`:
 
 ```
 PER-TASK UPDATE PROTOCOL:
 
-1. Mark the task as COMPLETED in 50_state.md task tracker
+1. Mark the task as COMPLETED in tasks.md task tracker
 2. Record the timestamp (ISO 8601)
 3. Update the "Resume Point" section with the NEXT task
-4. WRITE 50_state.md to disk immediately
+4. WRITE tasks.md to disk immediately
 
 This happens BEFORE the checkpoint (which includes git commit).
 Even if no checkpoint is triggered, the state file is updated.
 ```
 
-### Task-Level State Tracker (in 50_state.md)
+### Task-Level State Tracker (in tasks.md)
 
 ```markdown
 ## Implementer
@@ -528,19 +529,19 @@ Even if no checkpoint is triggered, the state file is updated.
 **Currently Working On**: BE-003 (Create UserRepository Interface)
 **Next Task After Current**: BE-004 (CreateUserUseCase)
 **Files to Read on Resume**:
-  - .ai/project/features/${FEATURE_ID}/30_tasks.md (Task BE-003)
+  - openspec/changes/${FEATURE_ID}/tasks.md (Task BE-003)
   - src/Domain/Entity/User.php (reference for repository)
 **Last Save**: 2026-01-16T14:15:00Z
 ```
 
 ### Interrupted Session Recovery
 
-When resuming a session (detected by reading `50_state.md` with status `IN_PROGRESS`):
+When resuming a session (detected by reading `tasks.md` with status `IN_PROGRESS`):
 
 ```
 RESUME PROTOCOL:
-1. Read 50_state.md → identify Resume Point
-2. Read the "Currently Working On" task from 30_tasks.md
+1. Read tasks.md → identify Resume Point
+2. Read the "Currently Working On" task from tasks.md
 3. Read "Files to Read on Resume" list
 4. Check git status for uncommitted changes
 5. Continue from the identified task
@@ -552,21 +553,21 @@ DO NOT re-do completed tasks.
 ### State Update Timing
 
 ```
-WHEN to update 50_state.md:
+WHEN to update tasks.md:
 
 1. After EACH task completion (even if not a checkpoint)
    → Update: task status, timestamp, resume point
    → Cost: ~5 seconds, prevents hours of lost work
 
 2. At EACH checkpoint (logical unit boundary)
-   → Update: full checkpoint details, SOLID score, tests
+   → Update: full checkpoint details, SOLID compliance, tests
    → Also: git commit
 
 3. Before ANY pause or break
    → Update: resume point with current context
    → This is the minimum for session recovery
 
-ALWAYS include "Last Save" timestamp in 50_state.md.
+ALWAYS include "Last Save" timestamp in tasks.md.
 Format: ISO 8601 (e.g., 2026-01-16T14:30:00Z)
 ```
 

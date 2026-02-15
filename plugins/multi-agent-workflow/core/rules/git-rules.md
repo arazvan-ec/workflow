@@ -36,7 +36,7 @@ Git is the synchronization mechanism between agent instances.
 3. Do not use `--force` without consulting the team
 
 ### Design Conflicts
-1. Report in `50_state.md` with `BLOCKED` status
+1. Report in `tasks.md` with `BLOCKED` status
 2. The Planner role makes the decision
 3. Document the decision in `DECISIONS.md`
 
@@ -45,6 +45,6 @@ Git is the synchronization mechanism between agent instances.
 When multiple agents work in parallel:
 
 1. Each agent works on its own branch or worktree
-2. Agents communicate state via `50_state.md` (committed and pushed)
+2. Agents communicate state via `tasks.md` (committed and pushed)
 3. Before starting work, always read other agents' state
 4. Use the git-sync skill to merge work between agents

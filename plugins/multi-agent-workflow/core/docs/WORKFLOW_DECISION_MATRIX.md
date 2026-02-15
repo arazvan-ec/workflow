@@ -300,7 +300,7 @@ if affected_files match high_trust_patterns:
 ```
 Detection: Menciona feature existente, "continuar", "seguir con"
 Action:
-  1. Verificar estado en 50_state.md
+  1. Verificar estado en tasks.md
   2. Determinar siguiente paso según workflow actual
   3. NO iniciar nuevo routing - continuar workflow existente
 ```

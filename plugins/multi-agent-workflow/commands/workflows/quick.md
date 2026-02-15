@@ -61,7 +61,7 @@ DO NOT use Quick Mode for:
     │   └── Tag as quick-mode in commit
     │
     └── Step 4: State Update
-        ├── Update 50_state.md (minimal entry)
+        ├── Update tasks.md (minimal entry)
         └── Done
 ```
 
@@ -114,7 +114,7 @@ Mode: quick-mode"
 
 ## Step 4: State Update (Minimal)
 
-If a `50_state.md` exists for the current feature, add a quick-mode entry:
+If a `tasks.md` exists for the current feature, add a quick-mode entry:
 
 ```markdown
 ### Quick Mode Tasks
@@ -133,7 +133,7 @@ If no feature context exists, no state file is created (truly ad-hoc task).
 
 ## Integration with Full Workflow
 
-- Quick Mode tasks are logged in `50_state.md` if a feature context exists
+- Quick Mode tasks are logged in `tasks.md` if a feature context exists
 - Quick Mode tasks can be captured in `/workflows:compound` if they reveal patterns
 - If Quick Mode assessment determines task is too complex → redirect to full workflow
 - Quick Mode does NOT trigger multi-agent review (task is too small)

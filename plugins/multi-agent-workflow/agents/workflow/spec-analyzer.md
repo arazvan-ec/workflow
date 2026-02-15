@@ -27,13 +27,13 @@ Compare implementation against feature specifications to ensure compliance.
 
 ```bash
 # Load feature definition
-Read: .ai/project/features/${FEATURE_ID}/FEATURE_*.md
+Read: openspec/changes/${FEATURE_ID}/proposal.md
 
 # Load API contracts
-Read: .ai/project/features/${FEATURE_ID}/20_api_contracts.md
+Read: openspec/changes/${FEATURE_ID}/specs.md
 
 # Load acceptance criteria
-Read: .ai/project/features/${FEATURE_ID}/00_requirements_analysis.md
+Read: openspec/changes/${FEATURE_ID}/specs.md
 ```
 
 ### Step 2: Map Implementation

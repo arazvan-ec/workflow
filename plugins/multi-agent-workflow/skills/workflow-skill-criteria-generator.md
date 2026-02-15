@@ -23,7 +23,7 @@ The quality of architectural decisions depends entirely on the quality of the cr
 **IMPORTANT**: Before generating feature-specific criteria, ALWAYS load the base architecture quality criteria:
 
 ```
-Read: plugins/multi-agent-workflow/core/architecture-quality-criteria.md
+Read: plugins/multi-agent-workflow/core/architecture-reference.md
 ```
 
 These **6 base criteria** are NON-NEGOTIABLE and apply to ALL features:
@@ -79,7 +79,7 @@ If an architecture option violates these limits, it scores LOW on invasivity.
 
 ### Tier 1: Base Criteria (Always Applied)
 
-From `architecture-quality-criteria.md`:
+From `architecture-reference.md`:
 - Escalabilidad Estructural
 - SOLID Compliance
 - Clean Code Metrics
@@ -327,7 +327,7 @@ Generate the criteria document:
 The skill generates:
 
 ```
-.ai/project/features/{feature-id}/
+openspec/changes/{feature-id}/
 ├── 12_architecture_criteria.md   # Main criteria document
 ├── 12a_criteria_evaluation.md    # Evaluation matrix (if --evaluate)
 └── 12b_criteria_interview.md     # Developer consultation log
@@ -447,7 +447,7 @@ The planner should automatically invoke criteria-generator when:
 
 ## SOLID-Rigorous Mode
 
-When SOLID compliance is critical (refactoring, new architecture), use strict SOLID evaluation:
+When SOLID compliance is critical (refactoring, new architecture), use strict SOLID evaluation with contextual per-principle analysis.
 
 ### Invocation
 
@@ -461,87 +461,83 @@ When SOLID compliance is critical (refactoring, new architecture), use strict SO
 
 ### SOLID as Non-Negotiable Criterion
 
-In SOLID-rigorous mode, the **C-BASE-02: SOLID Compliance** criterion is expanded to 5 sub-criteria:
+In SOLID-rigorous mode, the **C-BASE-02: SOLID Compliance** criterion is expanded to 5 sub-criteria, evaluated contextually per the project's `architecture-profile.yaml`:
 
 | ID | Sub-Criterion | Weight | Pass Threshold |
 |----|---------------|--------|----------------|
-| C-SOLID-S | Single Responsibility | Critical | Score ≥4/5 |
-| C-SOLID-O | Open/Closed | Critical | Score ≥4/5 |
-| C-SOLID-L | Liskov Substitution | High | Score ≥3/5 |
-| C-SOLID-I | Interface Segregation | High | Score ≥4/5 |
-| C-SOLID-D | Dependency Inversion | Critical | Score ≥4/5 |
+| C-SOLID-S | Single Responsibility | Critical | COMPLIANT (or N/A with justification) |
+| C-SOLID-O | Open/Closed | Critical | COMPLIANT (or N/A with justification) |
+| C-SOLID-L | Liskov Substitution | High | COMPLIANT or N/A (if no inheritance) |
+| C-SOLID-I | Interface Segregation | High | COMPLIANT (or N/A for implicit-interface languages) |
+| C-SOLID-D | Dependency Inversion | Critical | COMPLIANT (or N/A with justification) |
 
-**Any option scoring <4 on Critical SOLID principles is automatically rejected.**
+**Any option that is NON_COMPLIANT on a Critical SOLID principle is automatically rejected.**
 
 ### SOLID Evaluation Matrix
 
-For each architecture option, evaluate:
+For each architecture option, evaluate per principle:
 
 ```markdown
 ## SOLID Evaluation: {Option Name}
 
 ### S - Single Responsibility
-| Question | Answer | Score |
-|----------|--------|-------|
-| Can every class be described in ONE phrase without "and"? | Yes/No | /5 |
-| Are all classes ≤200 lines? | Yes/No | /5 |
-| Are all classes ≤7 public methods? | Yes/No | /5 |
-| Does each class have ONE reason to change? | Yes/No | /5 |
-**SRP Score**: {avg}/5
+| Question | Answer | Verdict |
+|----------|--------|---------|
+| Can every class be described in ONE phrase without "and"? | Yes/No | COMPLIANT/NEEDS_WORK/NON_COMPLIANT |
+| Are all classes within threshold (from architecture-profile)? | Yes/No | COMPLIANT/NEEDS_WORK/NON_COMPLIANT |
+| Does each class have ONE reason to change? | Yes/No | COMPLIANT/NEEDS_WORK/NON_COMPLIANT |
+**SRP Verdict**: COMPLIANT / NEEDS_WORK / NON_COMPLIANT
 
 ### O - Open/Closed
-| Question | Answer | Score |
-|----------|--------|-------|
-| Can new types be added without modifying existing code? | Yes/No | /5 |
-| Are there zero switch/if-else chains by type? | Yes/No | /5 |
-| Is the design extensible via composition/inheritance? | Yes/No | /5 |
-**OCP Score**: {avg}/5
+| Question | Answer | Verdict |
+|----------|--------|---------|
+| Can new types be added without modifying existing code? | Yes/No | COMPLIANT/NEEDS_WORK/NON_COMPLIANT |
+| Are there zero switch/if-else chains by type? | Yes/No | COMPLIANT/NEEDS_WORK/NON_COMPLIANT |
+| Is the design extensible via composition/patterns? | Yes/No | COMPLIANT/NEEDS_WORK/NON_COMPLIANT |
+**OCP Verdict**: COMPLIANT / NEEDS_WORK / NON_COMPLIANT
 
 ### L - Liskov Substitution
-| Question | Answer | Score |
-|----------|--------|-------|
-| Can any implementation replace another safely? | Yes/No | /5 |
-| Do subtypes honor parent contracts? | Yes/No | /5 |
-| Are there zero unexpected exceptions in overrides? | Yes/No | /5 |
-**LSP Score**: {avg}/5
+| Question | Answer | Verdict |
+|----------|--------|---------|
+| Can any implementation replace another safely? | Yes/No/N/A | COMPLIANT/N/A |
+| Do subtypes honor parent contracts? | Yes/No/N/A | COMPLIANT/N/A |
+**LSP Verdict**: COMPLIANT / N/A (if no inheritance in design)
 
 ### I - Interface Segregation
-| Question | Answer | Score |
-|----------|--------|-------|
-| Are all interfaces ≤5 methods? | Yes/No | /5 |
-| Do all implementations use 100% of interface methods? | Yes/No | /5 |
-| Are interfaces role-based? | Yes/No | /5 |
-**ISP Score**: {avg}/5
+| Question | Answer | Verdict |
+|----------|--------|---------|
+| Are all interfaces within threshold (from architecture-profile)? | Yes/No | COMPLIANT/NEEDS_WORK/NON_COMPLIANT |
+| Do all implementations use 100% of interface methods? | Yes/No | COMPLIANT/NEEDS_WORK/NON_COMPLIANT |
+**ISP Verdict**: COMPLIANT / NEEDS_WORK / NON_COMPLIANT / N/A
 
 ### D - Dependency Inversion
-| Question | Answer | Score |
-|----------|--------|-------|
-| Do all high-level modules depend on abstractions? | Yes/No | /5 |
-| Does Domain have zero Infrastructure imports? | Yes/No | /5 |
-| Are all dependencies injected (not instantiated)? | Yes/No | /5 |
-**DIP Score**: {avg}/5
+| Question | Answer | Verdict |
+|----------|--------|---------|
+| Do all high-level modules depend on abstractions? | Yes/No | COMPLIANT/NEEDS_WORK/NON_COMPLIANT |
+| Does Domain have zero Infrastructure imports? | Yes/No | COMPLIANT/NON_COMPLIANT |
+| Are all dependencies injected (not instantiated)? | Yes/No | COMPLIANT/NEEDS_WORK/NON_COMPLIANT |
+**DIP Verdict**: COMPLIANT / NEEDS_WORK / NON_COMPLIANT
 
-### Total SOLID Score: {sum}/25
+### Global SOLID Verdict
 
-| Threshold | Result |
-|-----------|--------|
-| ≥22/25 | SOLID-COMPLIANT |
-| 18-21/25 | ACCEPTABLE (minor issues) |
-| 14-17/25 | NEEDS WORK (refactor before approval) |
-| <14/25 | REJECTED (violates SOLID) |
+| Verdict | Meaning |
+|---------|---------|
+| COMPLIANT | All relevant principles are COMPLIANT or N/A |
+| NEEDS_WORK | Some principles need minor improvements, none NON_COMPLIANT |
+| NON_COMPLIANT | At least one critical/high principle is NON_COMPLIANT — option rejected |
 ```
 
 ### Automatic Pattern Recommendation
 
-When an option scores low on a SOLID principle, automatically recommend patterns:
+When an option is NON_COMPLIANT or NEEDS_WORK on a principle, recommend patterns from `core/architecture-reference.md`:
 
 ```markdown
 ## SOLID Improvement Recommendations
 
-### Option B scored 2/5 on OCP
+### Option B: NON_COMPLIANT on OCP
 
 **Detected Issue**: Switch statement by payment type in PaymentProcessor
-**Recommended Pattern**: Strategy
+**Recommended Pattern**: Strategy (consistent with project's existing patterns — see architecture-profile.yaml)
 **Implementation**:
 ```
 PaymentProcessor
@@ -551,7 +547,7 @@ PaymentProcessor
     → BankTransferStrategy
 ```
 
-**After applying pattern, expected OCP score**: 5/5
+**After applying pattern, expected OCP verdict**: COMPLIANT
 ```
 
 ### Integration with solid-analyzer
@@ -561,10 +557,10 @@ PaymentProcessor
 /workflow-skill:criteria-generator --feature=my-feature --solid-first
 
 # This will:
-# 1. Run /workflow-skill:solid-analyzer on relevant code paths
-# 2. Include SOLID baseline in context
+# 1. Run /workflow-skill:solid-analyzer --mode=baseline on relevant code paths
+# 2. Include SOLID baseline in context (patterns detected, violations, relevant principles)
 # 3. Generate criteria that address existing SOLID violations
-# 4. Evaluate options with SOLID-rigorous scoring
+# 4. Evaluate options with SOLID-rigorous per-principle analysis
 ```
 
 ### SOLID-Rigorous Output Template
@@ -572,74 +568,69 @@ PaymentProcessor
 ```markdown
 ## Architecture Criteria: {feature-id} (SOLID-Rigorous)
 
-**Mode**: SOLID-Rigorous (no option with SOLID <18/25 will be accepted)
+**Mode**: SOLID-Rigorous (no option that is NON_COMPLIANT will be accepted)
 
-### SOLID Baseline Analysis
-**Current Code Score**: {X}/25
-**Violations Found**: {count}
-**Critical Violations**: {list}
+### SOLID Baseline Analysis (from solid-analyzer --mode=baseline)
+**Current State**: [per-principle verdicts]
+**Violations Found**: [count]
+**Critical Violations**: [list]
 
 ### Criteria Matrix (SOLID-Weighted)
 
-| ID | Criterion | Category | Weight | Notes |
-|----|-----------|----------|--------|-------|
-| C-SOLID-S | Single Responsibility | SOLID | Critical | Must score ≥4/5 |
-| C-SOLID-O | Open/Closed | SOLID | Critical | Must score ≥4/5 |
-| C-SOLID-L | Liskov Substitution | SOLID | High | Must score ≥3/5 |
-| C-SOLID-I | Interface Segregation | SOLID | High | Must score ≥4/5 |
-| C-SOLID-D | Dependency Inversion | SOLID | Critical | Must score ≥4/5 |
+| ID | Criterion | Category | Weight | Pass Threshold |
+|----|-----------|----------|--------|----------------|
+| C-SOLID-S | Single Responsibility | SOLID | Critical | COMPLIANT |
+| C-SOLID-O | Open/Closed | SOLID | Critical | COMPLIANT |
+| C-SOLID-L | Liskov Substitution | SOLID | High | COMPLIANT or N/A |
+| C-SOLID-I | Interface Segregation | SOLID | High | COMPLIANT or N/A |
+| C-SOLID-D | Dependency Inversion | SOLID | Critical | COMPLIANT |
 | C-FEAT-01 | {Feature criterion} | Functional | {weight} | {notes} |
 | ... | ... | ... | ... | ... |
 
-### Evaluation Matrix (SOLID-First)
+### Evaluation Summary
 
-| Criterion | Weight | Option A | Option B | Option C |
-|-----------|--------|----------|----------|----------|
-| **SOLID-S** | 5 | 5 (25) | 3 (15) | 4 (20) |
-| **SOLID-O** | 5 | 5 (25) | 2 (10) | 5 (25) |
-| **SOLID-L** | 4 | 4 (16) | 4 (16) | 4 (16) |
-| **SOLID-I** | 4 | 5 (20) | 5 (20) | 3 (12) |
-| **SOLID-D** | 5 | 5 (25) | 3 (15) | 5 (25) |
-| SOLID Subtotal | | **111** | **76** ❌ | **98** |
-| {Other criteria} | | ... | ... | ... |
-| **TOTAL** | | **156** | **REJECTED** | **143** |
+| Option | SRP | OCP | LSP | ISP | DIP | Global Verdict | Feature Score |
+|--------|-----|-----|-----|-----|-----|----------------|---------------|
+| **Option A** | ✓ | ✓ | N/A | ✓ | ✓ | COMPLIANT | 85 |
+| **Option B** | ✓ | ✗ | N/A | ✓ | ✗ | NON_COMPLIANT ❌ | REJECTED |
+| **Option C** | ✓ | ✓ | N/A | ⚠ | ✓ | NEEDS_WORK | 78 |
 
 ### Decision
 
 **Winner**: Option A
-**SOLID Score**: 24/25 (SOLID-COMPLIANT)
-**Reason**: Highest SOLID compliance + best overall score
+**SOLID Verdict**: COMPLIANT (all relevant principles satisfied)
+**Reason**: Highest SOLID compliance + best overall feature score
 
-**Option B Rejected**: SOLID score 15/25 (below 18 threshold)
-- OCP violation: switch by type
-- DIP violation: concrete dependencies
+**Option B Rejected**: NON_COMPLIANT
+- OCP: NON_COMPLIANT — switch by type in PaymentProcessor
+- DIP: NON_COMPLIANT — concrete dependencies in domain layer
 
-**Option C Considered**: SOLID score 21/25 (ACCEPTABLE)
-- ISP minor issue: one interface with 6 methods
+**Option C Considered**: NEEDS_WORK
+- ISP: NEEDS_WORK — one interface with 6 methods (threshold: 5)
 - Recommendation: Split interface before implementation
 ```
 
 ### SOLID-Rigorous Workflow
 
 ```
-1. ANALYZE existing code with /workflow-skill:solid-analyzer
-   └─ Get SOLID baseline score
+1. ANALYZE existing code with /workflow-skill:solid-analyzer --mode=baseline
+   └─ Get per-principle SOLID baseline
 
 2. IDENTIFY violations requiring architectural fix
-   └─ Map to patterns via solid-pattern-matrix.md
+   └─ Map to patterns via core/architecture-reference.md
 
 3. GENERATE architecture options that FIX violations
-   └─ Use SOLID patterns from solid-pattern-matrix.md
+   └─ Use patterns from architecture-reference.md, consistent with project's architecture-profile.yaml
 
-4. EVALUATE options with SOLID-rigorous criteria
-   └─ Reject any option with SOLID <18/25
+4. EVALUATE options with SOLID-rigorous per-principle analysis
+   └─ Reject any option that is NON_COMPLIANT
 
-5. SELECT highest-scoring SOLID-compliant option
+5. SELECT the COMPLIANT option with best overall score
    └─ Document why others rejected
 
 6. VALIDATE final architecture
-   └─ Re-run solid-analyzer on proposed design
-   └─ Must score ≥22/25 to approve
+   └─ Run solid-analyzer --mode=design on proposed design
+   └─ Must be COMPLIANT to approve
 ```
 
 ## Related
@@ -649,4 +640,4 @@ PaymentProcessor
 - `core/roles/planner.md` - Planner role context
 - `agents/review/architecture-reviewer.md` - Architecture validation
 - `skills/workflow-skill-solid-analyzer.md` - Automated SOLID analysis
-- `core/solid-pattern-matrix.md` - Violation → Pattern mapping
+- `core/architecture-reference.md` - Principles, patterns, and quality criteria reference

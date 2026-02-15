@@ -38,7 +38,7 @@ All shared knowledge lives in files. Never assume implicit context.
 
 ```
 Avoid: "Remember we said earlier that..."
-Prefer: "Read `.ai/project/features/FEATURE_X/50_state.md`"
+Prefer: "Read `openspec/changes/FEATURE_X/tasks.md` Workflow State"
 ```
 
 ### 4. Immutable Roles
@@ -64,9 +64,9 @@ Resolve execution_mode from `core/providers.yaml` before starting any task. In `
 Follow the defined workflow without skipping stages. Each core command enforces prerequisites:
 
 - **`plan`** requires: request routed via `/workflows:route`
-- **`work`** requires: planner status = `COMPLETED` in `50_state.md` AND all required plan files exist on disk (`00_problem_statement.md`, `12_specs.md`, `15_solutions.md`, `30_tasks.md`)
-- **`review`** requires: implementation status = `COMPLETED` in `50_state.md`
-- **`compound`** requires: review status = `APPROVED` in `50_state.md`
+- **`work`** requires: planner status = `COMPLETED` in `tasks.md` Workflow State AND all required plan files exist on disk (`proposal.md`, `specs.md`, `design.md`, `tasks.md`)
+- **`review`** requires: implementation status = `COMPLETED` in `tasks.md` Workflow State
+- **`compound`** requires: review status = `APPROVED` in `tasks.md` Workflow State
 
 If a prerequisite is not met, STOP and complete the missing step first.
 
@@ -106,13 +106,29 @@ See `core/docs/VALIDATION_LEARNING.md` for the full specification.
 
 ### 9. Synchronized State
 
-Use `50_state.md` to communicate state between roles.
+Use `tasks.md` Workflow State section to communicate state between roles.
 
-- Update `50_state.md` frequently
+- Update `tasks.md` Workflow State frequently
 - Read other roles' state before starting
 - Use standard states: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, `APPROVED`, `REJECTED`
 
-### 10. Planning Persistence (Write-Then-Advance)
+### 10. Baseline Freeze (openspec/specs/)
+
+The `openspec/specs/` directory is the **read-only baseline** of project specifications. Only the `/workflows:compound` command (via spec-merger) may write to it.
+
+```
+BASELINE FREEZE RULE:
+
+  openspec/specs/ is READ-ONLY during plan, work, and review.
+  Only /workflows:compound may write to openspec/specs/.
+
+  Planner writes to:  openspec/changes/{slug}/ (proposal, specs, design, tasks)
+  Implementer reads:  openspec/changes/{slug}/ and openspec/specs/
+  Reviewer reads:     openspec/changes/{slug}/ and openspec/specs/
+  Compound writes to: openspec/specs/ (merges changes into baseline)
+```
+
+### 11. Planning Persistence (Write-Then-Advance)
 
 Planning output must be written to disk incrementally, not accumulated in memory.
 
@@ -120,13 +136,13 @@ Planning output must be written to disk incrementally, not accumulated in memory
 THE WRITE-THEN-ADVANCE RULE:
 
 Every planning phase writes its output file BEFORE the next phase begins.
-Every work task updates 50_state.md BEFORE the next task begins.
+Every work task updates tasks.md BEFORE the next task begins.
 
 PHASE COMPLETION PROTOCOL (applies to every phase):
 
 1. GENERATE the phase output in full
 2. WRITE the output file to disk immediately (use Write tool)
-3. UPDATE 50_state.md with phase completion status + timestamp
+3. UPDATE tasks.md with phase completion status + timestamp
 4. VERIFY the file exists on disk (use Read tool to confirm)
 5. ONLY THEN advance to the next phase
 
@@ -137,12 +153,12 @@ with unwritten output.
 This ensures:
 - Interrupted sessions can be resumed from the last completed phase/task
 - Partial progress is never lost
-- `50_state.md` always reflects the true current state
+- `tasks.md` always reflects the true current state
 
 Violations:
 - Generating multiple phase outputs without writing intermediate files
 - Advancing to Phase 3 without Phase 2 output written to disk
-- Completing tasks without updating `50_state.md` between them
+- Completing tasks without updating `tasks.md` between them
 
 This rule applies to both `/workflows:plan` and `/workflows:work`.
 
@@ -166,10 +182,10 @@ Resolve the context_management provider first, then apply thresholds:
 If provider is `auto`, detect tier per `core/docs/CAPABILITY_PROVIDERS.md` Detection Protocol.
 
 ### Session Restart Protocol
-1. Save current state in `50_state.md`
+1. Save current state in `tasks.md`
 2. Commit all work with checkpoint message
 3. Document resume point (last checkpoint, next task, relevant files)
-4. Start new session reading: role.md, 50_state.md, relevant files
+4. Start new session reading: role.md, tasks.md, relevant files
 
 See `core/docs/SESSION_CONTINUITY.md` for detailed strategies.
 
@@ -224,12 +240,12 @@ Avoid: implementing trends because they're fashionable, adding tools without con
 - Their own role definition
 - All rules files
 - Workflow definitions
-- Feature states (`50_state.md`)
+- Feature states (`tasks.md`)
 - Code relevant to their role
 
 ### Writing — Each role can only write to:
 - Their assigned code area
-- Their section of `50_state.md`
+- Their section of `tasks.md`
 - Files assigned to their role
 
 Only the Planner role can modify project rules (with justification in `DECISIONS.md`).

@@ -363,7 +363,7 @@ Actions:
 1. Verify environment variables are set
 2. Check if server process is running
 3. Retry with backoff (automatic, max 3 attempts)
-4. If persistent, document in 50_state.md and continue without MCP
+4. If persistent, document in tasks.md and continue without MCP
 ```
 
 ### Permission Denied
@@ -442,7 +442,7 @@ When using MCP tools, document in your checkpoint:
 If mcp__postgres__query fails:
 1. Log the error
 2. Continue with mock data
-3. Note in 50_state.md that validation was skipped
+3. Note in tasks.md that validation was skipped
 4. Mark as needs verification before merge
 ```
 

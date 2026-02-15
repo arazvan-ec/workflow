@@ -144,16 +144,16 @@ Result: Effectiveness = 100% (all questions learned)
 ### The Feature Directory (with validation)
 
 ```
-.ai/project/features/${FEATURE_ID}/
+openspec/changes/${FEATURE_ID}/
 ├── 10_requirements.md          # From /workflows:route
-├── 12_specs.md                 # From /workflows:plan (Phase 2)
+├── specs.md                 # From /workflows:plan (Phase 2)
 ├── 12_architecture_criteria.md # From /workflows:plan (Phase 3)
-├── 15_solutions.md             # From /workflows:plan (Phase 3)
+├── design.md             # From /workflows:plan (Phase 3)
 ├── 18_validation_report.md     # ◄── From validation step within /workflows:review
 ├── 20_implementation.md        # From /workflows:work
 ├── 30_qa_report.md             # From /workflows:review
 ├── 40_compound_entry.md        # From /workflows:compound
-└── 50_state.md                 # Shared state
+└── tasks.md                 # Shared state
 ```
 
 ---

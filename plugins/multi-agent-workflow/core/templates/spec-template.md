@@ -6,7 +6,7 @@ This template defines the structure for **functional specifications** (Phase 2).
 
 ---
 
-## Template: 12_specs.md (Phase 2 Output)
+## Template: specs.md (Phase 2 Output)
 
 ```markdown
 # Functional Specifications: ${FEATURE_ID}
@@ -19,7 +19,7 @@ This template defines the structure for **functional specifications** (Phase 2).
 ## About This Document
 
 This document defines **WHAT** the system must do (functional requirements).
-**HOW** to implement (including SOLID compliance) is defined in `15_solutions.md`.
+**HOW** to implement (including SOLID compliance) is defined in `design.md`.
 
 ---
 
@@ -112,7 +112,7 @@ These are non-functional requirements that affect HOW we build.
 ❌ **SOLID compliance** - This is a design CONSTRAINT applied in Phase 3
 ❌ **Design patterns** - These are selected when designing solutions
 ❌ **Class structure** - This is part of the technical solution
-❌ **Implementation details** - HOW belongs in `15_solutions.md`
+❌ **Implementation details** - HOW belongs in `design.md`
 
 ---
 
@@ -129,7 +129,7 @@ These are non-functional requirements that affect HOW we build.
 
 ---
 
-## Template: 15_solutions.md (Phase 3 Output)
+## Template: design.md (Phase 3 Output)
 
 This is where SOLID becomes mandatory:
 
@@ -145,11 +145,11 @@ This is where SOLID becomes mandatory:
 
 > ⚠️ All solutions MUST comply with SOLID principles.
 
-**SOLID Baseline** (from `/workflow-skill:solid-analyzer`):
-- Current code score: [X/25 or N/A if greenfield]
+**SOLID Baseline** (from `/workflow-skill:solid-analyzer --mode=baseline`):
+- Current compliance: [per-principle analysis or N/A if greenfield]
 - Violations found: [list or none]
 
-**Target Score**: ≥22/25
+**Target**: COMPLIANT (all relevant principles per `architecture-profile.yaml`)
 
 ---
 
@@ -159,19 +159,19 @@ This is where SOLID becomes mandatory:
 
 **SOLID Compliance**:
 
-| Principle | How It's Addressed | Pattern Used |
-|-----------|-------------------|--------------|
-| **S** - SRP | [How this solution respects SRP] | [Pattern or N/A] |
-| **O** - OCP | [How this solution respects OCP] | [Pattern or N/A] |
-| **L** - LSP | [How this solution respects LSP] | [Pattern or N/A] |
-| **I** - ISP | [How this solution respects ISP] | [Pattern or N/A] |
-| **D** - DIP | [How this solution respects DIP] | [Pattern or N/A] |
+| Principle | Verdict | Reasoning | Pattern Used |
+|-----------|---------|-----------|--------------|
+| **S** - SRP | COMPLIANT / NEEDS_WORK / NON_COMPLIANT / N/A | [How this solution respects SRP] | [Pattern or N/A] |
+| **O** - OCP | COMPLIANT / NEEDS_WORK / NON_COMPLIANT / N/A | [How this solution respects OCP] | [Pattern or N/A] |
+| **L** - LSP | COMPLIANT / NEEDS_WORK / NON_COMPLIANT / N/A | [How this solution respects LSP] | [Pattern or N/A] |
+| **I** - ISP | COMPLIANT / NEEDS_WORK / NON_COMPLIANT / N/A | [How this solution respects ISP] | [Pattern or N/A] |
+| **D** - DIP | COMPLIANT / NEEDS_WORK / NON_COMPLIANT / N/A | [How this solution respects DIP] | [Pattern or N/A] |
 
 **Files to Create/Modify**:
 - `path/to/File1.php` (Principle: SRP reason)
 - `path/to/File2.php` (Principle: DIP reason)
 
-**Expected SOLID Score**: [X/25]
+**Expected SOLID**: COMPLIANT
 
 ---
 
@@ -181,26 +181,26 @@ This is where SOLID becomes mandatory:
 
 **SOLID Compliance**:
 
-| Principle | How It's Addressed | Pattern Used |
-|-----------|-------------------|--------------|
-| ... | ... | ... |
+| Principle | Verdict | Reasoning | Pattern Used |
+|-----------|---------|-----------|--------------|
+| ... | ... | ... | ... |
 
 **Files to Create/Modify**:
 - ...
 
-**Expected SOLID Score**: [X/25]
+**Expected SOLID**: COMPLIANT
 
 ---
 
-## Overall SOLID Score
+## Overall SOLID Compliance
 
-| Solution | Score | Status |
-|----------|-------|--------|
-| SPEC-F01 | [X/25] | ✅/❌ |
-| SPEC-F02 | [X/25] | ✅/❌ |
-| **Total Expected** | **[X/25]** | **[Status]** |
+| Solution | Verdict | Notes |
+|----------|---------|-------|
+| SPEC-F01 | COMPLIANT / NEEDS_WORK / NON_COMPLIANT | [details] |
+| SPEC-F02 | COMPLIANT / NEEDS_WORK / NON_COMPLIANT | [details] |
+| **Global** | **[COMPLIANT / NEEDS_WORK / NON_COMPLIANT]** | |
 
-**Threshold**: ≥18/25 to proceed, ≥22/25 to approve
+**Gate**: COMPLIANT to proceed. NEEDS_WORK requires revision. NON_COMPLIANT blocks.
 
 ---
 
@@ -219,7 +219,7 @@ This is where SOLID becomes mandatory:
 
 - [ ] All specs have solutions
 - [ ] **SOLID compliance documented for each solution**
-- [ ] **Expected SOLID score ≥22/25**
+- [ ] **All relevant SOLID principles verified as COMPLIANT**
 - [ ] Patterns justified with "why"
 - [ ] Ready for task breakdown
 
@@ -233,14 +233,14 @@ This is where SOLID becomes mandatory:
 
 | Document | Phase | Contains | SOLID? |
 |----------|-------|----------|--------|
-| `12_specs.md` | Phase 2 | WHAT (functional requirements) | ❌ No |
-| `15_solutions.md` | Phase 3 | HOW (technical design) | ✅ **YES** |
+| `specs.md` | Phase 2 | WHAT (functional requirements) | ❌ No |
+| `design.md` | Phase 3 | HOW (technical design) | ✅ **YES** |
 
 ---
 
 ## Related
 
 - `/workflows:plan` - Uses these templates
-- `/workflow-skill:criteria-generator` - Generates 12_specs.md
-- `/workflow-skill:solid-analyzer` - Validates SOLID in 15_solutions.md
-- `core/solid-pattern-matrix.md` - Pattern recommendations
+- `/workflow-skill:criteria-generator` - Generates specs.md
+- `/workflow-skill:solid-analyzer` - Validates SOLID in design.md
+- `core/architecture-reference.md` - Principles, patterns, and quality criteria reference
