@@ -211,7 +211,7 @@ Backend complete + Frontend complete (parallel)
 
 ```bash
 # Load implementer role + mode-specific context
---mode=layers --layer=domain → Read: core/roles/implementer.md + rules/ddd_rules.md
+--mode=layers --layer=domain → Read: core/roles/implementer.md + core/rules/framework_rules.md
 --mode=stacks --stack=backend → Read: core/roles/implementer.md (backend tasks)
 --mode=stacks --stack=frontend → Read: core/roles/implementer.md (frontend tasks)
 (default, no mode) → Read: core/roles/implementer.md (all tasks sequentially)
@@ -301,64 +301,14 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 # Must be COMPLIANT. If NEEDS_WORK, refactor before proceeding. If NON_COMPLIANT, enter BCP correction loop.
 ```
 
-### Step 6: Bounded Auto-Correction Protocol + Diagnostic Escalation
+### Step 6: Bounded Correction Protocol + Diagnostic Escalation
 
-Detects and corrects three types of deviations, with intelligent escalation for recurring errors:
+Applies the BCP (see `core/rules/testing-rules.md` for full protocol) with these work-specific additions:
 
-```python
-iterations = 0
-MAX_ITERATIONS = 10  # Resolved from providers.yaml correction_limits
-same_error_count = 0
-last_error = None
-
-while (tests_failing or deviation_detected) and iterations < MAX_ITERATIONS:
-    error = classify_deviation()
-
-    # Track repeated errors for diagnostic escalation
-    if error_matches(error, last_error):
-        same_error_count += 1
-    else:
-        same_error_count = 0
-        last_error = error
-
-    # DIAGNOSTIC ESCALATION: After 3 consecutive same errors,
-    # invoke diagnostic-agent instead of brute-force retry
-    if same_error_count >= 3:
-        diagnosis = invoke_diagnostic_agent(
-            error=error,
-            attempts_log=attempts_log,
-            task_context=current_task
-        )
-        # context: fork — agent runs in isolated context
-
-        if diagnosis.confidence == "LOW":
-            document_blocker(include_diagnostic=diagnosis)
-            mark_blocked()
-            break
-
-        apply_diagnostic_recommendation(diagnosis)
-        same_error_count = 0  # reset after new approach
-    else:
-        # Standard deviation-type handling
-        if TYPE_1_TEST_FAILURE:
-            analyze_error()
-            fix_code()          # NEVER fix the test
-        elif TYPE_2_MISSING_FUNCTIONALITY:
-            compare_vs_acceptance_criteria()  # from tasks.md
-            add_missing_implementation()
-        elif TYPE_3_INCOMPLETE_PATTERN:
-            compare_vs_reference_file()       # from task definition
-            complete_pattern()
-
-    run_verification()    # tests + acceptance criteria check
-    iterations += 1
-
-if all_verified:
-    checkpoint_complete()
-elif not is_blocked:
-    document_blocker(deviation_type, attempts_per_type)
-    mark_blocked()
-```
+- **Scale-adaptive limits**: `MAX_ITERATIONS` from `providers.yaml` → `correction_limits` (simple:5, moderate:10, complex:15)
+- **Diagnostic escalation**: After 3 consecutive identical errors → invoke `diagnostic-agent` (forked context) for root cause analysis. If diagnosis confidence is LOW → mark BLOCKED.
+- **3 deviation types**: TYPE 1 (test failure → fix code, NEVER fix test), TYPE 2 (missing functionality → compare vs acceptance criteria), TYPE 3 (incomplete pattern → compare vs reference file)
+- **Exit**: All verified → checkpoint. Max iterations exhausted → document blocker, mark BLOCKED.
 
 **Deviation Types:**
 - **TYPE 1 — Test Failure**: Tests fail → fix implementation
@@ -397,7 +347,7 @@ GOAL VERIFICATION (after tests pass):
 
 ```bash
 # 3. Only checkpoint if SOLID + goal verification pass
-/workflows:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
+/multi-agent-workflow:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
 ```
 
 **Checkpoint SOLID Requirements**:
@@ -610,6 +560,28 @@ Use project-detected test commands. Common patterns:
 # Fix linting
 /workflow-skill:lint-fixer
 ```
+
+## Chunking Directive
+
+Long implementation sessions should be chunked to preserve context quality:
+
+- **Max tasks per session**: 8-10 tasks before considering a checkpoint + session restart
+- **Max files open in context**: Follow provider thresholds (see `providers.yaml` → `context_management`)
+- **Per-task output**: Keep checkpoint notes concise (status, files changed, tests, SOLID verdict)
+
+If context capacity exceeds 70% (standard) or 85% (compaction-aware), trigger a session restart per the Session Restart Protocol in `framework_rules.md`.
+
+---
+
+## Error Recovery
+
+- **Test runner unavailable**: Fall back to manual test commands detected from project config (package.json, composer.json, Makefile). If no test infrastructure exists, document as BLOCKED.
+- **BCP exhausted (max iterations reached)**: Document blocker with deviation type classification. Mark task BLOCKED in tasks.md. Do NOT skip the task — proceed to next task only if independent.
+- **Git conflict during checkpoint**: Stash changes, pull latest, attempt auto-merge. If conflict requires manual resolution, present diff to user.
+- **Reference file missing**: If a task references a file that doesn't exist, check if a previous task should have created it. If dependency is unmet, mark task BLOCKED with dependency note.
+- **Session interrupted mid-task**: On resume, read tasks.md Resume Point. Check git status for uncommitted changes. Continue from the identified task, do NOT restart completed tasks.
+
+---
 
 ## Compound Effect
 

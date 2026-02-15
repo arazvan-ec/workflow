@@ -456,7 +456,7 @@ MCP tools integrate with workflow commands:
 | `/workflows:work` | Validate DB schema, capture screenshots |
 | `/workflows:review` | Create PR, add review comments |
 | git-sync skill | Pull latest, notify on conflicts |
-| `/workflows:checkpoint` | Send Slack notification on BLOCKED |
+| `/multi-agent-workflow:checkpoint` | Send Slack notification on BLOCKED |
 
 ## Troubleshooting
 

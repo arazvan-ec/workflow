@@ -21,6 +21,13 @@ Every interaction passes through the workflow router before work begins. See `CL
 
 **Exception — Quick Mode**: `/workflows:quick` can be invoked directly for simple tasks (≤3 files, no architecture impact, no sensitive paths). Quick Mode performs its own inline assessment and can escalate to the full workflow if the task is more complex than expected.
 
+**Human-in-the-Loop Checkpoints**: User confirmation is required at these transition points:
+- **Route → Plan**: After routing classification, before starting planning
+- **Plan Phase 2 → Phase 3**: After specs are defined, before design begins (see plan.md HITL Checkpoint)
+- **Plan completion**: Before marking planner as COMPLETED (part of Completeness Verification)
+- **Work → Review**: Automatic (review prerequisite is work COMPLETED)
+- **Review → Compound**: Automatic (compound prerequisite is QA APPROVED)
+
 ### 2. Karpathy Principles — Apply to All Work
 
 Four principles that prevent common AI failure modes. Apply them at every stage:
@@ -272,6 +279,46 @@ Only the Planner role can modify project rules (with justification in `DECISIONS
 | `testing-rules.md` | Test files (`*Test.php`, `*.test.ts`, etc.) | TDD workflow, coverage, Bounded Correction Protocol |
 | `security-rules.md` | Auth, security, payment paths | Trust model, supervision calibration, security prohibitions |
 | `git-rules.md` | Git operations | Branching, commits, conflict management, multi-agent sync |
+
+---
+
+## Rollback Protocol
+
+When a task or phase produces broken state that cannot be corrected via BCP:
+
+```
+ROLLBACK STEPS:
+1. Identify the last known-good checkpoint (git commit with passing tests)
+2. git stash (preserve current work for analysis)
+3. git checkout <last-good-commit> -- <affected-files>
+4. Verify tests pass at this state
+5. Document what went wrong in tasks.md Decision Log
+6. Re-plan the failed task with a different approach
+```
+
+**Rules:**
+- Never rollback without documenting the reason
+- Never rollback another role's completed work without their confirmation
+- Prefer targeted file rollback (`git checkout <commit> -- <file>`) over full branch reset
+- After rollback, the task returns to PENDING status with a note about the previous attempt
+
+---
+
+## Terminology
+
+Canonical terms used throughout the plugin. Use these consistently — avoid synonyms.
+
+| Term | Abbreviation | Definition | NOT |
+|------|-------------|------------|-----|
+| **Workflow State** | — | Section in `tasks.md` tracking role statuses, phases, and resume points | "Feature state", "Phase state" |
+| **Checkpoint** | — | Git commit marking task completion. Invoked via `/multi-agent-workflow:checkpoint` | "Snapshot" (for git commits), "save point" |
+| **Bounded Correction Protocol** | BCP | Auto-correction loop with scale-adaptive limits (simple:5, moderate:10, complex:15). See `testing-rules.md` | "Bounded Auto-Correction", "fix loop", "retry loop" |
+| **Flow Guard** | — | Pre-execution check at the start of each command verifying prerequisites are met | "Guard", "Prerequisites check" |
+| **Quality Gate** | QG | Validation of output at the end of a phase. Uses BCP with max 3 iterations in planning | "Quality Check", "validation step" |
+| **OpenSpec** | — | Directory structure (`openspec/`) holding project specs, feature changes, and architecture docs | "spec files", "spec directory" |
+| **SOLID Constraint** | — | Mandatory SOLID compliance verification in Phase 3 (planning) and checkpoints (work) | "SOLID check", "SOLID score" |
+| **Compound Capture** | — | The process in `/workflows:compound` of extracting and persisting learnings from a feature | "Knowledge extraction", "post-mortem" |
+| **Provider** | — | Abstraction layer resolving commands to model-specific implementations. See `CAPABILITY_PROVIDERS.md` | "Backend", "adapter" |
 
 ---
 

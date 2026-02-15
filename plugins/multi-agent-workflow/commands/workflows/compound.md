@@ -227,7 +227,7 @@ After documenting anti-patterns and the 70% boundary, update `.ai/project/compou
    - Mark in memory: "[PROMOTED to global_rules.md on ${DATE}]"
 ```
 
-See `core/agent-memory.md` for the full Agent Compound Memory specification.
+The Agent Compound Memory specification is documented in Step 3b above.
 
 ### Step 3c: Enrich Architecture Profile
 
@@ -301,7 +301,7 @@ Implemented user registration with email/password authentication.
 
 #### Rules Updated
 - global_rules.md: Added Email VO requirement
-- ddd_rules.md: Added Value Object immutability check
+- framework_rules.md: Added Value Object immutability check
 
 #### Anti-Patterns Documented
 1. Skipping integration tests → Added to QA checklist
@@ -357,7 +357,21 @@ cp openspec/changes/user-auth/proposal.md \
    .ai/workflow/templates/proposal_auth_template.md
 ```
 
-### Step 7: Spec Diff Analysis (NEW)
+### Spec Flow Pipeline
+
+The spec flow ensures feature-level specs merge into the project baseline:
+
+```
+/workflows:plan → openspec/changes/{slug}/specs.md (feature specs)
+                                    ↓
+/workflows:compound → Step 7: Diff Analysis (compare feature vs baseline)
+                                    ↓
+                    → Step 8: Merge to openspec/specs/ (project baseline)
+```
+
+Plan Phase 2 reads `openspec/specs/` as baseline context before generating feature specs. Compound closes the loop by merging feature changes back into the baseline.
+
+### Step 7: Spec Diff Analysis
 
 Compare feature specifications with existing project specs to identify changes:
 
@@ -592,7 +606,7 @@ history:
 #### Using the Spec-Merger Skill
 
 ```bash
-# Invoke spec-merger skill for intelligent merging (wraps /opsx:archive)
+# Invoke spec-merger skill for intelligent merging
 /workflow-skill:spec-merger \
   --feature="${FEATURE_ID}" \
   --source="openspec/changes/${FEATURE_ID}/" \
@@ -944,3 +958,39 @@ openspec/
         ├── design.md
         └── tasks.md
 ```
+
+---
+
+## Retrospective
+
+After compound capture is complete, generate a brief retrospective:
+
+```markdown
+# Retrospective: ${FEATURE_ID}
+
+## What went well
+- [1-3 bullet points]
+
+## What could improve
+- [1-3 bullet points]
+
+## Surprises / Lessons
+- [Unexpected findings during implementation or review]
+
+## Metrics
+- Planning phases: [N]
+- Implementation tasks: [N] completed, [N] blocked
+- Review cycles: [N] (rejections before approval)
+- BCP activations: [N] (by deviation type)
+```
+
+Write this to `openspec/changes/${FEATURE_ID}/99_retrospective.md`. This file is optional but recommended for features with `planning_depth=full` or features that required multiple review cycles.
+
+---
+
+## Error Recovery
+
+- **QA status not APPROVED**: Compound requires QA APPROVED status. If status is REJECTED, do not proceed — fixes must be implemented and re-reviewed first.
+- **Spec-merger conflicts with baseline**: If merging feature specs into `openspec/specs/` produces conflicts, present both versions to the user. User decides which version becomes the new baseline.
+- **Missing compound_log.md**: Create it fresh. The log is append-only — a missing file means this is the first compound capture for the project.
+- **Feature artifacts incomplete**: If proposal.md, specs.md, design.md, or tasks.md are missing from `openspec/changes/${FEATURE_ID}/`, log a warning and capture what's available. Do not block compound on missing optional artifacts.

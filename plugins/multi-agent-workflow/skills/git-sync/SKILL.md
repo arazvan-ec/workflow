@@ -80,5 +80,5 @@ If conflicts occur in `tasks.md`:
 
 This skill is automatically invoked by:
 - `/workflows:work` - Before loading role context
-- `/workflows:checkpoint` - After creating checkpoint
+- `/multi-agent-workflow:checkpoint` - After creating checkpoint
 - `/workflows:status` - To ensure fresh status

@@ -513,3 +513,11 @@ The `/workflows:route` command ensures:
 7. **Consistent entry point** for all interactions
 
 **Remember**: When in doubt, ASK. State assumptions. Define success criteria. It's better to clarify than to execute the wrong workflow.
+
+---
+
+## Error Recovery
+
+- **Classification confidence LOW and user cannot clarify**: Default to `/workflows:plan` with standard depth
+- **Route loop (user keeps being re-routed)**: Break the loop — ask user directly which workflow to use
+- **Invalid feature name**: Normalize the name (lowercase, hyphens) and confirm with user

@@ -339,6 +339,16 @@ After review, update `tasks.md`:
 APPROVED - Feature ready for merge (design implemented correctly)
 ```
 
+## Error Recovery
+
+- **Test suite fails to run**: Verify test infrastructure (dependencies installed, config valid). If environment issue, document and ask user to fix environment before re-review.
+- **SOLID analyzer unavailable**: Fall back to manual SOLID checklist verification (Phase 4 Code Quality Review). Document that automated verification was skipped.
+- **Implementation doesn't match design.md**: REJECT with specific deviations listed. Reference exact sections of design.md that were not followed.
+- **Acceptance criteria ambiguous**: If a criterion cannot be objectively verified, flag it in the QA Report as INCONCLUSIVE and ask the user for clarification before final verdict.
+- **Review blocked by missing artifacts**: If proposal.md, specs.md, or design.md are missing, STOP review. These are prerequisites — run `/workflows:plan` to generate them.
+
+---
+
 ## Compound Effect
 
 Good reviews compound:

@@ -1211,4 +1211,3 @@ Run this command to start your first feature:
 ## Related Commands
 
 - `/workflows:status` - Estado actual
-- `/workflows:reload` - Recargar sin re-discovery
