@@ -318,11 +318,11 @@ En la sección "Task Template" (~línea 929), añadir referencia a los test cont
 
 ---
 
-## Mejora 4: SOLID Justification vs Auto-Score (P0)
+## Mejora 4: SOLID Justification con Evidencia Estructurada (P0)
 
 ### Problema
 
-El plan actual ya usa verdicts (COMPLIANT/NEEDS_WORK/NON_COMPLIANT) en lugar de scores numéricos, lo cual es positivo. Sin embargo, el `solid-intelligence-refactor.md` pendiente aún discute scores numéricos como problema. La mejora aquí es asegurar que cada verdict tenga una **justificación textual con referencia a código/archivos concretos**, no solo un label.
+El refactor SOLID ya integrado (commits `9367306`, `84b4aa5`, `f10479c`) transformó exitosamente el sistema de scores numéricos (22/25) a verdicts contextuales (COMPLIANT/NEEDS_WORK/NON_COMPLIANT) con justificación narrativa. El `solid-analyzer` ya emite per-principle analysis con evidencia (ver Mode 2: DESIGN_VALIDATE output). Sin embargo, el formato que `plan.md` Phase 3 Step 3.2 usa para **lo que el planner escribe en `design.md`** (líneas 670-676) todavía usa justificaciones en texto libre por línea, sin estructura que obligue a referenciar archivos concretos como evidencia. Esto puede llevar a justificaciones genéricas que pasan el Quality Gate CHECK 3 sin referenciar código real.
 
 ### Ubicación en plan.md
 
@@ -330,16 +330,16 @@ Modificar la sección "Step 3.2: Design Solutions with SOLID" (~línea 658).
 
 ### Cambio Propuesto
 
-#### 4.1: Reforzar formato de justificación SOLID
+#### 4.1: Elevar formato de justificación SOLID a tabla con Evidence
 
-Cambiar el formato de SOLID Compliance en las soluciones de:
+El formato actual en `plan.md` Step 3.2:
 
 ```markdown
 **SOLID Compliance**:
 - **SRP**: COMPLIANT — User entity only holds data, validation logic isolated in Email ValueObject
 ```
 
-A un formato más riguroso con referencia obligatoria:
+Funciona pero permite justificaciones sin referencia a archivos. Elevar a formato tabular con columna de Evidence obligatoria, alineado con el output del `solid-analyzer --mode=design`:
 
 ```markdown
 ### SOLID Justification Protocol
@@ -387,8 +387,9 @@ CHECK 3: Does each SOLID verdict have a textual justification with file evidence
 
 | Archivo | Cambio |
 |---------|--------|
-| `commands/workflows/plan.md` | Cambiar formato SOLID a tabla con justificación + evidencia |
-| `skills/workflow-skill-solid-analyzer.md` | Alinear output format con nuevo protocolo |
+| `commands/workflows/plan.md` | Elevar formato SOLID en Step 3.2 a tabla con justificación + evidencia |
+
+> **Nota**: El `solid-analyzer` ya emite output con evidencia por principio (ver Mode 2: DESIGN_VALIDATE). Esta mejora alinea lo que el **planner escribe en design.md** con ese nivel de detalle.
 
 ---
 
@@ -836,7 +837,7 @@ These recommendations are for systems that support model routing via
 | `commands/workflows/plan.md` | 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 | MODIFY (principal) |
 | `core/roles/planner.md` | 1 | MODIFY (menor) |
 | `core/templates/spec-template.md` | 3 | MODIFY (añadir sección) |
-| `skills/workflow-skill-solid-analyzer.md` | 4 | MODIFY (alinear formato) |
+| `skills/workflow-skill-solid-analyzer.md` | — | No requiere cambios (ya alineado con refactor SOLID) |
 | `commands/workflows/compound.md` | 6 | MODIFY (añadir fuente) |
 | `core/rules/security-rules.md` | 8 | MODIFY (cross-reference) |
 | `agents/review/security-reviewer.md` | 8 | MODIFY (validación) |
@@ -865,10 +866,13 @@ El plan de mejora se considera completo cuando:
 
 ## Relación con solid-intelligence-refactor.md
 
-Este plan de mejora es **complementario** al refactor de inteligencia SOLID (`plans/solid-intelligence-refactor.md`). Las mejoras aquí descritas se aplican al **proceso de planificación** (cómo se ejecutan las fases), mientras que el refactor SOLID cambia el **sistema de evaluación SOLID** (cómo se analizan los principios).
+El refactor de inteligencia SOLID (`plans/solid-intelligence-refactor.md`) **ya fue implementado completamente** en el plugin (commits `9367306`, `84b4aa5`, `f10479c`). El plugin ya incorpora:
 
-**Orden de ejecución recomendado:**
-1. Primero: Este plan de mejora (modifica el proceso)
-2. Después: solid-intelligence-refactor (modifica el sistema SOLID dentro del proceso ya mejorado)
+- Verdicts contextuales (COMPLIANT/NEEDS_WORK/NON_COMPLIANT) en lugar de scores numéricos
+- `architecture-reference.md` (merge de `solid-pattern-matrix.md` + `architecture-quality-criteria.md`)
+- `architecture-profile-template.yaml` para perfiles de proyecto
+- `solid-analyzer` con 3 modos (BASELINE, DESIGN_VALIDATE, CODE_VERIFY)
+- Stack-adapted detection (PHP, Go, Python, TypeScript, Functional)
+- Actualizaciones en `discover.md`, `work.md`, `review.md`, `compound.md`
 
-La Mejora 4 (SOLID Justification) de este plan se alinea con la dirección del refactor SOLID, preparando el terreno para el cambio de scores numéricos a verdicts con justificación contextual.
+Las mejoras de este plan se construyen **sobre** ese trabajo ya integrado. En particular, la Mejora 4 (SOLID Justification con Evidencia Estructurada) eleva el formato de justificación en `design.md` para alinearlo con el nivel de detalle que el `solid-analyzer --mode=design` ya produce en su output.
