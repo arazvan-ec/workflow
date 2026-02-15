@@ -303,62 +303,12 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 
 ### Step 6: Bounded Correction Protocol + Diagnostic Escalation
 
-Detects and corrects three types of deviations, with intelligent escalation for recurring errors:
+Applies the BCP (see `core/rules/testing-rules.md` for full protocol) with these work-specific additions:
 
-```python
-iterations = 0
-MAX_ITERATIONS = 10  # Resolved from providers.yaml correction_limits
-same_error_count = 0
-last_error = None
-
-while (tests_failing or deviation_detected) and iterations < MAX_ITERATIONS:
-    error = classify_deviation()
-
-    # Track repeated errors for diagnostic escalation
-    if error_matches(error, last_error):
-        same_error_count += 1
-    else:
-        same_error_count = 0
-        last_error = error
-
-    # DIAGNOSTIC ESCALATION: After 3 consecutive same errors,
-    # invoke diagnostic-agent instead of brute-force retry
-    if same_error_count >= 3:
-        diagnosis = invoke_diagnostic_agent(
-            error=error,
-            attempts_log=attempts_log,
-            task_context=current_task
-        )
-        # context: fork — agent runs in isolated context
-
-        if diagnosis.confidence == "LOW":
-            document_blocker(include_diagnostic=diagnosis)
-            mark_blocked()
-            break
-
-        apply_diagnostic_recommendation(diagnosis)
-        same_error_count = 0  # reset after new approach
-    else:
-        # Standard deviation-type handling
-        if TYPE_1_TEST_FAILURE:
-            analyze_error()
-            fix_code()          # NEVER fix the test
-        elif TYPE_2_MISSING_FUNCTIONALITY:
-            compare_vs_acceptance_criteria()  # from tasks.md
-            add_missing_implementation()
-        elif TYPE_3_INCOMPLETE_PATTERN:
-            compare_vs_reference_file()       # from task definition
-            complete_pattern()
-
-    run_verification()    # tests + acceptance criteria check
-    iterations += 1
-
-if all_verified:
-    checkpoint_complete()
-elif not is_blocked:
-    document_blocker(deviation_type, attempts_per_type)
-    mark_blocked()
-```
+- **Scale-adaptive limits**: `MAX_ITERATIONS` from `providers.yaml` → `correction_limits` (simple:5, moderate:10, complex:15)
+- **Diagnostic escalation**: After 3 consecutive identical errors → invoke `diagnostic-agent` (forked context) for root cause analysis. If diagnosis confidence is LOW → mark BLOCKED.
+- **3 deviation types**: TYPE 1 (test failure → fix code, NEVER fix test), TYPE 2 (missing functionality → compare vs acceptance criteria), TYPE 3 (incomplete pattern → compare vs reference file)
+- **Exit**: All verified → checkpoint. Max iterations exhausted → document blocker, mark BLOCKED.
 
 **Deviation Types:**
 - **TYPE 1 — Test Failure**: Tests fail → fix implementation

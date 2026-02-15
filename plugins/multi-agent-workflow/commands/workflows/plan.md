@@ -55,6 +55,29 @@ Good planning means:
 
 ---
 
+## Quality Gate Protocol (shared by all phases)
+
+Each planning phase ends with a Quality Gate before writing its output file. The protocol is the same; only the specific checks change per phase.
+
+```
+QUALITY GATE (max 3 iterations):
+  iteration = 0
+  while iteration < 3:
+    Run phase-specific checks (see each phase below)
+
+    IF all checks pass → WRITE file, advance to next phase
+    IF any check fails → log which failed, revise, iteration += 1
+
+  IF 3 iterations exhausted:
+    WRITE best version with "## Quality Warnings" section
+    NOTIFY user of concerns
+    ADVANCE to next phase (do not block indefinitely)
+```
+
+After passing any Quality Gate, follow the Per-Phase Write Directives below.
+
+---
+
 ## MANDATORY: Incremental Persistence Protocol
 
 > **CRITICAL RULE**: Every planning phase MUST write its output file to disk IMMEDIATELY upon completion, BEFORE starting the next phase. Planning is NOT an in-memory exercise. If Claude is interrupted at any point, all completed phases must be recoverable from disk.
@@ -396,41 +419,14 @@ Before proceeding, ensure you understand:
 2. [Measurable criterion 2]
 ```
 
-### Phase 1 Quality Gate (BCP for Planning)
+### Phase 1 Quality Gate
 
-Before writing `proposal.md`, self-validate with bounded iteration:
+Apply the Quality Gate Protocol (above) with these 4 checks before writing `proposal.md`:
 
-```
-PHASE 1 QUALITY CHECK (max 3 iterations):
-
-  iteration = 0
-  while iteration < 3:
-    CHECK 1: Is the problem statement specific to the user's request?
-      - Does it reference the user's exact words or intent?
-      - FAIL if it is generic/templated (e.g., "The system needs improvement")
-
-    CHECK 2: Does it have substantive content (not just headers)?
-      - Count non-empty, non-header lines. Must be >= 10 lines of content.
-      - FAIL if only section headers with placeholder text
-
-    CHECK 3: Are success criteria measurable and specific?
-      - Each criterion must be testable (pass/fail)
-      - FAIL if criteria are vague (e.g., "good performance")
-
-    CHECK 4: Does it address ALL aspects of the user's request?
-      - Compare against the original request text
-      - FAIL if significant aspects are missing
-
-    IF all checks pass → WRITE file, advance to Phase 2
-    IF any check fails → log which check failed, revise, iteration += 1
-
-  IF 3 iterations exhausted and still failing:
-    WRITE the best version with a "## Quality Warnings" section noting deficiencies
-    NOTIFY user: "Phase 1 output has quality concerns: [list]. Review recommended."
-    ADVANCE to Phase 2 (do not block indefinitely)
-```
-
-**After passing Quality Gate**: Follow the Per-Phase Write Directives (see Incremental Persistence Protocol above).
+1. **Specific to request**: References user's exact words/intent. FAIL if generic/templated.
+2. **Substantive content**: ≥10 non-header content lines. FAIL if only section headers.
+3. **Measurable criteria**: Each success criterion is testable (pass/fail). FAIL if vague.
+4. **Complete coverage**: All aspects of user's request addressed. FAIL if significant gaps.
 
 ---
 
@@ -588,42 +584,14 @@ Before proceeding to Phase 3, verify no unresolved conflicts:
 # Action: Resolve conflict before proceeding
 ```
 
-### Phase 2 Quality Gate (BCP for Planning)
+### Phase 2 Quality Gate
 
-Before writing `specs.md`, self-validate with bounded iteration:
+Apply the Quality Gate Protocol (above) with these 4 checks before writing `specs.md`:
 
-```
-PHASE 2 QUALITY CHECK (max 3 iterations):
-
-  iteration = 0
-  while iteration < 3:
-    CHECK 1: Does each spec describe WHAT (not HOW)?
-      - Specs must be functional requirements, not technical design
-      - FAIL if specs contain implementation details (class names, patterns)
-
-    CHECK 2: Does each spec have testable acceptance criteria?
-      - At least 2 acceptance criteria per spec
-      - Each must be verifiable (pass/fail)
-      - FAIL if criteria are missing or vague
-
-    CHECK 3: Do specs cover the FULL scope of the user's request?
-      - Map each user requirement to at least one spec
-      - FAIL if user requirements are not fully covered
-
-    CHECK 4: Is the integration analysis substantive (not just "None")?
-      - Must identify at least extended/modified/new for entities AND endpoints
-      - FAIL if all sections say "None" for a non-trivial feature
-
-    IF all checks pass → WRITE specs.md, advance to Phase 3
-    IF any check fails → revise, iteration += 1
-
-  IF 3 iterations exhausted:
-    WRITE best version with "## Quality Warnings" section
-    NOTIFY user of concerns
-    ADVANCE to Phase 3
-```
-
-**After passing Quality Gate**: Follow the Per-Phase Write Directives (see Incremental Persistence Protocol above).
+1. **WHAT not HOW**: Each spec describes functional requirements. FAIL if contains implementation details.
+2. **Testable criteria**: ≥2 acceptance criteria per spec, each verifiable. FAIL if missing or vague.
+3. **Full scope**: Every user requirement maps to at least one spec. FAIL if gaps.
+4. **Substantive integration**: Integration analysis identifies extended/modified/new entities AND endpoints. FAIL if all say "None" for non-trivial feature.
 
 ---
 
@@ -828,41 +796,14 @@ After designing solutions, analyze the architectural impact across the codebase.
 | Migration conflicts | LOW | MEDIUM | Coordinate with team |
 ```
 
-### Phase 3 Quality Gate (BCP for Planning)
+### Phase 3 Quality Gate
 
-Before writing `design.md`, self-validate with bounded iteration:
+Apply the Quality Gate Protocol (above) with these 4 checks before writing `design.md`:
 
-```
-PHASE 3 QUALITY CHECK (max 3 iterations):
-
-  iteration = 0
-  while iteration < 3:
-    CHECK 1: Does every spec from Phase 2 have a corresponding solution?
-      - Map SPEC-F01 → Solution, SPEC-F02 → Solution, etc.
-      - FAIL if any spec lacks a solution
-
-    CHECK 2: Does each solution specify concrete files to create/modify?
-      - Must list actual file paths, not abstract descriptions
-      - FAIL if solutions are too abstract ("implement a service")
-
-    CHECK 3: Does each relevant SOLID principle have a reasoned verdict (COMPLIANT/N_A with justification)?
-      - Each solution must have per-principle verdicts with reasoning
-      - FAIL if verdicts are missing reasoning or all principles are marked N/A
-
-    CHECK 4: Does the architectural impact section list specific layers and files?
-      - Must identify files to CREATE and files to MODIFY
-      - FAIL if change scope is empty or says "TBD"
-
-    IF all checks pass → WRITE design.md, advance to Phase 4
-    IF any check fails → revise, iteration += 1
-
-  IF 3 iterations exhausted:
-    WRITE best version with "## Quality Warnings" section
-    NOTIFY user of concerns
-    ADVANCE to Phase 4
-```
-
-**After passing Quality Gate**: Follow the Per-Phase Write Directives (see Incremental Persistence Protocol above).
+1. **Spec coverage**: Every spec from Phase 2 has a corresponding solution. FAIL if any spec lacks one.
+2. **Concrete files**: Each solution lists actual file paths to create/modify. FAIL if abstract ("implement a service").
+3. **SOLID verdicts**: Each relevant principle has a reasoned verdict (COMPLIANT/N_A with justification). FAIL if missing reasoning.
+4. **Architectural impact**: Lists specific layers and files to CREATE and MODIFY. FAIL if empty or "TBD".
 
 ---
 
