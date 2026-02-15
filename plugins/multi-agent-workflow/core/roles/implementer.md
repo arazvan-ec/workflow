@@ -28,7 +28,7 @@ Adapts behavior based on `execution_mode` in `core/providers.yaml`:
 6. **Write implementation** following reference pattern — use Write/Edit tools
 7. **Run tests** (test-runner skill)
 8. **If tests fail** → Bounded Correction Protocol (see `core/rules/testing-rules.md`)
-9. **Check SOLID** (solid-analyzer skill) — must meet task thresholds
+9. **Check SOLID** (solid-analyzer --mode=verify) — must be COMPLIANT
 10. **Fix lint** (lint-fixer skill)
 11. **Checkpoint** — update `tasks.md`
 
@@ -92,5 +92,5 @@ Update `tasks.md` with `BLOCKED` or `WAITING_API` status, describe what's needed
 - Tests passing with adequate coverage
 - Architecture compliance (DDD layers if applicable)
 - Code style passing (project linter)
-- SOLID compliance meeting task thresholds
+- SOLID compliance: COMPLIANT per solid-analyzer
 - Acceptance criteria met with evidence

@@ -119,7 +119,7 @@ All agents run with `context: fork` -- isolated context windows that return summ
 | **Quality** | `test-runner`, `coverage-checker`, `lint-fixer` | Test execution, coverage thresholds, auto-fix style |
 | **Compound** | `spec-merger`, `validation-learning-log` | Spec consolidation, AI validation learning |
 | **Integration** | `mcp-connector` | External tools via MCP (postgres, github, slack) |
-| **SOLID** | `solid-analyzer`, `criteria-generator` | SOLID compliance scoring, acceptance criteria generation |
+| **SOLID** | `solid-analyzer`, `criteria-generator` | SOLID compliance analysis, acceptance criteria generation |
 | **Shaping** | `shaper`, `breadboarder` | Problem shaping, UI flow sketching |
 
 ---
@@ -162,7 +162,7 @@ The AI self-questions solutions, asks targeted user questions, and logs answers.
 
 ### SOLID Constraint
 
-Phase 3 (plan) solutions target a score >= 22/25 across all five SOLID principles. See `core/solid-pattern-matrix.md`.
+Phase 3 (plan) solutions must be COMPLIANT across all relevant SOLID principles. See `core/architecture-reference.md` and `openspec/specs/architecture-profile.yaml`.
 
 ### Karpathy Principles
 
@@ -251,7 +251,7 @@ Key changes from v3.0.0:
 | Session continuity | `core/docs/SESSION_CONTINUITY.md` |
 | MCP integration | `core/docs/MCP_INTEGRATION.md` |
 | Validation learning | `core/docs/VALIDATION_LEARNING.md` |
-| SOLID pattern matrix | `core/solid-pattern-matrix.md` |
+| Architecture reference | `core/architecture-reference.md` |
 | Operational rules | `core/rules/framework_rules.md` |
 | Testing conventions | `core/rules/testing-rules.md` |
 | Security & trust model | `core/rules/security-rules.md` |

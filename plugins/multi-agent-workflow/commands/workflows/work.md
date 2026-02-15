@@ -37,7 +37,7 @@ The following are executed automatically as part of `/workflows:work`:
 - **Git sync** (Step 2) -- pulls latest changes before starting
 - **Solution Validation** (Step 4.5) -- validates approach before TDD cycle
 - **TDD enforcement** (Step 5) -- Red-Green-Refactor cycle
-- **SOLID verification** (Step 7) -- checks score at each checkpoint
+- **SOLID verification** (Step 7) -- checks compliance at each checkpoint via solid-analyzer
 - **Bounded Correction Protocol** (Step 6) -- auto-corrects with scale-adaptive limits
 - **Checkpoint** (Step 7) -- saves progress + commits after each logical unit
 - **Snapshot** -- triggered when context exceeds 70% capacity
@@ -92,7 +92,7 @@ TASK EXECUTION LOOP:
   5. WRITE implementation following pattern — Write/Edit tools
   6. RUN tests (test-runner)
   7. IF fail → analyze + fix (BCP, max 10 iterations)
-  8. CHECK SOLID (solid-analyzer) — must meet task thresholds
+  8. CHECK SOLID (solid-analyzer --mode=verify) — must be COMPLIANT
   9. FIX lint (lint-fixer)
   10. CHECKPOINT → update tasks.md
   11. → Next task
@@ -147,7 +147,7 @@ FOR each task in tasks.md:
   3. Subagent returns summary:
      - Files created/modified
      - Tests: X passing, Y% coverage
-     - SOLID score
+     - SOLID: COMPLIANT/NEEDS_WORK (per-principle details)
      - Issues encountered (if any)
 
   4. Main agent:
@@ -296,10 +296,9 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 
 ```bash
 # After each logical unit, verify SOLID compliance
-/workflow-skill:solid-analyzer --path=src/modified-path
+/workflow-skill:solid-analyzer --mode=verify --path=src/modified-path --design=design.md
 
-# Must match expected score from design.md
-# If score < expected, refactor before proceeding
+# Must be COMPLIANT. If NEEDS_WORK, refactor before proceeding. If NON_COMPLIANT, enter BCP correction loop.
 ```
 
 ### Step 6: Bounded Auto-Correction Protocol + Diagnostic Escalation
@@ -373,8 +372,8 @@ elif not is_blocked:
 After each logical unit:
 
 ```bash
-# 1. Verify SOLID score
-/workflow-skill:solid-analyzer --path=src/modified-path
+# 1. Verify SOLID compliance
+/workflow-skill:solid-analyzer --mode=verify --path=src/modified-path --design=design.md
 
 # 2. Goal-Backward Verification (from GSD Verify)
 # Verify against acceptance criteria, not just test results
@@ -403,12 +402,14 @@ GOAL VERIFICATION (after tests pass):
 
 **Checkpoint SOLID Requirements**:
 
-| Checkpoint Type | SOLID Requirement |
-|-----------------|-------------------|
-| Domain layer | SRP, DIP must score ≥4/5 |
-| Application layer | SRP, OCP must score ≥4/5 |
-| Infrastructure | DIP must score ≥4/5 |
-| Full feature | Total score must be ≥18/25 |
+Gate: no principle may be NON_COMPLIANT. NEEDS_WORK triggers refactor before proceeding.
+
+| Checkpoint Type | Verification |
+|-----------------|-------------|
+| Domain layer | solid-analyzer --mode=verify --path=src/Domain --design=design.md |
+| Application layer | solid-analyzer --mode=verify --path=src/Application --design=design.md |
+| Infrastructure | solid-analyzer --mode=verify --path=src/Infrastructure --design=design.md |
+| Full feature | solid-analyzer --mode=verify --path=src --design=design.md --scope=full |
 
 ## Stack-Specific Workflows
 
@@ -419,28 +420,28 @@ Checkpoint 1: Domain Layer
 - Entities, Value Objects
 - Verification: php bin/phpunit tests/Unit/Domain/
 - Coverage: >80%
-- **SOLID**: SRP ≥4/5, DIP ≥4/5 (no infrastructure imports)
-- Run: /workflow-skill:solid-analyzer --path=src/Domain
+- **SOLID**: solid-analyzer --mode=verify verifies principles according to architecture-profile.yaml
+- Run: /workflow-skill:solid-analyzer --mode=verify --path=src/Domain --design=design.md
 
 Checkpoint 2: Application Layer
 - Use Cases, DTOs
 - Verification: php bin/phpunit tests/Unit/Application/
 - Coverage: >80%
-- **SOLID**: SRP ≥4/5, OCP ≥4/5
-- Run: /workflow-skill:solid-analyzer --path=src/Application
+- **SOLID**: solid-analyzer --mode=verify verifies principles according to architecture-profile.yaml
+- Run: /workflow-skill:solid-analyzer --mode=verify --path=src/Application --design=design.md
 
 Checkpoint 3: Infrastructure Layer
 - Repositories, Controllers
 - Verification: php bin/phpunit tests/Integration/
 - Schema validation
-- **SOLID**: DIP ≥4/5 (implements interfaces from Domain)
-- Run: /workflow-skill:solid-analyzer --path=src/Infrastructure
+- **SOLID**: solid-analyzer --mode=verify verifies principles according to architecture-profile.yaml
+- Run: /workflow-skill:solid-analyzer --mode=verify --path=src/Infrastructure --design=design.md
 
 Checkpoint 4: API Endpoints
 - REST endpoints
 - Verification: curl tests, API contract validation
-- **SOLID Total**: Must achieve ≥18/25 overall
-- Run: /workflow-skill:solid-analyzer --path=src --validate
+- **SOLID**: solid-analyzer --mode=verify verifies principles according to architecture-profile.yaml
+- Run: /workflow-skill:solid-analyzer --mode=verify --path=src --design=design.md --scope=full
 ```
 
 ### Frontend Workflow
@@ -477,7 +478,7 @@ Update `tasks.md` at each checkpoint:
 **Checkpoint**: Domain layer complete
 **Timestamp**: 2026-01-16T14:30:00Z
 **Tests**: 15/15 passing, 92% coverage
-**SOLID Score**: 21/25 (SRP: 5, OCP: 4, LSP: 4, ISP: 4, DIP: 4)
+**SOLID**: COMPLIANT (SRP: ✓, OCP: ✓, LSP: N/A, ISP: ✓, DIP: ✓)
 **Iterations**: 3
 
 ### Resume Information
@@ -486,7 +487,7 @@ Update `tasks.md` at each checkpoint:
 - **Files to Read on Resume**:
   - tasks.md (Task BE-005)
   - src/Domain/Entity/User.php
-- **SOLID Notes**: DIP verified - no infrastructure imports in Domain
+- **SOLID**: COMPLIANT (SRP: ✓, OCP: ✓, LSP: N/A, ISP: ✓, DIP: ✓)
 ```
 
 ## Per-Task State Persistence (MANDATORY)
@@ -559,7 +560,7 @@ WHEN to update tasks.md:
    → Cost: ~5 seconds, prevents hours of lost work
 
 2. At EACH checkpoint (logical unit boundary)
-   → Update: full checkpoint details, SOLID score, tests
+   → Update: full checkpoint details, SOLID compliance, tests
    → Also: git commit
 
 3. Before ANY pause or break

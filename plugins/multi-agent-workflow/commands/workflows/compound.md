@@ -229,6 +229,30 @@ After documenting anti-patterns and the 70% boundary, update `.ai/project/compou
 
 See `core/agent-memory.md` for the full Agent Compound Memory specification.
 
+### Step 3c: Enrich Architecture Profile
+
+After documenting patterns and anti-patterns, update the project's architecture profile:
+
+1. **Read** `openspec/specs/architecture-profile.yaml`
+   - If file does not exist → skip this step with note: "No architecture profile found. Run /workflows:discover --setup to generate one."
+
+2. **Update learned_patterns**: For each successful pattern identified in Step 2:
+   - If pattern not in `learned_patterns` → add with `confidence: low` and `source_features: [{current_feature}]`
+   - If pattern already exists → increment confidence (`low` → `medium` → `high`) and append current feature to `source_features`
+
+3. **Update learned_antipatterns**: For each anti-pattern discovered in Step 3:
+   - If anti-pattern not in `learned_antipatterns` → add with `frequency: 1` and `prevention` note
+   - If anti-pattern already exists → increment `frequency`
+
+4. **Update reference_files** (if applicable):
+   - If a new file exemplifies a principle better than the current reference → update `solid_relevance.{principle}.reference_good`
+   - If new reference files emerged for archetypes → update `conventions.reference_files`
+
+5. **Adjust quality_thresholds** (if applicable):
+   - If actual project data shows thresholds are wrong (e.g., average class LOC significantly different) → adjust accordingly
+
+6. **Write** updated `openspec/specs/architecture-profile.yaml`
+
 ### Step 4: Update Project Rules
 
 If patterns are generalizable, update rules:

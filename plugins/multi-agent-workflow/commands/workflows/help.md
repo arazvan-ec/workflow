@@ -163,7 +163,7 @@ Every request follows this flow. Stages cannot be skipped.
 | Bounded Correction Protocol | Auto-correct up to 10 times, then BLOCKED      |
 | TDD                       | Tests before code (Red-Green-Refactor)         |
 | DDD                       | Domain-Driven Design architecture              |
-| SOLID Constraint          | Phase 3 solutions must score >= 22/25          |
+| SOLID Constraint          | Phase 3 solutions must be COMPLIANT per contextual analysis |
 | Context Engineering       | Curate what information the model sees         |
 | context: fork             | Isolated agents returning summaries only       |
 

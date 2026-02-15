@@ -636,21 +636,22 @@ Phase 3 defines **HOW** to implement each spec. This is where **SOLID becomes ma
 > ⚠️ **MANDATORY CONSTRAINT**: All solutions MUST comply with SOLID principles.
 >
 > This is NOT optional. Every solution designed in Phase 3 must:
-> 1. Be analyzed for SOLID compliance
+> 1. Be analyzed for SOLID compliance per principle
 > 2. Use appropriate design patterns
-> 3. Achieve score ≥18/25 to proceed, ≥22/25 to approve
+> 3. Achieve COMPLIANT to proceed, NEEDS_WORK requires revision, NON_COMPLIANT blocks
 
 ### Step 3.1: Analyze Existing Code (SOLID Baseline)
 
 Before designing solutions, understand the current state:
 
 ```bash
-# Get SOLID score of affected areas
-/workflow-skill:solid-analyzer --path=src/relevant-module
+# Get SOLID baseline of affected areas
+/workflow-skill:solid-analyzer --mode=baseline --path=src/relevant-module
 
 # Output:
-# - Current SOLID score: X/25
+# - Patterns detected in module: [list]
 # - Violations found: [list]
+# - Principles most relevant to this module: [list]
 # - Recommended patterns: [list]
 ```
 
@@ -668,21 +669,17 @@ For EACH functional spec, propose a solution that complies with SOLID:
 **Approach**: Create User entity with email validation
 
 **SOLID Compliance**:
-| Principle | How It's Addressed | Pattern Used |
-|-----------|-------------------|--------------|
-| **S** - SRP | User entity only holds data, validation in ValueObject | Value Object |
-| **O** - OCP | New validators can be added without modifying User | Strategy |
-| **L** - LSP | N/A for this solution | - |
-| **I** - ISP | Small, focused interfaces | - |
-| **D** - DIP | Repository interface in Domain | Repository |
+- **SRP**: COMPLIANT — User entity only holds data, validation logic isolated in Email ValueObject
+- **OCP**: COMPLIANT — New validators can be added without modifying User (Strategy pattern)
+- **LSP**: N/A — No inheritance hierarchy in this solution
+- **ISP**: COMPLIANT — Small, focused interfaces for repository and validation
+- **DIP**: COMPLIANT — Repository interface defined in Domain, implemented in Infrastructure
 
 **Files to Create**:
 - `Domain/Entity/User.php` (SRP: only user data)
 - `Domain/ValueObject/Email.php` (SRP: email rules)
 - `Domain/Repository/UserRepositoryInterface.php` (DIP: abstraction)
 - `Infrastructure/Repository/DoctrineUserRepository.php` (DIP: implementation)
-
-**Expected SOLID Score**: 24/25
 
 ---
 
@@ -691,18 +688,16 @@ For EACH functional spec, propose a solution that complies with SOLID:
 **Approach**: Authentication service with token generation
 
 **SOLID Compliance**:
-| Principle | How It's Addressed | Pattern Used |
-|-----------|-------------------|--------------|
-| **S** - SRP | Auth logic separate from token generation | Extract Class |
-| **O** - OCP | Token strategies can be added | Strategy |
-| **D** - DIP | Inject token generator interface | DI |
+- **SRP**: COMPLIANT — Auth logic separate from token generation (Extract Class)
+- **OCP**: COMPLIANT — Token strategies can be added without modification (Strategy pattern)
+- **LSP**: N/A — No inheritance hierarchy in this solution
+- **ISP**: COMPLIANT — Token generator interface is minimal and focused
+- **DIP**: COMPLIANT — Token generator injected via interface (DI)
 
 **Files to Create**:
 - `Application/Service/AuthenticationService.php`
 - `Domain/Service/TokenGeneratorInterface.php`
 - `Infrastructure/Service/JwtTokenGenerator.php`
-
-**Expected SOLID Score**: 23/25
 ```
 
 ### Step 3.3: Pattern Selection Guide
@@ -720,29 +715,30 @@ When designing solutions, select patterns based on the need:
 | Encapsulate validation rules | **Value Object** | SRP |
 | Decouple layers | **Dependency Injection** | DIP |
 
-See `core/solid-pattern-matrix.md` for complete mapping.
+See `core/architecture-reference.md` for complete mapping. Consult openspec/specs/architecture-profile.yaml for project patterns.
 
-### Step 3.4: Verify SOLID Score
+### Step 3.4: Verify SOLID Compliance
 
 Before finalizing the plan:
 
 ```bash
-# Validate proposed design achieves SOLID score
-/workflow-skill:solid-analyzer --validate --design=design.md
+# Validate proposed design against SOLID principles
+/workflow-skill:solid-analyzer --mode=design --design=design.md
 
-# Must achieve:
-# - ≥18/25 to proceed to implementation
-# - ≥22/25 to approve for merge
+# Gate logic:
+# - COMPLIANT → proceed to implementation
+# - NEEDS_WORK → revise design before proceeding
+# - NON_COMPLIANT → blocked, requires redesign
 ```
 
-### SOLID Score Thresholds
+### SOLID Verdict Gate
 
-| Score | Grade | Action |
-|-------|-------|--------|
-| 22-25/25 | A - SOLID Compliant | ✅ Approve |
-| 18-21/25 | B - Acceptable | ✅ Proceed with notes |
-| 14-17/25 | C - Needs Work | ❌ Redesign before implementation |
-| <14/25 | F - Rejected | ❌ Complete redesign required |
+| Verdict | Action |
+|---------|--------|
+| All relevant principles COMPLIANT | ✅ Approve — proceed to implementation |
+| Any principle NEEDS_WORK | ⚠️ Revise — address noted concerns before proceeding |
+| Any principle NON_COMPLIANT | ❌ Blocked — redesign required for non-compliant principles |
+| Principles marked N/A | ✅ Acceptable — with justification for why principle does not apply |
 
 ### Step 3.5: Architectural Impact Analysis (when --show-impact=true)
 
@@ -849,9 +845,9 @@ PHASE 3 QUALITY CHECK (max 3 iterations):
       - Must list actual file paths, not abstract descriptions
       - FAIL if solutions are too abstract ("implement a service")
 
-    CHECK 3: Is the SOLID analysis present and non-trivial?
-      - Each solution must have the SOLID compliance table filled in
-      - FAIL if SOLID table has empty cells or "N/A" for everything
+    CHECK 3: Does each relevant SOLID principle have a reasoned verdict (COMPLIANT/N_A with justification)?
+      - Each solution must have per-principle verdicts with reasoning
+      - FAIL if verdicts are missing reasoning or all principles are marked N/A
 
     CHECK 4: Does the architectural impact section list specific layers and files?
       - Must identify files to CREATE and files to MODIFY
@@ -906,7 +902,7 @@ mkdir -p openspec/changes/${FEATURE_ID}
 # 3. PHASE 3: Design (Solutions + SOLID + Architectural Impact)
 /workflow-skill:solid-analyzer --path=src/relevant-path  # Get baseline
 # - Design solutions using patterns
-# - Verify SOLID score ≥22/25
+# - Verify SOLID compliance (all relevant principles COMPLIANT)
 # - Analyze layers affected, modules touched, change scope
 # - RUN Phase 3 Quality Gate (max 3 iterations)
 # - WRITE openspec/changes/${FEATURE_ID}/design.md ← IMMEDIATELY
@@ -955,7 +951,7 @@ Each task must include SOLID requirements:
 **Acceptance Criteria**:
 - [ ] Entity in src/Domain/Entity/
 - [ ] Value Object in src/Domain/ValueObject/
-- [ ] **SOLID score ≥4/5 for SRP**
+- [ ] Architecture: Follow project patterns, SOLID compliance required per solid-analyzer
 - [ ] No Doctrine imports in Domain
 
 **Reference**: src/Domain/Entity/Order.php (existing pattern)
@@ -989,10 +985,10 @@ Before marking planning as COMPLETED:
 - [ ] **Conflicts with existing specs resolved**
 
 ### Phase 3: Solutions + Architectural Impact
-- [ ] **SOLID baseline analyzed** (current score)
+- [ ] **SOLID baseline analyzed** (per-principle contextual analysis)
 - [ ] Each spec has a solution
 - [ ] **Patterns selected** for SOLID compliance
-- [ ] **Expected SOLID score ≥22/25**
+- [ ] **All relevant SOLID principles verified as COMPLIANT**
 - [ ] Tasks include SOLID requirements
 - [ ] **Layers affected documented**
 - [ ] **Existing modules touched listed**
@@ -1074,7 +1070,7 @@ PLAN COMPLETENESS GATE:
      - ${N} functional specs defined
      - ${M} tasks created (${B} backend, ${F} frontend, ${Q} QA)
      - ${X} files to create, ${Y} files to modify
-     - Estimated SOLID score: ${SCORE}/25
+     - SOLID compliance: all relevant principles verified
      - All output files written to openspec/changes/${FEATURE_ID}/
 
      Ready to proceed to /workflows:work? (yes/review/revise)"
@@ -1145,9 +1141,9 @@ THEN [expected result]
 [Per-requirement solution mapping: SPEC-F01 → Solution, etc.]
 
 ## SOLID Analysis
-- Baseline score: X/25
+- SOLID baseline: contextual per-principle analysis
 - Pattern selection (violation → pattern)
-- Target score: ≥22/25
+- Target: COMPLIANT
 
 ## Architectural Impact
 - Layers affected (Domain/Application/Infrastructure)
@@ -1266,7 +1262,7 @@ Infrastructure/
 ## SOLID Analysis
 - Baseline score: N/A (greenfield)
 - Pattern selection: Value Object (SRP), Strategy (OCP), Repository (DIP), Factory Method (DIP)
-- Target score: 24/25
+- Target: COMPLIANT for all relevant principles
 
 ## Architectural Impact
 ### Layers Affected
@@ -1336,8 +1332,7 @@ Every planning session should answer:
 
 ## Related Documentation
 
-- `core/solid-pattern-matrix.md` - Violation → Pattern mapping
-- `core/architecture-quality-criteria.md` - Quality metrics
+- `core/architecture-reference.md` - Violation → Pattern mapping and quality metrics
 - `skills/workflow-skill-solid-analyzer.md` - SOLID analysis tool
 
 ## Project Specs Location (BASELINE — read-only)

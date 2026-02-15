@@ -19,7 +19,7 @@ Context-activated agent for verifying architecture compliance: DDD layers, SOLID
 
 This agent activates when any of these signals are present:
 - DDD structure detected (Domain/, Application/, Infrastructure/ directories)
-- SOLID targets referenced in the plan (score >= 22/25)
+- SOLID compliance targets referenced in the plan
 - Explicit invocation: `--agent=architecture`
 - Layered architecture detected in project
 
@@ -150,8 +150,8 @@ grep -r "javax.persistence\|org.springframework\|jakarta" domain/ 2>/dev/null
 **Reviewer**: Architecture Reviewer Agent
 **Date**: ${DATE}
 **Architecture Style**: ${DDD | Clean Architecture | Hexagonal | Layered}
-**SOLID Score**: ${X}/25
-**Compliance Level**: COMPLIANT | MINOR_VIOLATIONS | MAJOR_VIOLATIONS
+**SOLID Compliance**: ${VERDICT}
+**Compliance Level**: COMPLIANT | NEEDS_WORK | NON_COMPLIANT
 
 ### Layer Analysis
 
@@ -174,14 +174,17 @@ grep -r "javax.persistence\|org.springframework\|jakarta" domain/ 2>/dev/null
 
 ### SOLID Analysis
 
-| Principle | Score (/5) | Issues |
-|-----------|-----------|--------|
-| Single Responsibility | X | [issues or "Clean"] |
-| Open/Closed | X | [issues or "Clean"] |
-| Liskov Substitution | X | [issues or "Clean"] |
-| Interface Segregation | X | [issues or "Clean"] |
-| Dependency Inversion | X | [issues or "Clean"] |
-| **Total** | **X/25** | |
+Read `openspec/specs/architecture-profile.yaml` for project-specific principle relevance.
+Use `/workflow-skill:solid-analyzer --mode=verify --path=src --design=design.md` for automated verification.
+
+| Principle | Relevance | Verdict | Evidence |
+|-----------|-----------|---------|----------|
+| Single Responsibility | [from profile] | COMPLIANT / NEEDS_WORK / NON_COMPLIANT / N/A | [evidence] |
+| Open/Closed | [from profile] | COMPLIANT / NEEDS_WORK / NON_COMPLIANT / N/A | [evidence] |
+| Liskov Substitution | [from profile] | COMPLIANT / NEEDS_WORK / NON_COMPLIANT / N/A | [evidence] |
+| Interface Segregation | [from profile] | COMPLIANT / NEEDS_WORK / NON_COMPLIANT / N/A | [evidence] |
+| Dependency Inversion | [from profile] | COMPLIANT / NEEDS_WORK / NON_COMPLIANT / N/A | [evidence] |
+| **Global Verdict** | | **[COMPLIANT / NEEDS_WORK / NON_COMPLIANT]** | |
 
 ### Violations Found
 

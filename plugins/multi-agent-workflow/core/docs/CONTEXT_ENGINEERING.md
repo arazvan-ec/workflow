@@ -24,7 +24,7 @@ Following Fowler's taxonomy, all plugin content falls into three categories:
 | Type | Definition | Plugin Examples |
 |------|-----------|-----------------|
 | **Instructions** | Direct behavioral rules the agent must follow | `CLAUDE.md` (routing rules, self-check protocol, Karpathy principles) |
-| **Guides/Rules** | Reference material that shapes decisions | `core/rules/framework_rules.md`, `core/docs/KARPATHY_PRINCIPLES.md`, `core/solid-pattern-matrix.md` |
+| **Guides/Rules** | Reference material that shapes decisions | `core/rules/framework_rules.md`, `core/docs/KARPATHY_PRINCIPLES.md`, `core/architecture-reference.md` |
 | **Interface Contexts** | Tools and capabilities available to the agent | Skills (`/skill:consultant`), Commands (`/workflows:plan`), MCP servers, Review agents |
 
 ### 2. Activation Methods
@@ -61,7 +61,7 @@ The `CLAUDE.md` file contains only what every session needs:
 
 **Design decision**: CLAUDE.md was reduced from ~700 lines (v2.3) to ~500 (v2.4.0) to ~130 lines (v2.5.0). Content moved to on-demand reference docs:
 - Routing question templates and decision matrix → `core/docs/ROUTING_REFERENCE.md`
-- SOLID scoring tables and pattern details → `core/solid-pattern-matrix.md`
+- SOLID scoring tables and pattern details → `core/architecture-reference.md`
 - MCP server details → `core/docs/MCP_INTEGRATION.md`
 - Snapshot/metrics workflow → `core/docs/SESSION_CONTINUITY.md`
 - Trust model and security → `core/rules/security-rules.md`
@@ -226,7 +226,7 @@ Fowler explicitly warns against several temptations:
 
 ### 2. "We can ensure the agent does X"
 **Reality**: With LLMs, certainty is impossible. The plugin addresses this by:
-- Quality gates (SOLID ≥18/25) as probabilistic filters, not guarantees
+- Quality gates (SOLID compliance verification) as probabilistic filters, not guarantees
 - Bounded Correction Protocol (retry up to 10 times, then escalate)
 - Multiple review agents for cross-validation
 - Human checkpoints at critical moments

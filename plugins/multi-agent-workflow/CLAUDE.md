@@ -102,7 +102,7 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 - **Bounded Correction Protocol**: 3 deviation types with scale-adaptive limits (simple: 5, moderate: 10, complex: 15). Includes diagnostic escalation (invokes diagnostic-agent after 3 consecutive same errors). See `core/rules/testing-rules.md`.
 - **Compound Capture**: After each feature, extract patterns and update rules via `/workflows:compound`.
 - **Validation Learning**: AI self-questions solutions, logs answers for future use. See `core/docs/VALIDATION_LEARNING.md`.
-- **SOLID Constraint**: Phase 3 solutions target score >= 22/25. See `core/solid-pattern-matrix.md`.
+- **SOLID Constraint**: Phase 3 solutions must be COMPLIANT per contextual analysis. See `core/architecture-reference.md` and `openspec/specs/architecture-profile.yaml`.
 
 ## State Management
 
@@ -124,7 +124,7 @@ All roles communicate via `tasks.md` (Workflow State section in `openspec/change
 
 - **Docs** (`core/docs/`): `CAPABILITY_PROVIDERS`, `ROUTING_REFERENCE`, `KARPATHY_PRINCIPLES`, `CONTEXT_ENGINEERING`, `SESSION_CONTINUITY`, `MCP_INTEGRATION`, `VALIDATION_LEARNING`
 - **Rules** (`core/rules/`): `framework_rules`, `testing-rules`, `security-rules`, `git-rules`
-- **Other**: `core/providers.yaml`, `core/solid-pattern-matrix.md`
+- **Other**: `core/providers.yaml`, `core/architecture-reference.md`
 
 ---
 

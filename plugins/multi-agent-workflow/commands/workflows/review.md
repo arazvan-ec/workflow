@@ -34,7 +34,7 @@ PREREQUISITE CHECK:
 The following are executed automatically as part of `/workflows:review`:
 - **Solution validation check** -- validates approach before implementation
 - **Comprehension check** -- verifies understanding of generated code
-- **SOLID score verification** -- checks >= 18/25 minimum
+- **SOLID compliance verification** -- must be COMPLIANT per solid-analyzer
 - **Spec validation** -- validates implementation against specs
 - **Trust-level evaluation** -- applies appropriate scrutiny per file
 - **Validation learning integration** -- reads `validation-learning-log.md` for relevant preferences and patterns
@@ -148,31 +148,31 @@ npm run test:e2e -- feature-name
 
 2. **SOLID Design Implementation (CRITICAL)**:
 
-   > QA verifica que se IMPLEMENTÓ el diseño SOLID de design.md,
-   > NO diseña ni juzga si el diseño es correcto (eso es Phase 3).
+   > QA verifies that the SOLID design from design.md was IMPLEMENTED,
+   > NOT whether the design itself is correct (that's Phase 3's responsibility).
 
    - [ ] Patterns from design.md were correctly implemented
    - [ ] Class structure matches the design document
-   - [ ] SOLID score matches or exceeds expected score from design
+   - [ ] SOLID compliance verified per solid-analyzer
 
    Verification:
    # 1. Read expected design
    Read: openspec/changes/${FEATURE_ID}/design.md
 
    # 2. Verify implementation matches design
-   /workflow-skill:solid-analyzer --path=src --validate
+   /workflow-skill:solid-analyzer --mode=verify --path=src --design=design.md --scope=full
 
-   # 3. Compare actual vs expected
-   # Expected from design: [X]/25
-   # Actual: [Y]/25
-   # If actual < expected: REJECT - implementation doesn't match design
+   # 3. Evaluate compliance verdict
+   # COMPLIANT → approve
+   # NEEDS_WORK on relevance=medium → approve with notes
+   # NON_COMPLIANT on relevance≥high → REJECT
 
-   SOLID Checklist (verify design was followed):
-   - [ ] **S** - SRP: Classes structured as designed in design.md
-   - [ ] **O** - OCP: Patterns (Strategy, Decorator) implemented as specified
-   - [ ] **L** - LSP: Inheritance used as designed
-   - [ ] **I** - ISP: Interfaces match design (size, roles)
-   - [ ] **D** - DIP: Dependencies injected as specified in design
+   SOLID Checklist (verify design was followed, per-principle verdict):
+   - [ ] **S** - SRP: COMPLIANT / NEEDS_WORK / NON_COMPLIANT — Classes structured as designed in design.md
+   - [ ] **O** - OCP: COMPLIANT / NEEDS_WORK / NON_COMPLIANT — Patterns (Strategy, Decorator) implemented as specified
+   - [ ] **L** - LSP: COMPLIANT / NEEDS_WORK / N/A — Inheritance used as designed
+   - [ ] **I** - ISP: COMPLIANT / NEEDS_WORK / NON_COMPLIANT — Interfaces match design (size, roles)
+   - [ ] **D** - DIP: COMPLIANT / NEEDS_WORK / NON_COMPLIANT — Dependencies injected as specified in design
 
 3. DDD Compliance (Backend):
    - [ ] Domain layer has no infrastructure dependencies
@@ -241,7 +241,7 @@ Criterion 3: "User redirected after registration"
 - ✅ All acceptance criteria met (with evidence)
 - ✅ No critical/major bugs (P0/P1)
 - ✅ All automated tests passing
-- ✅ **SOLID design was implemented** (matches design.md)
+- ✅ **SOLID design was implemented** (COMPLIANT per solid-analyzer, matches design.md)
 - ✅ Code meets quality standards
 - ✅ Documentation complete
 
@@ -249,7 +249,7 @@ Criterion 3: "User redirected after registration"
 - ❌ Any acceptance criterion fails
 - ❌ Critical or major bug found
 - ❌ Automated tests failing
-- ❌ **Implementation doesn't match SOLID design** (design.md)
+- ❌ **Implementation doesn't match SOLID design** (NON_COMPLIANT per solid-analyzer)
 - ❌ Security vulnerability present
 - ❌ Code quality below standards
 
@@ -274,10 +274,14 @@ Criterion 3: "User redirected after registration"
 - Unit Tests: X/Y passing (Z% coverage)
 - E2E Tests: X/Y passing
 
-## SOLID Design Implementation
-- **Expected Score** (from design.md): [X]/25
-- **Actual Score**: [Y]/25
-- **Status**: ✅ MATCHES DESIGN | ❌ DOESN'T MATCH DESIGN
+### SOLID Compliance Verification
+- **SRP**: COMPLIANT — [evidence]
+- **OCP**: COMPLIANT — [evidence]
+- **LSP**: N/A — [reason]
+- **ISP**: COMPLIANT — [evidence]
+- **DIP**: COMPLIANT — [evidence]
+**Global Verdict**: COMPLIANT
+**Design Match**: Implementation matches design.md ✓
 - **Patterns from Design**:
   - [ ] Strategy for [X] - Implemented: ✅/❌
   - [ ] Repository for [Y] - Implemented: ✅/❌
@@ -292,7 +296,7 @@ Criterion 3: "User redirected after registration"
 ## Issues Found
 ### Critical (blocks approval)
 - Issue #1: [description]
-- SOLID Issue: [if score <18]
+- SOLID Issue: [if any principle NON_COMPLIANT]
 
 ### Minor (can fix later)
 - Issue #2: [description]
@@ -308,7 +312,7 @@ Criterion 3: "User redirected after registration"
 
 **Next steps**:
 - Backend fixes Issue #1
-- Run /workflow-skill:solid-analyzer --validate
+- Run /workflow-skill:solid-analyzer --mode=verify --path=src --design=design.md --scope=full
 - Re-review after fix pushed
 ```
 
@@ -320,14 +324,14 @@ After review, update `tasks.md`:
 ## QA / Reviewer
 **Status**: APPROVED | REJECTED
 **Review Date**: 2026-01-16
-**SOLID Design Match**: ✅ Implementation matches design.md
+**SOLID Compliance**: COMPLIANT (all principles verified)
 **Critical Issues**: 0 | [count]
 **Minor Issues**: [count]
 
 ### Review Summary
 - Acceptance Criteria: 5/5 passed
 - Test Coverage: Backend 87%, Frontend 78%
-- **SOLID Design**: Expected 24/25, Actual 23/25 ✅
+- **SOLID Compliance**: COMPLIANT (all principles verified)
 - Patterns Implemented: Strategy ✅, Repository ✅, Value Object ✅
 - Issues Found: 0 critical, 2 minor
 
