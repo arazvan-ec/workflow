@@ -357,7 +357,21 @@ cp openspec/changes/user-auth/proposal.md \
    .ai/workflow/templates/proposal_auth_template.md
 ```
 
-### Step 7: Spec Diff Analysis (NEW)
+### Spec Flow Pipeline
+
+The spec flow ensures feature-level specs merge into the project baseline:
+
+```
+/workflows:plan → openspec/changes/{slug}/specs.md (feature specs)
+                                    ↓
+/workflows:compound → Step 7: Diff Analysis (compare feature vs baseline)
+                                    ↓
+                    → Step 8: Merge to openspec/specs/ (project baseline)
+```
+
+Plan Phase 2 reads `openspec/specs/` as baseline context before generating feature specs. Compound closes the loop by merging feature changes back into the baseline.
+
+### Step 7: Spec Diff Analysis
 
 Compare feature specifications with existing project specs to identify changes:
 

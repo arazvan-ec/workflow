@@ -327,6 +327,8 @@ Apply the Quality Gate Protocol (above) with these 4 checks before writing `prop
 
 Phase 2 defines **WHAT** the system must do - the functional requirements from the user's perspective.
 
+> **Spec Flow**: Phase 2 reads `openspec/specs/` as the project baseline before generating feature specs. Feature specs are written to `openspec/changes/${FEATURE_ID}/specs.md`. After implementation and review, `/workflows:compound` merges feature specs back into the baseline.
+
 ### Functional Specs Only
 
 ```markdown
