@@ -392,6 +392,30 @@ The agent generates code AND tests, but pauses before each checkpoint for human 
 
 ---
 
+## Model Recommendations by Phase
+
+Not every workflow phase requires the most capable (and expensive) model. Use this matrix to right-size model selection when the API caller supports per-request model switching:
+
+| Phase | Recommended Model | Rationale |
+|-------|------------------|-----------|
+| **Route** | Sonnet / Haiku | Classification task — fast response, low complexity |
+| **Shape** | Opus | Exploratory reasoning, ambiguity resolution |
+| **Plan (Phase 1-2)** | Opus | Requirements analysis, spec generation |
+| **Plan (Phase 3)** | Opus | Architectural design, SOLID reasoning |
+| **Plan (Phase 4)** | Sonnet | Task breakdown from established design — structured output |
+| **Quality Gates** | Haiku / Sonnet | Checklist verification — simple pass/fail checks |
+| **Work (simple tasks)** | Sonnet | Pattern-following implementation with clear reference files |
+| **Work (complex tasks)** | Opus | Novel code, multi-layer integration, no reference pattern |
+| **Review (code quality)** | Sonnet | Checklist-based verification against criteria |
+| **Review (security)** | Opus | Threat analysis requires deep reasoning |
+| **Compound** | Sonnet | Structured capture and spec merging |
+
+**How to use**: Configure in `providers.yaml` under `api_recommendations.model_per_phase`. When set to `auto`, the plugin suggests the model but the API caller decides. This is a recommendation, not enforcement — the plugin works correctly with any model.
+
+**Fallback**: If only one model is available, use it for all phases. The workflow adapts; these are optimizations, not requirements.
+
+---
+
 ## What the Plugin CANNOT Abstract
 
 These are API-level settings controlled by whoever calls the Claude API, not by the plugin:
