@@ -227,7 +227,7 @@ After documenting anti-patterns and the 70% boundary, update `.ai/project/compou
    - Mark in memory: "[PROMOTED to global_rules.md on ${DATE}]"
 ```
 
-See `core/agent-memory.md` for the full Agent Compound Memory specification.
+The Agent Compound Memory specification is documented in Step 3b above.
 
 ### Step 3c: Enrich Architecture Profile
 
@@ -301,7 +301,7 @@ Implemented user registration with email/password authentication.
 
 #### Rules Updated
 - global_rules.md: Added Email VO requirement
-- ddd_rules.md: Added Value Object immutability check
+- framework_rules.md: Added Value Object immutability check
 
 #### Anti-Patterns Documented
 1. Skipping integration tests → Added to QA checklist
@@ -592,7 +592,7 @@ history:
 #### Using the Spec-Merger Skill
 
 ```bash
-# Invoke spec-merger skill for intelligent merging (wraps /opsx:archive)
+# Invoke spec-merger skill for intelligent merging
 /workflow-skill:spec-merger \
   --feature="${FEATURE_ID}" \
   --source="openspec/changes/${FEATURE_ID}/" \

@@ -39,7 +39,7 @@ Thresholds depend on the active context_management provider:
 **Don't wait for auto-compact at 95%.** When context reaches the threshold for your provider:
 
 1. **Option A**: Run `/compact` to summarize and reduce context
-2. **Option B**: Create `/workflows:snapshot` and start fresh session
+2. **Option B**: Create `/multi-agent-workflow:checkpoint` and start fresh session
 
 With the **compaction-aware provider** (Opus 4.6+), the Compaction API auto-summarizes server-side, so snapshots are primarily for role handoffs and session boundaries, not context exhaustion.
 
@@ -71,7 +71,7 @@ Session Start
     ├── Every 30 min: Quick /context check
     │
     ├── At 70% or 1 hour:
-    │   ├── /workflows:snapshot --name="checkpoint"
+    │   ├── /multi-agent-workflow:checkpoint --name="checkpoint"
     │   └── Decision: continue or fresh start?
     │
     └── Before complex task:
@@ -150,17 +150,17 @@ Principles:
 
 ### Creating Snapshots
 
-Use `/workflows:snapshot` to preserve session state:
+Use `/multi-agent-workflow:checkpoint` to preserve session state:
 
 ```bash
 # Named snapshot (recommended)
-/workflows:snapshot --name="domain-layer-complete"
+/multi-agent-workflow:checkpoint --name="domain-layer-complete"
 
 # With feature context
-/workflows:snapshot --name="backend-phase-1" --feature=user-auth
+/multi-agent-workflow:checkpoint --name="backend-phase-1" --feature=user-auth
 
 # Quick timestamped snapshot
-/workflows:snapshot --name="checkpoint-$(date +%H%M)"
+/multi-agent-workflow:checkpoint --name="checkpoint-$(date +%H%M)"
 ```
 
 ### What Gets Saved
@@ -178,17 +178,17 @@ A snapshot captures:
 
 ### Restoring Snapshots
 
-Use `/workflows:restore` to resume:
+Use `/workflows:status` to resume:
 
 ```bash
 # List available snapshots
-/workflows:restore --list
+/workflows:status --list
 
 # Restore specific snapshot
-/workflows:restore --name="domain-layer-complete"
+/workflows:status --name="domain-layer-complete"
 
 # Preview without applying
-/workflows:restore --name="backend-phase-1" --dry-run
+/workflows:status --name="backend-phase-1" --dry-run
 ```
 
 ### Snapshot Storage
@@ -239,7 +239,7 @@ Session indicators suggest creating a snapshot:
   - Files in context: 23 (threshold: 20)
   - Messages: 47 (threshold: 50)
 
-Recommendation: /workflows:snapshot --name="auto-checkpoint"
+Recommendation: /multi-agent-workflow:checkpoint --name="auto-checkpoint"
 
 [Continue] [Create Snapshot] [Dismiss]
 ```
@@ -371,7 +371,7 @@ echo "!.ai/snapshots/.gitkeep" >> .gitignore
 
 1. **List available snapshots:**
    ```bash
-   /workflows:restore --list --verbose
+   /workflows:status --list --verbose
    ```
 
 2. **Choose appropriate snapshot:**
@@ -381,7 +381,7 @@ echo "!.ai/snapshots/.gitkeep" >> .gitignore
 
 3. **Restore and review:**
    ```bash
-   /workflows:restore --name="domain-layer-complete"
+   /workflows:status --name="domain-layer-complete"
    ```
 
 4. **Sync with remote** (git-sync is handled automatically within plan/work):
@@ -430,10 +430,10 @@ Role Handoff: Backend -> Frontend
 ---------------------------------
 
 Backend creates snapshot:
-  /workflows:snapshot --name="backend-api-complete"
+  /multi-agent-workflow:checkpoint --name="backend-api-complete"
 
 Frontend restores and begins:
-  /workflows:restore --name="backend-api-complete"
+  /workflows:status --name="backend-api-complete"
 
   Context includes:
   - API endpoints implemented
@@ -505,29 +505,29 @@ If restored context feels incomplete:
 | **Storage** | Git commit | Local files |
 | **Content** | State update only | State + summary + files + context |
 | **Use Case** | Frequent saves | Session boundaries |
-| **Command** | `/workflows:checkpoint` | `/workflows:snapshot` |
+| **Command** | `/multi-agent-workflow:checkpoint` | `/multi-agent-workflow:checkpoint` |
 
 ### Recommended Flow
 
 ```
 Session Start
     │
-    ├── /workflows:restore (if continuing)
+    ├── /workflows:status (if continuing)
     │
     ├── Work Phase 1
-    │   └── /workflows:checkpoint (commit to git)
+    │   └── /multi-agent-workflow:checkpoint (commit to git)
     │
     ├── Work Phase 2
-    │   └── /workflows:checkpoint
+    │   └── /multi-agent-workflow:checkpoint
     │
     ├── Context Getting Heavy
-    │   └── /workflows:snapshot --name="phase-2-done"
+    │   └── /multi-agent-workflow:checkpoint --name="phase-2-done"
     │
     ├── Continue or New Session
-    │   └── /workflows:restore --name="phase-2-done"
+    │   └── /workflows:status --name="phase-2-done"
     │
     └── End Session
-        └── /workflows:snapshot --name="eod-<date>"
+        └── /multi-agent-workflow:checkpoint --name="eod-<date>"
 ```
 
 ---
@@ -548,16 +548,16 @@ Session Start
 
 ```bash
 # Create snapshot
-/workflows:snapshot --name="descriptive-name"
+/multi-agent-workflow:checkpoint --name="descriptive-name"
 
 # List snapshots
-/workflows:restore --list
+/workflows:status --list
 
 # Restore snapshot
-/workflows:restore --name="snapshot-name"
+/workflows:status --name="snapshot-name"
 
 # Full restoration flow
-/workflows:restore --name="my-snapshot"
+/workflows:status --name="my-snapshot"
 /workflows:status my-feature
 /workflows:work my-feature
 ```

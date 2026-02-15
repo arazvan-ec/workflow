@@ -579,7 +579,7 @@ Before proceeding to Phase 3, verify no unresolved conflicts:
 
 ```bash
 # Check for spec conflicts
-/workflow-skill:spec-validator --feature=${FEATURE_ID} --check-conflicts
+/workflow-skill:spec-analyzer --feature=${FEATURE_ID} --check-conflicts
 
 # Output:
 # ✅ No entity name conflicts
@@ -1326,7 +1326,7 @@ Every planning session should answer:
 
 - `/workflow-skill:criteria-generator` - Generate functional specs
 - `/workflow-skill:solid-analyzer` - Analyze SOLID compliance
-- `/workflow-skill:spec-validator` - Validate specs and detect conflicts
+- `/workflow-skill:spec-analyzer` - Validate specs and detect conflicts
 - `/workflows:work` - Execute the plan
 - `/workflows:review` - Review implementation
 

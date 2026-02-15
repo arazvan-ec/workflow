@@ -148,7 +148,7 @@ Used automatically during checkpoint:
 
 ```bash
 # Before checkpoint, verify tests pass
-/workflows:checkpoint backend user-auth "Domain layer"
+/multi-agent-workflow:checkpoint backend user-auth "Domain layer"
 
 # Internally runs:
 # 1. php bin/phpunit tests/Unit/Domain/

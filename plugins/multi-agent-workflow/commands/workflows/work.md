@@ -211,7 +211,7 @@ Backend complete + Frontend complete (parallel)
 
 ```bash
 # Load implementer role + mode-specific context
---mode=layers --layer=domain → Read: core/roles/implementer.md + rules/ddd_rules.md
+--mode=layers --layer=domain → Read: core/roles/implementer.md + core/rules/framework_rules.md
 --mode=stacks --stack=backend → Read: core/roles/implementer.md (backend tasks)
 --mode=stacks --stack=frontend → Read: core/roles/implementer.md (frontend tasks)
 (default, no mode) → Read: core/roles/implementer.md (all tasks sequentially)
@@ -397,7 +397,7 @@ GOAL VERIFICATION (after tests pass):
 
 ```bash
 # 3. Only checkpoint if SOLID + goal verification pass
-/workflows:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
+/multi-agent-workflow:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
 ```
 
 **Checkpoint SOLID Requirements**:

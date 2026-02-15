@@ -9,19 +9,19 @@
 
 The plugin provides its own abstraction layer for capabilities that vary across Claude model versions. Instead of being locked to a specific model, the plugin defines **provider interfaces** — stable commands and behaviors that work identically from the user's perspective, while routing to different implementations based on the running model's capabilities.
 
-**Principle**: The user always uses `/workflows:parallel`, `/workflows:snapshot`, etc. The plugin resolves the best implementation underneath.
+**Principle**: The user always uses `/workflows:work --mode=stacks|layers`, `/multi-agent-workflow:checkpoint`, etc. The plugin resolves the best implementation underneath.
 
 ```
-User Command                  Provider Resolution              Implementation
-─────────────                 ───────────────────              ──────────────
-/workflows:parallel    ──►    parallelization: auto    ──►    Agent Teams (4.6+)
-                                                        └──►  worktrees+tmux (4.5)
+User Command                        Provider Resolution              Implementation
+─────────────                       ───────────────────              ──────────────
+/workflows:work --mode=stacks ──►   parallelization: auto    ──►    Agent Teams (4.6+)
+                                                               └──►  worktrees+tmux (4.5)
 
-/workflows:snapshot    ──►    context_management: auto ──►    compaction-aware (4.6+)
-                                                        └──►  manual-snapshots (4.5)
+/multi-agent-workflow:checkpoint ►  context_management: auto ──►    compaction-aware (4.6+)
+                                                               └──►  manual-checkpoints (4.5)
 
-context: fork          ──►    fork_strategy: auto      ──►    selective (4.6+)
-                                                        └──►  aggressive (4.5)
+context: fork                  ──►  fork_strategy: auto      ──►    selective (4.6+)
+                                                               └──►  aggressive (4.5)
 ```
 
 ---
@@ -77,7 +77,7 @@ IF providers.parallelization == "worktrees"  →  force worktrees
 
 ```bash
 # Always the same command, regardless of provider
-/workflows:parallel user-auth --mode=stacks
+/workflows:work user-auth --mode=stacks
 ```
 
 ### Implementation: Agent Teams (tier: advanced)
@@ -122,7 +122,7 @@ IF providers.parallelization == "worktrees"  →  force worktrees
 ```
 When moving from worktrees to Agent Teams:
 
-1. /workflows:parallel still works identically from user perspective
+1. `/workflows:work --mode=stacks` still works identically from user perspective
 2. tasks.md remains the persistent state layer
 4. tmux is no longer needed (but doesn't break anything if installed)
 5. Port allocation is no longer needed (agents share filesystem)
@@ -136,8 +136,8 @@ When moving from worktrees to Agent Teams:
 
 ```bash
 # Always the same commands
-/workflows:snapshot --name="checkpoint-1"
-/workflows:restore --name="checkpoint-1"
+/multi-agent-workflow:checkpoint --name="checkpoint-1"
+# To restore: read tasks.md + git log to resume from last checkpoint
 ```
 
 ### Implementation: Compaction-Aware (tier: advanced)
