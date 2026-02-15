@@ -282,6 +282,28 @@ Only the Planner role can modify project rules (with justification in `DECISIONS
 
 ---
 
+## Rollback Protocol
+
+When a task or phase produces broken state that cannot be corrected via BCP:
+
+```
+ROLLBACK STEPS:
+1. Identify the last known-good checkpoint (git commit with passing tests)
+2. git stash (preserve current work for analysis)
+3. git checkout <last-good-commit> -- <affected-files>
+4. Verify tests pass at this state
+5. Document what went wrong in tasks.md Decision Log
+6. Re-plan the failed task with a different approach
+```
+
+**Rules:**
+- Never rollback without documenting the reason
+- Never rollback another role's completed work without their confirmation
+- Prefer targeted file rollback (`git checkout <commit> -- <file>`) over full branch reset
+- After rollback, the task returns to PENDING status with a note about the previous attempt
+
+---
+
 ## Terminology
 
 Canonical terms used throughout the plugin. Use these consistently — avoid synonyms.

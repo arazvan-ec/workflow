@@ -508,6 +508,18 @@ If "restart": return to Phase 1 with new understanding.
 
 ---
 
+### Phase 2.5: Test Contract Sketch (conditional: planning_depth=full)
+
+When `planning_depth` is `full`, briefly outline test coverage before designing solutions:
+
+- **For each functional spec**: Identify whether it maps to a unit test, integration test, or both
+- **Key test boundaries**: What are the inputs, outputs, and edge cases?
+- **Test dependencies**: Does this spec require fixtures, mocks, or test infrastructure?
+
+This is NOT full test design — just a sketch that informs Phase 3 design decisions (e.g., designing for testability).
+
+---
+
 ## PHASE 3: DESIGN
 
 Phase 3 defines **HOW** to implement each spec. This is where **SOLID becomes mandatory**.
@@ -718,6 +730,17 @@ Apply the Quality Gate Protocol (above) with these 4 checks before writing `desi
 3. **SOLID verdicts**: Each relevant principle has a reasoned verdict (COMPLIANT/N_A with justification). FAIL if missing reasoning.
 4. **Architectural impact**: Lists specific layers and files to CREATE and MODIFY. FAIL if empty or "TBD".
 
+### Phase 3.5: Security Threat Analysis (conditional: planning_depth=full)
+
+When `planning_depth=full` (complex features or sensitive areas), add a lightweight threat analysis:
+
+- **Attack surface**: Which new endpoints/inputs does this feature introduce?
+- **Trust boundaries**: Where does data cross trust boundaries (user→server, service→service)?
+- **Sensitive data**: Does this feature handle PII, credentials, tokens, or payment data?
+- **Mitigation**: For each identified threat, specify the mitigation strategy in `design.md`
+
+Skip this phase when `planning_depth=standard` or `planning_depth=minimal`.
+
 ---
 
 ---
@@ -827,6 +850,31 @@ Every planning session should answer:
 3. What NEW specs will this feature CREATE?
 4. Are there any CONFLICTS with existing specs?
 5. What is the ARCHITECTURAL IMPACT (layers, modules, files)?
+
+---
+
+## Chunking Directive
+
+Large planning outputs should be chunked to avoid context exhaustion:
+
+| Phase | Max output size | Action if exceeded |
+|-------|----------------|-------------------|
+| Phase 1 (proposal.md) | ~200 lines | Split into problem statement + appendix |
+| Phase 2 (specs.md) | ~300 lines | Group specs by domain boundary |
+| Phase 3 (design.md) | ~400 lines | Split into core design + detailed appendix |
+| Phase 4 (tasks.md) | ~200 lines | Use task IDs, keep descriptions concise |
+
+If any phase output exceeds its limit, write the core content first, then append supplementary detail.
+
+---
+
+## Error Recovery
+
+- **Phase output fails to write**: Retry write. If disk error persists, write to a fallback path (`/tmp/openspec-${FEATURE_ID}/`) and notify user.
+- **Quality Gate fails after max BCP iterations (3)**: Document the blocker in `tasks.md`, mark phase as BLOCKED, and present the issue to the user for decision.
+- **Spec conflicts detected in Phase 2**: Log conflict in `specs.md` with `[CONFLICT]` tag. Do not proceed to Phase 3 until conflicts are resolved (user decision or merge).
+- **HITL checkpoint rejected by user**: Return to the previous phase output, incorporate user feedback, and re-run the phase. Do not skip the checkpoint.
+- **Session interrupted mid-phase**: On resume, read `tasks.md` Planning Progress to identify last completed phase. Re-read the last written output file to verify integrity. Continue from the next phase.
 
 ---
 

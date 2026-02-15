@@ -561,6 +561,28 @@ Use project-detected test commands. Common patterns:
 /workflow-skill:lint-fixer
 ```
 
+## Chunking Directive
+
+Long implementation sessions should be chunked to preserve context quality:
+
+- **Max tasks per session**: 8-10 tasks before considering a checkpoint + session restart
+- **Max files open in context**: Follow provider thresholds (see `providers.yaml` → `context_management`)
+- **Per-task output**: Keep checkpoint notes concise (status, files changed, tests, SOLID verdict)
+
+If context capacity exceeds 70% (standard) or 85% (compaction-aware), trigger a session restart per the Session Restart Protocol in `framework_rules.md`.
+
+---
+
+## Error Recovery
+
+- **Test runner unavailable**: Fall back to manual test commands detected from project config (package.json, composer.json, Makefile). If no test infrastructure exists, document as BLOCKED.
+- **BCP exhausted (max iterations reached)**: Document blocker with deviation type classification. Mark task BLOCKED in tasks.md. Do NOT skip the task — proceed to next task only if independent.
+- **Git conflict during checkpoint**: Stash changes, pull latest, attempt auto-merge. If conflict requires manual resolution, present diff to user.
+- **Reference file missing**: If a task references a file that doesn't exist, check if a previous task should have created it. If dependency is unmet, mark task BLOCKED with dependency note.
+- **Session interrupted mid-task**: On resume, read tasks.md Resume Point. Check git status for uncommitted changes. Continue from the identified task, do NOT restart completed tasks.
+
+---
+
 ## Compound Effect
 
 Good work execution compounds:

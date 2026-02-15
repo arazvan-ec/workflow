@@ -168,6 +168,15 @@ THEN:
 /workflows:quick "Update API docs for POST /api/users to include phone field" --no-tdd
 ```
 
+## Error Recovery
+
+- **Scope exceeds Quick Mode limits**: If more than 3 files need changes or architectural impact is discovered, commit partial progress and escalate to `/workflows:route` → `/workflows:plan`.
+- **BCP exhausted (5 iterations)**: Quick tasks should resolve fast. If stuck after 5 iterations, the task is likely more complex than estimated. STOP, commit what works, and recommend full workflow.
+- **No test infrastructure for TDD**: Use `--no-tdd` flag only for non-code tasks. For code tasks without test infrastructure, document the gap and recommend setting up tests before proceeding.
+- **Task assessment unclear**: If Quick Mode assessment cannot determine whether the task is appropriate, default to full workflow (safer choice).
+
+---
+
 ## Compound Effect
 
 Quick Mode tasks, while small, contribute to compound engineering:

@@ -958,3 +958,39 @@ openspec/
         ├── design.md
         └── tasks.md
 ```
+
+---
+
+## Retrospective
+
+After compound capture is complete, generate a brief retrospective:
+
+```markdown
+# Retrospective: ${FEATURE_ID}
+
+## What went well
+- [1-3 bullet points]
+
+## What could improve
+- [1-3 bullet points]
+
+## Surprises / Lessons
+- [Unexpected findings during implementation or review]
+
+## Metrics
+- Planning phases: [N]
+- Implementation tasks: [N] completed, [N] blocked
+- Review cycles: [N] (rejections before approval)
+- BCP activations: [N] (by deviation type)
+```
+
+Write this to `openspec/changes/${FEATURE_ID}/99_retrospective.md`. This file is optional but recommended for features with `planning_depth=full` or features that required multiple review cycles.
+
+---
+
+## Error Recovery
+
+- **QA status not APPROVED**: Compound requires QA APPROVED status. If status is REJECTED, do not proceed — fixes must be implemented and re-reviewed first.
+- **Spec-merger conflicts with baseline**: If merging feature specs into `openspec/specs/` produces conflicts, present both versions to the user. User decides which version becomes the new baseline.
+- **Missing compound_log.md**: Create it fresh. The log is append-only — a missing file means this is the first compound capture for the project.
+- **Feature artifacts incomplete**: If proposal.md, specs.md, design.md, or tasks.md are missing from `openspec/changes/${FEATURE_ID}/`, log a warning and capture what's available. Do not block compound on missing optional artifacts.
