@@ -488,6 +488,24 @@ Apply the Quality Gate Protocol (above) with these 4 checks before writing `spec
 
 ---
 
+### HITL Checkpoint: Phase 2 → Phase 3
+
+Before proceeding to design, present the spec summary to the user:
+
+```
+"Specs complete for ${FEATURE_ID}:
+ - ${N} functional specs defined
+ - Integration: ${E} entities extended, ${M} modified, ${C} new
+ - ${X} API endpoints affected
+
+ Do these specs cover your requirements? [yes / adjust / restart]"
+```
+
+If "adjust": revise specs based on feedback, re-run Phase 2 Quality Gate.
+If "restart": return to Phase 1 with new understanding.
+
+---
+
 ## PHASE 3: DESIGN
 
 Phase 3 defines **HOW** to implement each spec. This is where **SOLID becomes mandatory**.

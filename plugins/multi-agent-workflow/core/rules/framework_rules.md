@@ -21,6 +21,13 @@ Every interaction passes through the workflow router before work begins. See `CL
 
 **Exception — Quick Mode**: `/workflows:quick` can be invoked directly for simple tasks (≤3 files, no architecture impact, no sensitive paths). Quick Mode performs its own inline assessment and can escalate to the full workflow if the task is more complex than expected.
 
+**Human-in-the-Loop Checkpoints**: User confirmation is required at these transition points:
+- **Route → Plan**: After routing classification, before starting planning
+- **Plan Phase 2 → Phase 3**: After specs are defined, before design begins (see plan.md HITL Checkpoint)
+- **Plan completion**: Before marking planner as COMPLETED (part of Completeness Verification)
+- **Work → Review**: Automatic (review prerequisite is work COMPLETED)
+- **Review → Compound**: Automatic (compound prerequisite is QA APPROVED)
+
 ### 2. Karpathy Principles — Apply to All Work
 
 Four principles that prevent common AI failure modes. Apply them at every stage:
