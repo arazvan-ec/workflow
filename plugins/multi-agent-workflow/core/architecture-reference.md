@@ -501,6 +501,39 @@ Formato de Excepción:
 
 ---
 
+## SOLID Verdict Matrix
+
+When evaluating SOLID compliance (in planning Phase 3, work checkpoints, and review), use this verdict protocol instead of numeric scores:
+
+### Verdict Values
+
+| Verdict | Meaning | Action |
+|---------|---------|--------|
+| **COMPLIANT** | Principle is satisfied with evidence | Proceed |
+| **NEEDS_WORK** | Partially satisfied, specific improvement identified | Refactor before checkpoint |
+| **NON_COMPLIANT** | Principle violated, no justification | BLOCKS advancement |
+| **N/A** | Principle not relevant to this context (with justification) | Proceed |
+
+### SOLID Justification Format
+
+For each relevant principle, provide a one-line justification with code evidence:
+
+```
+SRP: COMPLIANT — UserEntity handles only user data. Evidence: src/Domain/Entity/User.php (no service logic)
+OCP: N/A — No extension point needed for this entity (standalone value holder)
+LSP: N/A — No inheritance hierarchy involved
+ISP: COMPLIANT — UserRepositoryInterface has only CRUD methods. Evidence: 4 methods, all used by consumers
+DIP: COMPLIANT — Domain depends on interface, not Doctrine. Evidence: UserRepositoryInterface in Domain/
+```
+
+### Gate Rules
+
+- **Planning (Phase 3)**: All relevant principles must be COMPLIANT or N/A (with justification) to pass Quality Gate
+- **Work (checkpoint)**: NON_COMPLIANT blocks the checkpoint. NEEDS_WORK triggers refactor before proceeding
+- **Review**: Reviewer verifies justifications match actual code
+
+---
+
 ## Related Documents
 
 - `openspec/specs/architecture-profile.yaml` - Perfil arquitectónico del proyecto (generado por discover)

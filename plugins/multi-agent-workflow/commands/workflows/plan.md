@@ -63,6 +63,9 @@ Each planning phase ends with a Quality Gate before writing its output file. The
 QUALITY GATE (max 3 iterations):
   iteration = 0
   while iteration < 3:
+    Step 0 (Reflection): Before checking, state 3 things that could be wrong
+      with this output. Check specifically for these self-identified risks.
+
     Run phase-specific checks (see each phase below)
 
     IF all checks pass → WRITE file, advance to next phase
