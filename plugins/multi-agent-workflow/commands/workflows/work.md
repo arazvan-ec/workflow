@@ -301,7 +301,7 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 # Must be COMPLIANT. If NEEDS_WORK, refactor before proceeding. If NON_COMPLIANT, enter BCP correction loop.
 ```
 
-### Step 6: Bounded Auto-Correction Protocol + Diagnostic Escalation
+### Step 6: Bounded Correction Protocol + Diagnostic Escalation
 
 Detects and corrects three types of deviations, with intelligent escalation for recurring errors:
 

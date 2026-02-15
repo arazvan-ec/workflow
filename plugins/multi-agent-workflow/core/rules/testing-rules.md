@@ -36,7 +36,7 @@ Always write tests before implementation. The test defines the contract; the imp
 - Do not mock domain entities — test them directly
 - Do not write tests that depend on execution order
 
-## Bounded Auto-Correction Protocol
+## Bounded Correction Protocol
 
 The correction protocol detects and addresses three types of deviations, not just test failures.
 

@@ -275,4 +275,22 @@ Only the Planner role can modify project rules (with justification in `DECISIONS
 
 ---
 
+## Terminology
+
+Canonical terms used throughout the plugin. Use these consistently — avoid synonyms.
+
+| Term | Abbreviation | Definition | NOT |
+|------|-------------|------------|-----|
+| **Workflow State** | — | Section in `tasks.md` tracking role statuses, phases, and resume points | "Feature state", "Phase state" |
+| **Checkpoint** | — | Git commit marking task completion. Invoked via `/multi-agent-workflow:checkpoint` | "Snapshot" (for git commits), "save point" |
+| **Bounded Correction Protocol** | BCP | Auto-correction loop with scale-adaptive limits (simple:5, moderate:10, complex:15). See `testing-rules.md` | "Bounded Auto-Correction", "fix loop", "retry loop" |
+| **Flow Guard** | — | Pre-execution check at the start of each command verifying prerequisites are met | "Guard", "Prerequisites check" |
+| **Quality Gate** | QG | Validation of output at the end of a phase. Uses BCP with max 3 iterations in planning | "Quality Check", "validation step" |
+| **OpenSpec** | — | Directory structure (`openspec/`) holding project specs, feature changes, and architecture docs | "spec files", "spec directory" |
+| **SOLID Constraint** | — | Mandatory SOLID compliance verification in Phase 3 (planning) and checkpoints (work) | "SOLID check", "SOLID score" |
+| **Compound Capture** | — | The process in `/workflows:compound` of extracting and persisting learnings from a feature | "Knowledge extraction", "post-mortem" |
+| **Provider** | — | Abstraction layer resolving commands to model-specific implementations. See `CAPABILITY_PROVIDERS.md` | "Backend", "adapter" |
+
+---
+
 **Note**: These rules are part of the Multi-Agent Workflow Plugin and should not be modified per-project. For project-specific rules, create files in `.ai/project/rules/`.
