@@ -1,570 +1,159 @@
 # Session Continuity Guide
 
-**Version**: 2.0 (Provider-aware)
-**Last Updated**: 2026-02-08
+**Version**: 3.0 (Provider-aware, checkpoint-based)
+**Last Updated**: 2026-02-15
 
 ---
 
-## Overview
+## How State Persists
 
-Session continuity is the practice of preserving and restoring context across Claude sessions. This is essential because:
+Session continuity relies on three persistence mechanisms:
 
-1. **Context windows are finite** — even with 1M tokens (Opus 4.6 beta), sessions eventually fill
-2. **Sessions end unexpectedly** — Timeouts, crashes, or natural breaks
-3. **Work spans multiple sessions** — Complex features take days or weeks
-4. **Multiple agents collaborate** — Handoffs between roles require context transfer
+| Mechanism | What It Stores | When Updated |
+|-----------|---------------|-------------|
+| **tasks.md** | Workflow State, role statuses, task progress, resume point | After every task and phase |
+| **Git commits** | Code changes, checkpoints | At each checkpoint via `/multi-agent-workflow:checkpoint` |
+| **OpenSpec files** | Specs, design docs, proposal | After each planning phase |
 
-This guide explains how to maintain continuity. Thresholds adapt to the active context_management provider (see `core/providers.yaml`).
+All three are durable — they survive session ends, crashes, and context compaction.
 
 ---
 
-## Proactive Context Management
+## Provider-Aware Thresholds
 
-### Provider-Aware Thresholds
+Thresholds depend on the active `context_management` provider (see `core/providers.yaml`):
 
-Thresholds depend on the active context_management provider:
-
-| Signal | Manual Snapshots (standard) | Compaction-Aware (advanced) |
-|--------|----------------------------|----------------------------|
+| Signal | Standard (Opus 4.5) | Advanced (Opus 4.6+) |
+|--------|---------------------|----------------------|
 | Compact at capacity | 70% | 85% |
 | Max files read | 20 | 50 |
 | Max session duration | 2 hours | 4 hours |
 | Max messages | 50 | 150 |
-| Snapshot frequency | Every 30-45 min | At milestones only |
+| Checkpoint frequency | Every 30-45 min | At milestones only |
 
 **Provider detection**: Read `core/providers.yaml` → `providers.context_management`. If `auto`, detect tier from model identity (advanced = Opus 4.6+, standard = everything else).
 
 ### The Capacity Rule
 
-**Don't wait for auto-compact at 95%.** When context reaches the threshold for your provider:
+**Don't wait for auto-compact at 95%.** When context reaches the threshold:
 
 1. **Option A**: Run `/compact` to summarize and reduce context
-2. **Option B**: Create `/multi-agent-workflow:checkpoint` and start fresh session
+2. **Option B**: Create a checkpoint and start a fresh session
 
-With the **compaction-aware provider** (Opus 4.6+), the Compaction API auto-summarizes server-side, so snapshots are primarily for role handoffs and session boundaries, not context exhaustion.
-
-### Signs You Need to Act
-
-| Signal | Standard (Opus 4.5) | Advanced (Opus 4.6+) |
-|--------|---------------------|----------------------|
-| Responses feel slower | `/compact` if >70% | `/compact` if >85% |
-| Files read threshold | >15 files → snapshot | >40 files → snapshot |
-| Duration threshold | >1.5 hours → checkpoint | >3 hours → checkpoint |
-| Switching tasks | `/clear` between tasks | `/clear` between tasks |
-| Complex debugging ahead | Check capacity first | Check capacity first |
-
-### Quick Context Commands
-
-```bash
-/context              # Check current token usage
-/compact              # Summarize and reduce context
-/clear                # Fresh start (loses current context)
-```
-
-### Proactive Session Strategy
-
-```
-Session Start
-    │
-    ├── Set mental timer: 1 hour
-    │
-    ├── Every 30 min: Quick /context check
-    │
-    ├── At 70% or 1 hour:
-    │   ├── /multi-agent-workflow:checkpoint --name="checkpoint"
-    │   └── Decision: continue or fresh start?
-    │
-    └── Before complex task:
-        └── /context (check capacity)
-```
-
-### Token-Efficient Habits
-
-**Before reading files:**
-- Use `grep` to find what you need first
-- Read specific line ranges when possible
-- Ask "do I really need the full file?"
-
-**During work:**
-- Filter command outputs (`--oneline`, `--stat`, `head`)
-- Avoid re-reading files already in context
-- Summarize findings instead of copying content
-
-**For MCP users:**
-- Disable unused MCP servers (they consume context even idle)
-- Enable servers on-demand for specific tasks
+With the **compaction-aware provider** (Opus 4.6+), the Compaction API auto-summarizes server-side, so checkpoints are primarily for milestones and role handoffs, not context exhaustion.
 
 ---
 
-## The Context Challenge
+## Resuming a Session
 
-### Understanding Context Limits
-
-Claude's context window is like working memory. As a session progresses:
+When starting a new session to continue previous work:
 
 ```
-Session Start:
-[                                                              ]
-Context: Empty, full capacity available
-
-After 1 hour:
-[############################################                  ]
-Context: 70% used, responses still quick
-
-After 2 hours:
-[###########################################################   ]
-Context: 95% used, responses may slow
-
-Context Full:
-[##############################################################]
-Warning: Context limit approaching
-         Quality may degrade
-         Risk of losing information
+1. Read tasks.md → identify current Workflow State
+2. Read git log --oneline -10 → understand recent progress
+3. Read the resume point in tasks.md → know which task/phase is next
+4. Read the relevant openspec/changes/<feature>/ files for context
+5. Continue from where the previous session left off
 ```
 
-### Symptoms of Context Exhaustion
-
-Watch for these warning signs:
-
-| Symptom | Indicator |
-|---------|-----------|
-| **Slower responses** | Noticeable delay in generation |
-| **Incomplete answers** | Responses cut off or miss details |
-| **Forgotten context** | Claude forgets earlier decisions |
-| **Repetitive questions** | Asking about things already discussed |
-| **Degraded quality** | Less precise or relevant outputs |
-
-### The Commodore 64 Pattern
-
-> **"Treat context like memory on a Commodore 64 - it's precious and limited."**
-
-Principles:
-1. **Load only what you need** - Don't read unnecessary files
-2. **Checkpoint frequently** - Save state before it's lost
-3. **Summarize, don't copy** - Condense information
-4. **Unload when done** - Move completed work out of active context
+If tasks.md shows a role as `IN_PROGRESS`, check the Resume Point section for:
+- Last completed task
+- Currently working on (may be partially done)
+- Next task after current
+- Files to read on resume
 
 ---
 
-## Snapshot/Restore System
+## Creating a Checkpoint
 
-### Creating Snapshots
-
-Use `/multi-agent-workflow:checkpoint` to preserve session state:
+Use `/multi-agent-workflow:checkpoint` to persist state at milestones:
 
 ```bash
-# Named snapshot (recommended)
-/multi-agent-workflow:checkpoint --name="domain-layer-complete"
-
-# With feature context
-/multi-agent-workflow:checkpoint --name="backend-phase-1" --feature=user-auth
-
-# Quick timestamped snapshot
-/multi-agent-workflow:checkpoint --name="checkpoint-$(date +%H%M)"
+/multi-agent-workflow:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
 ```
 
-### What Gets Saved
-
-A snapshot captures:
-
-| Component | Purpose |
-|-----------|---------|
-| **State File** | Role statuses, progress, blockers |
-| **Conversation Summary** | What was done, decisions made |
-| **Modified Files List** | Files changed in session |
-| **Role Context** | Current role, stage, workflow mode |
-| **Active Tasks** | Pending and in-progress tasks |
-| **Git Metadata** | Branch, commit, dirty state |
-
-### Restoring Snapshots
-
-Use `/workflows:status` to resume:
-
-```bash
-# List available snapshots
-/workflows:status --list
-
-# Restore specific snapshot
-/workflows:status --name="domain-layer-complete"
-
-# Preview without applying
-/workflows:status --name="backend-phase-1" --dry-run
-```
-
-### Snapshot Storage
-
-Snapshots are stored in `.ai/snapshots/`:
-
-```
-.ai/snapshots/
-├── domain-layer-complete/
-│   ├── state.md
-│   ├── conversation.md
-│   ├── modified_files.txt
-│   ├── context.yaml
-│   ├── tasks.md
-│   └── metadata.yaml
-├── pre-refactor/
-│   └── ...
-└── checkpoint-1/
-    └── ...
-```
-
----
-
-## When to Create Snapshots
-
-### Recommended Trigger Points
+### When to Checkpoint
 
 | Trigger | Rationale |
 |---------|-----------|
-| **Completing a phase** | Milestone reached, good restore point |
-| **Before major changes** | Safe rollback if something breaks |
-| **End of work session** | Resume tomorrow without loss |
-| **After 1-2 hours** | Proactive context management |
-| **Before role handoff** | Enable smooth transitions |
-| **When context feels heavy** | Responses slowing down |
-| **Before risky operations** | Safety net for experiments |
+| Completing a task | Atomic progress marker |
+| Before major changes | Safe rollback point |
+| End of work session | Resume tomorrow without loss |
+| Before role handoff | Enable smooth transitions |
+| Context getting heavy | Create save point before `/compact` |
 
-### Automatic Detection
+### What Gets Saved
 
-The system warns when snapshots are recommended:
-
-```
-Context Management Advisory
----------------------------
-Session indicators suggest creating a snapshot:
-
-  - Duration: 2h 15m (threshold: 2h)
-  - Files in context: 23 (threshold: 20)
-  - Messages: 47 (threshold: 50)
-
-Recommendation: /multi-agent-workflow:checkpoint --name="auto-checkpoint"
-
-[Continue] [Create Snapshot] [Dismiss]
-```
-
-### Snapshot Strategy by Work Type
-
-**Feature Implementation:**
-```
-Start Feature
-    └── snapshot: "feature-start"
-        └── Complete Planning
-            └── snapshot: "planning-done"
-                └── Complete Domain Layer
-                    └── snapshot: "domain-complete"
-                        └── Complete Application Layer
-                            └── snapshot: "application-complete"
-                                └── Complete Infrastructure
-                                    └── snapshot: "feature-ready-for-qa"
-```
-
-**Bug Investigation:**
-```
-Start Investigation
-    └── snapshot: "pre-investigation"
-        └── Root Cause Found
-            └── snapshot: "root-cause-identified"
-                └── Fix Applied
-                    └── snapshot: "fix-applied"
-```
-
-**Refactoring:**
-```
-Start Refactoring
-    └── snapshot: "pre-refactor" (critical!)
-        └── Step 1 Complete
-            └── snapshot: "refactor-step-1"
-                └── Step 2 Complete
-                    └── snapshot: "refactor-step-2"
-                        └── All Tests Pass
-                            └── snapshot: "refactor-complete"
-```
+A checkpoint creates a git commit containing:
+- Updated tasks.md (Workflow State + task progress)
+- All code changes for the completed task
+- Updated openspec/ files if applicable
 
 ---
 
-## Best Practices
+## Token-Efficient Habits
 
-### Naming Conventions
-
-Use descriptive, searchable names:
-
-| Pattern | Example | Use Case |
-|---------|---------|----------|
-| `<phase>-complete` | `domain-layer-complete` | Milestones |
-| `<date>-eod` | `2026-01-27-eod` | End of day |
-| `pre-<action>` | `pre-refactor` | Before risky changes |
-| `<feature>-<role>-<status>` | `auth-backend-done` | Role completion |
-| `checkpoint-<n>` | `checkpoint-3` | Sequential saves |
-| `investigate-<issue>` | `investigate-login-bug` | Bug hunts |
-
-### Conversation Summaries
-
-Write useful summaries in snapshots:
-
-**Good Summary:**
-```markdown
-## Session Summary
-
-### Completed
-- Implemented User entity with email validation
-- Created Password value object with bcrypt hashing
-- Established repository interface pattern
-- Fixed circular dependency in Domain layer
-
-### Decisions Made
-- Password hashing happens in UseCase, not Entity (separation of concerns)
-- Email validation uses filter_var, not regex (simpler, standard)
-- Repository returns null for not-found, not exception (Go-style)
-
-### Current Focus
-- Starting CreateUserUseCase implementation
-- Need to decide on DTO vs direct entity construction
-
-### Blockers
-- None currently
-
-### Next Steps
-1. Create CreateUserRequest DTO
-2. Implement CreateUserUseCase
-3. Add validation in UseCase
-4. Write unit tests
-```
-
-**Bad Summary:**
-```markdown
-## Summary
-Did some stuff with users. Made progress.
-```
-
-### Git Integration
-
-Decide on snapshot persistence:
-
-**Team Visibility (Commit Snapshots):**
-```bash
-# Include in repository
-git add .ai/snapshots/
-git commit -m "[snapshot] domain-layer-complete"
-git push
-```
-
-**Personal Only (Ignore Snapshots):**
-```bash
-# Add to .gitignore
-echo ".ai/snapshots/" >> .gitignore
-```
-
-**Hybrid (Commit Important Only):**
-```bash
-# Keep .gitkeep, ignore contents
-echo ".ai/snapshots/*" >> .gitignore
-echo "!.ai/snapshots/.gitkeep" >> .gitignore
-```
+- Use `grep` to find what you need before reading full files
+- Read specific line ranges when possible
+- Filter command outputs (`--oneline`, `--stat`)
+- Avoid re-reading files already in context
+- Disable unused MCP servers (they consume context even idle)
 
 ---
 
-## Session Restoration Workflow
+## Cross-Role Handoffs
 
-### Starting a New Session
+When one role completes and another begins:
 
-1. **List available snapshots:**
-   ```bash
-   /workflows:status --list --verbose
-   ```
-
-2. **Choose appropriate snapshot:**
-   - Most recent for continuation
-   - Specific milestone for rollback
-   - Pre-change for recovery
-
-3. **Restore and review:**
-   ```bash
-   /workflows:status --name="domain-layer-complete"
-   ```
-
-4. **Sync with remote** (git-sync is handled automatically within plan/work):
-   ```bash
-   git pull origin feature/user-auth
-   ```
-
-5. **Verify current state:**
-   ```bash
-   /workflows:status user-auth
-   ```
-
-6. **Continue work:**
-   ```bash
-   /workflows:work user-auth
-   ```
-
-### Handling Stale Snapshots
-
-When restoring old snapshots:
-
-```
-Snapshot Age Check
-------------------
-Snapshot: pre-refactor
-Age: 5 days
-
-Since this snapshot:
-- 23 commits have been made
-- 15 files have been modified
-- 3 PRs have been merged
-
-Recommendation:
-1. Restore for context reference
-2. Review git log for changes
-3. Re-read current state files
-4. Create fresh snapshot after orientation
-```
-
-### Cross-Role Handoffs
-
-When one role hands off to another:
-
-```
-Role Handoff: Backend -> Frontend
----------------------------------
-
-Backend creates snapshot:
-  /multi-agent-workflow:checkpoint --name="backend-api-complete"
-
-Frontend restores and begins:
-  /workflows:status --name="backend-api-complete"
-
-  Context includes:
-  - API endpoints implemented
-  - Request/response formats
-  - Authentication requirements
-  - Test data available
-```
+1. Completing role creates a checkpoint with descriptive message
+2. New role reads tasks.md to understand current state
+3. New role reads relevant openspec/ files for context
+4. New role continues from the resume point in tasks.md
 
 ---
 
-## Troubleshooting
+## What to Do When Resuming Fails
 
-### Snapshot Not Found
+**tasks.md missing or corrupted:**
+- Check `git log` for the last checkpoint commit
+- Reconstruct state from git history and openspec/ files
+- Re-create tasks.md manually if needed
 
-```
-Error: Snapshot 'my-snapshot' not found.
+**Mid-task interruption (task was IN_PROGRESS):**
+- Read the partially completed code via `git diff`
+- Decide: continue from partial state or revert to last checkpoint
+- If reverting: `git checkout -- .` to discard uncommitted changes
 
-Troubleshooting:
-1. Check spelling: ls .ai/snapshots/
-2. Check branch: snapshots may be on different branch
-3. Check gitignore: snapshots may not be committed
-```
-
-### Restoration Conflicts
-
-```
-Warning: Current state conflicts with snapshot.
-
-Options:
-1. Stash current changes: git stash
-2. Create snapshot of current state first
-3. Use --force to overwrite (caution)
-4. Restore context only, keep code
-```
-
-### Missing Context After Restore
-
-If restored context feels incomplete:
-
-1. **Read the full state file:**
-   ```bash
-   cat openspec/changes/<feature>/tasks.md
-   ```
-
-2. **Review recent commits:**
-   ```bash
-   git log --oneline -20
-   ```
-
-3. **Check task files:**
-   ```bash
-   cat openspec/changes/<feature>/tasks.md
-   ```
-
-4. **Re-read feature spec:**
-   ```bash
-   cat openspec/changes/<feature>/proposal.md
-   ```
-
----
-
-## Integration with Workflow
-
-### Checkpoint vs Snapshot
-
-| Aspect | Checkpoint | Snapshot |
-|--------|------------|----------|
-| **Purpose** | Progress marker | Full state preservation |
-| **Storage** | Git commit | Local files |
-| **Content** | State update only | State + summary + files + context |
-| **Use Case** | Frequent saves | Session boundaries |
-| **Command** | `/multi-agent-workflow:checkpoint` | `/multi-agent-workflow:checkpoint` |
-
-### Recommended Flow
-
-```
-Session Start
-    │
-    ├── /workflows:status (if continuing)
-    │
-    ├── Work Phase 1
-    │   └── /multi-agent-workflow:checkpoint (commit to git)
-    │
-    ├── Work Phase 2
-    │   └── /multi-agent-workflow:checkpoint
-    │
-    ├── Context Getting Heavy
-    │   └── /multi-agent-workflow:checkpoint --name="phase-2-done"
-    │
-    ├── Continue or New Session
-    │   └── /workflows:status --name="phase-2-done"
-    │
-    └── End Session
-        └── /multi-agent-workflow:checkpoint --name="eod-<date>"
-```
-
----
-
-## Summary
-
-1. **Context is finite** - Manage it proactively
-2. **Snapshot frequently** - At milestones, before risks, regularly
-3. **Name descriptively** - You'll thank yourself later
-4. **Summarize well** - Future you needs context
-5. **Restore confidently** - The system handles the details
-6. **Pull latest changes after restore** - Get latest from remote
-7. **Verify before continuing** - Check status first
+**Stale state (days old):**
+- Run `git log --since="<last-session-date>"` to see what changed
+- Re-read current state files before continuing
+- Create a fresh checkpoint after re-orientation
 
 ---
 
 ## Quick Reference
 
 ```bash
-# Create snapshot
-/multi-agent-workflow:checkpoint --name="descriptive-name"
+# Context management
+/context              # Check current token usage
+/compact              # Summarize and reduce context
+/clear                # Fresh start (loses current context)
 
-# List snapshots
-/workflows:status --list
+# Checkpoints
+/multi-agent-workflow:checkpoint ${ROLE} ${FEATURE} "message"
 
-# Restore snapshot
-/workflows:status --name="snapshot-name"
+# Status check
+/workflows:status ${FEATURE}
 
-# Full restoration flow
-/workflows:status --name="my-snapshot"
-/workflows:status my-feature
-/workflows:work my-feature
+# Resume flow
+# 1. Read tasks.md
+# 2. Read git log
+# 3. Continue with /workflows:work or /workflows:plan
 ```
 
 ---
 
 **Related Documentation:**
-- `WORKFLOW_DECISION_MATRIX.md` - Choosing the right workflow
 - `CONTEXT_ENGINEERING.md` - Context management strategies
+- `CAPABILITY_PROVIDERS.md` - Provider detection and thresholds
 - `core/rules/git-rules.md` - Git practices for multi-agent work
