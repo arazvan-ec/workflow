@@ -99,36 +99,7 @@ with unwritten output.
 
 ### Planning Progress Tracker (in tasks.md Workflow State)
 
-At the START of planning, create `openspec/changes/${FEATURE_ID}/tasks.md` with this initial structure:
-
-```markdown
-# Implementation Tasks
-
-## Progress
-| Task | Status | Verify | Completed At |
-|------|--------|--------|--------------|
-(populated in Phase 4)
-
-## Task Details
-(populated in Phase 4)
-
-## Workflow State
-**Planner**: IN_PROGRESS | **Implementer**: PENDING | **Reviewer**: PENDING
-**Feature**: ${FEATURE_ID}
-**Started**: ${ISO_TIMESTAMP}
-**Last Updated**: ${ISO_TIMESTAMP}
-**Last Phase**: (none) | **Resume Point**: Step 0
-
-### Planning Progress
-| Phase | Status | Output File | Written At |
-|-------|--------|-------------|------------|
-| Step 0 (Load Specs) | PENDING | (context only) | - |
-| Phase 1 (Understand) | PENDING | proposal.md | - |
-| Phase 2 (Specs) | PENDING | specs.md | - |
-| Phase 3 (Design) | PENDING | design.md | - |
-| Phase 4 (Tasks) | PENDING | tasks.md | - |
-| Completeness Check | PENDING | (summary in proposal.md) | - |
-```
+At the START of planning, create `openspec/changes/${FEATURE_ID}/tasks.md` using the canonical template from `core/templates/tasks-template.md`. Set Planner status to IN_PROGRESS and fill in Feature ID and timestamps.
 
 ### Per-Phase Write Directives
 
