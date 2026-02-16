@@ -514,15 +514,15 @@ api_consumer:
   extracted_at: "[timestamp]"
 ```
 
-### Step 6c: Generate API Architecture Diagnostic
+### Step 6c: Classify API Architecture Dimensions
 
 > **Agent**: `codebase-analyzer` | **Mode**: Dimensional Classification
 > **Template**: `core/templates/api-architecture-diagnostic.yaml`
 
-This step does NOT detect anything new — it classifies the results already detected in Steps 2-6b into dimensional values, then generates architectural constraints from first principles.
+This step does NOT detect anything new and does NOT generate constraints. It **classifies** the results already detected in Steps 2-6b into 6 architectural dimension values with supporting evidence. Constraint reasoning happens later in PLAN (Step 3.1b).
 
 ```markdown
-## API Architecture Diagnostic
+## API Architecture Dimensional Profile
 
 Classifying detected evidence into architectural dimensions...
 
@@ -588,23 +588,9 @@ response_customization.value:
   - Response varies by auth/role/feature flags → "context_dependent"
 ```
 
-#### Constraint Generation
-
-Apply the IF-THEN rules documented in `core/templates/api-architecture-diagnostic.yaml` for each dimension:
-
-1. **Per-dimension constraints**: For each classified dimension, apply its constraint rules
-2. **Derived constraints**: Check dimension combinations that produce compound risks:
-   - `multi_external` + `direct_coupling` → CRITICAL vendor risk
-   - `aggregation` + `synchronous` → WARNING latency proportional to source count
-   - `multi_platform` + `per_consumer_shaped` → Platform-specific transformers required
-   - `aggregation` + `multi_external` → Assembler pattern with independent Providers
-   - `multi_external` + `synchronous` → Performance bottleneck
-3. **Constraint summary**: Aggregate into `must`, `should`, and `review_criteria` lists
-4. **Pattern mapping**: Map each active constraint to corrective patterns (AC-01 through AC-04) in `architecture-reference.md`
-
 #### Output
 
-Write the diagnostic to `openspec/specs/api-architecture-diagnostic.yaml` using the template:
+Write the dimensional profile to `openspec/specs/api-architecture-diagnostic.yaml` using the template:
 
 ```bash
 # Copy template and populate with classified values
@@ -612,14 +598,17 @@ cp plugins/multi-agent-workflow/core/templates/api-architecture-diagnostic.yaml 
 
 # Fill in:
 # - diagnostic_version, generated_at, generated_by
-# - Each dimension's value, evidence[], and constraints[]
-# - derived_constraints[]
-# - constraint_summary.must[], .should[], .review_criteria[]
-# - pattern_mapping[]
+# - Each dimension's value and evidence[]
+# - For data_source_topology: external_sources[] detail
+# - For consumer_diversity: consumers[] detail
+# - For dependency_isolation: violations[] detail
+# - For concurrency_model: sequential_bottlenecks[], framework_async_support
 # - extracted_from[], extraction_method, last_validated
 ```
 
-> **Skip condition**: If Step 6b found no external APIs AND no multi-platform output AND no multi-source aggregation, skip this step (the project has no API architecture complexity to diagnose).
+> **Important**: This file is a DETECTION artifact — it describes what IS, not what should be. No constraints, no prescriptions. Constraint reasoning is the responsibility of PLAN (Step 3.1b), which reads these dimensions and generates per-feature constraints.
+
+> **Skip condition**: If Step 6b found no external APIs AND no multi-platform output AND no multi-source aggregation, skip this step (the project has no API architecture complexity to classify).
 
 ### Step 7: Business Rule Extraction
 

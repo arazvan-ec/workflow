@@ -257,43 +257,46 @@ Use `/workflow-skill:solid-analyzer --mode=verify --path=src --design=design.md`
 | Serialization Isolation | No serialization in domain entities | [what was found] | COMPLIANT / NEEDS_WORK |
 | Multi-Platform Output | Strategy/Groups for different consumers | [what was found] | COMPLIANT / N/A |
 
-### API Architecture Diagnostic Compliance (conditional)
+### API Architecture Constraint Compliance (conditional)
 
-> Include this section ONLY when `openspec/specs/api-architecture-diagnostic.yaml` exists.
+> Include this section ONLY when `design.md` contains an "## API Architecture Constraints Addressed" section (written by PLAN Step 3.1b).
 
-Read the diagnostic file and verify each mandatory constraint is satisfied in the implementation.
+The planner generated feature-specific constraints from the project's dimensional profile. Verify each mandatory constraint was satisfied in the implementation.
+
+**Source of truth**: `design.md` → "API Architecture Constraints Addressed" section (NOT the diagnostic YAML directly — the diagnostic is a detection artifact, design.md contains the reasoned constraints for THIS feature).
 
 #### Dimensional Context
 
-| Dimension | Classified Value |
-|-----------|-----------------|
-| Data Flow | [from diagnostic] |
-| Data Source Topology | [from diagnostic] |
-| Consumer Diversity | [from diagnostic] |
-| Dependency Isolation | [from diagnostic] |
-| Concurrency Model | [from diagnostic] |
-| Response Customization | [from diagnostic] |
+Read from `design.md`:
+
+| Dimension | Value | Relevant to Feature |
+|-----------|-------|---------------------|
+| Data Flow | [from design.md] | YES/NO |
+| Data Source Topology | [from design.md] | YES/NO |
+| Consumer Diversity | [from design.md] | YES/NO |
+| Dependency Isolation | [from design.md] | YES/NO |
+| Concurrency Model | [from design.md] | YES/NO |
+| Response Customization | [from design.md] | YES/NO |
 
 #### Constraint Compliance
 
-| Constraint (must) | Satisfied | Evidence |
-|-------------------|-----------|----------|
-| [constraint from constraint_summary.must] | YES / NO | [file:line or violation description] |
+| Constraint (must) | SOLID | Satisfied | Evidence |
+|-------------------|-------|-----------|----------|
+| [from design.md "Constraints Satisfied"] | [DIP/SRP/OCP] | YES / NO | [file:line or violation] |
 
 | Constraint (should) | Addressed | Notes |
 |---------------------|-----------|-------|
-| [constraint from constraint_summary.should] | YES / NO / DEFERRED | [justification if deferred] |
+| [from design.md "Constraints Deferred"] | YES / DEFERRED | [justification] |
 
-#### Diagnostic Verdict
+#### Constraint Verdict
 
 ```
-IF any constraint_summary.must is NOT satisfied:
+IF any "must" constraint from design.md is NOT satisfied in implementation:
   → Architecture review = NEEDS_WORK
-  → List violations with corrective pattern references (from pattern_mapping)
+  → List violations with the corrective pattern from design.md
 
-IF all must constraints satisfied AND some should constraints deferred:
+IF all "must" constraints satisfied AND some "should" constraints deferred:
   → Architecture review = COMPLIANT with notes
-  → Document deferred constraints and rationale
 
 IF all constraints satisfied:
   → Architecture review = COMPLIANT
