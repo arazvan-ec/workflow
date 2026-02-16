@@ -514,6 +514,113 @@ api_consumer:
   extracted_at: "[timestamp]"
 ```
 
+### Step 6c: Generate API Architecture Diagnostic
+
+> **Agent**: `codebase-analyzer` | **Mode**: Dimensional Classification
+> **Template**: `core/templates/api-architecture-diagnostic.yaml`
+
+This step does NOT detect anything new — it classifies the results already detected in Steps 2-6b into dimensional values, then generates architectural constraints from first principles.
+
+```markdown
+## API Architecture Diagnostic
+
+Classifying detected evidence into architectural dimensions...
+
+### Dimensional Classification
+
+Using results from Steps 2-6b, classify each dimension:
+
+| Dimension | Value | Evidence Source |
+|-----------|-------|----------------|
+| **Data Flow** | [classified] | Step 2-3 (controllers = egress), Step 6b (HTTP clients = ingress) |
+| **Data Source Topology** | [classified] | Step 6b (external API count + DB detection from Step 2) |
+| **Consumer Diversity** | [classified] | Step 6b (serialization/multi-platform detection) |
+| **Dependency Isolation** | [classified] | Step 6b (port + adapter + mapper per external API) |
+| **Concurrency Model** | [classified] | Step 6b (async HTTP pattern detection) |
+| **Response Customization** | [classified] | Step 6b (serialization pattern + platform-specific DTOs) |
+```
+
+#### Classification Rules
+
+```
+DIMENSION CLASSIFICATION (from Steps 2-6b evidence):
+
+data_flow.primary:
+  - HTTP client libs detected AND controllers detected → "bidirectional"
+  - HTTP client libs detected, minimal controllers → "ingress"
+  - Controllers detected, no HTTP clients → "egress"
+  - 3+ external sources combined into single response → "aggregation"
+  - Proxy routes, gateway patterns, minimal logic → "passthrough"
+  - Mapper/transformer classes as primary pattern → "transformation"
+
+data_source_topology.value:
+  - No external APIs, one DB detected → "single_db"
+  - No external APIs, multiple DBs → "multi_db"
+  - 1 external API, no DB → "single_external"
+  - 2+ external APIs, no DB → "multi_external"
+  - External APIs + DB(s) → "mixed_db_external"
+  - Message queues/event streams as primary → "event_driven"
+  - Mix of DBs, APIs, and events → "hybrid"
+
+consumer_diversity.value:
+  - No platform differentiation detected → "single_consumer"
+  - Platform-specific DTOs/serialization groups → "multi_platform"
+  - Service-to-service contracts detected → "inter_service"
+  - Public API docs/versioning detected → "public_api"
+  - Combination of above → "mixed"
+
+dependency_isolation.value:
+  - No external APIs → "no_externals"
+  - All externals have port + adapter + mapper → "fully_isolated"
+  - Some adapters exist but ports/mappers missing → "partially_wrapped"
+  - External SDKs used directly in Application/Domain → "direct_coupling"
+
+concurrency_model.value:
+  - No async patterns, sequential calls only → "synchronous"
+  - Framework supports async but not used → "async_capable"
+  - Async/concurrent patterns actively used → "fully_concurrent"
+  - Single external call or no external calls → "not_applicable"
+
+response_customization.value:
+  - Same response for all consumers → "uniform"
+  - Field filtering (e.g., ?fields=id,name) → "parameterized"
+  - Different DTOs/transformers per consumer → "per_consumer_shaped"
+  - Response varies by auth/role/feature flags → "context_dependent"
+```
+
+#### Constraint Generation
+
+Apply the IF-THEN rules documented in `core/templates/api-architecture-diagnostic.yaml` for each dimension:
+
+1. **Per-dimension constraints**: For each classified dimension, apply its constraint rules
+2. **Derived constraints**: Check dimension combinations that produce compound risks:
+   - `multi_external` + `direct_coupling` → CRITICAL vendor risk
+   - `aggregation` + `synchronous` → WARNING latency proportional to source count
+   - `multi_platform` + `per_consumer_shaped` → Platform-specific transformers required
+   - `aggregation` + `multi_external` → Assembler pattern with independent Providers
+   - `multi_external` + `synchronous` → Performance bottleneck
+3. **Constraint summary**: Aggregate into `must`, `should`, and `review_criteria` lists
+4. **Pattern mapping**: Map each active constraint to corrective patterns (AC-01 through AC-04) in `architecture-reference.md`
+
+#### Output
+
+Write the diagnostic to `openspec/specs/api-architecture-diagnostic.yaml` using the template:
+
+```bash
+# Copy template and populate with classified values
+cp plugins/multi-agent-workflow/core/templates/api-architecture-diagnostic.yaml openspec/specs/api-architecture-diagnostic.yaml
+
+# Fill in:
+# - diagnostic_version, generated_at, generated_by
+# - Each dimension's value, evidence[], and constraints[]
+# - derived_constraints[]
+# - constraint_summary.must[], .should[], .review_criteria[]
+# - pattern_mapping[]
+# - extracted_from[], extraction_method, last_validated
+```
+
+> **Skip condition**: If Step 6b found no external APIs AND no multi-platform output AND no multi-source aggregation, skip this step (the project has no API architecture complexity to diagnose).
+
 ### Step 7: Business Rule Extraction
 
 > **Agent**: `codebase-analyzer` | **Mode**: Business Rule Analysis
@@ -738,6 +845,13 @@ manifest:
       file: "api-consumers/external-api1.yaml"
       acl_compliant: true|false
       last_updated: "[timestamp]"
+
+  api_architecture_diagnostic:
+    file: "api-architecture-diagnostic.yaml"
+    dimensions_classified: X
+    constraints_must: X
+    constraints_should: X
+    last_updated: "[timestamp]"
 
   extraction_config:
     extract_specs: true
@@ -1171,6 +1285,7 @@ workflow:
 | **Business Rules** | [X] | `openspec/specs/business-rules/` |
 | **Architectural Constraints** | [X] | `openspec/specs/architectural-constraints/` |
 | **API Consumers** | [X] | `openspec/specs/api-consumers/` |
+| **API Architecture Diagnostic** | [1 if generated] | `openspec/specs/api-architecture-diagnostic.yaml` |
 | **Total Specs** | [X] | See `spec-manifest.yaml` |
 
 > Specs extracted by `codebase-analyzer` agent. Run `/workflows:discover --specs-only` to update specs without full discovery.

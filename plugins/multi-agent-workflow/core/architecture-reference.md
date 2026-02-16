@@ -450,6 +450,30 @@ Criterio de Selección de Patrón:
 
 ---
 
+## API Architecture Diagnostic Dimensions
+
+> For full template with constraint generation rules, see `core/templates/api-architecture-diagnostic.yaml`.
+> For generated project diagnostic, see `openspec/specs/api-architecture-diagnostic.yaml`.
+
+The plugin diagnoses any API project across 6 architectural dimensions. Each dimension generates constraints from SOLID principles — the constraints are the reasoning, the patterns (AC-01 through AC-04 below) are the corrective solutions.
+
+| Dimension | Question | SOLID Mapping |
+|-----------|----------|---------------|
+| **Data Flow** | In what direction does data move? (ingress, egress, aggregation, transformation, passthrough, bidirectional) | DIP, SRP |
+| **Data Source Topology** | Where does data come from? (single_db, multi_external, mixed, event_driven, hybrid) | DIP, ISP |
+| **Consumer Diversity** | Who consumes the output? (single, multi_platform, inter_service, public_api) | SRP, OCP |
+| **Dependency Isolation** | How isolated are external dependencies? (fully_isolated, partially_wrapped, direct_coupling) | DIP |
+| **Concurrency Model** | How are concurrent operations handled? (synchronous, async_capable, fully_concurrent) | SRP |
+| **Response Customization** | How much does the response vary per consumer? (uniform, parameterized, per_consumer_shaped, context_dependent) | SRP, OCP |
+
+**Derived constraints** emerge from dimension combinations:
+- `multi_external + direct_coupling` → CRITICAL vendor risk → AC-01
+- `aggregation + synchronous` → latency bottleneck → AC-03
+- `multi_platform + per_consumer_shaped` → serialization complexity → AC-04
+- `aggregation + multi_external` → assembly complexity → AC-02
+
+---
+
 ## Anti-Patterns to Avoid
 
 | Anti-Pattern | SOLID Violations | Better Alternative |
@@ -470,6 +494,11 @@ Criterio de Selección de Patrón:
 ---
 
 ## API Consumer Architecture Patterns
+
+> **Relationship to Diagnostic**: These patterns are CORRECTIVE — they address violations of constraints
+> derived from the API Architecture Diagnostic (`openspec/specs/api-architecture-diagnostic.yaml`).
+> The diagnostic generates constraints from dimensional analysis; these patterns are the solutions.
+> See `core/templates/api-architecture-diagnostic.yaml` for the diagnostic template.
 
 Projects that consume external APIs (via vendor HTTP SDKs, REST clients, or third-party services) face specific architectural challenges not covered by standard CRUD/DDD patterns. These patterns address how to isolate, aggregate, serialize, and optimize outgoing HTTP communication.
 

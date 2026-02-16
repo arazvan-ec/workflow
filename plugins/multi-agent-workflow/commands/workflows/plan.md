@@ -548,6 +548,58 @@ Before designing solutions, understand the current state:
 # - Recommended patterns: [list]
 ```
 
+### Step 3.1b: Load API Architecture Diagnostic (if exists)
+
+When the project has been analyzed by `/workflows:discover` Step 6c, an API architecture diagnostic may exist with dimensional constraints that must inform the design.
+
+```bash
+# Check for API architecture diagnostic
+DIAGNOSTIC="openspec/specs/api-architecture-diagnostic.yaml"
+if [ -f "$DIAGNOSTIC" ]; then
+  echo "API Architecture Diagnostic found. Loading dimensional constraints..."
+  # Read constraint_summary.must and constraint_summary.should
+  # These become additional design requirements for Step 3.2
+fi
+```
+
+**When diagnostic exists**:
+
+1. Read `openspec/specs/api-architecture-diagnostic.yaml`
+2. Extract `constraint_summary.must` — these are **mandatory design requirements**
+3. Extract `constraint_summary.should` — these are **recommended design considerations**
+4. Extract `pattern_mapping` — corrective patterns from `architecture-reference.md` that address the constraints
+5. Inject constraints as additional requirements into Step 3.2 design
+
+**Output enrichment**: In `design.md`, add:
+
+```markdown
+## API Architecture Constraints Addressed
+
+**Diagnostic**: `openspec/specs/api-architecture-diagnostic.yaml`
+
+### Dimensional Context
+| Dimension | Value | Impact on Design |
+|-----------|-------|-----------------|
+| Data Flow | [value] | [how it affects this feature's design] |
+| Data Source Topology | [value] | [how it affects this feature's design] |
+| Consumer Diversity | [value] | [how it affects this feature's design] |
+| Dependency Isolation | [value] | [how it affects this feature's design] |
+| Concurrency Model | [value] | [how it affects this feature's design] |
+| Response Customization | [value] | [how it affects this feature's design] |
+
+### Constraints Satisfied by This Design
+| Constraint (must) | How Addressed | Pattern Used |
+|-------------------|---------------|-------------|
+| [constraint text] | [design decision] | [AC-01/02/03/04 or N/A] |
+
+### Constraints Deferred (should)
+| Constraint (should) | Reason for Deferral |
+|---------------------|---------------------|
+| [constraint text] | [why not addressed in this feature] |
+```
+
+**When diagnostic does NOT exist**: Skip this step. The project either has no API complexity or has not run `/workflows:discover`.
+
 ### Step 3.2: Design Solutions with SOLID
 
 For EACH functional spec, propose a solution that complies with SOLID:

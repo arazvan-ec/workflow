@@ -103,6 +103,19 @@ Detection rules adapt to the project's stack from the profile:
 
 **API Consumer Patterns (Cross-Stack)**:
 
+> **Dimensional Optimization**: When `openspec/specs/api-architecture-diagnostic.yaml` exists, use its dimensional values to skip irrelevant rules and reduce false positives:
+>
+> | Dimension Value | Rules to SKIP | Reason |
+> |----------------|---------------|--------|
+> | `dependency_isolation == fully_isolated` | DIP-005, DIP-006, DIP-007, DIP-008 | All externals already behind proper abstraction |
+> | `dependency_isolation == no_externals` | DIP-005, DIP-006, DIP-007, DIP-008, SRP-007, SRP-008 | No external dependencies to isolate |
+> | `consumer_diversity == single_consumer` | SRP-006, OCP-004 | No multi-platform serialization needed |
+> | `response_customization == uniform` | SRP-006, OCP-004 | No response variation to manage |
+> | `concurrency_model == not_applicable` | Async HTTP analysis | No concurrent operations to optimize |
+> | `concurrency_model == fully_concurrent` | Async HTTP analysis | Already using concurrent patterns |
+>
+> When diagnostic does NOT exist, run all rules (default behavior).
+
 When `architecture-profile.yaml` indicates `http_client_pattern != "none"`:
 - **SRP**: Check serializers/transformers for platform switching logic (SRP-006). Check assemblers for too many data sources (SRP-007). Check for HTTP calls mixed with business logic (SRP-008).
 - **OCP**: Check serialization/transformation code for if/switch by consumer platform (OCP-004).

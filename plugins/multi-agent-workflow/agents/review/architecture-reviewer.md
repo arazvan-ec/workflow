@@ -256,6 +256,48 @@ Use `/workflow-skill:solid-analyzer --mode=verify --path=src --design=design.md`
 | Async HTTP Grouping | Independent calls grouped | [what was found] | COMPLIANT / NEEDS_WORK / N/A |
 | Serialization Isolation | No serialization in domain entities | [what was found] | COMPLIANT / NEEDS_WORK |
 | Multi-Platform Output | Strategy/Groups for different consumers | [what was found] | COMPLIANT / N/A |
+
+### API Architecture Diagnostic Compliance (conditional)
+
+> Include this section ONLY when `openspec/specs/api-architecture-diagnostic.yaml` exists.
+
+Read the diagnostic file and verify each mandatory constraint is satisfied in the implementation.
+
+#### Dimensional Context
+
+| Dimension | Classified Value |
+|-----------|-----------------|
+| Data Flow | [from diagnostic] |
+| Data Source Topology | [from diagnostic] |
+| Consumer Diversity | [from diagnostic] |
+| Dependency Isolation | [from diagnostic] |
+| Concurrency Model | [from diagnostic] |
+| Response Customization | [from diagnostic] |
+
+#### Constraint Compliance
+
+| Constraint (must) | Satisfied | Evidence |
+|-------------------|-----------|----------|
+| [constraint from constraint_summary.must] | YES / NO | [file:line or violation description] |
+
+| Constraint (should) | Addressed | Notes |
+|---------------------|-----------|-------|
+| [constraint from constraint_summary.should] | YES / NO / DEFERRED | [justification if deferred] |
+
+#### Diagnostic Verdict
+
+```
+IF any constraint_summary.must is NOT satisfied:
+  → Architecture review = NEEDS_WORK
+  → List violations with corrective pattern references (from pattern_mapping)
+
+IF all must constraints satisfied AND some should constraints deferred:
+  → Architecture review = COMPLIANT with notes
+  → Document deferred constraints and rationale
+
+IF all constraints satisfied:
+  → Architecture review = COMPLIANT
+```
 ```
 
 ## Compound Memory Integration
