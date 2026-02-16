@@ -124,6 +124,20 @@ USER REQUEST
 | Documentation | Any | No | N/A | `/workflows:work --role=planner` |
 | Setup/Config | Any | No | N/A | Invoke consultant skill |
 
+### Dimensional Complexity Factor
+
+When `openspec/specs/api-architecture-diagnostic.yaml` exists, evaluate if the request CHANGES the project's dimensional profile:
+
+| Dimensional Change | Example | Routing Impact |
+|---|---|---|
+| No dimension change | Add field to existing entity | No impact — route normally |
+| Adds consumer diversity | New mobile app consuming API | Escalate: shape or task-breakdown |
+| Adds data aggregation | New feature consuming 3+ external APIs | Escalate: task-breakdown + AC-02 |
+| Adds external vendor | Integrating new payment SDK | Escalate: task-breakdown + AC-01 |
+| Introduces concurrency | Parallelizing existing sequential calls | Escalate: task-breakdown + AC-03 |
+
+If a request increases dimensional complexity, force task-breakdown workflow even if the request seems "simple" by other measures.
+
 **IMPORTANT**: All workflows that produce code MUST comply with SOLID principles:
 - **Plan phase**: SOLID is a mandatory constraint in Phase 3 (Solutions)
 - **Work phase**: SOLID is verified at each checkpoint

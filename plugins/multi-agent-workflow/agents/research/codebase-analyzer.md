@@ -124,6 +124,47 @@ grep -r "import requests\|from httpx\|from aiohttp" domain/ application/ 2>/dev/
 # Expected: No results (domain/application should not import HTTP client SDKs)
 ```
 
+### Step 4d: Dimensional Evidence Collection
+
+Measure dimensional properties to feed into the API Architecture Diagnostic (`openspec/specs/api-architecture-diagnostic.yaml`):
+
+```bash
+# Data Flow: Count ingress vs egress patterns
+# Controllers/handlers → egress; HTTP clients → ingress; both → aggregation/bidirectional
+grep -rl "Controller\|Handler\|Endpoint" src/ 2>/dev/null | wc -l  # egress signals
+grep -rl "HttpClient\|GuzzleHttp\|axios\|fetch\|http.Get" src/ 2>/dev/null | wc -l  # ingress signals
+
+# Data Source Topology: Count data sources by type
+find . -name "*.sql" -o -name "*migration*" -o -name "*schema*" 2>/dev/null | wc -l  # DB signals
+find . -path "*/Infrastructure/External/*" -o -path "*/Adapter/*Client*" 2>/dev/null | wc -l  # External signals
+
+# Consumer Diversity: Find platform-specific code
+find . -name "*Mobile*" -o -name "*Web*" -o -name "*Api*DTO*" -type f 2>/dev/null | head -10
+
+# Concurrency Model: Detect async patterns
+grep -rl "Promise\|async\|await\|Pool\|stream()\|WaitGroup\|errgroup\|asyncio.gather" src/ 2>/dev/null | head -10
+
+# Response Customization: Find transformer/serializer variants
+find . -name "*Transformer*" -o -name "*Serializer*" -o -name "*Normalizer*" -type f 2>/dev/null | head -10
+```
+
+Output dimensional evidence in Context Report under "### Dimensional Profile":
+
+```markdown
+### Dimensional Profile (for API Architecture Diagnostic)
+
+| Dimension | Detected Value | Evidence |
+|-----------|---------------|----------|
+| Data Flow | [ingress/egress/aggregation/...] | [evidence] |
+| Data Source Topology | [single_db/multi_external/...] | [evidence] |
+| Consumer Diversity | [single_consumer/multi_platform/...] | [evidence] |
+| Dependency Isolation | [fully_isolated/direct_coupling/...] | [evidence] |
+| Concurrency Model | [synchronous/async_capable/...] | [evidence] |
+| Response Customization | [uniform/per_consumer_shaped/...] | [evidence] |
+```
+
+This profile feeds into `/workflows:discover` Step 6c for formal diagnostic generation.
+
 ## Output: Context Report
 
 ```markdown
