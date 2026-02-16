@@ -607,8 +607,11 @@ When designing solutions, select patterns based on the need:
 | Chain of processing steps | **Chain of Responsibility** | SRP, OCP |
 | Encapsulate validation rules | **Value Object** | SRP |
 | Decouple layers | **Dependency Injection** | DIP |
+| Aggregate multi-source data | **Data Assembler + Providers** | SRP, DIP, ISP |
+| Serve multiple consumers/platforms | **DTO Transformer Strategy** | SRP, OCP, LSP |
+| Optimize concurrent HTTP calls | **Async HTTP Facade** | SRP |
 
-See `core/architecture-reference.md` for complete mapping. Consult openspec/specs/architecture-profile.yaml for project patterns.
+See `core/architecture-reference.md` for complete mapping (including AC-01 through AC-04 for API consumer patterns). Consult openspec/specs/architecture-profile.yaml for project patterns.
 
 ### Step 3.4: Verify SOLID Compliance
 

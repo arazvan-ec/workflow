@@ -445,6 +445,8 @@ Criterio de Selección de Patrón:
 | Cambio en UI de un campo | 1 | Component |
 | Nueva regla de autorización | 2 | Policy/Guard, Config |
 | Cambio de proveedor externo | 1 | Infrastructure adapter |
+| Cambio de API externa consumida | 1-2 | Infrastructure (adapter + mapper) |
+| Nuevo consumer/plataforma de salida | 2-3 | Application (DTO + Transformer) |
 
 ---
 
@@ -460,6 +462,182 @@ Criterio de Selección de Patrón:
 | **Primitive Obsession** | S, O | Value Objects |
 | **Feature Envy** | S | Move Method |
 | **Shotgun Surgery** | S, O | Extract Class |
+| **Vendor SDK Leakage** | D, S | Anti-Corruption Layer (Port + Adapter) |
+| **Fat Serializer** | S, O | Platform-specific DTOs + Transformer Strategy |
+| **Sequential HTTP Calls** | S (perf) | Async HTTP Facade / Promise Aggregator |
+| **Leaky Abstraction (External API)** | D, L | ResponseMapper + Domain DTO |
+
+---
+
+## API Consumer Architecture Patterns
+
+Projects that consume external APIs (via vendor HTTP SDKs, REST clients, or third-party services) face specific architectural challenges not covered by standard CRUD/DDD patterns. These patterns address how to isolate, aggregate, serialize, and optimize outgoing HTTP communication.
+
+> **Activation**: These patterns apply when the project's `architecture-profile.yaml` has `external_api_integration` or `http_client_pattern` populated.
+
+### AC-01: Anti-Corruption Layer for Vendor SDKs
+
+> "Never let an external vendor's data model leak into your Domain"
+
+**Problem**: Domain layer directly uses vendor SDK classes (e.g., `Guzzle\Response`, `Symfony\HttpClient\Response`). Changes in vendor SDK break domain logic.
+
+**Symptoms**:
+- Vendor SDK classes imported in Domain/ or Application/ layers
+- Domain entities shaped by external API response structure instead of business needs
+- `new VendorClient()` or vendor-specific configuration in Domain/Application
+- Vendor exceptions propagating through domain code
+
+**Corrective Pattern**: Anti-Corruption Layer (ACL)
+
+```
+Domain Layer:
+  - ExternalContentProviderInterface  (Port)
+  - ContentDTO                         (Domain DTO)
+
+Infrastructure Layer:
+  - VendorApiContentProvider           (Adapter, implements Port)
+  - VendorResponseMapper              (maps vendor response → Domain DTO)
+```
+
+**SOLID Mapping**:
+| Principle | How ACL Satisfies It |
+|-----------|---------------------|
+| SRP | Adapter only handles vendor communication; Mapper only transforms data |
+| OCP | New vendor = new Adapter, no domain changes |
+| LSP | All adapters fulfill the same Port interface |
+| ISP | Port interface has only the methods the domain needs |
+| DIP | Domain depends on abstraction (Port), not vendor SDK |
+
+**Decision Tree**:
+```
+Does your Domain import vendor SDK classes?
+  → YES: Create Anti-Corruption Layer
+    ├── Define Port interface in Domain
+    ├── Create Adapter in Infrastructure
+    ├── Create ResponseMapper in Infrastructure
+    └── Vendor SDK only used inside Adapter
+  → NO: Is vendor response structure leaking into DTOs?
+    → YES: Create ResponseMapper
+    → NO: Current structure is acceptable
+```
+
+### AC-02: Complex Aggregate Data Assembly
+
+> "An aggregate that requires data from multiple sources needs an Assembly Service, not a fat constructor"
+
+**Problem**: Domain object (e.g., Editorial) requires data from many sources (tags API, sections API, journalists API, body parser, widget service). A single service fetches all data sequentially in one method with >10 dependencies.
+
+**Symptoms**:
+- Service/UseCase with >7 constructor dependencies, most being HTTP clients or providers
+- Single method that makes 4+ HTTP calls sequentially
+- Domain entity receiving 5+ data sources in its factory method
+- "Assembler" or "Builder" class with >400 LOC
+
+**Corrective Patterns**:
+
+| Pattern | When to Use | Example |
+|---------|-------------|---------|
+| **Data Assembler** | Orchestrate multiple data sources into one aggregate | `EditorialAssembler` coordinates TagProvider, SectionProvider, etc. |
+| **Aggregate Factory** | Complex creation logic for rich domain objects | `EditorialFactory::fromSources(TagCollection, SectionList, ...)` |
+| **Provider Pattern** | Each data source behind its own interface | `TagProviderInterface`, `SectionProviderInterface` |
+
+**SOLID Mapping**:
+| Principle | How It's Satisfied |
+|-----------|-------------------|
+| SRP | Each Provider handles one data source; Assembler only coordinates |
+| OCP | New data source = new Provider, Assembler extended not modified |
+| DIP | Assembler depends on Provider interfaces, not HTTP clients |
+| ISP | Each Provider interface is small (1-3 methods) |
+
+**Decision Tree**:
+```
+Does your aggregate need data from >3 sources?
+  → YES: Use Data Assembler + Provider pattern
+    ├── Each source gets its own ProviderInterface (Domain)
+    ├── Each source gets its own Adapter (Infrastructure)
+    ├── Assembler orchestrates in Application layer
+    └── Consider async grouping (see AC-03)
+  → NO: Is the single source response complex?
+    → YES: ResponseMapper is sufficient
+    → NO: Direct mapping is acceptable
+```
+
+### AC-03: Async HTTP Call Grouping
+
+> "Sequential HTTP calls to independent APIs are a performance anti-pattern"
+
+**Problem**: When assembling aggregate data, HTTP calls to independent external APIs are made sequentially. Each call adds latency.
+
+**Symptoms**:
+- 3+ sequential `$httpClient->request()` calls in one method
+- Total response time = sum of all individual API calls
+- Independent API calls that have no data dependency between them
+- No usage of async/concurrent HTTP features despite framework support
+
+**Corrective Patterns**:
+
+| Pattern | When to Use | Example |
+|---------|-------------|---------|
+| **Async HTTP Facade** | Group independent HTTP calls for concurrent execution | `AsyncHttpFacade::batch([tagRequest, sectionRequest, ...])` |
+| **Promise Aggregator** | Collect results from concurrent operations | `PromiseAggregator::all([tagPromise, sectionPromise])` |
+| **Parallel Data Loader** | Framework-specific concurrent loading | Symfony HttpClient's `stream()`, Guzzle's `Pool` |
+
+**Stack-Specific Implementation**:
+
+| Stack | Mechanism | Example |
+|-------|-----------|---------|
+| PHP/Symfony | `HttpClient` with response streaming / `amphp` | `$responses = []; foreach($urls as $url) $responses[] = $client->request('GET', $url); foreach($responses as $r) $r->getContent();` |
+| PHP/Guzzle | `Pool` or `Promise\Utils::all()` | `Promise\Utils::all($promises)->wait()` |
+| Node.js | `Promise.all()` / `Promise.allSettled()` | `await Promise.all([fetchTags(), fetchSections()])` |
+| Go | `goroutines` + `sync.WaitGroup` or `errgroup` | `g.Go(func() error { return fetchTags(ctx) })` |
+| Python | `asyncio.gather()` or `concurrent.futures` | `await asyncio.gather(fetch_tags(), fetch_sections())` |
+
+**SOLID Mapping**:
+| Principle | How It's Satisfied |
+|-----------|-------------------|
+| SRP | Facade handles concurrency; individual providers handle data |
+| OCP | New concurrent call = add to batch, no modification |
+| DIP | Facade depends on Provider interfaces, not specific HTTP clients |
+
+### AC-04: Multi-Platform Response Serialization
+
+> "A single domain object should produce different representations for different consumers without the domain knowing about consumers"
+
+**Problem**: Same domain data (e.g., Editorial) needs different JSON structures for mobile apps vs. web apps. Serialization logic ends up in entities or in fat "transformer" classes with if/else chains.
+
+**Symptoms**:
+- Entity or DTO with `toMobileJson()` and `toWebJson()` methods
+- Serializer/Transformer with switch/if-else by platform
+- Serialization groups that keep growing with each new consumer
+- Domain entities containing `@Groups` or `@SerializedName` annotations mixed with business logic
+
+**Corrective Patterns**:
+
+| Pattern | When to Use | Example |
+|---------|-------------|---------|
+| **Platform-specific DTOs** | Each consumer gets its own response shape | `MobileEditorialDTO`, `WebEditorialDTO` |
+| **DTO Transformer Strategy** | Strategy pattern for transforming domain → platform DTO | `EditorialTransformerInterface` with `MobileTransformer`, `WebTransformer` |
+| **Read Model per Consumer** | CQRS-like separation for different read needs | `MobileEditorialReadModel`, `WebEditorialReadModel` |
+| **Serialization Profile** | Named serialization configurations | Symfony Serializer groups, JMS Serializer exclusion strategies |
+
+**SOLID Mapping**:
+| Principle | How It's Satisfied |
+|-----------|-------------------|
+| SRP | Domain entity has no serialization logic; each Transformer handles one platform |
+| OCP | New platform = new Transformer class, no modification to existing |
+| LSP | All Transformers implement the same interface |
+| ISP | Transformer interface is minimal: `transform(DomainObject): PlatformDTO` |
+| DIP | Controller depends on TransformerInterface, not concrete transformers |
+
+**Decision Tree**:
+```
+Does the same data serve multiple consumers with different shapes?
+  → YES: How different are the shapes?
+    ├── Slightly different (field subset): Serialization Profiles/Groups
+    ├── Significantly different (structure change): Platform-specific DTOs + Transformer Strategy
+    └── Completely different (different data): CQRS Read Models
+  → NO: Standard DTO serialization is sufficient
+```
 
 ---
 
@@ -498,6 +676,10 @@ Formato de Excepción:
 | **ISP** Métodos no usados | `throw NotImplemented` | **Adapter** | Facade |
 | **DIP** Dependencia concreta | `new ConcreteClass()` directo | **Dependency Injection** | Abstract Factory |
 | **DIP** Alto→Bajo nivel | Domain importa Infrastructure | **Ports & Adapters** | Gateway Pattern |
+| **DIP** Vendor SDK en Domain | Domain importa Guzzle/HttpClient | **Anti-Corruption Layer** | Ports & Adapters |
+| **SRP** Fat Assembler | Service con >7 deps, fetches de 5+ fuentes | **Data Assembler + Providers** | Facade |
+| **SRP** Fat Serializer | Transformer con platform if/else | **DTO Transformer Strategy** | Serialization Profiles |
+| **OCP** Platform switching | `if (platform === 'mobile')` en serializer | **Strategy (Transformer)** | Visitor |
 
 ---
 

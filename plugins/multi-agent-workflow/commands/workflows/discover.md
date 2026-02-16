@@ -65,6 +65,7 @@ mkdir -p openspec/specs/entities
 mkdir -p openspec/specs/api-contracts
 mkdir -p openspec/specs/business-rules
 mkdir -p openspec/specs/architectural-constraints
+mkdir -p openspec/specs/api-consumers
 ```
 
 ### Step 2: Detect Project Type and Stack
@@ -146,7 +147,8 @@ Consolidate the stack, architecture, patterns, and conventions detected in Steps
 |---------|--------|
 | **Stack** | `language`, `framework`, `paradigm`, `type_system` |
 | **Architecture** | `pattern` (hexagonal, mvc, layered, clean, etc.), `layers` with paths and dependencies, `separation_enforced` |
-| **Patterns Detected** | `data_access`, `dependency_management`, `error_handling`, `async_pattern`, `testing_approach` |
+| **Patterns Detected** | `data_access`, `dependency_management`, `error_handling`, `async_pattern`, `testing_approach`, `http_client_pattern`, `external_api_integration`, `serialization_strategy`, `multi_platform_output`, `data_aggregation_pattern` |
+| **External APIs** | `external_apis_consumed` (name, sdk, adapter, port, acl_compliant per consumed API) |
 | **SOLID Relevance** | For each principle (SRP, OCP, LSP, ISP, DIP): `relevance` (high/medium/low), `metric`, `when_violated`, `reference_good` |
 | **Conventions** | `naming` (classes, methods, files), `structure` (project-specific paths), `reference_files` (example files per archetype) |
 | **Quality Thresholds** | `max_class_loc`, `max_public_methods`, `max_constructor_deps`, `max_interface_methods`, `max_files_per_simple_change` |
@@ -367,6 +369,151 @@ api_contract:
 - Controller method signature analysis
 ```
 
+### Step 6b: External API Consumer Detection
+
+> **Agent**: `codebase-analyzer` | **Mode**: API Consumer Analysis
+
+Detect external APIs that the project CONSUMES (outgoing HTTP calls), as opposed to APIs it EXPOSES (incoming HTTP endpoints covered in Step 6).
+
+```markdown
+## External API Consumer Detection
+
+Scanning for outgoing HTTP client usage and vendor SDK integrations...
+
+### HTTP Client Detection
+| Vendor/Library | Detected | Location | Usage Count |
+|---------------|----------|----------|-------------|
+| Symfony HttpClient | ✓/✗ | [files] | X calls |
+| GuzzleHttp | ✓/✗ | [files] | X calls |
+| curl (direct) | ✓/✗ | [files] | X calls |
+| axios | ✓/✗ | [files] | X calls |
+| fetch API | ✓/✗ | [files] | X calls |
+| net/http (Go) | ✓/✗ | [files] | X calls |
+| requests (Python) | ✓/✗ | [files] | X calls |
+
+### Integration Pattern Analysis
+| External API | SDK Used | Adapter Exists | Port/Interface Exists | ACL Compliant |
+|-------------|----------|----------------|----------------------|---------------|
+| [API Name] | [SDK] | ✓/✗ [path] | ✓/✗ [path] | ✓/✗ |
+
+### Vendor SDK Isolation Check
+| Layer | Vendor SDK Imports Found | Violation |
+|-------|-------------------------|-----------|
+| Domain/ | [list or "None"] | ✓/✗ |
+| Application/ | [list or "None"] | ✓/✗ |
+| Infrastructure/ | [list — expected here] | N/A |
+
+### Async HTTP Pattern Detection
+| Pattern | Detected | Location | Description |
+|---------|----------|----------|-------------|
+| Sequential calls | ✓/✗ | [files] | Multiple `->request()` in sequence |
+| Promise/async batching | ✓/✗ | [files] | `Pool`, `Promise::all`, `stream()` |
+| No concurrent calls | ✓/✗ | — | Single HTTP calls only |
+
+### Serialization Pattern Detection
+| Pattern | Detected | Location |
+|---------|----------|----------|
+| Symfony Serializer with @Groups | ✓/✗ | [files] |
+| JMS Serializer | ✓/✗ | [files] |
+| Manual toArray()/toJson() | ✓/✗ | [files] |
+| Platform-specific DTOs | ✓/✗ | [files] |
+| Transformer/Normalizer classes | ✓/✗ | [files] |
+
+### Multi-Platform Output Detection
+| Consumer | Response Format | Detected Via |
+|----------|----------------|--------------|
+| [Mobile app] | [Custom JSON] | [annotation/route/header] |
+| [Web app] | [Full JSON] | [annotation/route/header] |
+| [Single format] | [Standard] | [no platform differentiation] |
+```
+
+#### Detection Commands (stack-adapted)
+
+```bash
+# === HTTP Client Detection ===
+
+# PHP
+grep -rl "HttpClientInterface\|HttpClient::\|GuzzleHttp\|Client()" src/ 2>/dev/null | head -20
+composer show 2>/dev/null | grep -i "http\|guzzle\|client"
+
+# TypeScript/JavaScript
+grep -rl "axios\|fetch(\|got(\|node-fetch\|superagent\|undici" src/ app/ lib/ 2>/dev/null | head -20
+
+# Go
+grep -rl "http.NewRequest\|http.Get\|http.Post\|http.Client" . --include="*.go" 2>/dev/null | head -20
+
+# Python
+grep -rl "requests.get\|requests.post\|httpx\|aiohttp\|urllib" . --include="*.py" 2>/dev/null | head -20
+
+# === Adapter/Port Detection ===
+find . -path "*/External/*" -name "*.php" -o -path "*/External/*" -name "*.ts" -o -path "*/External/*" -name "*.go" 2>/dev/null | head -20
+grep -rl "ProviderInterface\|ClientInterface\|Gateway\|ApiAdapter" src/ 2>/dev/null | head -20
+
+# === Serialization Detection ===
+# PHP (Symfony)
+grep -rl "@Groups\|@SerializedName\|NormalizerInterface\|SerializerInterface" src/ 2>/dev/null | head -20
+grep -rl "JMS\\Serializer\|@Serializer\\" src/ 2>/dev/null | head -20
+
+# TypeScript
+grep -rl "class-transformer\|@Expose\|@Exclude\|plainToInstance" src/ 2>/dev/null | head -20
+
+# === Multi-Platform Detection ===
+grep -rl "platform\|X-Platform\|mobile\|web.*json\|app.*json" src/ 2>/dev/null | head -10
+find . -name "*Mobile*DTO*" -o -name "*Web*DTO*" -o -name "*Mobile*Response*" -o -name "*Web*Response*" 2>/dev/null | head -10
+
+# === Async HTTP Detection ===
+# PHP
+grep -rl "stream(\|Promise\|Pool::\|async\|concurrent\|amphp" src/ 2>/dev/null | head -10
+# JS/TS
+grep -rl "Promise.all\|Promise.allSettled\|Promise.race" src/ 2>/dev/null | head -10
+# Go
+grep -rl "sync.WaitGroup\|errgroup\|go func" . --include="*.go" 2>/dev/null | head -10
+# Python
+grep -rl "asyncio.gather\|concurrent.futures\|ThreadPoolExecutor" . --include="*.py" 2>/dev/null | head -10
+```
+
+#### Output Enrichment
+
+Step 6b results are recorded in:
+1. `openspec/specs/architecture-profile.yaml` under the new fields: `http_client_pattern`, `external_api_integration`, `serialization_strategy`, `multi_platform_output`, `data_aggregation_pattern`, and `external_apis_consumed`
+2. A new spec file `openspec/specs/api-consumers/[api-name].yaml` for each detected external API
+
+#### API Consumer Spec Format
+
+For each detected external API, generate `openspec/specs/api-consumers/[api-name].yaml`:
+
+```yaml
+api_consumer:
+  name: "[External API Name]"
+  description: "[What this external API provides]"
+  sdk: "[vendor/package-name]"
+
+  integration:
+    adapter: "[path/to/adapter]"
+    port_interface: "[path/to/interface]"   # empty if missing (DIP violation)
+    response_mapper: "[path/to/mapper]"     # empty if missing
+    acl_compliant: true|false
+
+  calls:
+    - method: "GET|POST|PUT|DELETE"
+      url_pattern: "[base_url/endpoint]"
+      purpose: "[what this call retrieves/sends]"
+      used_by: "[path/to/consuming/service]"
+
+  async_grouping:
+    grouped: true|false
+    mechanism: "[Promise.all|Pool|stream|sequential]"
+
+  response_mapping:
+    vendor_types_leaked: true|false
+    domain_dto: "[path/to/domain/dto]"
+
+  source_files:
+    - "[path/to/files]"
+
+  extracted_at: "[timestamp]"
+```
+
 ### Step 7: Business Rule Extraction
 
 > **Agent**: `codebase-analyzer` | **Mode**: Business Rule Analysis
@@ -558,6 +705,7 @@ manifest:
     api_contracts: X
     business_rules: X
     architectural_constraints: X
+    api_consumers: X
     total_specs: X
 
   entities:
@@ -583,6 +731,12 @@ manifest:
     - category: "[Category1]"
       file: "architectural-constraints/category1.yaml"
       constraints_count: X
+      last_updated: "[timestamp]"
+
+  api_consumers:
+    - name: "[ExternalAPI1]"
+      file: "api-consumers/external-api1.yaml"
+      acl_compliant: true|false
       last_updated: "[timestamp]"
 
   extraction_config:
@@ -1016,6 +1170,7 @@ workflow:
 | **API Contracts** | [X] | `openspec/specs/api-contracts/` |
 | **Business Rules** | [X] | `openspec/specs/business-rules/` |
 | **Architectural Constraints** | [X] | `openspec/specs/architectural-constraints/` |
+| **API Consumers** | [X] | `openspec/specs/api-consumers/` |
 | **Total Specs** | [X] | See `spec-manifest.yaml` |
 
 > Specs extracted by `codebase-analyzer` agent. Run `/workflows:discover --specs-only` to update specs without full discovery.
