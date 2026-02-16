@@ -1,6 +1,6 @@
 # /workflows:route - Workflow Router (Mandatory Entry Point)
 
-**Version**: 1.1.0
+**Version**: 1.2.0
 **Category**: Core
 **Priority**: CRITICAL - Must be invoked for ALL new interactions
 
@@ -11,6 +11,8 @@
 This command is the **MANDATORY entry point** for all interactions with the Multi-Agent Workflow plugin. It analyzes user needs and routes to the appropriate workflow, asking clarifying questions when necessary.
 
 **Karpathy Integration**: This router enforces "Think Before Coding" by requiring explicit assumptions and success criteria before any work begins.
+
+**Decision Quality Integration**: This router also enforces a challenge loop before execution: question key assumptions, compare at least one alternative approach, and ask for missing constraints instead of silently guessing.
 
 ## Invocation
 
@@ -248,6 +250,37 @@ Transform vague requests into testable goals:
 **Does this capture what you need? Adjust if needed.**
 ```
 
+### Step 4.5: Decision-Challenge Loop (Question Every Decision)
+
+Before recommending the workflow, challenge the initial plan:
+
+```markdown
+## Decision-Challenge Loop
+
+### Current proposal
+- Proposed workflow: [X]
+- Why this first choice: [reason]
+
+### Alternatives considered
+1. [Alternative A] -- Rejected because: [specific tradeoff]
+2. [Alternative B] -- Rejected because: [specific tradeoff]
+
+### Assumptions under stress-test
+- Assumption 1: [assumption] -> Evidence: [evidence or unknown]
+- Assumption 2: [assumption] -> Evidence: [evidence or unknown]
+
+### Missing constraints (must ask if unknown)
+- [ ] Deadline or delivery pressure
+- [ ] Non-functional requirements (performance/security/compliance)
+- [ ] Backward compatibility constraints
+- [ ] Environments affected (dev/staging/prod)
+
+**Blocking question(s) before proceed**:
+1. [Highest-leverage question]
+
+If the blocking answer is unknown, keep routing in clarification mode instead of committing to implementation.
+```
+
 ### Step 5: Workflow Recommendation
 
 ```markdown
@@ -261,6 +294,7 @@ Basado en tu solicitud, recomiendo:
 
 **Assumptions Confirmed**: [list key assumptions]
 **Success Criteria**: [list testable goals]
+**Decision Challenge Notes**: [why alternatives were rejected]
 
 **Pasos siguientes**:
 1. [step 1]
@@ -305,6 +339,8 @@ Before executing ANY code change, Claude must verify:
 - [ ] Was a workflow explicitly selected?
 - [ ] Were clarifying questions asked if needed?
 - [ ] Is the chosen workflow appropriate for the task?
+- [ ] Were key assumptions challenged against at least one alternative?
+- [ ] Did we ask for missing critical constraints rather than guessing?
 
 If ANY checkbox is NO → STOP and run /workflows:route first
 ```
@@ -507,10 +543,11 @@ The `/workflows:route` command ensures:
 1. **Correct workflow selection** for every task
 2. **Explicit assumptions** stated before work begins (Think Before Coding)
 3. **Testable success criteria** defined upfront (Goal-Driven Execution)
-4. **Appropriate complexity** matching task needs (Simplicity First)
-5. **Gathering necessary context** through clarifying questions
-6. **Appropriate trust level** application
-7. **Consistent entry point** for all interactions
+4. **Decision-challenge loop** before selecting workflow (question assumptions + compare alternatives)
+5. **Appropriate complexity** matching task needs (Simplicity First)
+6. **Gathering necessary context** through clarifying questions
+7. **Appropriate trust level** application
+8. **Consistent entry point** for all interactions
 
 **Remember**: When in doubt, ASK. State assumptions. Define success criteria. It's better to clarify than to execute the wrong workflow.
 
