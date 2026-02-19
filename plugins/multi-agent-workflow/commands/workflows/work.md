@@ -35,7 +35,8 @@ PREREQUISITE CHECK:
 
 The following are executed automatically as part of `/workflows:work`:
 - **Git sync** (Step 2) -- pulls latest changes before starting
-- **Solution Validation** (Step 4.5) -- validates approach before TDD cycle
+- **HITL checkpoint** (Step 4.5) -- human confirmation for high-risk tasks (migrations, auth, payments)
+- **Solution Validation** (Step 4.6) -- validates approach before TDD cycle
 - **TDD enforcement** (Step 5) -- Red-Green-Refactor cycle
 - **SOLID verification** (Step 7) -- checks compliance at each checkpoint via solid-analyzer
 - **Bounded Correction Protocol** (Step 6) -- auto-corrects with scale-adaptive limits

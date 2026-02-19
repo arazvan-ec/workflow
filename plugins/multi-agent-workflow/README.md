@@ -4,7 +4,7 @@ A **compound engineering** framework for Claude Code that coordinates multiple A
 
 > *"Each unit of engineering work should make subsequent units easier -- not harder."*
 
-**v3.1.0** -- 8 agents, 10 commands, 14 skills, 3 roles.
+**v3.2.0** -- 8 agents, 10 commands, 15 skills, 3 roles.
 
 ---
 
@@ -223,6 +223,21 @@ plugins/multi-agent-workflow/
 ```
 
 ---
+
+## v3.2.0 Changes
+
+Key changes from v3.1.0:
+
+- **Spec-Driven Development (SDD)**: Structured artifact pipeline — proposal → specs → design → tasks → scratchpad
+- **Test Contract Sketch** (Phase 2.5): Pre-validates test boundaries and scenarios before design
+- **Reflection Pattern**: Mandatory self-review before marking plan or work as COMPLETED
+- **Decision Log enforcement**: Every non-obvious design choice gets rationale and risk logged
+- **HITL checkpoints**: Human confirmation for high-risk tasks (migrations, auth, payments, CI/CD)
+- **Feedback Loop REVIEW→PLAN**: Design flaws route back to planning instead of just rejecting
+- **Scratchpad persistence**: Per-feature working notes survive compaction and session breaks
+- **Constitution template**: Project-level non-negotiable principles (inspired by GitHub Spec Kit)
+- **Context Budget Awareness**: Guidance on compaction, MCP overhead, and fork strategy
+- **source-report skill**: New research skill (15 skills total, was 14)
 
 ## v3.1.0 Changes
 

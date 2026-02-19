@@ -65,7 +65,7 @@ A compound engineering framework for coordinating multiple AI agents on software
 
 Agents are invoked automatically by core commands. You rarely need to invoke them directly.
 
-## Skills (14)
+## Skills (15)
 
 | Category | Skills |
 |----------|--------|
