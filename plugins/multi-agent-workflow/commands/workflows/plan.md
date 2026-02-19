@@ -280,6 +280,18 @@ if [ -f "$COMPOUND_LOG" ]; then
   # Extract: time investment breakdown, patterns reused, rules updated
   # Use as calibration for planning_depth and time estimation
 fi
+
+# 5. Next Feature Briefing — actionable intelligence from last compound run
+BRIEFING=".ai/project/next-feature-briefing.md"
+if [ -f "$BRIEFING" ]; then
+  echo "Next feature briefing found. Loading actionable recommendations."
+  # Read: Reusable patterns with concrete file references
+  # Read: Known risks and mitigations for next feature
+  # Read: Recommended test strategy (what to test early, edge cases)
+  # Read: Time calibration (expected vs actual from previous feature)
+  # Read: 70% boundary warning (where complexity hides)
+  # Apply: risks → Phase 2 acceptance criteria, patterns → Phase 3 design defaults
+fi
 ```
 
 **How compound learnings inform planning:**
@@ -291,6 +303,7 @@ fi
 | Learned anti-patterns (architecture-profile.yaml) | Phase 3 (design) | Add "## Avoid" section with specific anti-patterns to watch |
 | Previous retrospectives | Phase 1 (understand) | Calibrate complexity estimate with real data from similar features |
 | Compound log (time data) | Phase 4 (tasks) | Inform task complexity based on historical data |
+| Next feature briefing | Phase 2 + Phase 3 | Apply risk mitigations to specs, reuse patterns in design, follow test strategy |
 
 > **This is the compound feedback loop**: each completed feature makes the NEXT feature's planning smarter. Without reading compound learnings, every feature plans from scratch.
 
