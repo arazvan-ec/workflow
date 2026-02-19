@@ -42,7 +42,7 @@ Generate structured reports of external sources and references used in research,
 
 Scan the target plan file(s) in `plans/` for all external references (URLs, citations, named sources).
 
-If no plan file is specified, scan all files in `plans/` directory.
+If no plan file is specified, scan all files in `plans/` directory, **excluding `plans/source-reports/`** to avoid re-ingesting previously generated reports (which would duplicate citations and distort source counts).
 
 ### Step 2: Classify Sources
 

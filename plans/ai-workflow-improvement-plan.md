@@ -275,10 +275,10 @@ Este plan **complementa** el `plugin-improvement-plan.md` existente (2026-02-15)
 
 1. Revisar este plan con el equipo
 2. Priorizar las mejoras P0 y P1
-3. Ejecutar el skill `/workflows:source-report` para obtener el informe completo de fuentes
+3. Ejecutar el skill `/multi-agent-workflow:source-report` para obtener el informe completo de fuentes
 4. Iterar sobre las recomendaciones basándose en el informe de fuentes
 
 ---
 
 *Generado el 2026-02-19 usando investigación de 30+ fuentes de la industria.*
-*Usar `/workflows:source-report` para ver el informe detallado de fuentes.*
+*Usar `/multi-agent-workflow:source-report` para ver el informe detallado de fuentes.*
