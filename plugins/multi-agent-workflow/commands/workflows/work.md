@@ -299,6 +299,13 @@ SOLUTION VALIDATION (for each task in tasks.md):
    - Set max_iterations from providers.yaml correction_limits
    - simple: 5, moderate: 10, complex: 15
 
+5. CONTRADICTION CHECK (CDP): Does the task's approach conflict with
+   existing code, specs, or prior decisions?
+   - Compare task requirements against openspec/specs/ baseline
+   - Compare against constitution.md principles (if exists)
+   - If contradiction detected → apply Contradiction Detection Protocol
+     (framework_rules.md §12): stop, present both sides, ask user
+
 If ALL checks pass → proceed to TDD (Step 5)
 If ANY check fails → escalate to planner with specific conflict details
 ```
