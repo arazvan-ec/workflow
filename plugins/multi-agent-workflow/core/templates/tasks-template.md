@@ -9,9 +9,20 @@
 <!-- Populated in Phase 4. Each task follows the Task Template from plan.md -->
 
 ## Decision Log
-| Decision | Alternatives Considered | Rationale | Phase |
-|----------|------------------------|-----------|-------|
-<!-- Track key decisions made during planning and implementation -->
+| # | Decision | Alternatives Considered | Rationale | Phase | Risk |
+|---|----------|------------------------|-----------|-------|------|
+<!-- MANDATORY: Every non-obvious design choice must be logged here.
+     Populated during Phase 3 (design decisions) and Phase 4 (task decisions).
+     Updated during Self-Review when issues are caught.
+     Carried forward into /workflows:work and /workflows:review for traceability.
+     Fed into /workflows:compound for learning extraction.
+
+     A plan with an empty Decision Log is INCOMPLETE — see Plan Completeness Verification.
+
+     Example:
+     | D-001 | Use Strategy pattern for validators | Chain of Responsibility, if/else | OCP compliance, multiple types expected | Phase 3 | LOW |
+     | D-002 | Self-review: simplified User entity | Original had 12 methods | SRP violation caught during self-review | Self-Review | LOW |
+-->
 
 ## Workflow State
 **Planner**: PENDING | **Implementer**: PENDING | **Reviewer**: PENDING

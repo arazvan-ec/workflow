@@ -245,7 +245,35 @@ Read: openspec/changes/${FEATURE_ID}/design.md      # Solutions + SOLID patterns
 - Application: Domain should be COMPLETED (or mock)
 - Infrastructure: Application should be COMPLETED
 
-### Step 4.5: Solution Validation (Pre-Implementation Check)
+### Step 4.5: HITL Checkpoint for High-Risk Tasks
+
+Before executing a task, check if it touches high-risk areas that require human confirmation:
+
+```
+HIGH-RISK TASK DETECTION:
+
+IF task modifies ANY of:
+  - Database migrations / schema changes
+  - Authentication / authorization logic
+  - Payment / billing code
+  - CI/CD configuration files
+  - Environment variables / secrets configuration
+  - Infrastructure-as-code files
+  - Public API contracts (breaking changes)
+
+THEN:
+  → Present task plan to user BEFORE executing
+  → Show: what files will change, what tests will run, what could break
+  → Wait for: [Proceed] [Modify approach] [Skip task]
+  → Log user decision in tasks.md Decision Log
+
+IF task is in a LOW trust area (auth/, security/, payment/) AND execution_mode == "auto":
+  → Override to hybrid mode for this task only
+```
+
+This checkpoint catches destructive or irreversible changes before they happen, without slowing down routine implementation tasks.
+
+### Step 4.6: Solution Validation (Pre-Implementation Check)
 
 Before starting the TDD cycle for each task, validate the approach is sound:
 
@@ -563,6 +591,45 @@ Use project-detected test commands. Common patterns:
 # Fix linting
 /workflow-skill:lint-fixer
 ```
+
+## Self-Review Before Completion (Reflection Pattern)
+
+After ALL tasks are completed and before marking implementer status as `COMPLETED`, perform a self-review:
+
+```
+IMPLEMENTER SELF-REVIEW:
+
+1. ACCEPTANCE CRITERIA AUDIT:
+   - Re-read proposal.md success criteria
+   - For each criterion: is there test evidence that it passes?
+   - If any criterion lacks evidence → add test or document gap
+
+2. DESIGN FIDELITY CHECK:
+   - Re-read design.md SOLID patterns
+   - For each pattern specified: was it implemented as designed?
+   - If deviation found → either fix it or log reason in Decision Log
+
+3. TEST COVERAGE SCAN:
+   - Do test contract sketch scenarios (from specs.md) have matching tests?
+   - Are edge cases from the sketch covered?
+   - If gaps → add missing tests before marking COMPLETED
+
+4. SCRATCHPAD REVIEW (if exists):
+   - Read scratchpad.md for any unresolved hypotheses or TODOs
+   - If unresolved items exist → either resolve or escalate to reviewer
+
+IF self-review finds issues:
+  → Fix them (within BCP limits)
+  → Log what was caught: update tasks.md with "Self-review: [fix description]"
+
+IF no issues found:
+  → Mark implementer status as COMPLETED in tasks.md
+  → Create final checkpoint with summary
+```
+
+This prevents shipping work that technically "passes tests" but doesn't match the design or acceptance criteria.
+
+---
 
 ## Chunking Directive
 
