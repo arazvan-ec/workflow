@@ -307,7 +307,8 @@ SOLUTION VALIDATION (for each task in tasks.md):
      (framework_rules.md §12): stop, present both sides, ask user
 
 If ALL checks pass → proceed to TDD (Step 5)
-If ANY check fails → escalate to planner with specific conflict details
+If check 5 (CDP) fails → apply CDP resolution (ask user, not planner)
+If checks 1-4 fail → escalate to planner with specific conflict details
 ```
 
 This step prevents wasting TDD iterations on an architecturally flawed approach.
