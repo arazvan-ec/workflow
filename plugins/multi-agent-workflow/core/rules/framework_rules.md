@@ -45,7 +45,7 @@ All shared knowledge lives in files. Never assume implicit context.
 
 ```
 Avoid: "Remember we said earlier that..."
-Prefer: "Read `openspec/changes/FEATURE_X/tasks.md` Workflow State"
+Prefer: "Read `openspec/changes/{feature-slug}/tasks.md` Workflow State"
 ```
 
 ### 4. Immutable Roles

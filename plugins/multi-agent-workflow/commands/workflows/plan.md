@@ -83,22 +83,7 @@ After passing any Quality Gate, follow the Per-Phase Write Directives below.
 
 ## MANDATORY: Incremental Persistence Protocol
 
-> **CRITICAL RULE**: Every planning phase MUST write its output file to disk IMMEDIATELY upon completion, BEFORE starting the next phase. Planning is NOT an in-memory exercise. If Claude is interrupted at any point, all completed phases must be recoverable from disk.
-
-### The Write-Then-Advance Rule
-
-```
-PHASE COMPLETION PROTOCOL (applies to every phase):
-
-1. GENERATE the phase output in full
-2. WRITE the output file to disk immediately (use Write tool)
-3. UPDATE tasks.md Workflow State with phase completion status + timestamp
-4. VERIFY the file exists on disk (use Read tool to confirm)
-5. ONLY THEN advance to the next phase
-
-If step 2 fails, RETRY the write. Do NOT proceed to next phase
-with unwritten output.
-```
+> **CRITICAL RULE**: Every planning phase MUST write its output to disk IMMEDIATELY upon completion, BEFORE starting the next phase. Follow the **Write-Then-Advance Rule** defined in `core/rules/framework_rules.md` §11.
 
 ### Planning Progress Tracker (in tasks.md Workflow State)
 
@@ -629,96 +614,9 @@ Example:
   - response_customization: RELEVANT (pagination may vary per consumer)
 ```
 
-#### Step 3.1b.2: Generate Per-Dimension Constraints
+#### Steps 3.1b.2-3: Generate Constraints
 
-For each RELEVANT dimension, apply these reasoning rules to generate constraints:
-
-```
-DATA FLOW constraints:
-  IF primary in [ingress, aggregation, bidirectional]:
-    → MUST: "Inbound data crosses an abstraction boundary before entering Domain" (DIP)
-  IF primary in [egress, bidirectional]:
-    → MUST: "Outbound data shaped by Application/Infrastructure, not Domain" (SRP)
-  IF primary == aggregation:
-    → MUST: "Multi-source assembly coordinated by a dedicated orchestrator" (SRP)
-  IF primary == transformation:
-    → MUST: "Transformation logic isolated in mapper classes" (SRP, OCP)
-  IF primary == passthrough:
-    → SHOULD: "Passthrough logic does not add domain coupling" (DIP)
-
-DATA SOURCE TOPOLOGY constraints:
-  IF value in [single_external, multi_external, mixed_db_external, hybrid]:
-    → MUST: "Each external source accessed through Port interface in Domain" (DIP)
-    → MUST: "Each external source has Adapter implementation in Infrastructure" (DIP)
-  IF value in [multi_external, mixed_db_external, hybrid]:
-    → MUST: "Vendor SDK types do not appear outside Infrastructure layer" (DIP)
-    → MUST: "Each external source has independent Provider interface" (ISP)
-  IF value == event_driven:
-    → MUST: "Event payloads translated to domain types at boundary" (DIP, SRP)
-
-CONSUMER DIVERSITY constraints:
-  IF value in [multi_platform, public_api, mixed]:
-    → MUST: "Each consumer type has its own response transformation" (SRP, OCP)
-    → MUST: "Domain entities contain no serialization annotations or logic" (SRP)
-  IF value == inter_service:
-    → MUST: "API contracts versioned and backward-compatible" (OCP)
-  IF value == public_api:
-    → MUST: "Response format documented and stable"
-
-DEPENDENCY ISOLATION constraints:
-  IF value == direct_coupling:
-    → MUST: "External dependencies in Domain/Application replaced with Port interfaces" (DIP)
-    → MUST: "Vendor SDK instantiation moves to Infrastructure adapters" (DIP)
-  IF value == partially_wrapped:
-    → MUST: "Missing port interfaces created in Domain for each adapter" (DIP)
-    → MUST: "Vendor response types replaced with domain DTOs" (DIP)
-  IF value == fully_isolated:
-    → REVIEW: "Confirm no new vendor SDK types crossed layer boundaries"
-
-CONCURRENCY MODEL constraints (cross-reference with data_source_topology):
-  IF value == synchronous AND topology in [multi_external, hybrid]:
-    → MUST: "Independent external API calls evaluated for concurrent execution" (SRP)
-    → SHOULD: "Sequential HTTP calls to independent sources refactored to concurrent"
-  IF value == async_capable:
-    → SHOULD: "Evaluate whether sequential bottlenecks justify async migration"
-  IF value == fully_concurrent:
-    → MUST: "Concurrent operations handle partial failures gracefully"
-
-RESPONSE CUSTOMIZATION constraints:
-  IF value == parameterized:
-    → MUST: "Field filtering handled in Application layer, not Domain" (SRP)
-  IF value == per_consumer_shaped:
-    → MUST: "Each consumer has dedicated DTO or Transformer" (SRP, OCP)
-    → MUST: "No switch/if-else by consumer type in serialization code" (OCP)
-  IF value == context_dependent:
-    → MUST: "Context resolution happens at boundary (controller/middleware)" (SRP)
-```
-
-#### Step 3.1b.3: Generate Derived Constraints
-
-Check dimension COMBINATIONS that produce compound architectural risks:
-
-```
-IF topology in [multi_external, hybrid] AND isolation == direct_coupling:
-  → CRITICAL: "Multiple external APIs with direct coupling = cascading vendor risk"
-  → Pattern: AC-01 (Anti-Corruption Layer) from architecture-reference.md
-
-IF data_flow == aggregation AND concurrency == synchronous:
-  → WARNING: "Aggregating N sources synchronously = N * avg_latency response time"
-  → Pattern: AC-03 (Async HTTP Grouping) from architecture-reference.md
-
-IF consumer_diversity in [multi_platform, mixed] AND customization == per_consumer_shaped:
-  → "Platform-specific shaping requires Strategy or dedicated Transformers"
-  → Pattern: AC-04 (Multi-Platform Serialization) from architecture-reference.md
-
-IF data_flow == aggregation AND topology in [multi_external, hybrid]:
-  → "Multi-source aggregation requires Assembler + independent Providers"
-  → Pattern: AC-02 (Data Assembler) from architecture-reference.md
-
-IF topology in [multi_external, hybrid] AND concurrency == synchronous:
-  → "Performance bottleneck: N sequential HTTP calls = N * avg_latency"
-  → Pattern: AC-03 (Async HTTP Grouping) from architecture-reference.md
-```
+Apply the per-dimension and derived constraint rules from `core/architecture-reference.md` § "Dimensional Constraint Rules" to generate MUST/SHOULD/REVIEW constraints for each relevant dimension. Check dimension combinations for compound risks (AC-01 through AC-04).
 
 #### Step 3.1b.4: Inject Into Design Phase
 
@@ -869,72 +767,17 @@ After designing solutions, analyze the architectural impact across the codebase.
 
 ### Affected Layers Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ PRESENTATION                                                     │
-│   [MODIFIED] UserController.php                                  │
-│   [NEW] SubscriptionController.php                               │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│ APPLICATION                                                      │
-│   [NEW] CreateSubscriptionUseCase.php                            │
-│   [NEW] ApplyDiscountUseCase.php                                 │
-│   [MODIFIED] CreateOrderUseCase.php                              │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│ DOMAIN                                                           │
-│   [EXTENDED] User.php (add subscription_tier)                    │
-│   [NEW] Subscription.php                                         │
-│   [NEW] SubscriptionPlan.php                                     │
-│   [NEW] DiscountCalculator.php (Domain Service)                  │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│ INFRASTRUCTURE                                                   │
-│   [NEW] DoctrineSubscriptionRepository.php                       │
-│   [NEW] StripePaymentGateway.php                                 │
-│   [MODIFIED] migrations/Version20260201_subscriptions.php        │
-└─────────────────────────────────────────────────────────────────┘
-```
+For each layer, list files with change type: `[NEW]`, `[MODIFIED]`, `[EXTENDED]`. Follow the dependency direction: `Presentation → Application → Domain ← Infrastructure`.
 
-### Existing Modules Touched
+### Change Scope Summary
 
-| Module | Files Touched | Risk Level | Notes |
-|--------|---------------|------------|-------|
-| `src/User/` | 3 files | MEDIUM | Core entity modified |
-| `src/Order/` | 2 files | LOW | Minor additions |
-| `src/Subscription/` | 8 files | N/A | New module |
-| `tests/` | 12 files | LOW | New tests + updates |
-
-### Change Scope Estimation
-
-```
-╔══════════════════════════════════════════════════════════════════╗
-║                    CHANGE SCOPE SUMMARY                          ║
-╠══════════════════════════════════════════════════════════════════╣
-║  Files to CREATE:     14                                         ║
-║  Files to MODIFY:      6                                         ║
-║  Files to DELETE:      0                                         ║
-║  ────────────────────────────────────────────────                ║
-║  Total files affected: 20                                        ║
-║                                                                  ║
-║  Estimated LOC added:   ~800                                     ║
-║  Estimated LOC modified: ~120                                    ║
-║  ────────────────────────────────────────────────                ║
-║  Complexity: MEDIUM                                              ║
-║  Estimated effort: 2-3 days                                      ║
-╚══════════════════════════════════════════════════════════════════╝
-```
+Document: files to CREATE, MODIFY, DELETE, total affected, estimated LOC, and complexity rating.
 
 ### Risk Assessment
 
 | Risk | Probability | Impact | Mitigation |
 |------|-------------|--------|------------|
-| User entity changes break existing tests | MEDIUM | HIGH | Run full test suite before merge |
-| Payment gateway integration issues | LOW | HIGH | Use sandbox environment |
-| Migration conflicts | LOW | MEDIUM | Coordinate with team |
+| [Identify risks specific to THIS feature] | LOW/MED/HIGH | LOW/MED/HIGH | [Concrete mitigation] |
 ```
 
 ### Phase 3 Quality Gate
