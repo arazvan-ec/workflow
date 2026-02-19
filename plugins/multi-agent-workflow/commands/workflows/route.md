@@ -69,6 +69,14 @@ USER REQUEST
      │
      ▼
 ┌────────────────┐
+│ Is this a      │──YES──▶ /workflows:discover --seed (generate compound-equivalent
+│ greenfield     │         knowledge from requirements, then plan first feature)
+│ project with   │
+│ requirements?  │
+└───────┬────────┘
+        │NO
+        ▼
+┌────────────────┐
 │ Is it a        │──YES──▶ Is scope/approach clear?
 │ new feature?   │           │
 └───────┬────────┘          YES──▶ /workflows:plan (task-breakdown workflow)
@@ -114,6 +122,7 @@ USER REQUEST
 
 | User Need | Complexity | Multi-Agent | Recommended Workflow | Command |
 |-----------|------------|-------------|---------------------|---------|
+| **New project from requirements** | **Any** | **Yes** | **project-seed** | **`/workflows:discover --seed`** |
 | Any task | Simple (≤3 files) | No | quick | `/workflows:quick` |
 | New feature (unclear scope) | Any | Maybe | shape-first | `/workflows:shape` then `/workflows:plan` |
 | New feature (clear scope) | Medium/Complex | Yes | task-breakdown | `/workflows:plan --workflow=task-breakdown` |
@@ -206,12 +215,19 @@ Para investigar esto efectivamente, necesito entender:
 **Solicitud original**: [User's request]
 
 **Clasificación automática**:
-- Tipo detectado: [feature/bug/refactor/investigation/docs/review/other]
+- Tipo detectado: [feature/bug/refactor/investigation/docs/review/greenfield/other]
 - Complejidad estimada: [simple/medium/complex/unknown]
 - Multi-agente requerido: [yes/no/unknown]
 - Confianza en clasificación: [high/medium/low]
 
+**Greenfield Detection**:
+- Does the request describe a FULL PROJECT (multiple features, entities, roles)?
+- Is there NO existing codebase (or user explicitly says "new project")?
+- Does the request include requirements like entity lists, user roles, tech stack?
+- If ALL YES → This is a greenfield project → recommend `/workflows:discover --seed`
+
 **Decisión**:
+- Si GREENFIELD detectado → `/workflows:discover --seed` (generate compound knowledge first)
 - Si confianza HIGH → Proceder con workflow recomendado
 - Si confianza MEDIUM/LOW → Hacer preguntas de clarificación
 ```

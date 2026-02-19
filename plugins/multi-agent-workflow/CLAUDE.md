@@ -7,11 +7,22 @@ A compound engineering framework for coordinating multiple AI agents on software
 ```
   ROUTE --> SHAPE --> PLAN --> WORK --> REVIEW --> COMPOUND
   (entry)  (optional)  (80%)   (15%)    (4%)       (1%)
+                        ↑                              │
+                        └──── Feedback Loop ←──────────┘
+                        (compound learnings feed back
+                         into plan + work of NEXT feature)
 
   ROUTE --> QUICK (lightweight alternative for simple tasks)
 ```
 
 **Every request starts with routing.** No exceptions.
+
+### Compound Feedback Loop
+
+Compound learnings from feature N automatically inform feature N+1:
+- **Plan** (Step 0.0d): reads compound-memory.md, retrospectives, learned patterns
+- **Work** (Step 3.5): reads learned patterns/anti-patterns, next-feature-briefing.md
+- **Compound** (Step 6b): generates next-feature-briefing.md for the next feature
 
 ### Core Commands
 
@@ -31,7 +42,19 @@ A compound engineering framework for coordinating multiple AI agents on software
 |---------|---------|
 | `/workflows:status` | View all roles' progress |
 | `/workflows:help` | Quick reference and guidance |
-| `/workflows:discover` | Auto-analyze project architecture (`--setup` for onboarding) |
+| `/workflows:discover` | Auto-analyze project architecture (`--setup` for onboarding, `--seed` for greenfield) |
+
+### Project Seed (Greenfield Projects)
+
+For new projects with requirements but no code, run `/workflows:discover --seed` BEFORE planning.
+This generates compound-equivalent knowledge so your first feature plans like your fifth:
+
+```
+/workflows:discover --seed  →  architecture-profile.yaml (stack, patterns, SOLID)
+                            →  compound-memory.md (known pain points for your stack/domain)
+                            →  next-feature-briefing.md (feature roadmap with dependencies)
+                            →  entity specs (domain model from requirements)
+```
 
 ### Flow Guards (enforced)
 
