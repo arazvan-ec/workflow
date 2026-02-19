@@ -162,6 +162,13 @@ This ensures:
 - Partial progress is never lost
 - `tasks.md` always reflects the true current state
 
+Violations:
+- Generating multiple phase outputs without writing intermediate files
+- Advancing to Phase 3 without Phase 2 output written to disk
+- Completing tasks without updating `tasks.md` between them
+
+This rule applies to both `/workflows:plan` and `/workflows:work`.
+
 ### 12. Contradiction Detection Protocol (CDP)
 
 When information from one artifact contradicts another, **stop and ask the user** instead of silently choosing one side. Contradictions are objective — unlike low confidence (which is subjective), a contradiction between documents is verifiable.
@@ -193,6 +200,10 @@ ACTION:
      - Which option was chosen
      - Why (user's rationale)
   5. UPDATE the losing document to reflect the resolution
+     BASELINE FREEZE GUARD: If the losing document is in openspec/specs/
+     (read-only baseline per §10), do NOT update it directly. Instead:
+     - Record the required change in openspec/changes/{slug}/specs.md
+     - The actual baseline update will happen via /workflows:compound
   6. RESUME the phase
 
 EXCEPTIONS (do NOT stop for these):
@@ -202,13 +213,6 @@ EXCEPTIONS (do NOT stop for these):
 ```
 
 This protocol is referenced by `/workflows:plan` (Phase 1, 2, 3), `/workflows:work` (Solution Validation), and `/workflows:review` (Code Quality Review).
-
-Violations:
-- Generating multiple phase outputs without writing intermediate files
-- Advancing to Phase 3 without Phase 2 output written to disk
-- Completing tasks without updating `tasks.md` between them
-
-This rule applies to both `/workflows:plan` and `/workflows:work`.
 
 ---
 
