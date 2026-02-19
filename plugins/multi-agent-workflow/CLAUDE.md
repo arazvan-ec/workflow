@@ -7,11 +7,22 @@ A compound engineering framework for coordinating multiple AI agents on software
 ```
   ROUTE --> SHAPE --> PLAN --> WORK --> REVIEW --> COMPOUND
   (entry)  (optional)  (80%)   (15%)    (4%)       (1%)
+                        ↑                              │
+                        └──── Feedback Loop ←──────────┘
+                        (compound learnings feed back
+                         into plan + work of NEXT feature)
 
   ROUTE --> QUICK (lightweight alternative for simple tasks)
 ```
 
 **Every request starts with routing.** No exceptions.
+
+### Compound Feedback Loop
+
+Compound learnings from feature N automatically inform feature N+1:
+- **Plan** (Step 0.0d): reads compound-memory.md, retrospectives, learned patterns
+- **Work** (Step 3.5): reads learned patterns/anti-patterns, next-feature-briefing.md
+- **Compound** (Step 6b): generates next-feature-briefing.md for the next feature
 
 ### Core Commands
 

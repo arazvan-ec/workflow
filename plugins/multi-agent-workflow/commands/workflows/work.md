@@ -235,6 +235,57 @@ Read: openspec/changes/${FEATURE_ID}/proposal.md    # Problem + success criteria
 Read: openspec/changes/${FEATURE_ID}/design.md      # Solutions + SOLID patterns
 ```
 
+### Step 3.5: Load Compound Learnings (Feedback Loop)
+
+Before implementing, load insights from previous features to avoid known pitfalls and reuse proven patterns:
+
+```bash
+# 1. Compound Memory — pain points relevant to THIS feature's area
+COMPOUND_MEMORY=".ai/project/compound-memory.md"
+if [ -f "$COMPOUND_MEMORY" ]; then
+  echo "Compound memory found. Loading relevant patterns and warnings."
+  # Read: Known Pain Points → if any match current feature's domain/module:
+  #   - Add as WARNINGS to follow during implementation
+  #   - Increase BCP attention for tasks in those areas
+  # Read: Historical Patterns → if patterns match current tasks:
+  #   - Use as reference alongside design.md patterns
+  #   - Verify implementation follows proven approaches
+fi
+
+# 2. Architecture Profile — learned patterns and anti-patterns
+ARCH_PROFILE="openspec/specs/architecture-profile.yaml"
+if [ -f "$ARCH_PROFILE" ]; then
+  echo "Architecture profile found. Loading learned patterns."
+  # Read: learned_patterns → use as implementation reference
+  #   - High confidence patterns are PREFERRED approaches
+  #   - Check: does design.md align with learned patterns?
+  # Read: learned_antipatterns → use as implementation guardrails
+  #   - Before writing code, check if approach matches a known anti-pattern
+  #   - If match found → flag and use prevention note instead
+fi
+
+# 3. Next Feature Briefing (from previous compound)
+BRIEFING=".ai/project/next-feature-briefing.md"
+if [ -f "$BRIEFING" ]; then
+  echo "Next feature briefing found. Applying recommendations."
+  # Read: Reusable patterns with file references
+  # Read: Known risks and mitigations
+  # Read: Recommended test strategies
+  # Apply relevant recommendations to current tasks
+fi
+```
+
+**How compound learnings inform implementation:**
+
+| Compound Data | Impact on Work |
+|--------------|----------------|
+| Known pain points | Extra BCP vigilance in affected areas; pre-emptive test coverage |
+| Learned patterns (high confidence) | Preferred implementation approach; deviation requires justification |
+| Learned anti-patterns | Pre-check before writing code; if match → use prevention note |
+| Next feature briefing | Specific reusable code references and test strategies |
+
+> **The compound advantage**: An implementer with compound learnings produces better code on the first attempt, reducing BCP correction loops and review rejections.
+
 ### Step 4: Verify Prerequisites
 
 **For Roles mode**:

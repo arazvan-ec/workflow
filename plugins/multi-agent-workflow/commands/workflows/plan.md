@@ -238,6 +238,62 @@ fi
 # Create with: /workflows:discover --setup (generates initial constitution from project analysis)
 ```
 
+### Step 0.0d: Load Compound Learnings (Feedback Loop)
+
+Before planning, load insights from previous features to avoid repeating mistakes and reuse proven patterns:
+
+```bash
+# 1. Compound Memory — known pain points, reliable patterns, agent calibration
+COMPOUND_MEMORY=".ai/project/compound-memory.md"
+if [ -f "$COMPOUND_MEMORY" ]; then
+  echo "Compound memory found. Loading known patterns and pain points."
+  # Read: Known Pain Points (what to watch for in this feature)
+  # Read: Historical Patterns (what has worked before)
+  # Read: Agent Calibration (adjusted intensity per agent)
+  # Use pain points to PROACTIVELY address common issues in specs/design
+fi
+
+# 2. Previous Retrospectives — lessons from similar features
+RETROSPECTIVES=$(ls openspec/changes/*/99_retrospective.md 2>/dev/null)
+if [ -n "$RETROSPECTIVES" ]; then
+  echo "Previous retrospectives found. Scanning for relevant lessons."
+  # Read retrospectives from past features
+  # Look for: what went well, what could improve, surprises
+  # If current feature is similar to a past one, highlight specific lessons
+fi
+
+# 3. Architecture Profile Learned Patterns — compound-enriched project knowledge
+ARCH_PROFILE="openspec/specs/architecture-profile.yaml"
+if [ -f "$ARCH_PROFILE" ]; then
+  echo "Architecture profile found. Loading learned patterns and anti-patterns."
+  # Read: learned_patterns (proven approaches with confidence levels)
+  # Read: learned_antipatterns (known mistakes with prevention notes)
+  # Use high-confidence patterns as DEFAULTS for design decisions in Phase 3
+  # Flag anti-patterns as WARNINGS when the feature touches similar areas
+fi
+
+# 4. Compound Log — quick history of past features
+COMPOUND_LOG=".ai/project/compound_log.md"
+if [ -f "$COMPOUND_LOG" ]; then
+  echo "Compound log found. Checking for relevant past features."
+  # Scan for features with similar scope, domain, or technical area
+  # Extract: time investment breakdown, patterns reused, rules updated
+  # Use as calibration for planning_depth and time estimation
+fi
+```
+
+**How compound learnings inform planning:**
+
+| Compound Data | Used In | How |
+|--------------|---------|-----|
+| Pain points (compound-memory.md) | Phase 2 (specs) | Add explicit acceptance criteria for known pain areas |
+| Learned patterns (architecture-profile.yaml) | Phase 3 (design) | Default to proven patterns instead of inventing new ones |
+| Learned anti-patterns (architecture-profile.yaml) | Phase 3 (design) | Add "## Avoid" section with specific anti-patterns to watch |
+| Previous retrospectives | Phase 1 (understand) | Calibrate complexity estimate with real data from similar features |
+| Compound log (time data) | Phase 4 (tasks) | Inform task complexity based on historical data |
+
+> **This is the compound feedback loop**: each completed feature makes the NEXT feature's planning smarter. Without reading compound learnings, every feature plans from scratch.
+
 ### Step 0.1: Read Existing Specifications
 
 ```bash
