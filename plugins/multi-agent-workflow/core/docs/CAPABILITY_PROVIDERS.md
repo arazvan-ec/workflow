@@ -410,9 +410,59 @@ Not every workflow phase requires the most capable (and expensive) model. Use th
 | **Review (security)** | Opus | Threat analysis requires deep reasoning |
 | **Compound** | Sonnet | Structured capture and spec merging |
 
-**How to use**: Configure in `providers.yaml` under `api_recommendations.model_per_phase`. When set to `auto`, the plugin suggests the model but the API caller decides. This is a recommendation, not enforcement — the plugin works correctly with any model.
+**How to use**: Configure in `providers.yaml` under `api_recommendations`. When set to `auto`, the plugin suggests the model but the API caller decides. This is a recommendation, not enforcement — the plugin works correctly with any model.
 
 **Fallback**: If only one model is available, use it for all phases. The workflow adapts; these are optimizations, not requirements.
+
+### API Parameter Recommendations by Phase
+
+Beyond model selection, API callers can optimize parameters per phase:
+
+| Phase | `thinking` | `effort` | `speed` | Rationale |
+|-------|-----------|----------|---------|-----------|
+| **Route** | disabled | low | fast | Classification is pattern-matching, not reasoning |
+| **Shape** | enabled (high budget) | max | normal | Ambiguity resolution benefits from deep reasoning |
+| **Plan (Phase 1-2)** | enabled (medium budget) | high | normal | Spec generation needs structured thinking |
+| **Plan (Phase 3)** | enabled (high budget) | max | normal | Architectural design needs maximum reasoning depth |
+| **Plan (Phase 4)** | enabled (low budget) | medium | fast | Task breakdown from established design |
+| **Quality Gates** | disabled | low | fast | Pass/fail checklist verification |
+| **Work (simple)** | enabled (low budget) | medium | fast | Pattern-following with clear references |
+| **Work (complex)** | enabled (high budget) | max | normal | Novel code, multi-layer integration |
+| **Review (code)** | enabled (medium budget) | high | normal | Needs to reason about code quality |
+| **Review (security)** | enabled (high budget) | max | normal | Threat analysis requires deep reasoning |
+| **Compound** | enabled (low budget) | medium | fast | Structured capture and merging |
+
+### providers.yaml api_recommendations Format
+
+```yaml
+# In providers.yaml:
+api_recommendations:
+  model_per_phase:
+    route: sonnet
+    shape: opus
+    plan_understand: opus
+    plan_specs: opus
+    plan_design: opus
+    plan_tasks: sonnet
+    quality_gates: haiku
+    work_simple: sonnet
+    work_complex: opus
+    review_code: sonnet
+    review_security: opus
+    compound: sonnet
+
+  thinking_per_phase:
+    route: disabled
+    shape: high
+    plan_design: high
+    quality_gates: disabled
+    work_simple: low
+    work_complex: high
+    review_security: high
+
+  # These are RECOMMENDATIONS — the plugin works with any model and settings.
+  # The API caller reads these values and applies them when making requests.
+```
 
 ---
 
