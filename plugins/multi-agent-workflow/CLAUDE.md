@@ -104,6 +104,7 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 - **Compound Capture**: After each feature, extract patterns and update rules via `/workflows:compound`.
 - **Validation Learning**: AI self-questions solutions, logs answers for future use. See `core/docs/VALIDATION_LEARNING.md`.
 - **SOLID Constraint**: Phase 3 solutions must be COMPLIANT per contextual analysis. See `core/architecture-reference.md` and `openspec/specs/architecture-profile.yaml`.
+- **Contradiction Detection Protocol (CDP)**: When artifacts contradict each other, stop and ask the user — never silently resolve. See `core/rules/framework_rules.md` §12.
 
 ## State Management
 

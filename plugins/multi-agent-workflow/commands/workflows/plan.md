@@ -336,6 +336,8 @@ Apply the Quality Gate Protocol (above) with these 4 checks before writing `prop
 3. **Measurable criteria**: Each success criterion is testable (pass/fail). FAIL if vague.
 4. **Complete coverage**: All aspects of user's request addressed. FAIL if significant gaps.
 
+**CDP check**: If the user's request contradicts `constitution.md` or existing specs in `openspec/specs/`, apply the Contradiction Detection Protocol (see `framework_rules.md` §12) before proceeding.
+
 ---
 
 ## PHASE 2: SPECS (Requisitos Funcionales)
@@ -502,6 +504,8 @@ Apply the Quality Gate Protocol (above) with these 4 checks before writing `spec
 2. **Testable criteria**: ≥2 acceptance criteria per spec, each verifiable. FAIL if missing or vague.
 3. **Full scope**: Every user requirement maps to at least one spec. FAIL if gaps.
 4. **Substantive integration**: Integration analysis identifies extended/modified/new entities AND endpoints. FAIL if all say "None" for non-trivial feature.
+
+**CDP check**: If new specs conflict with existing specs in `openspec/specs/` (detected in Step 2.C), apply the Contradiction Detection Protocol (`framework_rules.md` §12) — do not silently override.
 
 ---
 
@@ -941,6 +945,8 @@ Apply the Quality Gate Protocol (above) with these 4 checks before writing `desi
 2. **Concrete files**: Each solution lists actual file paths to create/modify. FAIL if abstract ("implement a service").
 3. **SOLID verdicts**: Each relevant principle has a reasoned verdict (COMPLIANT/N_A with justification). FAIL if missing reasoning.
 4. **Architectural impact**: Lists specific layers and files to CREATE and MODIFY. FAIL if empty or "TBD".
+
+**CDP check**: If design decisions contradict `architecture-profile.yaml` patterns or `constitution.md` principles, apply the Contradiction Detection Protocol (`framework_rules.md` §12).
 
 ### Phase 3.5: Security Threat Analysis (conditional: planning_depth=full)
 

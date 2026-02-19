@@ -205,6 +205,13 @@ npm run test:e2e -- feature-name
 5. Code Style:
    - Backend: ./vendor/bin/php-cs-fixer fix --dry-run
    - Frontend: npm run lint
+
+6. Contradiction Check (CDP):
+   - [ ] Implementation is consistent with specs.md (no WHAT/HOW mismatch)
+   - [ ] Implementation is consistent with constitution.md (if exists)
+   - [ ] No Decision Log entries contradict what was actually implemented
+   - If contradiction found → apply CDP (framework_rules.md §12):
+     classify as DESIGN_FEEDBACK or SPEC_FEEDBACK per Feedback Loop
 ```
 
 ### Phase 5: Acceptance Criteria Validation

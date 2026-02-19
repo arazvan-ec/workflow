@@ -162,6 +162,47 @@ This ensures:
 - Partial progress is never lost
 - `tasks.md` always reflects the true current state
 
+### 12. Contradiction Detection Protocol (CDP)
+
+When information from one artifact contradicts another, **stop and ask the user** instead of silently choosing one side. Contradictions are objective — unlike low confidence (which is subjective), a contradiction between documents is verifiable.
+
+```
+CONTRADICTION DETECTION PROTOCOL:
+
+TRIGGER: Any of these detected during plan, work, or review:
+  - User request contradicts constitution.md principles
+  - User request contradicts existing specs in openspec/specs/
+  - specs.md contradicts design.md (WHAT vs HOW mismatch)
+  - design.md contradicts architecture-profile.yaml patterns
+  - Implementation deviates from design.md (caught during self-review)
+  - Decision Log entry contradicts a prior decision
+  - Cross-session: previous decision contradicts current context
+
+ACTION:
+  1. STOP the current phase (do not silently resolve)
+  2. IDENTIFY the contradiction explicitly:
+     "Document A says X (source: [file:line])
+      but Document B says Y (source: [file:line])"
+  3. PRESENT options to the user:
+     - [Keep A]: Follow Document A, update Document B
+     - [Keep B]: Follow Document B, update Document A
+     - [Reconcile]: Both are partially right — user provides resolution
+     - [Override]: User provides a new answer that supersedes both
+  4. LOG the resolution in tasks.md Decision Log with:
+     - What contradicted what
+     - Which option was chosen
+     - Why (user's rationale)
+  5. UPDATE the losing document to reflect the resolution
+  6. RESUME the phase
+
+EXCEPTIONS (do NOT stop for these):
+  - Formatting/style differences between documents (non-semantic)
+  - Outdated comments in code that don't affect behavior
+  - Version number mismatches in documentation headers
+```
+
+This protocol is referenced by `/workflows:plan` (Phase 1, 2, 3), `/workflows:work` (Solution Validation), and `/workflows:review` (Code Quality Review).
+
 Violations:
 - Generating multiple phase outputs without writing intermediate files
 - Advancing to Phase 3 without Phase 2 output written to disk
