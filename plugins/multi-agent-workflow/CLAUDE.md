@@ -65,7 +65,7 @@ A compound engineering framework for coordinating multiple AI agents on software
 
 Agents are invoked automatically by core commands. You rarely need to invoke them directly.
 
-## Skills (14)
+## Skills (15)
 
 | Category | Skills |
 |----------|--------|
@@ -75,6 +75,7 @@ Agents are invoked automatically by core commands. You rarely need to invoke the
 | Integration | mcp-connector |
 | SOLID | solid-analyzer, criteria-generator |
 | Shaping | shaper, breadboarder |
+| Research | source-report |
 
 ## Context Activation Model
 
@@ -108,6 +109,30 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 
 All roles communicate via `tasks.md` (Workflow State section in `openspec/changes/{slug}/tasks.md`). Status values: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, `APPROVED`, `REJECTED`.
 
+## Spec-Driven Development (SDD)
+
+Each feature produces a structured set of markdown artifacts in `openspec/changes/{slug}/`:
+
+| Phase | Output | Defines |
+|-------|--------|---------|
+| Phase 1 | `proposal.md` | Problem, context, success criteria (WHAT we're solving) |
+| Phase 2 | `specs.md` | Functional requirements, acceptance criteria (WHAT the system must do) |
+| Phase 2.5 | Test contract sketch (in `specs.md`) | Test boundaries, scenarios, edge cases |
+| Phase 3 | `design.md` | SOLID solutions, patterns, architecture (HOW to implement) |
+| Phase 4 | `tasks.md` | Actionable task list with decision log |
+| Runtime | `scratchpad.md` | Working notes, hypotheses, blockers (ephemeral, per-feature) |
+
+Project-level principles live in `openspec/specs/constitution.md` (see `core/templates/constitution-template.md`).
+
+## Context Budget Awareness
+
+This file + `framework_rules.md` are always loaded. Keep them lean. Everything else loads on demand.
+
+- Heavy skills and agents use `context: fork` — they get isolated context windows
+- Monitor usage with `/context`; compact with `/compact` at logical breakpoints
+- Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50` for aggressive compaction on long sessions
+- Each MCP tool description consumes tokens even when idle — disable unused servers
+
 ## Best Practices
 
 1. Route first -- every request through `/workflows:route`
@@ -119,6 +144,8 @@ All roles communicate via `tasks.md` (Workflow State section in `openspec/change
 7. Plan 80%, execute 20%
 8. Write tests before implementation (TDD)
 9. Snapshot before breaks or risky operations
+10. Log decisions -- every design choice gets a rationale in the Decision Log
+11. Self-review before transition -- reflect on output before marking phase COMPLETED
 
 ## Reference Documentation
 
@@ -128,4 +155,4 @@ All roles communicate via `tasks.md` (Workflow State section in `openspec/change
 
 ---
 
-**Version**: 3.1.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Capability Providers + Shape Up (Singer) + AI Validation Learning + GSD + BMAD
+**Version**: 3.2.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Spec-Driven Development + Capability Providers + Shape Up (Singer) + AI Validation Learning + GSD + BMAD

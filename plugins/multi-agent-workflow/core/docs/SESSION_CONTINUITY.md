@@ -7,15 +7,28 @@
 
 ## How State Persists
 
-Session continuity relies on three persistence mechanisms:
+Session continuity relies on four persistence mechanisms:
 
 | Mechanism | What It Stores | When Updated |
 |-----------|---------------|-------------|
-| **tasks.md** | Workflow State, role statuses, task progress, resume point | After every task and phase |
+| **tasks.md** | Workflow State, role statuses, task progress, resume point, decision log | After every task and phase |
 | **Git commits** | Code changes, checkpoints | At each checkpoint via `/multi-agent-workflow:checkpoint` |
 | **OpenSpec files** | Specs, design docs, proposal | After each planning phase |
+| **scratchpad.md** | Working notes, hypotheses, blockers, context breadcrumbs | During active work (ephemeral, per-feature) |
 
-All three are durable — they survive session ends, crashes, and context compaction.
+All four are durable — they survive session ends, crashes, and context compaction.
+
+### Scratchpad Pattern
+
+Each feature can have an optional `scratchpad.md` in `openspec/changes/${FEATURE_ID}/`:
+
+- **Purpose**: External memory for the active role. Prevents losing context during long sessions or after compaction.
+- **Template**: `core/templates/scratchpad-template.md`
+- **When to create**: At the start of any phase expected to be complex or multi-session
+- **When to read**: Always read on session resume (Step 1 of Resuming a Session)
+- **Lifecycle**: Created during work, reviewed during self-review, archived by `/workflows:compound`
+
+The scratchpad is NOT a deliverable — it's a thinking aid. It replaces the need for non-existent snapshot/restore commands by providing persistent context breadcrumbs.
 
 ---
 
@@ -50,10 +63,11 @@ When starting a new session to continue previous work:
 
 ```
 1. Read tasks.md → identify current Workflow State
-2. Read git log --oneline -10 → understand recent progress
-3. Read the resume point in tasks.md → know which task/phase is next
-4. Read the relevant openspec/changes/<feature>/ files for context
-5. Continue from where the previous session left off
+2. Read scratchpad.md (if exists) → re-orient with context breadcrumbs
+3. Read git log --oneline -10 → understand recent progress
+4. Read the resume point in tasks.md → know which task/phase is next
+5. Read the relevant openspec/changes/<feature>/ files for context
+6. Continue from where the previous session left off
 ```
 
 If tasks.md shows a role as `IN_PROGRESS`, check the Resume Point section for:

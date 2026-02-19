@@ -358,11 +358,63 @@ After review, update `tasks.md`:
 APPROVED - Feature ready for merge (design implemented correctly)
 ```
 
+## Feedback Loop: REVIEW → PLAN (Architecture Issues)
+
+When review finds issues that are NOT implementation bugs but **design flaws**, route feedback back to planning instead of just rejecting:
+
+```
+FEEDBACK CLASSIFICATION:
+
+1. IMPLEMENTATION BUG (code doesn't match design):
+   → REJECT → send back to /workflows:work
+   → Implementer fixes code to match design.md
+
+2. DESIGN FLAW (design itself is wrong or incomplete):
+   → REJECT with DESIGN_FEEDBACK tag
+   → Feedback routed to /workflows:plan for design revision
+   → Planner updates design.md + Decision Log
+   → Then /workflows:work re-implements affected tasks
+
+3. SPEC GAP (requirements were incomplete):
+   → REJECT with SPEC_FEEDBACK tag
+   → Feedback routed to /workflows:plan Phase 2 for spec revision
+   → Planner updates specs.md + design.md
+   → Then /workflows:work re-implements affected tasks
+```
+
+### Feedback Report Template (for DESIGN_FEEDBACK or SPEC_FEEDBACK)
+
+```markdown
+## Review Feedback → Planning
+
+**Type**: DESIGN_FEEDBACK | SPEC_FEEDBACK
+**Feature**: ${FEATURE_ID}
+**Reviewer**: Claude QA
+**Date**: ${DATE}
+
+### Issue
+[What the review found that points to a design/spec problem, not an implementation bug]
+
+### Evidence
+[Why this is a design issue, not a code issue]
+
+### Recommendation
+[What should change in design.md or specs.md]
+
+### Affected Tasks
+[Which tasks in tasks.md need re-implementation after design fix]
+```
+
+When feedback is generated, append it to `openspec/changes/${FEATURE_ID}/proposal.md` under a `## Review Feedback` section for traceability.
+
+---
+
 ## Error Recovery
 
 - **Test suite fails to run**: Verify test infrastructure (dependencies installed, config valid). If environment issue, document and ask user to fix environment before re-review.
 - **SOLID analyzer unavailable**: Fall back to manual SOLID checklist verification (Phase 4 Code Quality Review). Document that automated verification was skipped.
 - **Implementation doesn't match design.md**: REJECT with specific deviations listed. Reference exact sections of design.md that were not followed.
+- **Design itself is flawed**: REJECT with DESIGN_FEEDBACK — route to planner via Feedback Loop (above).
 - **Acceptance criteria ambiguous**: If a criterion cannot be objectively verified, flag it in the QA Report as INCONCLUSIVE and ask the user for clarification before final verdict.
 - **Review blocked by missing artifacts**: If proposal.md, specs.md, or design.md are missing, STOP review. These are prerequisites — run `/workflows:plan` to generate them.
 

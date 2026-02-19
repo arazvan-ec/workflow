@@ -238,6 +238,21 @@ if [ -f "$SHAPED_BRIEF" ]; then
 fi
 ```
 
+### Step 0.0c: Load Project Constitution (if exists)
+
+```bash
+# Check for project constitution (non-negotiable principles)
+CONSTITUTION="openspec/specs/constitution.md"
+if [ -f "$CONSTITUTION" ]; then
+  echo "Project constitution found. Loading constraints into planning context."
+  # Read architecture principles, quality standards, technology constraints
+  # ALL planning decisions must be consistent with constitution.md
+  # If a design decision would violate a constitutional principle, flag it to the user
+fi
+# Template: core/templates/constitution-template.md
+# Create with: /workflows:discover --setup (generates initial constitution from project analysis)
+```
+
 ### Step 0.1: Read Existing Specifications
 
 ```bash
@@ -508,15 +523,39 @@ If "restart": return to Phase 1 with new understanding.
 
 ---
 
-### Phase 2.5: Test Contract Sketch (conditional: planning_depth=full)
+### Phase 2.5: Test Contract Sketch (conditional: planning_depth=full or standard)
 
-When `planning_depth` is `full`, briefly outline test coverage before designing solutions:
+When `planning_depth` is `full` or `standard`, outline test contracts before designing solutions. This ensures Phase 3 designs for testability and Phase 5 (work) starts TDD with pre-validated criteria.
 
-- **For each functional spec**: Identify whether it maps to a unit test, integration test, or both
-- **Key test boundaries**: What are the inputs, outputs, and edge cases?
-- **Test dependencies**: Does this spec require fixtures, mocks, or test infrastructure?
+```markdown
+## Test Contract Sketch: ${FEATURE_ID}
 
-This is NOT full test design — just a sketch that informs Phase 3 design decisions (e.g., designing for testability).
+### Test Mapping (per spec)
+
+| Spec | Test Type | Key Scenarios | Edge Cases | Dependencies |
+|------|-----------|---------------|------------|--------------|
+| SPEC-F01 | Unit + Integration | [happy path, validation] | [empty input, max length] | [mock: UserRepository] |
+| SPEC-F02 | Integration | [API response, timeout] | [null response, 500 error] | [fixture: test DB] |
+
+### Test Boundaries
+
+- **System boundary** (where to mock): [e.g., external APIs, database, file system]
+- **Trust boundary** (where to validate input): [e.g., controllers, CLI handlers]
+- **Integration boundary** (where unit tests are insufficient): [e.g., repository queries, API contracts]
+
+### Test Infrastructure Needed
+
+- [ ] Fixtures: [list any test data needed]
+- [ ] Mocks: [list interfaces that need mocking]
+- [ ] Test environment: [any special setup — test DB, env vars, etc.]
+```
+
+This is NOT full test implementation — it's a contract that:
+1. Informs Phase 3 design decisions (design for testability)
+2. Feeds directly into `/workflows:work` TDD cycle (pre-validated scenarios)
+3. Prevents the implementer from having to guess test boundaries
+
+**Append the test contract sketch to `specs.md`** after the functional specs section.
 
 ---
 
@@ -968,6 +1007,64 @@ Before marking planning as COMPLETED, verify each phase delivered its key output
 
 ---
 
+## Self-Review (Reflection Pattern — MANDATORY before Completeness Verification)
+
+Before verifying completeness, the planner performs a structured self-critique of the entire plan:
+
+```
+SELF-REVIEW PROTOCOL:
+
+1. DESIGN COHERENCE: Re-read design.md end-to-end. Ask:
+   - Does each solution actually solve the spec it references?
+   - Are there contradictions between solutions (e.g., two solutions creating the same class differently)?
+   - Could any solution be simpler without losing functionality?
+
+2. TESTABILITY CHECK: Re-read test contract sketch in specs.md. Ask:
+   - Can every acceptance criterion be tested with the designed architecture?
+   - Are there hidden dependencies that make testing difficult?
+
+3. INTEGRATION SANITY: Compare design.md against openspec/specs/ baseline. Ask:
+   - Does the design conflict with any existing pattern in the codebase?
+   - Are all extended/modified entities backward-compatible?
+
+4. DECISION LOG AUDIT: Review the Decision Log in tasks.md. Ask:
+   - Is every non-obvious design choice documented with rationale?
+   - Are there implicit decisions that should be explicit?
+
+IF self-review finds issues:
+  → Fix them BEFORE presenting to user
+  → Log what was caught in Decision Log: "Self-review: [what was fixed and why]"
+
+IF no issues found:
+  → Proceed to Completeness Verification
+```
+
+This is NOT the multi-agent review (`/workflows:review`). This is the planner's own critical reflection before handing off to the implementer.
+
+---
+
+## Decision Log Enforcement (MANDATORY in Phase 4)
+
+Every non-obvious design decision MUST be logged in `tasks.md`:
+
+```markdown
+## Decision Log
+
+| # | Decision | Alternatives Considered | Rationale | Phase | Risk |
+|---|----------|------------------------|-----------|-------|------|
+| D-001 | Use Strategy pattern for validators | Chain of Responsibility, simple if/else | Multiple validator types expected, OCP compliance | Phase 3 | LOW |
+| D-002 | JWT over session-based auth | Session cookies, OAuth2 | Stateless API requirement, mobile client support | Phase 3 | MEDIUM |
+| D-003 | Self-review: simplified User entity | Original had 12 methods | SRP violation caught during self-review | Self-Review | LOW |
+```
+
+The Decision Log:
+- Is populated during Phase 3 (design decisions) and Phase 4 (task breakdown decisions)
+- Is updated during Self-Review when issues are caught and fixed
+- Is carried forward into `/workflows:work` and `/workflows:review` for traceability
+- Feeds into `/workflows:compound` for learning extraction
+
+---
+
 ## Plan Completeness Verification (MANDATORY before marking COMPLETED)
 
 Before setting planner status to `COMPLETED`, verify:
@@ -975,8 +1072,11 @@ Before setting planner status to `COMPLETED`, verify:
 1. **Files exist**: All 4 output files (`proposal.md`, `specs.md`, `design.md`, `tasks.md`) exist in `openspec/changes/${FEATURE_ID}/`. If missing → generate them. Do NOT mark COMPLETED with missing files.
 2. **Substantive content**: Each file has ≥5 non-header content lines. If insufficient → enrich and rewrite.
 3. **Cross-reference**: Every user requirement maps to ≥1 spec, every spec maps to ≥1 task. If gaps found → ask user whether to add them.
-4. **User confirmation**: Present summary (spec count, task count, files to create/modify, SOLID status). Ask: "Ready for /workflows:work? (yes/review/revise)"
-5. **Mark COMPLETED**: Update tasks.md Workflow State → Planner: COMPLETED, all phases COMPLETED with timestamps.
+4. **Decision Log**: tasks.md contains ≥1 decision entry. FAIL if Decision Log is empty — every plan has at least one non-obvious choice.
+5. **Test Contract Sketch**: specs.md contains test mapping table (Phase 2.5). FAIL if missing for `planning_depth=full` or `standard`.
+6. **Self-Review done**: Self-Review Protocol was executed and any fixes logged.
+7. **User confirmation**: Present summary (spec count, task count, files to create/modify, SOLID status, decision count). Ask: "Ready for /workflows:work? (yes/review/revise)"
+8. **Mark COMPLETED**: Update tasks.md Workflow State → Planner: COMPLETED, all phases COMPLETED with timestamps.
 
 ---
 
@@ -985,10 +1085,23 @@ Before setting planner status to `COMPLETED`, verify:
 ### OpenSpec Structure (all workflows):
 ```
 openspec/changes/${FEATURE_ID}/
-├── proposal.md   # Phase 1: Problem statement, motivation, scope, success criteria
-├── specs.md      # Phase 2: Functional specs (WHAT) + Integration Analysis
-├── design.md     # Phase 3: Solutions + SOLID + Architectural Impact (HOW)
-└── tasks.md      # Phase 4: Task breakdown + verify conditions + Workflow State
+├── proposal.md     # Phase 1: Problem statement, motivation, scope, success criteria
+├── specs.md        # Phase 2: Functional specs (WHAT) + Integration Analysis + Test Contract Sketch
+├── design.md       # Phase 3: Solutions + SOLID + Architectural Impact (HOW)
+├── tasks.md        # Phase 4: Task breakdown + verify conditions + Workflow State + Decision Log
+└── scratchpad.md   # Runtime: Working notes, hypotheses, context breadcrumbs (ephemeral)
+```
+
+### Project-Level Specs (baseline):
+```
+openspec/specs/
+├── constitution.md               # Non-negotiable project principles (template: core/templates/constitution-template.md)
+├── architecture-profile.yaml     # Project architecture patterns and SOLID baseline
+├── api-architecture-diagnostic.yaml  # API dimensional profile (generated by /workflows:discover)
+├── entities/                     # Domain model specs
+├── api-contracts/                # API endpoint specs
+├── business-rules/               # Business logic constraints
+└── architectural-constraints/    # System boundaries
 ```
 
 The structure for `specs.md` and `design.md` is defined inline in Phase 2 and Phase 3 respectively.
