@@ -228,20 +228,28 @@ After documenting anti-patterns and the 70% boundary, update `.ai/project/compou
 ## For each anti-pattern/pain point found in Step 3:
 
 1. Check if pain point already exists in compound-memory.md:
-   - EXISTS: Increment frequency (e.g., "2/5 features" → "3/6 features"), update severity if worse
+   - EXISTS with `[SEED]` tag AND was accurate: PROMOTE → remove `[SEED]` tag, set real frequency
+   - EXISTS with `[SEED]` tag AND was NOT accurate: UPDATE → replace with real learning, mark `[SEED-UPDATED]`
+   - EXISTS (regular): Increment frequency (e.g., "2/5 features" → "3/6 features"), update severity if worse
    - NEW: Add new entry under "Known Pain Points"
 
 2. For each successful pattern found in Step 2:
-   - EXISTS: Increment reliability counter
+   - EXISTS with `[SEED]` tag AND matched reality: PROMOTE → remove `[SEED]` tag, set real confidence
+   - EXISTS with `[SEED]` tag AND didn't match: UPDATE with real data, mark `[SEED-UPDATED]`
+   - EXISTS (regular): Increment reliability counter
    - NEW: Add new entry under "Historical Patterns"
 
-3. Recalculate Agent Calibration table:
+3. Check for stale seed entries:
+   - If a `[SEED]` entry has NOT been referenced in 3+ features → mark `[SEED-STALE]`
+   - Stale entries are candidates for removal in future compound runs
+
+4. Recalculate Agent Calibration table:
    - ≥2 related pain points for an agent → intensity = HIGH
    - 1 related pain point → intensity = default + warning flag
    - 0 related pain points → intensity = default
    - ≥3 reliable good patterns → may LOWER intensity (team is consistent)
 
-4. If a pain point or pattern has been present for ≥5 features:
+5. If a pain point or pattern has been present for ≥5 features:
    - PROMOTE to project rules (global_rules.md)
    - Mark in memory: "[PROMOTED to global_rules.md on ${DATE}]"
 ```

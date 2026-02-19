@@ -42,7 +42,19 @@ Compound learnings from feature N automatically inform feature N+1:
 |---------|---------|
 | `/workflows:status` | View all roles' progress |
 | `/workflows:help` | Quick reference and guidance |
-| `/workflows:discover` | Auto-analyze project architecture (`--setup` for onboarding) |
+| `/workflows:discover` | Auto-analyze project architecture (`--setup` for onboarding, `--seed` for greenfield) |
+
+### Project Seed (Greenfield Projects)
+
+For new projects with requirements but no code, run `/workflows:discover --seed` BEFORE planning.
+This generates compound-equivalent knowledge so your first feature plans like your fifth:
+
+```
+/workflows:discover --seed  →  architecture-profile.yaml (stack, patterns, SOLID)
+                            →  compound-memory.md (known pain points for your stack/domain)
+                            →  next-feature-briefing.md (feature roadmap with dependencies)
+                            →  entity specs (domain model from requirements)
+```
 
 ### Flow Guards (enforced)
 
