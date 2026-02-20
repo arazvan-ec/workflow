@@ -160,20 +160,47 @@ providers:
   # full: All phases + integration analysis + SOLID (complex features)
   #   - Phase 1 (Understand) + Phase 2 (Specs) + Phase 3 (Solutions+SOLID) + Phase 4 (Tasks)
   #   - Integration analysis + architectural impact
+  #   - Quality Gate: max 3 iterations per phase
+  #   - Step 0: loads ALL compound learnings (5 files)
   #   - Best for: new features, multi-layer changes, security-sensitive
   #
   # standard: Phase 1-3 + tasks, skip architectural impact detail
   #   - Phase 1 (Understand) + Phase 2 (Specs) + Phase 3 (Solutions) + Phase 4 (Tasks)
   #   - SOLID verification but no detailed layer/module impact analysis
+  #   - Quality Gate: max 2 iterations per phase
+  #   - Step 0: loads compound-memory.md + architecture-profile.yaml only
   #   - Best for: medium features, single-layer changes
   #
   # minimal: Problem statement + tasks only (simple features)
   #   - Phase 1 (Understand) + Phase 4 (Tasks) -- skips specs and solutions
   #   - No SOLID analysis, no integration analysis
+  #   - Quality Gate: max 1 iteration per phase
+  #   - Step 0: loads architecture-profile.yaml only (pattern reference)
   #   - Best for: simple features, bug fixes, small changes
   #   - Note: /workflows:quick is preferred for truly trivial tasks
   #
   planning_depth: auto  # auto | full | standard | minimal
+
+  # --- Planning Speed ---
+  # Controls planning speed vs thoroughness trade-off.
+  # Independent of planning_depth — you can do fast+full or standard+minimal.
+  #
+  # fast: Prioritize speed over exhaustiveness
+  #   - Inline SOLID checks (skip forked solid-analyzer)
+  #   - Skip HITL checkpoint between Phase 2→3 (auto-advance)
+  #   - Combine Phase 1+2 into single generation pass
+  #   - Skip spec-analyzer conflict detection (manual review in /workflows:review)
+  #   - --show-impact defaults to false
+  #   - Best for: well-understood features, experienced teams, iteration speed
+  #
+  # standard: Balance speed and thoroughness (default)
+  #   - Full Quality Gates per depth level
+  #   - HITL checkpoints at defined transitions
+  #   - Forked skills when fork_strategy requires it
+  #   - --show-impact defaults to true for full, false for standard/minimal
+  #   - Best for: most features
+  #
+  planning_speed: standard  # fast | standard
 
 # --- Thresholds ---
 # Override default thresholds based on your model's capabilities.
@@ -198,6 +225,24 @@ thresholds:
     # Max messages before suggesting checkpoint
     # Default: 50 (manual-snapshots), 150 (compaction-aware)
     max_messages: null
+
+  # Planning Quality Gate iterations (per depth)
+  # Controls max iterations of the Quality Gate Protocol per phase.
+  # Lower = faster planning, higher = more thorough self-correction.
+  quality_gate_max_iterations:
+    full: 3         # Maximum thoroughness
+    standard: 2     # Balanced
+    minimal: 1      # Single pass (fast)
+
+  # Step 0 compound loading scope (per depth)
+  # Controls which compound files are loaded in Step 0.0d.
+  # Fewer files = faster context loading, less token consumption.
+  # Files: compound-memory.md, retrospectives, architecture-profile.yaml,
+  #         compound_log.md, next-feature-briefing.md
+  step0_compound_scope:
+    full: all                      # Load all 5 compound sources
+    standard: [compound-memory, architecture-profile]  # Load 2 most relevant
+    minimal: [architecture-profile]  # Load only pattern reference
 
   # Correction limits (Bounded Correction Protocol)
   # Scale-adaptive iteration limits based on task complexity.
@@ -229,9 +274,10 @@ thresholds:
 
 api_recommendations:
   # Effort levels per workflow phase (Opus 4.6+ adaptive thinking)
+  # When planning_speed=fast, plan effort downgrades to "high" (from max)
   effort_by_phase:
     route: medium       # Routing is classification, not deep analysis
-    plan: max           # Planning benefits from maximum reasoning
+    plan: max           # Planning benefits from maximum reasoning (high when planning_speed=fast)
     work: high          # Implementation needs solid reasoning
     review: max         # Reviews need thorough analysis
     compound: medium    # Learning capture is structured extraction
@@ -244,7 +290,8 @@ api_recommendations:
     code_review: standard       # Accuracy matters more than speed
     implementation: standard    # Correctness is critical
     quick_status: fast          # Rapid checks
-    planning: standard          # Depth matters
+    planning: standard          # Depth matters (fast when planning_speed=fast)
+    planning_fast: fast         # Use with planning_speed=fast
 
   # Thinking mode
   thinking:
