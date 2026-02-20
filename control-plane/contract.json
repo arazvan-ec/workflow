@@ -1,0 +1,75 @@
+{
+  "version": "1",
+  "description": "Machine-readable governance contract for the workflow plugin repository. Defines risk tiers, merge policy, and documentation drift rules.",
+  "riskTierRules": {
+    "high": [
+      "plugins/multi-agent-workflow/core/rules/**",
+      "plugins/multi-agent-workflow/core/roles/**",
+      "plugins/multi-agent-workflow/commands/**",
+      "plugins/multi-agent-workflow/agents/**",
+      "plugins/multi-agent-workflow/CLAUDE.md",
+      ".claude/**",
+      "control-plane/**"
+    ],
+    "medium": [
+      "plugins/multi-agent-workflow/skills/**",
+      "plugins/multi-agent-workflow/core/templates/**",
+      "plugins/multi-agent-workflow/core/docs/**",
+      "plugins/multi-agent-workflow/core/providers.yaml",
+      "plugins/multi-agent-workflow/core/architecture-reference.md",
+      "plans/**"
+    ],
+    "low": [
+      "**"
+    ]
+  },
+  "mergePolicy": {
+    "high": {
+      "requiredChecks": ["risk-policy-gate", "ci"]
+    },
+    "medium": {
+      "requiredChecks": ["risk-policy-gate", "ci"]
+    },
+    "low": {
+      "requiredChecks": ["risk-policy-gate"]
+    }
+  },
+  "docsDriftRules": [
+    {
+      "name": "core-rules-require-docs-update",
+      "ifChanged": [
+        "plugins/multi-agent-workflow/core/rules/**",
+        "plugins/multi-agent-workflow/core/roles/**"
+      ],
+      "mustAlsoChangeOneOf": [
+        "plugins/multi-agent-workflow/CLAUDE.md",
+        "plugins/multi-agent-workflow/README.md",
+        "plans/**"
+      ]
+    },
+    {
+      "name": "commands-require-docs-update",
+      "ifChanged": [
+        "plugins/multi-agent-workflow/commands/**"
+      ],
+      "mustAlsoChangeOneOf": [
+        "plugins/multi-agent-workflow/CLAUDE.md",
+        "plugins/multi-agent-workflow/README.md",
+        "plans/**"
+      ]
+    },
+    {
+      "name": "contract-change-requires-plan",
+      "ifChanged": [
+        "control-plane/contract.json"
+      ],
+      "mustAlsoChangeOneOf": [
+        "plans/**"
+      ]
+    }
+  ],
+  "shaDiscipline": {
+    "enforced": true,
+    "description": "All evidence (checks, reviews) must reference the current HEAD SHA. Stale evidence from older commits is invalid."
+  }
+}
