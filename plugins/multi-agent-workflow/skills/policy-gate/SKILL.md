@@ -149,21 +149,9 @@ Listar cada violación de drift con:
 
 ## Integración con el Workflow
 
-Este skill participa en el workflow de dos formas distintas:
+Este skill participa en el workflow de dos formas:
 
-### 1. Route: Contract-Aware Routing (indirecto — sin invocar este skill)
-
-En `/workflows:route` Step 0, el router lee directamente `control-plane/contract.json` y mapea la **intención del usuario** (texto de la petición) a los risk tiers del contrato. No ejecuta `git diff` porque no hay archivos cambiados aún. El contrato informa la decisión de routing:
-
-| Tier detectado de la intención | Impacto en routing |
-|-------------------------------|-------------------|
-| high | Forzar task-breakdown, nunca quick |
-| medium | Sugerir task-breakdown si hay ambigüedad |
-| low | Sin restricciones adicionales |
-
-> **Nota**: Esto usa los datos del contrato pero NO invoca policy-gate. Es una lectura directa del JSON para informar routing.
-
-### 2. Work: Full Policy Gate (invocación directa de este skill)
+### 1. Work: Full Policy Gate (invocación directa de este skill)
 
 En `/workflows:work` Step 7, **antes del checkpoint**, se invoca este skill completo:
 
@@ -175,7 +163,7 @@ En `/workflows:work` Step 7, **antes del checkpoint**, se invoca este skill comp
 | **Si PASS** | Log tier en checkpoint notes, proceder a commit |
 | **Si FAIL** | Advertir violaciones de drift, recomendar actualizar docs. NO bloquear commit |
 
-### 3. Manual: Invocación ad-hoc
+### 2. Manual: Invocación ad-hoc
 
 Se puede invocar manualmente en cualquier momento para inspeccionar el estado actual:
 

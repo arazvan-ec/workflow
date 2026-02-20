@@ -281,20 +281,9 @@ When automatically classifying a request, calculate confidence:
 
 ## Integration Points
 
-### With Trust Model
+### With Policy Gate
 
-```yaml
-# When routing, check trust level of affected files
-if affected_files match low_trust_patterns:
-  force_workflow: task-breakdown
-  force_review: security-reviewer OR pair-programming
-
-if affected_files match medium_trust_patterns:
-  minimum_workflow: default
-
-if affected_files match high_trust_patterns:
-  allow_workflow: implementation-only
-```
+Risk-tier enforcement happens in `/workflows:work` Step 7, where the policy-gate skill evaluates actual changed files (via `git diff`) against `control-plane/contract.json`. This provides data-driven risk assessment at checkpoint time rather than speculative routing-time guessing.
 
 ### With Agents
 

@@ -68,13 +68,13 @@ Skill nativo de Claude Code que:
 /multi-agent-workflow:policy-gate --base origin/main
 ```
 
-### Integración en route.md
+### Integración en work.md
 
-Se añadió un **Step 0: Policy Gate (Pre-vuelo)** en `/workflows:route` que:
-- Ejecuta policy-gate antes del análisis inicial
-- Advierte al usuario si hay violaciones de drift
-- No bloquea el routing — solo informa
-- Si el tier es `high`, escala la complejidad del workflow
+El policy-gate se integra en `/workflows:work` Step 7 (checkpoint), donde:
+- Evalúa archivos reales cambiados via `git diff` (no inferencia de intención)
+- Calcula risk tier del changeset
+- Verifica docs drift rules
+- Advierte al usuario si hay violaciones — no bloquea el commit
 
 ---
 
@@ -108,6 +108,6 @@ python3 -m json.tool control-plane/contract.json
 # El skill debe existir:
 ls plugins/multi-agent-workflow/skills/policy-gate/SKILL.md
 
-# route.md debe incluir Step 0 (Policy Gate):
-grep -c "Policy Gate" plugins/multi-agent-workflow/commands/workflows/route.md
+# work.md debe incluir Policy Gate en Step 7:
+grep -c "policy-gate" plugins/multi-agent-workflow/commands/workflows/work.md
 ```

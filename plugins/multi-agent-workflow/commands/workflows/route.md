@@ -207,60 +207,6 @@ Para investigar esto efectivamente, necesito entender:
 
 ## Execution Protocol
 
-### Step 0: Contract-Aware Routing (Risk Tier from Intent)
-
-Antes de analizar la solicitud, evaluar el **riesgo potencial** usando el contrato de gobernanza. Esto NO ejecuta `git diff` — trabaja desde la intención del usuario mapeada a los risk tiers del contrato.
-
-**Protocolo**:
-
-1. Leer `control-plane/contract.json` → sección `riskTierRules`
-2. Analizar la petición del usuario → identificar qué áreas del proyecto tocará
-3. Mapear esas áreas a los patrones del contrato → determinar tier probable
-4. Usar el tier para influir la decisión de routing
-
-**Mapeo de intención a tier**:
-
-```
-INTENT-TO-TIER MAPPING:
-
-1. Del texto del usuario, extraer ÁREAS que probablemente se modifiquen:
-   - "cambiar reglas de testing" → core/rules/**
-   - "añadir nuevo comando" → commands/**
-   - "mejorar el agente de review" → agents/**
-   - "actualizar un skill" → skills/**
-   - "cambiar documentación" → docs/**, README.md
-
-2. Buscar cada área en riskTierRules del contrato:
-   - Match en "high" → tier HIGH
-   - Match en "medium" → tier MEDIUM
-   - Sin match específico → tier LOW (catch-all **)
-
-3. El tier más alto entre todas las áreas gana.
-```
-
-**Impacto en routing**:
-
-| Tier detectado | Acción sobre routing |
-|----------------|---------------------|
-| **high** | Forzar `task-breakdown` workflow. Nunca `quick`. Advertir al usuario: "Esta petición afecta áreas de alto riesgo." |
-| **medium** | Routing normal, pero sugerir `task-breakdown` si la complejidad es ambigua |
-| **low** | Routing normal sin restricciones adicionales |
-
-**Ejemplo**:
-```
-Usuario: "Necesito modificar las reglas de framework"
-
-Step 0 — Contract-Aware Routing:
-  Intención detectada: core/rules/framework_rules.md
-  Match en contrato: "plugins/multi-agent-workflow/core/rules/**" → high
-  Tier probable: HIGH
-  → Forzar task-breakdown, requiere review
-  → Informar: "Esta petición toca reglas del core (tier high).
-    Se recomienda task-breakdown con review obligatorio."
-```
-
-> **Nota**: La validación completa (con `git diff` real y verificación de docs drift) se ejecuta en `/workflows:work` Step 7, donde ya existen archivos cambiados. Aquí solo se usa el contrato para informar el routing.
-
 ### Step 1: Initial Analysis
 
 ```markdown
@@ -392,17 +338,6 @@ Basado en tu solicitud, recomiendo:
 
 Once confirmed, invoke the appropriate workflow command with all gathered context (including confirmed assumptions and success criteria).
 
-## Integration with Trust Model
-
-The router also considers the trust model when routing:
-
-| File Pattern | Trust Level | Routing Adjustment |
-|--------------|-------------|-------------------|
-| `**/auth/**`, `**/security/**` | LOW | Force task-breakdown + pair review |
-| `**/payment/**`, `**/billing/**` | LOW | Force task-breakdown + security review |
-| `src/**/*` | MEDIUM | Standard workflow |
-| `tests/**/*`, `docs/**/*` | HIGH | Can use implementation-only |
-
 ## Enforcement Rules
 
 ### CRITICAL: This router is MANDATORY
@@ -440,14 +375,9 @@ Router Analysis:
 - Type: New feature (detected with HIGH confidence)
 - Complexity: Medium (OAuth integration)
 - Multi-agent: Yes (backend + possibly frontend)
-- Trust level: LOW (auth-related)
 
 Recommendation:
 /workflows:plan user-auth-google --workflow=task-breakdown
-
-Additional notes: Due to LOW trust level, will require:
-- Pair review for all auth-related code
-- Security review before merge
 ```
 
 ### Example 2: Unclear Request
@@ -610,7 +540,6 @@ hooks:
 
 Based on aggregated evidence:
 - **Workflow**: task-breakdown (HIGH complexity + no existing specs)
-- **Trust level**: LOW (payment = sensitive)
 - **Required reviews**: security-reviewer + performance-reviewer
 - **Parallelization**: By layer (DDD) recommended
 - **Estimated phases**: Plan (extended) → Work → Review
@@ -630,8 +559,7 @@ The `/workflows:route` command ensures:
 4. **Decision-challenge loop** before selecting workflow (question assumptions + compare alternatives)
 5. **Appropriate complexity** matching task needs (Simplicity First)
 6. **Gathering necessary context** through clarifying questions
-7. **Appropriate trust level** application
-8. **Consistent entry point** for all interactions
+7. **Consistent entry point** for all interactions
 
 **Remember**: When in doubt, ASK. State assumptions. Define success criteria. It's better to clarify than to execute the wrong workflow.
 
