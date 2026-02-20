@@ -31,7 +31,7 @@ Compound learnings from feature N automatically inform feature N+1:
 | 0 | `/workflows:route` | Classify request, ask questions, select workflow | **Always first** |
 | 0b | `/workflows:quick` | Lightweight path for simple tasks (<=3 files) | Simple tasks |
 | 1 | `/workflows:shape` | Separate problem from solution, spike unknowns | Complex/unclear features |
-| 2 | `/workflows:plan` | Architecture-first planning with SOLID constraint | Before implementation |
+| 2 | `/workflows:plan` | Architecture-first planning with SOLID constraint (`--speed=fast` for speed) | Before implementation |
 | 3 | `/workflows:work` | Execute with TDD + Bounded Correction Protocol | After plan COMPLETED |
 | 4 | `/workflows:review` | Multi-agent quality review | After work COMPLETED |
 | 5 | `/workflows:compound` | Capture learnings for future acceleration | After review APPROVED |
@@ -117,6 +117,17 @@ Heavy skills and review agents run with `context: fork` -- isolated context wind
 ## Capability Providers
 
 Model-agnostic and execution-agnostic. Abstracts capabilities (parallelization, context management, fork strategy) behind providers that auto-detect the running model. Config: `core/providers.yaml`, details: `core/docs/CAPABILITY_PROVIDERS.md`.
+
+### Planning Speed Optimization
+
+If planning feels slow, use these levers (in order of impact):
+
+1. **`--speed=fast`**: Skip forked skills, auto-advance HITL, combine phases. E.g.: `/workflows:plan feature --speed=fast`
+2. **`planning_depth: minimal`** in `providers.yaml`: Skip Phase 2 (specs) and Phase 3 (design), only produce proposal + tasks
+3. **`planning_depth: standard`** (default for medium complexity): Reduced QG iterations (2 vs 3), loads 2 compound files instead of 5
+4. **Set `planning_speed: fast`** in `providers.yaml` to make fast mode the default for all plans
+
+Phase instructions are split into modular files (`commands/workflows/plan-phases/`) and loaded progressively based on depth -- minimal depth loads only 3 files vs 5 for full.
 
 When `providers.yaml` is set to `auto` (default), resolve providers using the Detection Protocol before executing provider-dependent operations.
 
