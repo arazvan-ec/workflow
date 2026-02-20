@@ -207,28 +207,59 @@ Para investigar esto efectivamente, necesito entender:
 
 ## Execution Protocol
 
-### Step 0: Policy Gate (Pre-vuelo)
+### Step 0: Contract-Aware Routing (Risk Tier from Intent)
 
-Antes de analizar la solicitud, ejecutar evaluación de política:
+Antes de analizar la solicitud, evaluar el **riesgo potencial** usando el contrato de gobernanza. Esto NO ejecuta `git diff` — trabaja desde la intención del usuario mapeada a los risk tiers del contrato.
 
-1. Invocar skill `policy-gate` para evaluar archivos cambiados pendientes
-2. Si hay cambios sin commit en el working tree, evaluar contra el contrato
-3. Informar al usuario del tier de riesgo y cualquier violación de drift
-4. **No bloquear el routing** — solo advertir. El usuario decide si corregir antes o después
+**Protocolo**:
+
+1. Leer `control-plane/contract.json` → sección `riskTierRules`
+2. Analizar la petición del usuario → identificar qué áreas del proyecto tocará
+3. Mapear esas áreas a los patrones del contrato → determinar tier probable
+4. Usar el tier para influir la decisión de routing
+
+**Mapeo de intención a tier**:
 
 ```
-Si policy-gate retorna FAIL:
-  → Mostrar violaciones al usuario
-  → Preguntar: "¿Quieres corregir el drift antes de continuar o seguir con el routing?"
-  → Si corregir: el usuario actualiza docs, luego vuelve a /workflows:route
-  → Si continuar: proceder con advertencia activa
+INTENT-TO-TIER MAPPING:
 
-Si policy-gate retorna PASS:
-  → Informar tier de riesgo (afecta routing: high → forzar task-breakdown)
-  → Continuar con Step 1
+1. Del texto del usuario, extraer ÁREAS que probablemente se modifiquen:
+   - "cambiar reglas de testing" → core/rules/**
+   - "añadir nuevo comando" → commands/**
+   - "mejorar el agente de review" → agents/**
+   - "actualizar un skill" → skills/**
+   - "cambiar documentación" → docs/**, README.md
+
+2. Buscar cada área en riskTierRules del contrato:
+   - Match en "high" → tier HIGH
+   - Match en "medium" → tier MEDIUM
+   - Sin match específico → tier LOW (catch-all **)
+
+3. El tier más alto entre todas las áreas gana.
 ```
 
-**Integración con routing**: Si el tier es `high`, considerar escalar la complejidad del workflow (forzar `task-breakdown` en vez de `quick`).
+**Impacto en routing**:
+
+| Tier detectado | Acción sobre routing |
+|----------------|---------------------|
+| **high** | Forzar `task-breakdown` workflow. Nunca `quick`. Advertir al usuario: "Esta petición afecta áreas de alto riesgo." |
+| **medium** | Routing normal, pero sugerir `task-breakdown` si la complejidad es ambigua |
+| **low** | Routing normal sin restricciones adicionales |
+
+**Ejemplo**:
+```
+Usuario: "Necesito modificar las reglas de framework"
+
+Step 0 — Contract-Aware Routing:
+  Intención detectada: core/rules/framework_rules.md
+  Match en contrato: "plugins/multi-agent-workflow/core/rules/**" → high
+  Tier probable: HIGH
+  → Forzar task-breakdown, requiere review
+  → Informar: "Esta petición toca reglas del core (tier high).
+    Se recomienda task-breakdown con review obligatorio."
+```
+
+> **Nota**: La validación completa (con `git diff` real y verificación de docs drift) se ejecuta en `/workflows:work` Step 7, donde ya existen archivos cambiados. Aquí solo se usa el contrato para informar el routing.
 
 ### Step 1: Initial Analysis
 

@@ -20,10 +20,12 @@ Evalúa los archivos cambiados contra el contrato de gobernanza del repositorio.
 
 ## Cuándo Usarlo
 
-- **Antes de commit**: para verificar que no faltan actualizaciones de documentación
-- **Durante route**: como pre-vuelo automático antes de seleccionar workflow
-- **Antes de PR**: para anticipar qué checks serán necesarios
-- **Manualmente**: cuando quieras saber el tier de riesgo de tus cambios
+- **Automático en `/workflows:work`**: se ejecuta antes de cada checkpoint (Step 7) para validar cambios reales contra el contrato
+- **Antes de commit manual**: para verificar que no faltan actualizaciones de documentación
+- **Antes de PR**: para anticipar qué checks serán necesarios y qué tier tiene tu changeset
+- **Ad-hoc**: cuando quieras inspeccionar el tier de riesgo de tus cambios actuales
+
+> **Nota**: En `/workflows:route` NO se invoca este skill. El router usa el contrato directamente para mapear la intención del usuario a risk tiers (sin `git diff`).
 
 ## Invocación
 
@@ -147,14 +149,41 @@ Listar cada violación de drift con:
 
 ## Integración con el Workflow
 
-Este skill se invoca automáticamente en dos puntos:
+Este skill participa en el workflow de dos formas distintas:
 
-| Punto de invocación | Cuándo | Acción si FAIL |
-|---------------------|--------|----------------|
-| `/workflows:route` Step 1 | Antes del análisis inicial | Advertir al usuario, no bloquear routing |
-| `/workflows:work` Step 7 | Antes del checkpoint | Advertir, recomendar actualizar docs antes de commit |
+### 1. Route: Contract-Aware Routing (indirecto — sin invocar este skill)
 
-También se puede invocar manualmente en cualquier momento.
+En `/workflows:route` Step 0, el router lee directamente `control-plane/contract.json` y mapea la **intención del usuario** (texto de la petición) a los risk tiers del contrato. No ejecuta `git diff` porque no hay archivos cambiados aún. El contrato informa la decisión de routing:
+
+| Tier detectado de la intención | Impacto en routing |
+|-------------------------------|-------------------|
+| high | Forzar task-breakdown, nunca quick |
+| medium | Sugerir task-breakdown si hay ambigüedad |
+| low | Sin restricciones adicionales |
+
+> **Nota**: Esto usa los datos del contrato pero NO invoca policy-gate. Es una lectura directa del JSON para informar routing.
+
+### 2. Work: Full Policy Gate (invocación directa de este skill)
+
+En `/workflows:work` Step 7, **antes del checkpoint**, se invoca este skill completo:
+
+| Aspecto | Detalle |
+|---------|---------|
+| **Cuándo** | Después de SOLID verification + goal verification, antes de git commit |
+| **Datos** | `git diff` real contra archivos cambiados |
+| **Evalúa** | Risk tier del changeset + docs drift |
+| **Si PASS** | Log tier en checkpoint notes, proceder a commit |
+| **Si FAIL** | Advertir violaciones de drift, recomendar actualizar docs. NO bloquear commit |
+
+### 3. Manual: Invocación ad-hoc
+
+Se puede invocar manualmente en cualquier momento para inspeccionar el estado actual:
+
+```
+/multi-agent-workflow:policy-gate
+```
+
+Útil antes de crear un PR, antes de un commit manual, o cuando se quiera verificar el tier de riesgo de los cambios actuales.
 
 ## Ejemplo Completo
 

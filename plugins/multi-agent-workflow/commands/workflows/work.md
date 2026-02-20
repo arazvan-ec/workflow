@@ -437,7 +437,37 @@ GOAL VERIFICATION (after tests pass):
 ```
 
 ```bash
-# 3. Only checkpoint if SOLID + goal verification pass
+# 3. Policy Gate — validate changes against governance contract
+/multi-agent-workflow:policy-gate
+```
+
+**Policy Gate Verification** (runs full gate with `git diff` against actual changed files):
+
+```
+POLICY GATE CHECK (before checkpoint):
+
+1. Invoke policy-gate skill → reads control-plane/contract.json
+2. Detects changed files via git diff
+3. Calculates risk tier (high > medium > low)
+4. Checks docs drift rules (if you changed X, did you also change Y?)
+
+IF PASS:
+  → Log tier in checkpoint notes
+  → Proceed to git commit
+
+IF FAIL (docs drift violation):
+  → Show violations: what files triggered the rule, what docs are missing
+  → Recommend: "Update [specific doc] before committing"
+  → DO NOT BLOCK — warn and let the user decide
+  → If user says "fix later": proceed with checkpoint, add PENDING_DOCS_UPDATE note
+  → If user says "fix now": update docs, re-run gate, then checkpoint
+
+IMPORTANT: This gate does NOT block commits. It warns.
+The goal is awareness, not obstruction.
+```
+
+```bash
+# 4. Only checkpoint if SOLID + goal verification pass
 /multi-agent-workflow:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
 ```
 
