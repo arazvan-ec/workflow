@@ -207,6 +207,29 @@ Para investigar esto efectivamente, necesito entender:
 
 ## Execution Protocol
 
+### Step 0: Policy Gate (Pre-vuelo)
+
+Antes de analizar la solicitud, ejecutar evaluación de política:
+
+1. Invocar skill `policy-gate` para evaluar archivos cambiados pendientes
+2. Si hay cambios sin commit en el working tree, evaluar contra el contrato
+3. Informar al usuario del tier de riesgo y cualquier violación de drift
+4. **No bloquear el routing** — solo advertir. El usuario decide si corregir antes o después
+
+```
+Si policy-gate retorna FAIL:
+  → Mostrar violaciones al usuario
+  → Preguntar: "¿Quieres corregir el drift antes de continuar o seguir con el routing?"
+  → Si corregir: el usuario actualiza docs, luego vuelve a /workflows:route
+  → Si continuar: proceder con advertencia activa
+
+Si policy-gate retorna PASS:
+  → Informar tier de riesgo (afecta routing: high → forzar task-breakdown)
+  → Continuar con Step 1
+```
+
+**Integración con routing**: Si el tier es `high`, considerar escalar la complejidad del workflow (forzar `task-breakdown` en vez de `quick`).
+
 ### Step 1: Initial Analysis
 
 ```markdown
