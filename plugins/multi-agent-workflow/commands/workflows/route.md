@@ -338,17 +338,6 @@ Basado en tu solicitud, recomiendo:
 
 Once confirmed, invoke the appropriate workflow command with all gathered context (including confirmed assumptions and success criteria).
 
-## Integration with Trust Model
-
-The router also considers the trust model when routing:
-
-| File Pattern | Trust Level | Routing Adjustment |
-|--------------|-------------|-------------------|
-| `**/auth/**`, `**/security/**` | LOW | Force task-breakdown + pair review |
-| `**/payment/**`, `**/billing/**` | LOW | Force task-breakdown + security review |
-| `src/**/*` | MEDIUM | Standard workflow |
-| `tests/**/*`, `docs/**/*` | HIGH | Can use implementation-only |
-
 ## Enforcement Rules
 
 ### CRITICAL: This router is MANDATORY
@@ -386,14 +375,9 @@ Router Analysis:
 - Type: New feature (detected with HIGH confidence)
 - Complexity: Medium (OAuth integration)
 - Multi-agent: Yes (backend + possibly frontend)
-- Trust level: LOW (auth-related)
 
 Recommendation:
 /workflows:plan user-auth-google --workflow=task-breakdown
-
-Additional notes: Due to LOW trust level, will require:
-- Pair review for all auth-related code
-- Security review before merge
 ```
 
 ### Example 2: Unclear Request
@@ -556,7 +540,6 @@ hooks:
 
 Based on aggregated evidence:
 - **Workflow**: task-breakdown (HIGH complexity + no existing specs)
-- **Trust level**: LOW (payment = sensitive)
 - **Required reviews**: security-reviewer + performance-reviewer
 - **Parallelization**: By layer (DDD) recommended
 - **Estimated phases**: Plan (extended) → Work → Review
@@ -576,8 +559,7 @@ The `/workflows:route` command ensures:
 4. **Decision-challenge loop** before selecting workflow (question assumptions + compare alternatives)
 5. **Appropriate complexity** matching task needs (Simplicity First)
 6. **Gathering necessary context** through clarifying questions
-7. **Appropriate trust level** application
-8. **Consistent entry point** for all interactions
+7. **Consistent entry point** for all interactions
 
 **Remember**: When in doubt, ASK. State assumptions. Define success criteria. It's better to clarify than to execute the wrong workflow.
 
