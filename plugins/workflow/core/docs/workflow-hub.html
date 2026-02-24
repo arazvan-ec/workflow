@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workflow Hub - Multi-Agent Workflow Plugin</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #242736;
+    --border: #2e3144;
+    --text: #e2e4e9;
+    --text-dim: #8b8fa3;
+    --accent: #6366f1;
+    --accent-glow: rgba(99, 102, 241, 0.15);
+    --green: #22c55e;
+    --yellow: #eab308;
+    --orange: #f97316;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --purple: #a855f7;
+    --cyan: #06b6d4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+  }
+
+  .header p {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+  }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .tab {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    color: var(--text-dim);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-size: 0.85rem;
+    font-family: inherit;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab:hover { color: var(--text); background: var(--accent-glow); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .content { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Flow diagram */
+  .flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin: 2rem 0;
+  }
+
+  .flow-node {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    text-align: center;
+    min-width: 130px;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .flow-node:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+    transform: translateY(-2px);
+  }
+
+  .flow-node .name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
+  .flow-node .pct { font-size: 0.7rem; color: var(--text-dim); }
+
+  .flow-arrow {
+    color: var(--text-dim);
+    font-size: 1.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .flow-node.route { border-color: var(--blue); }
+  .flow-node.route .name { color: var(--blue); }
+  .flow-node.shape { border-color: var(--purple); }
+  .flow-node.shape .name { color: var(--purple); }
+  .flow-node.plan { border-color: var(--green); }
+  .flow-node.plan .name { color: var(--green); }
+  .flow-node.work { border-color: var(--yellow); }
+  .flow-node.work .name { color: var(--yellow); }
+  .flow-node.review { border-color: var(--orange); }
+  .flow-node.review .name { color: var(--orange); }
+  .flow-node.compound { border-color: var(--cyan); }
+  .flow-node.compound .name { color: var(--cyan); }
+
+  /* Detail box */
+  .detail-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .detail-box h3 { color: var(--accent); margin-bottom: 0.75rem; font-size: 1rem; }
+  .detail-box p { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.5rem; }
+
+  /* Level cards */
+  .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+
+  .level-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .level-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+
+  .level-card.l1 { border-color: var(--green); }
+  .level-card.l2 { border-color: var(--blue); }
+  .level-card.l3 { border-color: var(--yellow); }
+  .level-card.l4 { border-color: var(--red); }
+
+  .level-card .level-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .level-card .level-name { font-weight: 700; font-size: 1.1rem; }
+  .level-card.l1 .level-name { color: var(--green); }
+  .level-card.l2 .level-name { color: var(--blue); }
+  .level-card.l3 .level-name { color: var(--yellow); }
+  .level-card.l4 .level-name { color: var(--red); }
+
+  .level-card .badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .level-card.l1 .badge { background: rgba(34,197,94,0.15); color: var(--green); }
+  .level-card.l2 .badge { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .level-card.l3 .badge { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .level-card.l4 .badge { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .level-card .phases { font-size: 0.75rem; color: var(--text-dim); margin: 0.5rem 0; }
+  .level-card .files { font-size: 0.8rem; }
+  .level-card .example { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem; font-style: italic; }
+
+  /* Methodology grid */
+  .methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+
+  .method-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    transition: all 0.3s;
+  }
+
+  .method-card:hover { border-color: var(--accent); }
+
+  .method-card h4 { color: var(--accent); font-size: 0.95rem; margin-bottom: 0.5rem; }
+  .method-card .source { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.75rem; }
+  .method-card .contributes { font-size: 0.8rem; color: var(--text); }
+  .method-card .contributes li { margin: 0.25rem 0; padding-left: 0.5rem; list-style: none; }
+  .method-card .contributes li::before { content: "->  "; color: var(--accent); }
+
+  /* Concepts */
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+
+  .concept {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+
+  .concept h4 { font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .concept .formula {
+    background: var(--surface2);
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: var(--cyan);
+    margin: 0.5rem 0;
+  }
+  .concept p { font-size: 0.8rem; color: var(--text-dim); }
+
+  /* Tree */
+  .tree { font-size: 0.85rem; line-height: 1.8; color: var(--text-dim); }
+  .tree .dir { color: var(--accent); font-weight: 600; }
+  .tree .file { color: var(--text); }
+  .tree .comment { color: var(--text-dim); font-style: italic; }
+
+  /* Feedback loop */
+  .loop-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    margin: 1.5rem 0;
+  }
+
+  .loop-diagram pre {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--cyan);
+    display: inline-block;
+    text-align: left;
+  }
+
+  h2 { color: var(--text); font-size: 1.15rem; margin: 1.5rem 0 0.75rem; }
+  h2::before { content: "# "; color: var(--accent); }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    margin: 0.1rem;
+  }
+
+  .selected-detail {
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-top: 1rem;
+    display: none;
+  }
+
+  .selected-detail.visible { display: block; }
+  .selected-detail h4 { color: var(--accent); margin-bottom: 0.5rem; }
+  .selected-detail p { font-size: 0.85rem; color: var(--text-dim); }
+  .selected-detail .cmd { color: var(--green); font-weight: 600; }
+  .selected-detail ul { padding-left: 1.25rem; margin: 0.5rem 0; }
+  .selected-detail li { font-size: 0.8rem; color: var(--text); margin: 0.25rem 0; }
+
+  @media (max-width: 768px) {
+    .flow { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+    .levels { grid-template-columns: 1fr; }
+    .methods { grid-template-columns: 1fr; }
+    .concept-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AI Workflow Hub</h1>
+  <p>Multi-Agent Workflow Plugin v3.2.0 -- Integrated Methodology Map</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="workflow">Workflow</button>
+  <button class="tab" data-panel="levels">Complexity Levels</button>
+  <button class="tab" data-panel="methodologies">Methodologies</button>
+  <button class="tab" data-panel="concepts">Concepts</button>
+  <button class="tab" data-panel="structure">Structure</button>
+</div>
+
+<div class="content">
+
+  <!-- TAB 1: WORKFLOW -->
+  <div class="panel active" id="workflow">
+    <h2>The Integrated Flow</h2>
+    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem;">Click any phase to see details. Every request starts with routing -- no exceptions.</p>
+
+    <div class="flow">
+      <div class="flow-node route" onclick="showDetail('route')">
+        <div class="name">ROUTE</div>
+        <div class="pct">entry point</div>
+      </div>
+      <div class="flow-arrow">-></div>
+      <div class="flow-node shape" onclick="showDetail('shape')">
+        <div class="name">SHAPE</div>
+        <div class="pct">optional</div>
+      </div>
+      <div class="flow-arrow">-></div>
+      <div class="flow-node plan" onclick="showDetail('plan')">
+        <div class="name">PLAN</div>
+        <div class="pct">80%</div>
+      </div>
+      <div class="flow-arrow">-></div>
+      <div class="flow-node work" onclick="showDetail('work')">
+        <div class="name">WORK</div>
+        <div class="pct">15%</div>
+      </div>
+      <div class="flow-arrow">-></div>
+      <div class="flow-node review" onclick="showDetail('review')">
+        <div class="name">REVIEW</div>
+        <div class="pct">4%</div>
+      </div>
+      <div class="flow-arrow">-></div>
+      <div class="flow-node compound" onclick="showDetail('compound')">
+        <div class="name">COMPOUND</div>
+        <div class="pct">1%</div>
+      </div>
+    </div>
+
+    <div class="selected-detail" id="phase-detail">
+      <h4 id="detail-title"></h4>
+      <p id="detail-cmd" class="cmd"></p>
+      <p id="detail-desc"></p>
+      <ul id="detail-list"></ul>
+    </div>
+
+    <h2>Compound Feedback Loop</h2>
+    <div class="loop-diagram">
+      <pre>
+Feature N                                    Feature N+1
++-----------+                               +-----------+
+|   PLAN    |  reads compound-memory.md  -> |   PLAN    |
++-----------+  reads next-feature-brief     +-----------+
+      |                                           |
+      v                                           v
++-----------+                               +-----------+
+|   WORK    |  reads patterns/anti-patterns |   WORK    |
++-----------+                               +-----------+
+      |                                           |
+      v                                           v
++-----------+   generates briefing for      +-----------+
+| COMPOUND  |  -------  N+1  ------------>  | COMPOUND  |
++-----------+                               +-----------+
+
+Each feature makes the next one faster.
+      </pre>
+    </div>
+
+    <div class="detail-box">
+      <h3>Time Distribution (The 80/20 Rule)</h3>
+      <p>PLAN ################################ 80% -- Where the real value is</p>
+      <p>WORK ######## 15% -- Fast when planning is thorough</p>
+      <p>REVIEW ## 4% -- Multi-agent quality review</p>
+      <p>COMPOUND # 1% -- Small effort, massive future returns</p>
+    </div>
+  </div>
+
+  <!-- TAB 2: COMPLEXITY LEVELS -->
+  <div class="panel" id="levels">
+    <h2>Complexity Routing (L1-L4)</h2>
+    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem;">The router classifies every request into one of 4 levels. Each activates a different workflow subset.</p>
+
+    <div class="levels">
+      <div class="level-card l1">
+        <div class="level-header">
+          <span class="level-name">L1: Trivial</span>
+          <span class="badge">QUICK MODE</span>
+        </div>
+        <div class="phases">ROUTE -> QUICK</div>
+        <div class="files">3 files or fewer, &lt; 30 min</div>
+        <div class="example">"Fix typo", "rename variable", "update dependency"</div>
+      </div>
+
+      <div class="level-card l2">
+        <div class="level-header">
+          <span class="level-name">L2: Simple</span>
+          <span class="badge">DEFAULT</span>
+        </div>
+        <div class="phases">ROUTE -> PLAN -> WORK -> REVIEW</div>
+        <div class="files">4-10 files, 1-4 hours</div>
+        <div class="example">"Bug fix", "simple feature", "single-layer refactor"</div>
+      </div>
+
+      <div class="level-card l3">
+        <div class="level-header">
+          <span class="level-name">L3: Moderate</span>
+          <span class="badge">TASK-BREAKDOWN</span>
+        </div>
+        <div class="phases">ROUTE -> PLAN -> WORK -> REVIEW -> COMPOUND</div>
+        <div class="files">10-30 files, 4-16 hours</div>
+        <div class="example">"Multi-layer feature", "API + frontend", "integration"</div>
+      </div>
+
+      <div class="level-card l4">
+        <div class="level-header">
+          <span class="level-name">L4: Complex</span>
+          <span class="badge">SHAPE-FIRST</span>
+        </div>
+        <div class="phases">ROUTE -> SHAPE -> PLAN -> WORK -> REVIEW -> COMPOUND</div>
+        <div class="files">30+ files, 16+ hours, multi-session</div>
+        <div class="example">"New domain", "migration", "payment system"</div>
+      </div>
+    </div>
+
+    <div class="detail-box">
+      <h3>Level Selection Signals</h3>
+      <table style="width:100%;font-size:0.8rem;border-collapse:collapse;">
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:0.5rem;color:var(--text-dim);">Signal</th>
+          <th style="text-align:center;padding:0.5rem;color:var(--green);">L1</th>
+          <th style="text-align:center;padding:0.5rem;color:var(--blue);">L2</th>
+          <th style="text-align:center;padding:0.5rem;color:var(--yellow);">L3</th>
+          <th style="text-align:center;padding:0.5rem;color:var(--red);">L4</th>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:0.5rem;">Files</td>
+          <td style="text-align:center;padding:0.5rem;">1-3</td>
+          <td style="text-align:center;padding:0.5rem;">4-10</td>
+          <td style="text-align:center;padding:0.5rem;">10-30</td>
+          <td style="text-align:center;padding:0.5rem;">30+</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:0.5rem;">Components</td>
+          <td style="text-align:center;padding:0.5rem;">1</td>
+          <td style="text-align:center;padding:0.5rem;">1</td>
+          <td style="text-align:center;padding:0.5rem;">2-3</td>
+          <td style="text-align:center;padding:0.5rem;">4+</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:0.5rem;">New Entities</td>
+          <td style="text-align:center;padding:0.5rem;">0</td>
+          <td style="text-align:center;padding:0.5rem;">0-1</td>
+          <td style="text-align:center;padding:0.5rem;">1-3</td>
+          <td style="text-align:center;padding:0.5rem;">3+</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:0.5rem;">Unknowns</td>
+          <td style="text-align:center;padding:0.5rem;">None</td>
+          <td style="text-align:center;padding:0.5rem;">None</td>
+          <td style="text-align:center;padding:0.5rem;">Few</td>
+          <td style="text-align:center;padding:0.5rem;">Many</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:0.5rem;">Sensitive Paths</td>
+          <td style="text-align:center;padding:0.5rem;">No</td>
+          <td style="text-align:center;padding:0.5rem;">Maybe</td>
+          <td style="text-align:center;padding:0.5rem;">Maybe</td>
+          <td style="text-align:center;padding:0.5rem;">Likely</td>
+        </tr>
+        <tr>
+          <td style="padding:0.5rem;">Multi-Session</td>
+          <td style="text-align:center;padding:0.5rem;">No</td>
+          <td style="text-align:center;padding:0.5rem;">No</td>
+          <td style="text-align:center;padding:0.5rem;">Maybe</td>
+          <td style="text-align:center;padding:0.5rem;">Yes</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 3: METHODOLOGIES -->
+  <div class="panel" id="methodologies">
+    <h2>Methodology Sources (8)</h2>
+    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem;">Each methodology contributes specific capabilities to the integrated workflow.</p>
+
+    <div class="methods">
+      <div class="method-card">
+        <h4>Compound Engineering</h4>
+        <div class="source">Source: Every.to</div>
+        <ul class="contributes">
+          <li>Core loop: Plan -> Work -> Review -> Compound</li>
+          <li>Compounding returns (each feature accelerates the next)</li>
+          <li>50/50 rule (planning = implementation time)</li>
+          <li>compound-memory.md, compound_log.md</li>
+        </ul>
+      </div>
+
+      <div class="method-card">
+        <h4>Shape Up</h4>
+        <div class="source">Source: Ryan Singer (Basecamp)</div>
+        <ul class="contributes">
+          <li>Shaping phase: Frame -> Spike -> Scope</li>
+          <li>Appetite-based scoping (time-box the solution)</li>
+          <li>Fat marker sketches, breadboards</li>
+          <li>Vertical slices (demoable increments)</li>
+        </ul>
+      </div>
+
+      <div class="method-card">
+        <h4>Karpathy Principles</h4>
+        <div class="source">Source: Andrej Karpathy</div>
+        <ul class="contributes">
+          <li>Think Before Coding (state assumptions)</li>
+          <li>Simplicity First (YAGNI is law)</li>
+          <li>Surgical Changes (minimal diffs)</li>
+          <li>Goal-Driven Execution (testable criteria)</li>
+        </ul>
+      </div>
+
+      <div class="method-card">
+        <h4>Spec-Driven Development</h4>
+        <div class="source">Source: OpenSpec / BMAD / GSD</div>
+        <ul class="contributes">
+          <li>Artifact pipeline: proposal -> specs -> design -> tasks</li>
+          <li>Baseline freeze (openspec/specs/ is read-only)</li>
+          <li>Spec merge cycle (compound merges into baseline)</li>
+          <li>Test contract sketch (Phase 2.5)</li>
+        </ul>
+      </div>
+
+      <div class="method-card">
+        <h4>Context Engineering</h4>
+        <div class="source">Source: Martin Fowler</div>
+        <ul class="contributes">
+          <li>Activation taxonomy: always / software / LLM / human</li>
+          <li>Fork strategy (heavy ops in isolated context)</li>
+          <li>Context budget awareness</li>
+          <li>Strategic context calibration</li>
+        </ul>
+      </div>
+
+      <div class="method-card">
+        <h4>Code Factory Patterns</h4>
+        <div class="source">Source: Code Factory / Rick Hightower</div>
+        <ul class="contributes">
+          <li>Risk tiers (high/medium/low)</li>
+          <li>Deterministic quality gates</li>
+          <li>Policy enforcement (policy-gate skill)</li>
+          <li>Queen Agent pattern for intelligent routing</li>
+        </ul>
+      </div>
+
+      <div class="method-card">
+        <h4>Ralph Method</h4>
+        <div class="source">Source: Ralph Method</div>
+        <ul class="contributes">
+          <li>Anti-context-rot (state externalization)</li>
+          <li>Deliberate rotation (one role per session)</li>
+          <li>Context breadcrumbs (resume points)</li>
+          <li>Handoff protocol (checkpoint + state update)</li>
+        </ul>
+      </div>
+
+      <div class="method-card">
+        <h4>Addy Osmani's 10 Pillars</h4>
+        <div class="source">Source: Beyond Vibe Coding</div>
+        <ul class="contributes">
+          <li>The 70% Problem (AI fast to 70%, slow to 100%)</li>
+          <li>Comprehension debt awareness</li>
+          <li>Review every line, verify everything</li>
+          <li>Own the architecture, never skip review</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: CONCEPTS -->
+  <div class="panel" id="concepts">
+    <h2>Cross-Cutting Concepts</h2>
+    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem;">Principles that span the entire workflow.</p>
+
+    <div class="concept-grid">
+      <div class="concept">
+        <h4 style="color:var(--cyan);">Validation Learning Loop</h4>
+        <div class="formula">Question -> Ask User -> Log Answer -> Pattern -> Promote to Rule</div>
+        <p>Effectiveness: 0% (feature 1) -> 40% (feature 2) -> 67% (feature 3) -> 100% (mature)</p>
+      </div>
+
+      <div class="concept">
+        <h4 style="color:var(--yellow);">Bounded Correction Protocol (BCP)</h4>
+        <div class="formula">Test fails -> Identify deviation -> Auto-correct -> Repeat (within limits)</div>
+        <p>Limits: simple=5, moderate=10, complex=15. After 3 same errors -> diagnostic-agent.</p>
+      </div>
+
+      <div class="concept">
+        <h4 style="color:var(--green);">Spec Lifecycle</h4>
+        <div class="formula">Plan writes -> changes/{slug}/specs.md -> Work implements -> Review validates -> Compound merges -> specs/</div>
+        <p>Feature specs are isolated. Only /workflows:compound writes to the project baseline.</p>
+      </div>
+
+      <div class="concept">
+        <h4 style="color:var(--purple);">Context Budget</h4>
+        <div class="formula">Always: CLAUDE.md + rules | On-demand: roles, scoped rules | Forked: heavy skills, review agents</div>
+        <p>Heavy operations run in isolated context (fork), returning only summaries.</p>
+      </div>
+
+      <div class="concept">
+        <h4 style="color:var(--orange);">The 70% Problem</h4>
+        <div class="formula">0%-70%: AI excels (scaffolding, CRUD, happy paths) | 70%-100%: Human expertise (edge cases, security, integration)</div>
+        <p>Compound captures WHERE the 70% boundary was, so future planning accounts for real complexity.</p>
+      </div>
+
+      <div class="concept">
+        <h4 style="color:var(--red);">Contradiction Detection (CDP)</h4>
+        <div class="formula">Contradiction detected -> STOP -> Identify both sources -> Present options -> User resolves -> Log decision</div>
+        <p>Never silently resolve conflicts between artifacts. Always ask the user.</p>
+      </div>
+
+      <div class="concept">
+        <h4 style="color:var(--blue);">SOLID Constraint</h4>
+        <div class="formula">Phase 3: COMPLIANT required | Work: verified at checkpoints | Review: architecture-reviewer validates</div>
+        <p>Solutions must demonstrate SOLID compliance with contextual analysis.</p>
+      </div>
+
+      <div class="concept">
+        <h4 style="color:var(--accent);">Ralph Discipline (Session Hygiene)</h4>
+        <div class="formula">Externalize state -> Write before advance -> Checkpoint at milestones -> Leave breadcrumbs</div>
+        <p>Never rely on conversation memory. All state lives in files. One role per session.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: STRUCTURE -->
+  <div class="panel" id="structure">
+    <h2>Plugin Structure</h2>
+    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem;">Complete directory layout of the Multi-Agent Workflow Plugin.</p>
+
+    <div class="detail-box">
+      <div class="tree">
+        <div><span class="dir">plugins/workflow/</span></div>
+        <div>&nbsp;&nbsp;<span class="dir">agents/</span> <span class="comment">-- 8 AI agents</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">research/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">codebase-analyzer.md</span> <span class="comment">-- analyze project structure</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">learnings-researcher.md</span> <span class="comment">-- search past solutions</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">review/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">code-reviewer.md</span> <span class="comment">-- stack-agnostic code review</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">architecture-reviewer.md</span> <span class="comment">-- DDD + SOLID compliance</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">security-reviewer.md</span> <span class="comment">-- OWASP, vulnerability scanning</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">performance-reviewer.md</span> <span class="comment">-- performance analysis</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">workflow/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">diagnostic-agent.md</span> <span class="comment">-- systematic debugging</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">spec-analyzer.md</span> <span class="comment">-- validate impl vs specs</span></div>
+        <div>&nbsp;&nbsp;<span class="dir">commands/workflows/</span> <span class="comment">-- 10 commands</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">route.md</span> <span class="comment">-- mandatory entry point</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">quick.md</span> <span class="comment">-- lightweight path (L1)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">shape.md</span> <span class="comment">-- problem shaping (L4)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">plan.md</span> <span class="comment">-- architecture-first planning</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">work.md</span> <span class="comment">-- TDD execution</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">review.md</span> <span class="comment">-- multi-agent review</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">compound.md</span> <span class="comment">-- capture learnings</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">status.md</span> <span class="comment">-- view progress</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">help.md</span> <span class="comment">-- quick reference</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">discover.md</span> <span class="comment">-- project analysis</span></div>
+        <div>&nbsp;&nbsp;<span class="dir">skills/</span> <span class="comment">-- 15 skills</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">breadboarder/</span>, <span class="dir">checkpoint/</span>, <span class="dir">commit-formatter/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">consultant/</span>, <span class="dir">coverage-checker/</span>, <span class="dir">git-sync/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">lint-fixer/</span>, <span class="dir">policy-gate/</span>, <span class="dir">shaper/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">source-report/</span>, <span class="dir">spec-merger/</span>, <span class="dir">test-runner/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">validation-learning-log/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">mcp-connector.md</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">workflow-skill-solid-analyzer.md</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">workflow-skill-criteria-generator.md</span></div>
+        <div>&nbsp;&nbsp;<span class="dir">core/</span> <span class="comment">-- operational infrastructure</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">roles/</span> <span class="comment">-- planner, implementer, reviewer</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">rules/</span> <span class="comment">-- framework, testing, security, git</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">docs/</span> <span class="comment">-- 9 reference documents</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">templates/</span> <span class="comment">-- 7+ artifact templates</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">providers.yaml</span> <span class="comment">-- capability providers</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">architecture-reference.md</span></div>
+        <div>&nbsp;&nbsp;<span class="file">CLAUDE.md</span> <span class="comment">-- always-loaded entry point</span></div>
+        <div>&nbsp;&nbsp;<span class="file">README.md</span> <span class="comment">-- public docs</span></div>
+      </div>
+    </div>
+
+    <h2>Project Runtime Structure</h2>
+    <div class="detail-box">
+      <div class="tree">
+        <div><span class="dir">openspec/</span> <span class="comment">-- generated per-project</span></div>
+        <div>&nbsp;&nbsp;<span class="dir">specs/</span> <span class="comment">-- READ-ONLY baseline (only compound writes)</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">architecture-profile.yaml</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">constitution.md</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">spec-manifest.yaml</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">entities/</span>, <span class="dir">api-contracts/</span>, <span class="dir">business-rules/</span></div>
+        <div>&nbsp;&nbsp;<span class="dir">changes/</span> <span class="comment">-- per-feature artifacts</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">{feature-slug}/</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">00_routing.md</span> <span class="comment">-- classification, assumptions</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">01_shaped_brief.md</span> <span class="comment">-- if shaped</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">proposal.md</span> <span class="comment">-- WHAT we're solving</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">specs.md</span> <span class="comment">-- WHAT the system must do</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">design.md</span> <span class="comment">-- HOW to implement</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">tasks.md</span> <span class="comment">-- actionable tasks + state</span></div>
+        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">scratchpad.md</span> <span class="comment">-- working notes</span></div>
+        <div><span class="dir">.ai/project/</span> <span class="comment">-- compound memory</span></div>
+        <div>&nbsp;&nbsp;<span class="file">compound-memory.md</span> <span class="comment">-- pain points, patterns</span></div>
+        <div>&nbsp;&nbsp;<span class="file">next-feature-briefing.md</span> <span class="comment">-- actionable intelligence</span></div>
+        <div>&nbsp;&nbsp;<span class="file">validation-learning-log.md</span> <span class="comment">-- user preferences</span></div>
+        <div>&nbsp;&nbsp;<span class="file">compound_log.md</span> <span class="comment">-- historical record</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.panel).classList.add('active');
+    });
+  });
+
+  // Phase details
+  const phases = {
+    route: {
+      title: 'ROUTE - Workflow Router',
+      cmd: '/workflows:route',
+      desc: 'Mandatory entry point. Classifies requests, asks clarifying questions, selects appropriate workflow. Includes Decision-Challenge Loop.',
+      items: [
+        'Classifies: feature, bug, refactor, investigation, docs, review',
+        'Estimates complexity: L1 (trivial) to L4 (complex)',
+        'States assumptions explicitly (Karpathy: Think Before Coding)',
+        'Defines testable success criteria (Karpathy: Goal-Driven)',
+        'Challenges initial plan against alternatives',
+        'Persists routing state to 00_routing.md'
+      ]
+    },
+    shape: {
+      title: 'SHAPE - Problem Shaping (L4 only)',
+      cmd: '/workflows:shape',
+      desc: 'Separates problem from solution. Spikes unknowns before committing to a plan. Based on Ryan Singer\'s Shape Up methodology.',
+      items: [
+        'Frame: define appetite (time-box), narrow the problem',
+        'Spike: investigate unknowns, test assumptions',
+        'Scope: breadboard flows, identify vertical slices',
+        'Output: 01_shaped_brief.md, 02_breadboard.md, 03_slices.md',
+        'Only for L4 (complex) tasks with significant unknowns'
+      ]
+    },
+    plan: {
+      title: 'PLAN - Architecture-First Planning',
+      cmd: '/workflows:plan',
+      desc: 'Where 80% of the engineering value lives. 4 phases producing structured SDD artifacts.',
+      items: [
+        'Phase 1: Proposal (problem, context, success criteria)',
+        'Phase 2: Specs (functional requirements, acceptance criteria)',
+        'Phase 2.5: Test Contract Sketch (test boundaries, scenarios)',
+        'Phase 3: Design (SOLID solutions, patterns, architecture)',
+        'Phase 4: Tasks (actionable list with decision log)',
+        'Reads compound memory for learnings from previous features',
+        'SOLID compliance is mandatory in Phase 3'
+      ]
+    },
+    work: {
+      title: 'WORK - TDD Implementation',
+      cmd: '/workflows:work',
+      desc: 'Execute with TDD + Bounded Correction Protocol. Auto-corrections with scale-adaptive limits.',
+      items: [
+        'Git sync (pulls latest before starting)',
+        'Reads patterns from compound memory',
+        'TDD cycle: Red -> Green -> Refactor',
+        'BCP: auto-correct deviations (5/10/15 iteration limits)',
+        'HITL checkpoint for high-risk tasks (auth, payments)',
+        'SOLID verification at each checkpoint',
+        'Checkpoint + commit after each logical unit'
+      ]
+    },
+    review: {
+      title: 'REVIEW - Multi-Agent Quality Review',
+      cmd: '/workflows:review',
+      desc: '4 specialized review agents run in parallel (forked context). Includes validation learning.',
+      items: [
+        'code-reviewer: stack-agnostic code quality',
+        'architecture-reviewer: DDD + SOLID compliance',
+        'security-reviewer: OWASP, vulnerability scanning',
+        'performance-reviewer: efficiency analysis',
+        'Validation step: AI self-questions solutions',
+        'Output: APPROVED or REJECTED with feedback',
+        'Design flaws route back to PLAN (not just reject)'
+      ]
+    },
+    compound: {
+      title: 'COMPOUND - Capture Learnings',
+      cmd: '/workflows:compound',
+      desc: 'The key differentiator. Extracts patterns, updates specs, generates briefing for next feature.',
+      items: [
+        'Analyze feature history (git log, diffs)',
+        'Extract patterns and anti-patterns',
+        'Identify the 70% boundary (where progress slowed)',
+        'Update compound-memory.md',
+        'Update project rules if patterns are universal',
+        'Merge feature specs into project baseline',
+        'Generate next-feature-briefing.md',
+        'Write retrospective for complex features'
+      ]
+    }
+  };
+
+  function showDetail(phase) {
+    const data = phases[phase];
+    const el = document.getElementById('phase-detail');
+    document.getElementById('detail-title').textContent = data.title;
+    document.getElementById('detail-cmd').textContent = data.cmd;
+    document.getElementById('detail-desc').textContent = data.desc;
+    const list = document.getElementById('detail-list');
+    list.innerHTML = data.items.map(i => `<li>${i}</li>`).join('');
+    el.classList.add('visible');
+  }
+</script>
+
+</body>
+</html>
