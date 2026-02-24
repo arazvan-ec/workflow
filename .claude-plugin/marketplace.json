@@ -1,0 +1,18 @@
+{
+  "name": "arazvan-workflow",
+  "owner": {
+    "name": "arazvan-ec"
+  },
+  "metadata": {
+    "description": "Compound engineering framework for multi-agent AI development",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "workflow",
+      "path": "plugins/workflow",
+      "description": "Spec-Driven Development with multi-agent coordination, TDD workflow, and quality-gated processes",
+      "version": "3.2.0"
+    }
+  ]
+}
