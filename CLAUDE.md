@@ -139,6 +139,7 @@ Each feature produces a structured set of markdown artifacts in `openspec/change
 
 | Phase | Output | Defines |
 |-------|--------|---------|
+| Route | `00_routing.md` | Classification, assumptions, success criteria, recommended workflow |
 | Phase 1 | `proposal.md` | Problem, context, success criteria (WHAT we're solving) |
 | Phase 2 | `specs.md` | Functional requirements, acceptance criteria (WHAT the system must do) |
 | Phase 2.5 | Test contract sketch (in `specs.md`) | Test boundaries, scenarios, edge cases |

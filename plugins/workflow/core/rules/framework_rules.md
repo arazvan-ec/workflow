@@ -70,7 +70,7 @@ Resolve execution_mode from `core/providers.yaml` before starting any task. In `
 
 Follow the defined workflow without skipping stages. Each core command enforces prerequisites:
 
-- **`plan`** requires: request routed via `/workflows:route`
+- **`plan`** requires: routing state file exists (`openspec/changes/{slug}/00_routing.md`) OR routing context visible in current conversation
 - **`work`** requires: planner status = `COMPLETED` in `tasks.md` Workflow State AND all required plan files exist on disk (`proposal.md`, `specs.md`, `design.md`, `tasks.md`)
 - **`review`** requires: implementation status = `COMPLETED` in `tasks.md` Workflow State
 - **`compound`** requires: review status = `APPROVED` in `tasks.md` Workflow State

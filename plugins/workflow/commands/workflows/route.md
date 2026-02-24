@@ -334,9 +334,26 @@ Basado en tu solicitud, recomiendo:
 ¿Quieres proceder con este workflow o prefieres ajustar algo?
 ```
 
-### Step 6: Handoff
+### Step 6: Persist Routing State and Handoff
 
-Once confirmed, invoke the appropriate workflow command with all gathered context (including confirmed assumptions and success criteria).
+Once confirmed, persist the routing decisions to disk before invoking the next command:
+
+```bash
+# 1. Create the feature directory (if it doesn't exist)
+SLUG="${feature-slug}"  # Normalized: lowercase, hyphens, no spaces
+mkdir -p "openspec/changes/${SLUG}"
+
+# 2. Write routing state from template (core/templates/routing-template.md)
+#    Fill in: classification, assumptions, success criteria, recommended workflow
+#    Save as: openspec/changes/${SLUG}/00_routing.md
+
+# 3. Verify the file was written
+ls -la "openspec/changes/${SLUG}/00_routing.md"
+```
+
+**Why persist?** Routing decisions (classification, assumptions, success criteria) are lost if context is compacted or the session restarts. The `00_routing.md` file ensures downstream commands (`/workflows:plan`, `/workflows:shape`) can recover routing context from disk.
+
+After persisting, invoke the recommended workflow command with all gathered context (including confirmed assumptions and success criteria).
 
 ## Enforcement Rules
 

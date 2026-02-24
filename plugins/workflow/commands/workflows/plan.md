@@ -15,8 +15,12 @@ Before executing, verify the flow has been followed:
 ```
 PREREQUISITE CHECK:
   1. Was this request routed via /workflows:route?
-     - YES: Continue to planning
-     - NO: STOP. Run /workflows:route first, then return here.
+     Check: Does openspec/changes/{slug}/00_routing.md exist on disk?
+     - YES (file exists): Continue to planning. Load routing context from file.
+     - NO (file missing) but routing context is visible in current conversation:
+       Write 00_routing.md retroactively from conversation context, then continue.
+     - NO (file missing) and no routing context in conversation:
+       STOP. Run /workflows:route first, then return here.
 
   2. If tasks.md exists in openspec/changes/{slug}/ for this feature, is this a continuation?
      - YES (planner = IN_PROGRESS): Resume planning from last checkpoint
@@ -306,6 +310,30 @@ fi
 | Next feature briefing | Phase 2 + Phase 3 | Apply risk mitigations to specs, reuse patterns in design, follow test strategy |
 
 > **This is the compound feedback loop**: each completed feature makes the NEXT feature's planning smarter. Without reading compound learnings, every feature plans from scratch.
+
+#### Step 0.0e: Load Routing State
+
+```bash
+# Load routing decisions persisted by /workflows:route
+ROUTING="openspec/changes/${SLUG}/00_routing.md"
+if [ -f "$ROUTING" ]; then
+  echo "Routing state found. Loading classification, assumptions, and success criteria."
+  # Read: Classification (type, complexity, multi-agent)
+  # Read: Confirmed assumptions (avoid re-asking)
+  # Read: Success criteria (seed Phase 1 proposal + Phase 2 acceptance criteria)
+  # Read: Recommended workflow (confirms plan type: default vs task-breakdown)
+  # Apply: assumptions → Phase 1 context, success criteria → Phase 2 AC, workflow → planning depth
+fi
+```
+
+**How routing state informs planning:**
+
+| Routing Data | Used In | How |
+|-------------|---------|-----|
+| Classification (type, complexity) | Step 0.1 | Calibrates planning depth and focus areas |
+| Confirmed assumptions | Phase 1 (understand) | Pre-populates context, avoids re-asking user |
+| Success criteria | Phase 2 (specs) | Seeds acceptance criteria directly |
+| Recommended workflow | Phase 4 (tasks) | Determines task granularity and parallelization |
 
 ### Step 0.1: Read Existing Specifications
 
