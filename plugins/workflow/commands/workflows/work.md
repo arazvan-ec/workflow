@@ -20,15 +20,22 @@ PREREQUISITE CHECK:
   2. Is planner status = COMPLETED in tasks.md?
      - NO (PENDING or IN_PROGRESS): STOP. Planning not finished. Run /workflows:plan.
      - NO (BLOCKED): STOP. Planning is blocked. Resolve blocker first.
-     - YES: Continue to work.
+     - YES: Continue.
 
-  3. Does the role's status allow starting work?
+  3. Do all required plan files exist on disk?
+     Check: openspec/changes/{slug}/proposal.md
+     Check: openspec/changes/{slug}/specs.md
+     Check: openspec/changes/{slug}/design.md
+     - ALL exist: Continue.
+     - ANY missing: STOP. Planning output incomplete. Run /workflows:plan to regenerate.
+
+  4. Does the role's status allow starting work?
      - PENDING: OK, start work (set to IN_PROGRESS)
      - IN_PROGRESS: OK, resume work from last checkpoint
      - COMPLETED: Work already done. Confirm re-work with user.
      - BLOCKED: Show blocker details, ask user how to proceed.
 
-  If checks 1 or 2 fail, do NOT proceed. Plan first.
+  If checks 1, 2, or 3 fail, do NOT proceed. Plan first.
 ```
 
 ## Automatic Operations (built into this command)
@@ -573,10 +580,28 @@ PER-TASK UPDATE PROTOCOL:
 1. Mark the task as COMPLETED in tasks.md task tracker
 2. Record the timestamp (ISO 8601)
 3. Update the "Resume Point" section with the NEXT task
-4. WRITE tasks.md to disk immediately
+4. WRITE tasks.md to disk immediately (Write tool)
+5. VERIFY the write succeeded (Read tool — confirm the task status
+   and resume point are present in the file on disk)
+
+If step 5 fails (file not written or content missing):
+  → RETRY the write (step 4). Do NOT proceed to the next task.
+  → If retry fails: STOP, report disk write failure to user.
 
 This happens BEFORE the checkpoint (which includes git commit).
 Even if no checkpoint is triggered, the state file is updated.
+```
+
+**Pre-task verification** (before starting each new task):
+
+```
+BEFORE starting task N+1:
+  1. Read tasks.md from disk
+  2. Verify task N shows status = COMPLETED with timestamp
+  3. Verify Resume Point shows task N+1 as "Currently Working On"
+
+If verification fails → previous task's state was lost.
+  Reconstruct from git log + file state, update tasks.md, THEN proceed.
 ```
 
 ### Task-Level State Tracker (in tasks.md)

@@ -22,12 +22,18 @@ PREREQUISITE CHECK:
      - NO (file missing) and no routing context in conversation:
        STOP. Run /workflows:route first, then return here.
 
-  2. If tasks.md exists in openspec/changes/{slug}/ for this feature, is this a continuation?
+  2. Was this feature shaped? (check if 01_shaped_brief.md exists)
+     - YES: Read the Shaping Progress section. All phases must be COMPLETED.
+       If any phase is not COMPLETED → STOP. Run /workflows:shape --continue first.
+     - NO: OK, shaping was not required for this feature. Proceed.
+
+  3. If tasks.md exists in openspec/changes/{slug}/ for this feature, is this a continuation?
      - YES (planner = IN_PROGRESS): Resume planning from last checkpoint
      - YES (planner = COMPLETED): Plan already exists. Confirm re-planning with user.
      - NO: Fresh start, proceed normally.
 
-  If either check fails, do NOT proceed. Route first.
+  If check 1 fails, do NOT proceed. Route first.
+  If check 2 fails, do NOT proceed. Complete shaping first.
 ```
 
 ## Usage

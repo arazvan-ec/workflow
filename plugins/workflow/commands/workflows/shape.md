@@ -8,6 +8,27 @@ argument_hint: <feature-name> [--mode=full|quick] [--continue]
 
 The shaping phase bridges the gap between a vague idea and a detailed plan. It forces you to understand the problem before committing to a solution.
 
+## Flow Guard (prerequisite check)
+
+Before executing, verify the flow has been followed:
+
+```
+PREREQUISITE CHECK:
+  1. Was this request routed via /workflows:route?
+     Check: Does openspec/changes/{slug}/00_routing.md exist on disk?
+     - YES (file exists): Continue to shaping. Load routing context from file.
+     - NO (file missing) but routing context is visible in current conversation:
+       Write 00_routing.md retroactively from conversation context, then continue.
+     - NO (file missing) and no routing context in conversation:
+       STOP. Run /workflows:route first, then return here.
+
+  2. If openspec/changes/{slug}/01_shaped_brief.md exists, is this a continuation?
+     - YES + --continue flag: Read the Shaping Progress section in 01_shaped_brief.md,
+       resume from last completed phase.
+     - YES + no --continue flag: Shaped brief already exists. Confirm re-shaping with user.
+     - NO: Fresh start, proceed normally.
+```
+
 ## Usage
 
 ```bash
@@ -143,6 +164,32 @@ Good shaping means:
 
 ## Execution Protocol
 
+### Incremental Persistence (MANDATORY)
+
+> **CRITICAL RULE**: Write `01_shaped_brief.md` to disk after EACH phase completes, not just at the end. The file grows incrementally. This ensures interrupted sessions can resume from the last completed phase.
+
+The `01_shaped_brief.md` file MUST include a **Shaping Progress** section at the top that tracks phase completion:
+
+```markdown
+## Shaping Progress
+| Phase | Status | Completed At |
+|-------|--------|--------------|
+| Phase 1 (Frame) | COMPLETED | 2026-01-16T14:00:00Z |
+| Phase 2 (Requirements) | COMPLETED | 2026-01-16T14:15:00Z |
+| Phase 3 (Shape) | IN_PROGRESS | - |
+| Phase 4 (Fit Check) | PENDING | - |
+| Phase 4b (Dimensional Fit) | PENDING | - |
+| Phase 5 (Iterate) | PENDING | - |
+| Phase 6 (Breadboard) | PENDING | - |
+| Phase 7 (Slice) | PENDING | - |
+```
+
+**Write-Then-Advance Rule** (same as planning — see `framework_rules.md` §11):
+1. Complete a phase
+2. WRITE `01_shaped_brief.md` to disk with the new phase content + updated Shaping Progress
+3. VERIFY the file exists and contains the new content (Read tool)
+4. ONLY THEN advance to the next phase
+
 ### Step 1: Create Workspace
 
 ```bash
@@ -184,13 +231,21 @@ During shaping, the user can use shorthand commands:
 /workflow:breadboarder --slice ${FEATURE_ID}
 ```
 
-### Step 6: Handoff
+### Step 6: Persist Completion and Handoff
 
 When shaping is complete:
 
-1. Update `tasks.md` with shaping status
-2. Summarize shaped brief for the user
-3. Recommend: proceed to `/workflows:plan ${FEATURE_ID}`
+1. **Update `01_shaped_brief.md`**: Mark all completed phases in the Shaping Progress section. Set the last phase status to `COMPLETED` with timestamp.
+2. **Write `02_breadboard.md` and `03_slices.md`** (if `--mode=full`): Verify each file is written to disk before proceeding.
+3. **Verify all output files exist on disk**:
+   ```bash
+   ls -la openspec/changes/${FEATURE_ID}/01_shaped_brief.md
+   # If --mode=full:
+   ls -la openspec/changes/${FEATURE_ID}/02_breadboard.md
+   ls -la openspec/changes/${FEATURE_ID}/03_slices.md
+   ```
+4. Summarize shaped brief for the user.
+5. Recommend: proceed to `/workflows:plan ${FEATURE_ID}`
 
 ---
 

@@ -70,10 +70,11 @@ Resolve execution_mode from `core/providers.yaml` before starting any task. In `
 
 Follow the defined workflow without skipping stages. Each core command enforces prerequisites:
 
-- **`plan`** requires: routing state file exists (`openspec/changes/{slug}/00_routing.md`) OR routing context visible in current conversation
+- **`shape`** requires: routing state file exists (`openspec/changes/{slug}/00_routing.md`) OR routing context visible in current conversation
+- **`plan`** requires: routing state file exists (`openspec/changes/{slug}/00_routing.md`) OR routing context visible in current conversation. If shaped, `01_shaped_brief.md` must show all phases `COMPLETED` in its Shaping Progress section.
 - **`work`** requires: planner status = `COMPLETED` in `tasks.md` Workflow State AND all required plan files exist on disk (`proposal.md`, `specs.md`, `design.md`, `tasks.md`)
 - **`review`** requires: implementation status = `COMPLETED` in `tasks.md` Workflow State
-- **`compound`** requires: review status = `APPROVED` in `tasks.md` Workflow State
+- **`compound`** requires: QA status = `APPROVED` in `tasks.md` Workflow State
 
 If a prerequisite is not met, STOP and complete the missing step first.
 
@@ -117,7 +118,7 @@ Use `tasks.md` Workflow State section to communicate state between roles.
 
 - Update `tasks.md` Workflow State frequently
 - Read other roles' state before starting
-- Use standard states: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, `APPROVED`, `REJECTED`
+- Use standard states: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, `APPROVED`, `REJECTED`, `ESCALATED`
 
 ### 10. Baseline Freeze (openspec/specs/)
 

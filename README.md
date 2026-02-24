@@ -78,7 +78,7 @@ Commands enforce ordering via `tasks.md` Workflow State (in `openspec/changes/{s
 - `plan` requires routing completed
 - `work` requires plan status = COMPLETED
 - `review` requires work status = COMPLETED
-- `compound` requires review status = APPROVED
+- `compound` requires QA status = APPROVED
 
 ---
 

@@ -114,7 +114,11 @@ Files: ${FILE_LIST}
 Mode: quick-mode"
 ```
 
-## Step 4: State Update (Minimal)
+## Step 4: State Update (Always Persist)
+
+**Always** persist quick task state to disk, even for ad-hoc tasks without feature context.
+
+### Within a feature context
 
 If a `tasks.md` exists for the current feature, add a quick-mode entry:
 
@@ -125,7 +129,25 @@ If a `tasks.md` exists for the current feature, add a quick-mode entry:
 | Fix email validation regex | 2026-02-11 | src/Domain/ValueObject/Email.php | COMPLETED |
 ```
 
-If no feature context exists, no state file is created (truly ad-hoc task).
+### Ad-hoc tasks (no feature context)
+
+Create a shared quick-task log at `openspec/changes/_quick/log.md`:
+
+```bash
+mkdir -p openspec/changes/_quick
+```
+
+Append the task to the log (create the file if it doesn't exist):
+
+```markdown
+## Quick Task Log
+
+| Task | Date | Files | Status | Commit |
+|------|------|-------|--------|--------|
+| Fix email validation regex | 2026-02-11 | src/Domain/ValueObject/Email.php | COMPLETED | abc1234 |
+```
+
+**Why persist ad-hoc tasks?** If a quick task is interrupted mid-execution (context compaction, session restart), the log provides a resume point. It also feeds `/workflows:compound` — recurring quick fixes in the same area signal a deeper issue worth planning.
 
 ## Flags
 
@@ -150,8 +172,9 @@ IF during Quick Mode execution:
 
 THEN:
   1. Commit what you have so far (partial progress)
-  2. NOTIFY user: "This task is more complex than expected. Recommend full workflow."
-  3. Suggest: /workflows:route → /workflows:plan
+  2. Update state (tasks.md or _quick/log.md) with status: ESCALATED
+  3. NOTIFY user: "This task is more complex than expected. Recommend full workflow."
+  4. Suggest: /workflows:route → /workflows:plan
 ```
 
 ## Examples

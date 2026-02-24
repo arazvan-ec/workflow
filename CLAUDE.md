@@ -58,10 +58,11 @@ This generates compound-equivalent knowledge so your first feature plans like yo
 
 ### Flow Guards (enforced)
 
-- `plan` requires: routing completed
+- `shape` requires: `00_routing.md` exists on disk OR routing context in conversation
+- `plan` requires: `00_routing.md` exists on disk OR routing context in conversation. If shaped, `01_shaped_brief.md` Shaping Progress must be all COMPLETED.
 - `work` requires: plan status = COMPLETED in `tasks.md` Workflow State
 - `review` requires: work status = COMPLETED in `tasks.md` Workflow State
-- `compound` requires: review status = APPROVED in `tasks.md` Workflow State
+- `compound` requires: QA status = APPROVED in `tasks.md` Workflow State
 
 ---
 
@@ -140,6 +141,9 @@ Each feature produces a structured set of markdown artifacts in `openspec/change
 | Phase | Output | Defines |
 |-------|--------|---------|
 | Route | `00_routing.md` | Classification, assumptions, success criteria, recommended workflow |
+| Shape (optional) | `01_shaped_brief.md` | Frame, requirements, shape, fit check (includes Shaping Progress tracker) |
+| Shape (optional) | `02_breadboard.md` | Places, affordances, wiring diagram (full mode only) |
+| Shape (optional) | `03_slices.md` | Vertical demoable increments (full mode only) |
 | Phase 1 | `proposal.md` | Problem, context, success criteria (WHAT we're solving) |
 | Phase 2 | `specs.md` | Functional requirements, acceptance criteria (WHAT the system must do) |
 | Phase 2.5 | Test contract sketch (in `specs.md`) | Test boundaries, scenarios, edge cases |
