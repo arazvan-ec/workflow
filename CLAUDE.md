@@ -121,6 +121,19 @@ Model-agnostic and execution-agnostic. Abstracts capabilities (parallelization, 
 
 When `providers.yaml` is set to `auto` (default), resolve providers using the Detection Protocol before executing provider-dependent operations.
 
+## Complexity Levels (L1-L4)
+
+The router classifies every request into 4 levels, each activating a different workflow subset:
+
+| Level | Name | Phases | Scope |
+|---|---|---|---|
+| **L1** | Trivial | ROUTE -> QUICK | 1-3 files, < 30 min |
+| **L2** | Simple | ROUTE -> PLAN -> WORK -> REVIEW | 4-10 files, 1-4 hours |
+| **L3** | Moderate | ROUTE -> PLAN -> WORK -> REVIEW -> COMPOUND | 10-30 files, 4-16 hours |
+| **L4** | Complex | ROUTE -> SHAPE -> PLAN -> WORK -> REVIEW -> COMPOUND | 30+ files, multi-session |
+
+Details in `core/docs/ROUTING_REFERENCE.md` (L1-L4 section) and `core/docs/KNOWLEDGE_BASE.md`.
+
 ## Key Patterns
 
 - **Karpathy Principles**: Think before coding, simplicity first, surgical changes, goal-driven execution. See `core/docs/KARPATHY_PRINCIPLES.md`.
@@ -129,6 +142,7 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 - **Validation Learning**: AI self-questions solutions, logs answers for future use. See `core/docs/VALIDATION_LEARNING.md`.
 - **SOLID Constraint**: Phase 3 solutions must be COMPLIANT per contextual analysis. See `core/architecture-reference.md` and `openspec/specs/architecture-profile.yaml`.
 - **Contradiction Detection Protocol (CDP)**: When artifacts contradict each other, stop and ask the user — never silently resolve. See `core/rules/framework_rules.md` §12.
+- **Ralph Discipline**: Anti-context-rot, state externalization, deliberate rotation. See `core/docs/SESSION_CONTINUITY.md` (Ralph Discipline section).
 
 ## State Management
 
@@ -178,10 +192,11 @@ This file + `framework_rules.md` are always loaded. Keep them lean. Everything e
 
 ## Reference Documentation
 
-- **Docs** (`core/docs/`): `CAPABILITY_PROVIDERS`, `ROUTING_REFERENCE`, `KARPATHY_PRINCIPLES`, `CONTEXT_ENGINEERING`, `SESSION_CONTINUITY`, `MCP_INTEGRATION`, `VALIDATION_LEARNING`
+- **Docs** (`core/docs/`): `KNOWLEDGE_BASE`, `CAPABILITY_PROVIDERS`, `ROUTING_REFERENCE`, `KARPATHY_PRINCIPLES`, `CONTEXT_ENGINEERING`, `SESSION_CONTINUITY`, `MCP_INTEGRATION`, `VALIDATION_LEARNING`, `WORKFLOW_DECISION_MATRIX`
+- **Visualization**: `core/docs/workflow-hub.html` (interactive methodology map)
 - **Rules** (`core/rules/`): `framework_rules`, `testing-rules`, `security-rules`, `git-rules`
 - **Other**: `core/providers.yaml`, `core/architecture-reference.md`
 
 ---
 
-**Version**: 3.2.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Spec-Driven Development + Capability Providers + Shape Up (Singer) + AI Validation Learning + GSD + BMAD
+**Version**: 3.3.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Spec-Driven Development + Capability Providers + Shape Up (Singer) + AI Validation Learning + GSD + BMAD + Ralph Method + Code Factory + Addy Osmani (10 Pillars)

@@ -4,7 +4,7 @@ A **compound engineering** framework for Claude Code that coordinates multiple A
 
 > *"Each unit of engineering work should make subsequent units easier -- not harder."*
 
-**v3.2.0** -- 8 agents, 10 commands, 15 skills, 3 roles.
+**v3.3.0** -- 8 agents, 10 commands, 15 skills, 3 roles, L1-L4 complexity routing.
 
 ---
 
@@ -224,6 +224,17 @@ plugins/workflow/
 
 ---
 
+## v3.3.0 Changes
+
+Key changes from v3.2.0:
+
+- **Knowledge Base**: Consolidated reference document mapping all 8+ methodology sources and their contributions (`KNOWLEDGE_BASE.md`)
+- **Interactive Workflow Hub**: HTML visualization with 5 tabs — workflow, complexity levels, methodologies, concepts, structure (`workflow-hub.html`)
+- **L1-L4 Complexity Routing**: Explicit 4-level classification system (Trivial, Simple, Moderate, Complex) with signal matrix and escalation rules
+- **Ralph Discipline Integration**: Anti-context-rot practices, state externalization, deliberate rotation, context breadcrumbs in `SESSION_CONTINUITY.md`
+- **Addy Osmani's 70% Problem**: Formally integrated — compound captures where AI progress slows and what makes the remaining 30% hard
+- **Expanded Intellectual Influences**: Added Addy Osmani, Ralph Method, Code Factory patterns to formal sources
+
 ## v3.2.0 Changes
 
 Key changes from v3.1.0:
@@ -261,13 +272,15 @@ Key changes from v3.0.0:
 
 | Topic | Location |
 |-------|----------|
+| **Knowledge base** | **`core/docs/KNOWLEDGE_BASE.md`** |
+| **Workflow hub (interactive)** | **`core/docs/workflow-hub.html`** |
 | Capability providers | `core/docs/CAPABILITY_PROVIDERS.md` |
 | Provider configuration | `core/providers.yaml` |
-| Routing reference | `core/docs/ROUTING_REFERENCE.md` |
+| Routing reference (L1-L4) | `core/docs/ROUTING_REFERENCE.md` |
 | Workflow decision matrix | `core/docs/WORKFLOW_DECISION_MATRIX.md` |
 | Karpathy principles | `core/docs/KARPATHY_PRINCIPLES.md` |
 | Context engineering | `core/docs/CONTEXT_ENGINEERING.md` |
-| Session continuity | `core/docs/SESSION_CONTINUITY.md` |
+| Session continuity + Ralph | `core/docs/SESSION_CONTINUITY.md` |
 | MCP integration | `core/docs/MCP_INTEGRATION.md` |
 | Validation learning | `core/docs/VALIDATION_LEARNING.md` |
 | Architecture reference | `core/architecture-reference.md` |
@@ -287,6 +300,9 @@ Key changes from v3.0.0:
 - [GSD (Get Shit Done)](https://github.com/gsd-build/get-shit-done) -- deviation detection, goal-backward verification
 - [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) -- scale-adaptive limits, adversarial self-review
 - Andrej Karpathy -- coding principles for AI-assisted development
+- [Addy Osmani](https://addyosmani.com/blog/beyond-vibe-coding/) -- 10 pillars of LLM development, the 70% problem
+- Ralph Method -- anti-context-rot, state externalization, deliberate rotation
+- Code Factory -- risk tiers, SHA discipline, deterministic quality gates
 
 ---
 

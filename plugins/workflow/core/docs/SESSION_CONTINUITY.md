@@ -105,6 +105,96 @@ A checkpoint creates a git commit containing:
 
 ---
 
+## Ralph Discipline (Anti-Context-Rot)
+
+The Ralph Method provides explicit practices to prevent context degradation over long sessions. These principles are integrated throughout the workflow but are especially critical during multi-session work (L3-L4 complexity).
+
+### Core Principles
+
+#### 1. State Externalization
+
+Never rely on conversation memory for anything important. All state lives in files:
+
+```
+CONVERSATION MEMORY (volatile)     →    FILE-BASED STATE (durable)
+"We decided to use JWT"           →    Decision Log in tasks.md
+"I was working on the API layer"  →    Resume Point in tasks.md
+"The edge case with null emails"  →    scratchpad.md hypothesis
+"That pattern from last feature"  →    compound-memory.md
+```
+
+**Rule**: If it matters, write it down. If you said it but didn't write it, it doesn't exist.
+
+#### 2. Anti-Context-Rot
+
+Context degrades over time in AI sessions. Symptoms and mitigations:
+
+| Symptom | Cause | Mitigation |
+|---------|-------|------------|
+| Repeating the same error | Lost correction context | Write fix rationale to scratchpad.md |
+| Forgetting a decision | Compaction removed early messages | Log decisions in tasks.md Decision Log |
+| Implementing wrong approach | Drifted from plan | Re-read design.md before each task |
+| Missing edge cases | Specs lost from context | Re-read specs.md acceptance criteria |
+| Contradicting earlier work | Session too long | Checkpoint and start fresh session |
+
+**Prevention protocol**:
+1. **Write-Then-Advance** (framework_rules §11): Write output to disk before proceeding
+2. **Checkpoint at milestones**: Not just time-based, but logic-unit-based
+3. **Re-read before continuing**: After any interruption, re-read state files
+4. **Scratchpad as working memory**: Externalize hypotheses and observations
+
+#### 3. Deliberate Rotation
+
+One instance = one role. This is not a limitation but a feature:
+
+```
+SESSION 1 (Planner):
+  Read: routing, compound memory
+  Write: proposal, specs, design, tasks
+  Checkpoint: "Planning complete"
+
+SESSION 2 (Implementer):
+  Read: tasks.md, design.md, specs.md
+  Write: code, tests, task updates
+  Checkpoint: "Implementation complete"
+
+SESSION 3 (Reviewer):
+  Read: tasks.md, implementation, specs
+  Write: QA report, validation report
+  Checkpoint: "Review complete"
+```
+
+Each session starts fresh with focused context. Cross-role information flows through files, not conversation history.
+
+#### 4. Context Breadcrumbs
+
+Leave trail markers for future sessions:
+
+```markdown
+## Resume Point (in tasks.md)
+
+**Last completed**: Task 3 - Create User entity
+**Currently working on**: Task 4 - Implement CreateUserUseCase
+**Status**: IN_PROGRESS (partial - use case skeleton created, tests pending)
+**Next after current**: Task 5 - Add API endpoint
+**Files to read on resume**:
+  - openspec/changes/user-auth/design.md (the architecture)
+  - src/Application/CreateUserUseCase.php (partial implementation)
+  - tests/Application/CreateUserUseCaseTest.php (to write)
+**Context notes**: Using Email VO pattern from compound memory. JWT strategy decided in Decision Log entry DL-003.
+```
+
+### When to Apply Ralph Discipline
+
+| Complexity Level | Ralph Discipline Level |
+|---|---|
+| L1 (Trivial) | Minimal: just quick task log |
+| L2 (Simple) | Standard: tasks.md updates, basic resume point |
+| L3 (Moderate) | Full: scratchpad, detailed resume points, decision log |
+| L4 (Complex) | Maximum: all of the above + mandatory checkpoints between phases |
+
+---
+
 ## Token-Efficient Habits
 
 - Use `grep` to find what you need before reading full files
@@ -168,6 +258,7 @@ When one role completes and another begins:
 ---
 
 **Related Documentation:**
+- `KNOWLEDGE_BASE.md` - Consolidated methodology reference (Ralph discipline section)
 - `CONTEXT_ENGINEERING.md` - Context management strategies
 - `CAPABILITY_PROVIDERS.md` - Provider detection and thresholds
 - `core/rules/git-rules.md` - Git practices for multi-agent work

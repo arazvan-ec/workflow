@@ -1,7 +1,7 @@
 {
   "name": "workflow",
-  "version": "3.2.0",
-  "description": "Compound engineering framework for multi-agent AI development. Spec-Driven Development with constitution, test contracts, decision logs, reflection pattern, feedback loops, and scratchpad persistence. 7 core + 3 support commands, model-agnostic providers, quality-gated TDD workflow, AI validation learning, and multi-agent coordination. 8 specialized agents, 10 workflow commands, 15 skills, 3 roles. 100% stack-agnostic.",
+  "version": "3.3.0",
+  "description": "Compound engineering framework for multi-agent AI development. L1-L4 complexity routing, Spec-Driven Development, Ralph discipline, knowledge base consolidating 8+ methodologies. 7 core + 3 support commands, model-agnostic providers, quality-gated TDD workflow, AI validation learning, and multi-agent coordination. 8 specialized agents, 10 workflow commands, 15 skills, 3 roles. 100% stack-agnostic.",
   "author": {
     "name": "arazvan-ec",
     "url": "https://github.com/arazvan-ec"
