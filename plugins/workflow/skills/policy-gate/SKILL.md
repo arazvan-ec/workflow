@@ -30,9 +30,9 @@ Evalúa los archivos cambiados contra el contrato de gobernanza del repositorio.
 ## Invocación
 
 ```
-/multi-agent-workflow:policy-gate
-/multi-agent-workflow:policy-gate --base origin/main
-/multi-agent-workflow:policy-gate --files "ruta/al/archivo.md"
+/workflow:policy-gate
+/workflow:policy-gate --base origin/main
+/workflow:policy-gate --files "ruta/al/archivo.md"
 ```
 
 ## Protocolo de Ejecución
@@ -71,15 +71,15 @@ Para cada archivo cambiado, buscar en `riskTierRules` del contrato qué patrón 
 **Prioridad**: high (3) > medium (2) > low (1)
 
 **Reglas de matching**:
-- `plugins/multi-agent-workflow/core/rules/**` → cubre cualquier archivo bajo esa ruta
+- `plugins/workflow/core/rules/**` → cubre cualquier archivo bajo esa ruta
 - `**` → comodín, cubre todo (tier por defecto)
 - Evaluar de high a low. En cuanto un archivo matchea high, el tier final es high.
 
 **Ejemplo**:
 ```
 Archivos cambiados:
-  - plugins/multi-agent-workflow/core/rules/framework_rules.md → high
-  - plugins/multi-agent-workflow/README.md → low
+  - plugins/workflow/core/rules/framework_rules.md → high
+  - plugins/workflow/README.md → low
 
 Tier resultante: high (el más alto gana)
 ```
@@ -95,7 +95,7 @@ Para cada regla en `docsDriftRules` del contrato:
 **Ejemplo de violación**:
 ```
 Regla: "core-rules-require-docs-update"
-  ifChanged: plugins/multi-agent-workflow/core/rules/**
+  ifChanged: plugins/workflow/core/rules/**
   mustAlsoChangeOneOf: CLAUDE.md, README.md, plans/**
 
 Archivos cambiados: [core/rules/framework_rules.md]
@@ -168,7 +168,7 @@ En `/workflows:work` Step 7, **antes del checkpoint**, se invoca este skill comp
 Se puede invocar manualmente en cualquier momento para inspeccionar el estado actual:
 
 ```
-/multi-agent-workflow:policy-gate
+/workflow:policy-gate
 ```
 
 Útil antes de crear un PR, antes de un commit manual, o cuando se quiera verificar el tier de riesgo de los cambios actuales.
@@ -176,13 +176,13 @@ Se puede invocar manualmente en cualquier momento para inspeccionar el estado ac
 ## Ejemplo Completo
 
 ```
-Usuario: /multi-agent-workflow:policy-gate
+Usuario: /workflow:policy-gate
 
 Agente:
 1. Lee control-plane/contract.json ✓
 2. Ejecuta: git diff --name-only --diff-filter=ACMRT origin/main
-   → plugins/multi-agent-workflow/commands/workflows/plan.md
-   → plugins/multi-agent-workflow/core/rules/testing-rules.md
+   → plugins/workflow/commands/workflows/plan.md
+   → plugins/workflow/core/rules/testing-rules.md
 3. Calcula tier:
    - plan.md → matchea "commands/**" → high
    - testing-rules.md → matchea "core/rules/**" → high

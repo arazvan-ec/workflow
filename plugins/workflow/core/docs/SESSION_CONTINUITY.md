@@ -12,7 +12,7 @@ Session continuity relies on four persistence mechanisms:
 | Mechanism | What It Stores | When Updated |
 |-----------|---------------|-------------|
 | **tasks.md** | Workflow State, role statuses, task progress, resume point, decision log | After every task and phase |
-| **Git commits** | Code changes, checkpoints | At each checkpoint via `/multi-agent-workflow:checkpoint` |
+| **Git commits** | Code changes, checkpoints | At each checkpoint via `/workflow:checkpoint` |
 | **OpenSpec files** | Specs, design docs, proposal | After each planning phase |
 | **scratchpad.md** | Working notes, hypotheses, blockers, context breadcrumbs | During active work (ephemeral, per-feature) |
 
@@ -80,10 +80,10 @@ If tasks.md shows a role as `IN_PROGRESS`, check the Resume Point section for:
 
 ## Creating a Checkpoint
 
-Use `/multi-agent-workflow:checkpoint` to persist state at milestones:
+Use `/workflow:checkpoint` to persist state at milestones:
 
 ```bash
-/multi-agent-workflow:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
+/workflow:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
 ```
 
 ### When to Checkpoint
@@ -154,7 +154,7 @@ When one role completes and another begins:
 /clear                # Fresh start (loses current context)
 
 # Checkpoints
-/multi-agent-workflow:checkpoint ${ROLE} ${FEATURE} "message"
+/workflow:checkpoint ${ROLE} ${FEATURE} "message"
 
 # Status check
 /workflows:status ${FEATURE}

@@ -31,9 +31,9 @@ Generate structured reports of external sources and references used in research,
 ## Invocation
 
 ```
-/multi-agent-workflow:source-report
-/multi-agent-workflow:source-report --plan <plan-file>
-/multi-agent-workflow:source-report --topic <topic>
+/workflow:source-report
+/workflow:source-report --plan <plan-file>
+/workflow:source-report --topic <topic>
 ```
 
 ## Report Generation Process

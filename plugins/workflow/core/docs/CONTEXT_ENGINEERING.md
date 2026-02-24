@@ -259,14 +259,14 @@ This makes the plugin function as an **agent operating system** where:
 
 ### Which skills are forked?
 ```bash
-grep -rl "context: fork" plugins/multi-agent-workflow/skills/
-grep -rl "context: fork" plugins/multi-agent-workflow/agents/
+grep -rl "context: fork" plugins/workflow/skills/
+grep -rl "context: fork" plugins/workflow/agents/
 ```
 
 ### Which skills have hooks?
 ```bash
-grep -rl "hooks:" plugins/multi-agent-workflow/skills/
-grep -rl "hooks:" plugins/multi-agent-workflow/agents/
+grep -rl "hooks:" plugins/workflow/skills/
+grep -rl "hooks:" plugins/workflow/agents/
 ```
 
 ### How to add context: fork to a skill

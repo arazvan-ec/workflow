@@ -23,7 +23,7 @@ The quality of architectural decisions depends entirely on the quality of the cr
 **IMPORTANT**: Before generating feature-specific criteria, ALWAYS load the base architecture quality criteria:
 
 ```
-Read: plugins/multi-agent-workflow/core/architecture-reference.md
+Read: plugins/workflow/core/architecture-reference.md
 ```
 
 These **6 base criteria** are NON-NEGOTIABLE and apply to ALL features:

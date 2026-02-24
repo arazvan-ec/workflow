@@ -82,7 +82,7 @@
 **Prompt para ejecutar esta fase**:
 
 ```
-Necesito que corrijas todas las referencias rotas en el plugin multi-agent-workflow.
+Necesito que corrijas todas las referencias rotas en el plugin workflow.
 
 Referencias rotas confirmadas:
 
@@ -102,13 +102,13 @@ Referencias rotas confirmadas:
    - ACCIÓN: Cambiar a "Replaced by `/workflows:discover --setup`" con contexto claro
 
 6. SESSION_CONTINUITY.md → 20+ referencias a `/workflows:snapshot`, `/workflows:restore`
-   - ACCIÓN: Estos son skills (checkpoint, git-sync), no commands. Reescribir las secciones para usar los skill names correctos: `/multi-agent-workflow:checkpoint` y `/multi-agent-workflow:git-sync`
+   - ACCIÓN: Estos son skills (checkpoint, git-sync), no commands. Reescribir las secciones para usar los skill names correctos: `/workflow:checkpoint` y `/workflow:git-sync`
 
 7. CAPABILITY_PROVIDERS.md → referencias a `/workflows:parallel`
    - ACCIÓN: Reemplazar con la referencia correcta al provider de paralelización (agent-teams o worktrees)
 
 8. work.md:400 → `/workflows:checkpoint` debería ser skill `checkpoint`
-   - ACCIÓN: Corregir a `/multi-agent-workflow:checkpoint`
+   - ACCIÓN: Corregir a `/workflow:checkpoint`
 
 9. discover.md:1214 → `/workflows:reload`
    - ACCIÓN: Eliminar o documentar como "manual: re-read CLAUDE.md"
@@ -412,7 +412,7 @@ GLOSARIO CANÓNICO (definir en framework_rules.md, sección nueva "Terminology")
 | Session Snapshot | "Checkpoint" (cuando es estado completo) | Exportación completa del estado para reanudar en otra sesión |
 | Role | (no confundir con Agent) | Planner, Implementer, Reviewer — definen permisos y contexto |
 | Agent | (no confundir con Role) | Instancia fork con contexto aislado (code-reviewer, codebase-analyzer, etc.) |
-| Skill | (no confundir con Command) | Operación invocable por el usuario (/multi-agent-workflow:X) |
+| Skill | (no confundir con Command) | Operación invocable por el usuario (/workflow:X) |
 | Command | (no confundir con Skill) | Workflow step invocable (/workflows:X) |
 | Pattern (architecture) | | Design pattern (Strategy, Repository, etc.) |
 | Pattern (learned) | | Patrón exitoso descubierto por compound |
@@ -773,7 +773,7 @@ Dependencias:
 Si deseas ejecutar todas las fases en una sola sesión larga, usa este prompt:
 
 ```
-Estoy mejorando el plugin multi-agent-workflow v3.1.0. El plan completo está en plans/plugin-improvement-plan.md.
+Estoy mejorando el plugin workflow v3.1.0. El plan completo está en plans/plugin-improvement-plan.md.
 
 Ejecuta las fases en este orden: 1, 2, 3, 4, 5, 7, 6, 11, 8, 12, 9, 10, 13, 14.
 
@@ -800,23 +800,23 @@ Después de implementar todas las fases, ejecutar:
 
 ```bash
 # 0 resultados esperados (referencias rotas eliminadas):
-grep -r "agent-memory" plugins/multi-agent-workflow/
-grep -r "ddd_rules" plugins/multi-agent-workflow/
-grep -r "spec-validator" plugins/multi-agent-workflow/
-grep -r "opsx:archive" plugins/multi-agent-workflow/
-grep -r "/workflows:quickstart" plugins/multi-agent-workflow/
-grep -r "/workflows:snapshot" plugins/multi-agent-workflow/
-grep -r "/workflows:restore" plugins/multi-agent-workflow/
-grep -r "/workflows:reload" plugins/multi-agent-workflow/
-grep -r "/workflows:parallel" plugins/multi-agent-workflow/
-grep -r "22/25\|18/25" plugins/multi-agent-workflow/
+grep -r "agent-memory" plugins/workflow/
+grep -r "ddd_rules" plugins/workflow/
+grep -r "spec-validator" plugins/workflow/
+grep -r "opsx:archive" plugins/workflow/
+grep -r "/workflows:quickstart" plugins/workflow/
+grep -r "/workflows:snapshot" plugins/workflow/
+grep -r "/workflows:restore" plugins/workflow/
+grep -r "/workflows:reload" plugins/workflow/
+grep -r "/workflows:parallel" plugins/workflow/
+grep -r "22/25\|18/25" plugins/workflow/
 
 # Debe existir:
-ls plugins/multi-agent-workflow/core/templates/tasks-template.md
+ls plugins/workflow/core/templates/tasks-template.md
 
 # Verificar reducción de tamaño:
-wc -l plugins/multi-agent-workflow/commands/workflows/plan.md  # objetivo: ~700
-wc -l plugins/multi-agent-workflow/core/docs/SESSION_CONTINUITY.md  # objetivo: ~200
+wc -l plugins/workflow/commands/workflows/plan.md  # objetivo: ~700
+wc -l plugins/workflow/core/docs/SESSION_CONTINUITY.md  # objetivo: ~200
 ```
 
 ---

@@ -64,8 +64,8 @@ Skill nativo de Claude Code que:
 
 **Invocación**:
 ```
-/multi-agent-workflow:policy-gate
-/multi-agent-workflow:policy-gate --base origin/main
+/workflow:policy-gate
+/workflow:policy-gate --base origin/main
 ```
 
 ### Integración en work.md
@@ -106,8 +106,8 @@ El policy-gate se integra en `/workflows:work` Step 7 (checkpoint), donde:
 python3 -m json.tool control-plane/contract.json
 
 # El skill debe existir:
-ls plugins/multi-agent-workflow/skills/policy-gate/SKILL.md
+ls plugins/workflow/skills/policy-gate/SKILL.md
 
 # work.md debe incluir Policy Gate en Step 7:
-grep -c "policy-gate" plugins/multi-agent-workflow/commands/workflows/work.md
+grep -c "policy-gate" plugins/workflow/commands/workflows/work.md
 ```

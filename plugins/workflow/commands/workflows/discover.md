@@ -599,7 +599,7 @@ Write the dimensional profile to `openspec/specs/api-architecture-diagnostic.yam
 
 ```bash
 # Copy template and populate with classified values
-cp plugins/multi-agent-workflow/core/templates/api-architecture-diagnostic.yaml openspec/specs/api-architecture-diagnostic.yaml
+cp plugins/workflow/core/templates/api-architecture-diagnostic.yaml openspec/specs/api-architecture-diagnostic.yaml
 
 # Fill in:
 # - diagnostic_version, generated_at, generated_by

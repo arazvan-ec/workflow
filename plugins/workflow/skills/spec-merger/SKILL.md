@@ -34,22 +34,22 @@ Merge feature specifications into project-level specifications after feature com
 
 ```bash
 # Merge specs from completed feature
-/multi-agent-workflow:merge-specs <feature-id>
+/workflow:merge-specs <feature-id>
 
 # Preview changes without applying
-/multi-agent-workflow:merge-specs <feature-id> --dry-run
+/workflow:merge-specs <feature-id> --dry-run
 
 # Force merge (skip conflict prompts)
-/multi-agent-workflow:merge-specs <feature-id> --force
+/workflow:merge-specs <feature-id> --force
 
 # Merge to specific project spec file
-/multi-agent-workflow:merge-specs <feature-id> --target=api-specs.md
+/workflow:merge-specs <feature-id> --target=api-specs.md
 ```
 
 ### Example
 
 ```bash
-/multi-agent-workflow:merge-specs user-authentication
+/workflow:merge-specs user-authentication
 
 # Output:
 # Analyzing feature specs...
@@ -318,7 +318,7 @@ SKIP: POST /api/users (no changes)
 
 ```bash
 # Verify merged specs are valid
-/multi-agent-workflow:validate-specs
+/workflow:validate-specs
 
 # View updated manifest
 cat openspec/specs/spec-manifest.yaml
@@ -477,7 +477,7 @@ See: https://example.com/email-spec
 
 ```bash
 # No project specs exist yet
-/multi-agent-workflow:merge-specs user-management
+/workflow:merge-specs user-management
 
 # Creates:
 # - openspec/specs/entities.md
@@ -490,7 +490,7 @@ See: https://example.com/email-spec
 
 ```bash
 # Project specs exist, adding new feature
-/multi-agent-workflow:merge-specs order-management
+/workflow:merge-specs order-management
 
 # Updates existing files with new content
 ```
@@ -499,7 +499,7 @@ See: https://example.com/email-spec
 
 ```bash
 # Feature modifies existing specs
-/multi-agent-workflow:merge-specs user-profile-refactor
+/workflow:merge-specs user-profile-refactor
 
 # Handles modifications and potential conflicts
 ```
@@ -508,7 +508,7 @@ See: https://example.com/email-spec
 
 ```bash
 # Preview without changes
-/multi-agent-workflow:merge-specs order-management --dry-run
+/workflow:merge-specs order-management --dry-run
 
 # Output shows what WOULD be merged:
 # WOULD ADD: Order entity
@@ -523,7 +523,7 @@ See: https://example.com/email-spec
 
 ```bash
 # Error: Feature specs not found
-/multi-agent-workflow:merge-specs nonexistent-feature
+/workflow:merge-specs nonexistent-feature
 
 # Output:
 # ERROR: Feature 'nonexistent-feature' not found
@@ -557,7 +557,7 @@ See: https://example.com/email-spec
 3. **Run after compound**: Integrate with `/workflows:compound`
 4. **Keep manifest clean**: Don't manually edit `spec-manifest.yaml`
 5. **Use markers**: Preserve manual edits with MANUAL markers
-6. **Verify after merge**: Run `/multi-agent-workflow:validate-specs`
+6. **Verify after merge**: Run `/workflow:validate-specs`
 
 ## Related
 

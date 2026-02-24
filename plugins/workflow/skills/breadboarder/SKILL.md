@@ -31,13 +31,13 @@ Transforms a shaped solution into a concrete technical diagram (breadboard) and 
 
 ```bash
 # Breadboard from a shaped brief
-/multi-agent-workflow:breadboarder feature-name
+/workflow:breadboarder feature-name
 
 # Slice an existing breadboard
-/multi-agent-workflow:breadboarder --slice feature-name
+/workflow:breadboarder --slice feature-name
 
 # Map an existing system
-/multi-agent-workflow:breadboarder --map "description or path"
+/workflow:breadboarder --map "description or path"
 ```
 
 ---
@@ -281,7 +281,7 @@ The planner reads `02_breadboard.md` and `03_slices.md` to create task breakdown
 
 ## Related
 
-- `/multi-agent-workflow:shaper` - Previous step: shape the problem and solution
+- `/workflow:shaper` - Previous step: shape the problem and solution
 - `/workflows:shape` - Command that orchestrates shaping + breadboarding
 - `/workflows:plan` - Next step: detailed implementation planning
 - `core/roles/planner.md` - Consumes breadboard and slices

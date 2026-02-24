@@ -3,20 +3,20 @@
   "description": "Machine-readable governance contract for the workflow plugin repository. Defines risk tiers, merge policy, and documentation drift rules.",
   "riskTierRules": {
     "high": [
-      "plugins/multi-agent-workflow/core/rules/**",
-      "plugins/multi-agent-workflow/core/roles/**",
-      "plugins/multi-agent-workflow/commands/**",
-      "plugins/multi-agent-workflow/agents/**",
-      "plugins/multi-agent-workflow/CLAUDE.md",
+      "plugins/workflow/core/rules/**",
+      "plugins/workflow/core/roles/**",
+      "plugins/workflow/commands/**",
+      "plugins/workflow/agents/**",
+      "CLAUDE.md",
       ".claude/**",
       "control-plane/**"
     ],
     "medium": [
-      "plugins/multi-agent-workflow/skills/**",
-      "plugins/multi-agent-workflow/core/templates/**",
-      "plugins/multi-agent-workflow/core/docs/**",
-      "plugins/multi-agent-workflow/core/providers.yaml",
-      "plugins/multi-agent-workflow/core/architecture-reference.md",
+      "plugins/workflow/skills/**",
+      "plugins/workflow/core/templates/**",
+      "plugins/workflow/core/docs/**",
+      "plugins/workflow/core/providers.yaml",
+      "plugins/workflow/core/architecture-reference.md",
       "plans/**"
     ],
     "low": [
@@ -38,23 +38,23 @@
     {
       "name": "core-rules-require-docs-update",
       "ifChanged": [
-        "plugins/multi-agent-workflow/core/rules/**",
-        "plugins/multi-agent-workflow/core/roles/**"
+        "plugins/workflow/core/rules/**",
+        "plugins/workflow/core/roles/**"
       ],
       "mustAlsoChangeOneOf": [
-        "plugins/multi-agent-workflow/CLAUDE.md",
-        "plugins/multi-agent-workflow/README.md",
+        "CLAUDE.md",
+        "README.md",
         "plans/**"
       ]
     },
     {
       "name": "commands-require-docs-update",
       "ifChanged": [
-        "plugins/multi-agent-workflow/commands/**"
+        "plugins/workflow/commands/**"
       ],
       "mustAlsoChangeOneOf": [
-        "plugins/multi-agent-workflow/CLAUDE.md",
-        "plugins/multi-agent-workflow/README.md",
+        "CLAUDE.md",
+        "README.md",
         "plans/**"
       ]
     },

@@ -23,7 +23,7 @@ Every request starts with routing. No exceptions.
 
 ```bash
 /plugin marketplace add https://github.com/arazvan-ec/workflow
-/plugin install multi-agent-workflow
+/plugin install workflow
 ```
 
 ## Quick Start
@@ -202,7 +202,7 @@ Reference: `core/docs/CAPABILITY_PROVIDERS.md`.
 ## Project Structure
 
 ```
-plugins/multi-agent-workflow/
+plugins/workflow/
 ├── .claude-plugin/plugin.json
 ├── agents/
 │   ├── research/        # codebase-analyzer, learnings-researcher

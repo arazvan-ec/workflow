@@ -102,12 +102,12 @@ ADVERSARIAL SELF-REVIEW:
 ### Via Slash Command
 
 ```
-/multi-agent-workflow:checkpoint <role> <feature> "<message>"
+/workflow:checkpoint <role> <feature> "<message>"
 ```
 
 Example:
 ```
-/multi-agent-workflow:checkpoint backend user-auth "Domain layer complete"
+/workflow:checkpoint backend user-auth "Domain layer complete"
 ```
 
 ### Checkpoint Document Format

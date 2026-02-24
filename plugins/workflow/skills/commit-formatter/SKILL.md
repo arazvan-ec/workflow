@@ -167,7 +167,7 @@ Coverage: <X>%
 
 ```bash
 # After completing work, create formatted commit
-/multi-agent-workflow:commit "feat(user): add user registration"
+/workflow:commit "feat(user): add user registration"
 
 # Internally:
 # 1. Validate message format

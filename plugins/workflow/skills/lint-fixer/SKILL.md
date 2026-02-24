@@ -190,7 +190,7 @@ echo "Lint fixes applied"
 
 ```bash
 # Before checkpoint, auto-fix style
-/multi-agent-workflow:checkpoint backend user-auth "Domain layer"
+/workflow:checkpoint backend user-auth "Domain layer"
 
 # Internally runs:
 # 1. ./vendor/bin/php-cs-fixer fix

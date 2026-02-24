@@ -210,7 +210,7 @@ If still failing: status will be BLOCKED with root cause.
 
 ### "How do I customize the workflow?"
 Project rules: .ai/project/rules/
-Plugin agents: plugins/multi-agent-workflow/agents/
+Plugin agents: plugins/workflow/agents/
 
 Problem not listed? Describe your situation and ask.
 ```

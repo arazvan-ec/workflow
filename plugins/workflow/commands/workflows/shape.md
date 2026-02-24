@@ -119,7 +119,7 @@ Good shaping means:
 │                    PHASE 6: BREADBOARD                            │
 │  Map shape into Places, Affordances, Wiring                      │
 │  Generate Mermaid diagram                                        │
-│  Invoke: /multi-agent-workflow:breadboarder                      │
+│  Invoke: /workflow:breadboarder                      │
 │  Output: 02_breadboard.md                                        │
 └─────────────────────────────────────────────────────────────────┘
                               |
@@ -153,7 +153,7 @@ mkdir -p openspec/changes/${FEATURE_ID}
 ### Step 2: Invoke Shaper Skill
 
 ```bash
-/multi-agent-workflow:shaper "${user_description}"
+/workflow:shaper "${user_description}"
 ```
 
 The shaper skill handles Phases 1-5 interactively with the user.
@@ -175,13 +175,13 @@ During shaping, the user can use shorthand commands:
 ### Step 4: Breadboard (if --mode=full)
 
 ```bash
-/multi-agent-workflow:breadboarder ${FEATURE_ID}
+/workflow:breadboarder ${FEATURE_ID}
 ```
 
 ### Step 5: Slice (if --mode=full)
 
 ```bash
-/multi-agent-workflow:breadboarder --slice ${FEATURE_ID}
+/workflow:breadboarder --slice ${FEATURE_ID}
 ```
 
 ### Step 6: Handoff
@@ -326,8 +326,8 @@ Shape:
 - `/workflows:route` - Routes to shape when appropriate
 - `/workflows:plan` - Next step after shaping
 - `/workflows:work` - Execute the plan
-- `/multi-agent-workflow:shaper` - The underlying shaping skill
-- `/multi-agent-workflow:breadboarder` - The breadboarding skill
+- `/workflow:shaper` - The underlying shaping skill
+- `/workflow:breadboarder` - The breadboarding skill
 
 ## Related Documentation
 

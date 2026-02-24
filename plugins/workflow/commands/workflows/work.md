@@ -438,7 +438,7 @@ GOAL VERIFICATION (after tests pass):
 
 ```bash
 # 3. Policy Gate — validate changes against governance contract
-/multi-agent-workflow:policy-gate
+/workflow:policy-gate
 ```
 
 **Policy Gate Verification** (runs full gate with `git diff` against actual changed files):
@@ -468,7 +468,7 @@ The goal is awareness, not obstruction.
 
 ```bash
 # 4. Only checkpoint if SOLID + goal verification pass
-/multi-agent-workflow:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
+/workflow:checkpoint ${ROLE} ${FEATURE_ID} "Completed ${UNIT}"
 ```
 
 **Checkpoint SOLID Requirements**:

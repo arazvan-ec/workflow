@@ -33,16 +33,16 @@ Collaborative shaping methodology based on Ryan Singer's Shape Up framework. Sep
 
 ```bash
 # Start shaping a new feature
-/multi-agent-workflow:shaper "description of what we want to build"
+/workflow:shaper "description of what we want to build"
 
 # Continue shaping an existing feature
-/multi-agent-workflow:shaper --continue feature-name
+/workflow:shaper --continue feature-name
 
 # Show fit check
-/multi-agent-workflow:shaper --fit-check
+/workflow:shaper --fit-check
 
 # Run a spike
-/multi-agent-workflow:shaper --spike A2
+/workflow:shaper --spike A2
 ```
 
 ## Integration with Workflow
@@ -373,6 +373,6 @@ Step 6 - Fit Check: All green. Ready for planning.
 ## Related
 
 - `/workflows:shape` - Command that invokes this skill
-- `/multi-agent-workflow:breadboarder` - Next step: detail the shape into affordances
+- `/workflow:breadboarder` - Next step: detail the shape into affordances
 - `/workflows:plan` - Receives shaped brief as input
 - `core/roles/planner.md` - Planner reads shaped brief

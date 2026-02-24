@@ -128,7 +128,7 @@ Checkpoint blocked until coverage >= 80%
 
 ```bash
 # Coverage checked automatically at checkpoint
-/multi-agent-workflow:checkpoint backend user-auth "Domain layer"
+/workflow:checkpoint backend user-auth "Domain layer"
 
 # If coverage insufficient:
 # ❌ Checkpoint blocked

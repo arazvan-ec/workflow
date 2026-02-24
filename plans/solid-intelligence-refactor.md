@@ -8,7 +8,7 @@
 
 ## Contexto
 
-El plugin multi-agent-workflow tiene un sistema SOLID basado en scores numéricos estáticos (≥22/25 para aprobar, ≥18/25 mínimo). Este sistema tiene 3 problemas fundamentales:
+El plugin workflow tiene un sistema SOLID basado en scores numéricos estáticos (≥22/25 para aprobar, ≥18/25 mínimo). Este sistema tiene 3 problemas fundamentales:
 
 1. **Los scores son ficticios**: Asignar "Strategy = 25/25" como propiedad del patrón ignora que el score depende de la implementación, no del patrón abstracto.
 2. **La matrix es estática y OOP-centric**: Asume clases + interfaces explícitas. No aplica a Go (interfaces implícitas), Python (duck typing), Rust (traits), JS funcional.
@@ -515,19 +515,19 @@ Si el profile no existe (proyecto no ha ejecutado `discover --setup`):
 **Verificaciones**:
 ```bash
 # 0 resultados esperados:
-grep -r "22/25" plugins/multi-agent-workflow/
-grep -r "18/25" plugins/multi-agent-workflow/
-grep -r "solid-pattern-matrix" plugins/multi-agent-workflow/
-grep -r "architecture-quality-criteria" plugins/multi-agent-workflow/
-grep -r "/25.*SOLID\|SOLID.*/25" plugins/multi-agent-workflow/
+grep -r "22/25" plugins/workflow/
+grep -r "18/25" plugins/workflow/
+grep -r "solid-pattern-matrix" plugins/workflow/
+grep -r "architecture-quality-criteria" plugins/workflow/
+grep -r "/25.*SOLID\|SOLID.*/25" plugins/workflow/
 
 # Debe existir:
-cat plugins/multi-agent-workflow/core/architecture-reference.md
-cat plugins/multi-agent-workflow/core/templates/architecture-profile-template.yaml
+cat plugins/workflow/core/architecture-reference.md
+cat plugins/workflow/core/templates/architecture-profile-template.yaml
 
 # No debe existir:
-ls plugins/multi-agent-workflow/core/solid-pattern-matrix.md      # DELETED
-ls plugins/multi-agent-workflow/core/architecture-quality-criteria.md  # DELETED
+ls plugins/workflow/core/solid-pattern-matrix.md      # DELETED
+ls plugins/workflow/core/architecture-quality-criteria.md  # DELETED
 ```
 
 ---

@@ -36,9 +36,9 @@ Intelligent project analysis to build comprehensive project knowledge and recomm
 This skill is the engine behind `/workflows:discover`. It can also be invoked directly:
 
 ```
-/multi-agent-workflow:consult
-/multi-agent-workflow:consult --interactive
-/multi-agent-workflow:consult --deep
+/workflow:consult
+/workflow:consult --interactive
+/workflow:consult --deep
 ```
 
 ## Analysis Process

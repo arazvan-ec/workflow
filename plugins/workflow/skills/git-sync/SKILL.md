@@ -33,7 +33,7 @@ Safely synchronize your local repository with remote, handling stashes and confl
 ### Via Slash Command
 
 ```
-/multi-agent-workflow:git-sync <feature-name>
+/workflow:git-sync <feature-name>
 ```
 
 ### Via Script (if installed globally)
@@ -80,5 +80,5 @@ If conflicts occur in `tasks.md`:
 
 This skill is automatically invoked by:
 - `/workflows:work` - Before loading role context
-- `/multi-agent-workflow:checkpoint` - After creating checkpoint
+- `/workflow:checkpoint` - After creating checkpoint
 - `/workflows:status` - To ensure fresh status

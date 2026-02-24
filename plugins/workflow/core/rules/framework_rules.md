@@ -356,7 +356,7 @@ Canonical terms used throughout the plugin. Use these consistently — avoid syn
 | Term | Abbreviation | Definition | NOT |
 |------|-------------|------------|-----|
 | **Workflow State** | — | Section in `tasks.md` tracking role statuses, phases, and resume points | "Feature state", "Phase state" |
-| **Checkpoint** | — | Git commit marking task completion. Invoked via `/multi-agent-workflow:checkpoint` | "Snapshot" (for git commits), "save point" |
+| **Checkpoint** | — | Git commit marking task completion. Invoked via `/workflow:checkpoint` | "Snapshot" (for git commits), "save point" |
 | **Bounded Correction Protocol** | BCP | Auto-correction loop with scale-adaptive limits (simple:5, moderate:10, complex:15). See `testing-rules.md` | "Bounded Auto-Correction", "fix loop", "retry loop" |
 | **Flow Guard** | — | Pre-execution check at the start of each command verifying prerequisites are met | "Guard", "Prerequisites check" |
 | **Quality Gate** | QG | Validation of output at the end of a phase. Uses BCP with max 3 iterations in planning | "Quality Check", "validation step" |

@@ -456,7 +456,7 @@ MCP tools integrate with workflow commands:
 | `/workflows:work` | Validate DB schema, capture screenshots |
 | `/workflows:review` | Create PR, add review comments |
 | git-sync skill | Pull latest, notify on conflicts |
-| `/multi-agent-workflow:checkpoint` | Send Slack notification on BLOCKED |
+| `/workflow:checkpoint` | Send Slack notification on BLOCKED |
 
 ## Troubleshooting
 
@@ -489,8 +489,8 @@ cat .ai/logs/mcp-debug.log
 
 ## Related Documentation
 
-- [MCP Connector Skill](/plugins/multi-agent-workflow/skills/mcp-connector.md)
-- [Security & Trust Model](/plugins/multi-agent-workflow/core/rules/security-rules.md)
+- [MCP Connector Skill](/plugins/workflow/skills/mcp-connector.md)
+- [Security & Trust Model](/plugins/workflow/core/rules/security-rules.md)
 
 ---
 
