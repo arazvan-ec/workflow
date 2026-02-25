@@ -9,22 +9,13 @@ A compound engineering framework for coordinating multiple AI agents on software
   (entry)  (optional)  (80%)   (15%)    (4%)       (1%)
                         ↑                              │
                         └──── Feedback Loop ←──────────┘
-                        (compound learnings feed back
-                         into plan + work of NEXT feature)
 
   ROUTE --> QUICK (lightweight alternative for simple tasks)
 ```
 
 **Every request starts with routing.** No exceptions.
 
-### Compound Feedback Loop
-
-Compound learnings from feature N automatically inform feature N+1:
-- **Plan** (Step 0.0d): reads compound-memory.md, retrospectives, learned patterns
-- **Work** (Step 3.5): reads learned patterns/anti-patterns, next-feature-briefing.md
-- **Compound** (Step 6b): generates next-feature-briefing.md for the next feature
-
-### Core Commands
+## Core Commands
 
 | # | Command | Purpose | When |
 |---|---------|---------|------|
@@ -44,39 +35,13 @@ Compound learnings from feature N automatically inform feature N+1:
 | `/workflows:help` | Quick reference and guidance |
 | `/workflows:discover` | Auto-analyze project architecture (`--setup` for onboarding, `--seed` for greenfield) |
 
-### Project Seed (Greenfield Projects)
-
-For new projects with requirements but no code, run `/workflows:discover --seed` BEFORE planning.
-This generates compound-equivalent knowledge so your first feature plans like your fifth:
-
-```
-/workflows:discover --seed  →  architecture-profile.yaml (stack, patterns, SOLID)
-                            →  compound-memory.md (known pain points for your stack/domain)
-                            →  next-feature-briefing.md (feature roadmap with dependencies)
-                            →  entity specs (domain model from requirements)
-```
-
-### Flow Guards (enforced)
+## Flow Guards (enforced)
 
 - `shape` requires: `00_routing.md` exists on disk OR routing context in conversation
 - `plan` requires: `00_routing.md` exists on disk OR routing context in conversation. If shaped, `01_shaped_brief.md` Shaping Progress must be all COMPLETED.
 - `work` requires: plan status = COMPLETED in `tasks.md` Workflow State
 - `review` requires: work status = COMPLETED in `tasks.md` Workflow State
 - `compound` requires: QA status = APPROVED in `tasks.md` Workflow State
-
----
-
-## Automatic Operations (integrated into core commands)
-
-| Operation | Integrated into |
-|-----------|----------------|
-| Git sync | `plan`, `work` |
-| Checkpoint/save progress | `work` (Step 7) |
-| TDD enforcement | `work` (Step 5: TDD cycle) |
-| Spec validation | `plan` (Phase 2: Specs) |
-| Role assignment | `work` (auto-detects role) |
-
----
 
 ## Agents
 
@@ -87,9 +52,7 @@ This generates compound-equivalent knowledge so your first feature plans like yo
 | Research (2) | codebase-analyzer, learnings-researcher | `route`, `plan` |
 | Workflow (2) | diagnostic-agent, spec-analyzer | `work`, `review` |
 
-Agents are invoked automatically by core commands. You rarely need to invoke them directly.
-
-## Skills (15)
+## Skills (16)
 
 | Category | Skills |
 |----------|--------|
@@ -100,6 +63,7 @@ Agents are invoked automatically by core commands. You rarely need to invoke the
 | SOLID | solid-analyzer, criteria-generator |
 | Shaping | shaper, breadboarder |
 | Research | source-report |
+| Session | **workflow-navigator** (session init + context optimizer) |
 
 ## Context Activation Model
 
@@ -113,73 +77,16 @@ Agents are invoked automatically by core commands. You rarely need to invoke the
 | Review agents (`agents/review/*.md`) | Human-triggered | During `/workflows:review` |
 | Project rules (`.ai/project/rules/`) | Software-determined | When matching patterns apply |
 
-Heavy skills and review agents run with `context: fork` -- isolated context windows returning summaries only. See `core/docs/CONTEXT_ENGINEERING.md`.
-
-## Capability Providers
-
-Model-agnostic and execution-agnostic. Abstracts capabilities (parallelization, context management, fork strategy) behind providers that auto-detect the running model. Config: `core/providers.yaml`, details: `core/docs/CAPABILITY_PROVIDERS.md`.
-
-When `providers.yaml` is set to `auto` (default), resolve providers using the Detection Protocol before executing provider-dependent operations.
-
-## Complexity Levels (L1-L4)
-
-The router classifies every request into 4 levels, each activating a different workflow subset:
-
-| Level | Name | Phases | Scope |
-|---|---|---|---|
-| **L1** | Trivial | ROUTE -> QUICK | 1-3 files, < 30 min |
-| **L2** | Simple | ROUTE -> PLAN -> WORK -> REVIEW | 4-10 files, 1-4 hours |
-| **L3** | Moderate | ROUTE -> PLAN -> WORK -> REVIEW -> COMPOUND | 10-30 files, 4-16 hours |
-| **L4** | Complex | ROUTE -> SHAPE -> PLAN -> WORK -> REVIEW -> COMPOUND | 30+ files, multi-session |
-
-Details in `core/docs/ROUTING_REFERENCE.md` (L1-L4 section) and `core/docs/KNOWLEDGE_BASE.md`.
-
-## Key Patterns
-
-- **Karpathy Principles**: Think before coding, simplicity first, surgical changes, goal-driven execution. See `core/docs/KARPATHY_PRINCIPLES.md`.
-- **Bounded Correction Protocol**: 3 deviation types with scale-adaptive limits (simple: 5, moderate: 10, complex: 15). Includes diagnostic escalation (invokes diagnostic-agent after 3 consecutive same errors). See `core/rules/testing-rules.md`.
-- **Compound Capture**: After each feature, extract patterns and update rules via `/workflows:compound`.
-- **Validation Learning**: AI self-questions solutions, logs answers for future use. See `core/docs/VALIDATION_LEARNING.md`.
-- **SOLID Constraint**: Phase 3 solutions must be COMPLIANT per contextual analysis. See `core/architecture-reference.md` and `openspec/specs/architecture-profile.yaml`.
-- **Contradiction Detection Protocol (CDP)**: When artifacts contradict each other, stop and ask the user — never silently resolve. See `core/rules/framework_rules.md` §12.
-- **Ralph Discipline**: Anti-context-rot, state externalization, deliberate rotation. See `core/docs/SESSION_CONTINUITY.md` (Ralph Discipline section).
+Heavy skills and review agents run with `context: fork` — isolated context windows returning summaries only.
 
 ## State Management
 
 All roles communicate via `tasks.md` (Workflow State section in `openspec/changes/{slug}/tasks.md`). Status values: `PENDING`, `IN_PROGRESS`, `BLOCKED`, `WAITING_API`, `COMPLETED`, `APPROVED`, `REJECTED`.
 
-## Spec-Driven Development (SDD)
-
-Each feature produces a structured set of markdown artifacts in `openspec/changes/{slug}/`:
-
-| Phase | Output | Defines |
-|-------|--------|---------|
-| Route | `00_routing.md` | Classification, assumptions, success criteria, recommended workflow |
-| Shape (optional) | `01_shaped_brief.md` | Frame, requirements, shape, fit check (includes Shaping Progress tracker) |
-| Shape (optional) | `02_breadboard.md` | Places, affordances, wiring diagram (full mode only) |
-| Shape (optional) | `03_slices.md` | Vertical demoable increments (full mode only) |
-| Phase 1 | `proposal.md` | Problem, context, success criteria (WHAT we're solving) |
-| Phase 2 | `specs.md` | Functional requirements, acceptance criteria (WHAT the system must do) |
-| Phase 2.5 | Test contract sketch (in `specs.md`) | Test boundaries, scenarios, edge cases |
-| Phase 3 | `design.md` | SOLID solutions, patterns, architecture (HOW to implement) |
-| Phase 4 | `tasks.md` | Actionable task list with decision log |
-| Runtime | `scratchpad.md` | Working notes, hypotheses, blockers (ephemeral, per-feature) |
-
-Project-level principles live in `openspec/specs/constitution.md` (see `core/templates/constitution-template.md`).
-
-## Context Budget Awareness
-
-This file + `framework_rules.md` are always loaded. Keep them lean. Everything else loads on demand.
-
-- Heavy skills and agents use `context: fork` — they get isolated context windows
-- Monitor usage with `/context`; compact with `/compact` at logical breakpoints
-- Set `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50` for aggressive compaction on long sessions
-- Each MCP tool description consumes tokens even when idle — disable unused servers
-
 ## Best Practices
 
-1. Route first -- every request through `/workflows:route`
-2. Ask when unclear -- confidence < 60% means ask before acting
+1. Route first — every request through `/workflows:route`
+2. Ask when unclear — confidence < 60% means ask before acting
 3. State assumptions before coding
 4. Define testable success criteria
 5. Implement only what's requested
@@ -187,16 +94,26 @@ This file + `framework_rules.md` are always loaded. Keep them lean. Everything e
 7. Plan 80%, execute 20%
 8. Write tests before implementation (TDD)
 9. Snapshot before breaks or risky operations
-10. Log decisions -- every design choice gets a rationale in the Decision Log
-11. Self-review before transition -- reflect on output before marking phase COMPLETED
+10. Log decisions — every design choice gets a rationale in the Decision Log
+11. Self-review before transition — reflect on output before marking phase COMPLETED
 
-## Reference Documentation
+## Knowledge Architecture (4 Layers)
 
-- **Docs** (`core/docs/`): `KNOWLEDGE_BASE`, `CAPABILITY_PROVIDERS`, `ROUTING_REFERENCE`, `KARPATHY_PRINCIPLES`, `CONTEXT_ENGINEERING`, `SESSION_CONTINUITY`, `MCP_INTEGRATION`, `VALIDATION_LEARNING`, `WORKFLOW_DECISION_MATRIX`
-- **Visualization**: `core/docs/workflow-hub.html` (interactive methodology map)
-- **Rules** (`core/rules/`): `framework_rules`, `testing-rules`, `security-rules`, `git-rules`
-- **Other**: `core/providers.yaml`, `core/architecture-reference.md`
+| Layer | File | Purpose |
+|-------|------|---------|
+| **Data Contract** | `core/data/workflow-data.yaml` | Single source of truth for structured data — phases, levels, agents, skills, methodologies, patterns. All other files reference this. |
+| **Knowledge Base** | `core/docs/KNOWLEDGE_BASE.md` | Narrative methodology reference — all patterns, protocols, principles, and integrations consolidated in one document (17 sections) |
+| **Visual Navigator** | `core/docs/workflow-hub.html` | Interactive map — data-driven from `workflow-data.yaml`, renders all tabs dynamically |
+| **Session Optimizer** | `skills/workflow-navigator/SKILL.md` | Invoke at session start — reads YAML + project state, loads relevant KB sections, configures context |
+
+Structured data (phases, levels, agents, skills) lives in `workflow-data.yaml`. Narrative reference (methodology deep-dives, principles, protocols) lives in `KNOWLEDGE_BASE.md`. Individual doc files in `core/docs/` redirect to their KB section. The HTML hub is rendered from the YAML data via `scripts/sync-hub.py`.
+
+## Operational Rules
+
+- **Framework rules**: `core/rules/framework_rules.md` (always loaded)
+- **Scoped rules**: `core/rules/testing-rules.md`, `security-rules.md`, `git-rules.md`
+- **Architecture**: `core/architecture-reference.md`, `core/providers.yaml`
 
 ---
 
-**Version**: 3.3.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Spec-Driven Development + Capability Providers + Shape Up (Singer) + AI Validation Learning + GSD + BMAD + Ralph Method + Code Factory + Addy Osmani (10 Pillars)
+**Version**: 3.4.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Spec-Driven Development + Capability Providers + Shape Up (Singer) + AI Validation Learning + GSD + BMAD + Ralph Method + Code Factory + Addy Osmani (10 Pillars)

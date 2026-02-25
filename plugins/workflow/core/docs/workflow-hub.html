@@ -3,834 +3,770 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Workflow Hub - Multi-Agent Workflow Plugin</title>
+<title>AI Workflow Hub - Knowledge Base Navigator</title>
 <style>
   :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #242736;
-    --border: #2e3144;
-    --text: #e2e4e9;
-    --text-dim: #8b8fa3;
-    --accent: #6366f1;
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #242736; --border: #2e3144;
+    --text: #e2e4e9; --text-dim: #8b8fa3; --accent: #6366f1;
     --accent-glow: rgba(99, 102, 241, 0.15);
-    --green: #22c55e;
-    --yellow: #eab308;
-    --orange: #f97316;
-    --red: #ef4444;
-    --blue: #3b82f6;
-    --purple: #a855f7;
-    --cyan: #06b6d4;
+    --green: #22c55e; --yellow: #eab308; --orange: #f97316; --red: #ef4444;
+    --blue: #3b82f6; --purple: #a855f7; --cyan: #06b6d4;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    min-height: 100vh;
-  }
-
-  .header {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 1.5rem 2rem;
-    text-align: center;
-  }
-
-  .header h1 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--accent);
-    margin-bottom: 0.25rem;
-  }
-
-  .header p {
-    color: var(--text-dim);
-    font-size: 0.8rem;
-  }
-
-  .tabs {
-    display: flex;
-    justify-content: center;
-    gap: 0;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-  }
-
-  .tab {
-    padding: 0.75rem 1.5rem;
-    cursor: pointer;
-    color: var(--text-dim);
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-    white-space: nowrap;
-    font-size: 0.85rem;
-    font-family: inherit;
-    background: none;
-    border-top: none;
-    border-left: none;
-    border-right: none;
-  }
-
+  body { font-family: 'SF Mono','Fira Code','JetBrains Mono',monospace; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; }
+  .header h1 { font-size: 1.5rem; font-weight: 600; color: var(--accent); margin-bottom: 0.25rem; }
+  .header p { color: var(--text-dim); font-size: 0.8rem; }
+  .header .version { color: var(--text-dim); font-size: 0.65rem; margin-top: 0.25rem; opacity: 0.7; }
+  .tabs { display: flex; justify-content: center; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tab { padding: 0.75rem 1.25rem; cursor: pointer; color: var(--text-dim); border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; font-size: 0.8rem; font-family: inherit; background: none; border-top: none; border-left: none; border-right: none; }
   .tab:hover { color: var(--text); background: var(--accent-glow); }
   .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
   .content { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-
   .panel { display: none; }
   .panel.active { display: block; }
-
-  /* Flow diagram */
-  .flow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    flex-wrap: wrap;
-    margin: 2rem 0;
-  }
-
-  .flow-node {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
-    text-align: center;
-    min-width: 130px;
-    transition: all 0.3s;
-    cursor: pointer;
-  }
-
-  .flow-node:hover {
-    border-color: var(--accent);
-    box-shadow: 0 0 20px var(--accent-glow);
-    transform: translateY(-2px);
-  }
-
-  .flow-node .name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
-  .flow-node .pct { font-size: 0.7rem; color: var(--text-dim); }
-
-  .flow-arrow {
-    color: var(--text-dim);
-    font-size: 1.5rem;
-    padding: 0 0.5rem;
-  }
-
-  .flow-node.route { border-color: var(--blue); }
-  .flow-node.route .name { color: var(--blue); }
-  .flow-node.shape { border-color: var(--purple); }
-  .flow-node.shape .name { color: var(--purple); }
-  .flow-node.plan { border-color: var(--green); }
-  .flow-node.plan .name { color: var(--green); }
-  .flow-node.work { border-color: var(--yellow); }
-  .flow-node.work .name { color: var(--yellow); }
-  .flow-node.review { border-color: var(--orange); }
-  .flow-node.review .name { color: var(--orange); }
-  .flow-node.compound { border-color: var(--cyan); }
-  .flow-node.compound .name { color: var(--cyan); }
-
-  /* Detail box */
-  .detail-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin: 1.5rem 0;
-  }
-
-  .detail-box h3 { color: var(--accent); margin-bottom: 0.75rem; font-size: 1rem; }
-  .detail-box p { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.5rem; }
-
-  /* Level cards */
-  .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
-
-  .level-card {
-    background: var(--surface);
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    padding: 1.25rem;
-    transition: all 0.3s;
-    cursor: pointer;
-  }
-
-  .level-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-
-  .level-card.l1 { border-color: var(--green); }
-  .level-card.l2 { border-color: var(--blue); }
-  .level-card.l3 { border-color: var(--yellow); }
-  .level-card.l4 { border-color: var(--red); }
-
-  .level-card .level-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.75rem;
-  }
-
-  .level-card .level-name { font-weight: 700; font-size: 1.1rem; }
-  .level-card.l1 .level-name { color: var(--green); }
-  .level-card.l2 .level-name { color: var(--blue); }
-  .level-card.l3 .level-name { color: var(--yellow); }
-  .level-card.l4 .level-name { color: var(--red); }
-
-  .level-card .badge {
-    font-size: 0.65rem;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    font-weight: 600;
-  }
-
-  .level-card.l1 .badge { background: rgba(34,197,94,0.15); color: var(--green); }
-  .level-card.l2 .badge { background: rgba(59,130,246,0.15); color: var(--blue); }
-  .level-card.l3 .badge { background: rgba(234,179,8,0.15); color: var(--yellow); }
-  .level-card.l4 .badge { background: rgba(239,68,68,0.15); color: var(--red); }
-
-  .level-card .phases { font-size: 0.75rem; color: var(--text-dim); margin: 0.5rem 0; }
-  .level-card .files { font-size: 0.8rem; }
-  .level-card .example { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem; font-style: italic; }
-
-  /* Methodology grid */
-  .methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
-
-  .method-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.25rem;
-    transition: all 0.3s;
-  }
-
-  .method-card:hover { border-color: var(--accent); }
-
-  .method-card h4 { color: var(--accent); font-size: 0.95rem; margin-bottom: 0.5rem; }
-  .method-card .source { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.75rem; }
-  .method-card .contributes { font-size: 0.8rem; color: var(--text); }
-  .method-card .contributes li { margin: 0.25rem 0; padding-left: 0.5rem; list-style: none; }
-  .method-card .contributes li::before { content: "->  "; color: var(--accent); }
-
-  /* Concepts */
-  .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
-
-  .concept {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.25rem;
-  }
-
-  .concept h4 { font-size: 0.9rem; margin-bottom: 0.5rem; }
-  .concept .formula {
-    background: var(--surface2);
-    padding: 0.75rem;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    color: var(--cyan);
-    margin: 0.5rem 0;
-  }
-  .concept p { font-size: 0.8rem; color: var(--text-dim); }
-
-  /* Tree */
-  .tree { font-size: 0.85rem; line-height: 1.8; color: var(--text-dim); }
-  .tree .dir { color: var(--accent); font-weight: 600; }
-  .tree .file { color: var(--text); }
-  .tree .comment { color: var(--text-dim); font-style: italic; }
-
-  /* Feedback loop */
-  .loop-diagram {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 2rem;
-    text-align: center;
-    margin: 1.5rem 0;
-  }
-
-  .loop-diagram pre {
-    font-size: 0.75rem;
-    line-height: 1.4;
-    color: var(--cyan);
-    display: inline-block;
-    text-align: left;
-  }
-
   h2 { color: var(--text); font-size: 1.15rem; margin: 1.5rem 0 0.75rem; }
   h2::before { content: "# "; color: var(--accent); }
-
-  .tag {
-    display: inline-block;
-    font-size: 0.65rem;
-    padding: 0.15rem 0.4rem;
-    border-radius: 3px;
-    background: var(--surface2);
-    color: var(--text-dim);
-    margin: 0.1rem;
-  }
-
-  .selected-detail {
-    background: var(--surface2);
-    border: 1px solid var(--accent);
-    border-radius: 8px;
-    padding: 1.25rem;
-    margin-top: 1rem;
-    display: none;
-  }
-
+  h2:first-child { margin-top: 0; }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+  .flow { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; margin: 2rem 0; }
+  .flow-node { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; text-align: center; min-width: 130px; transition: all 0.3s; cursor: pointer; }
+  .flow-node:hover { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); transform: translateY(-2px); }
+  .flow-node .name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
+  .flow-node .pct { font-size: 0.7rem; color: var(--text-dim); }
+  .flow-arrow { color: var(--text-dim); font-size: 1.5rem; padding: 0 0.5rem; }
+  .detail-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; }
+  .detail-box h3 { color: var(--accent); margin-bottom: 0.75rem; font-size: 1rem; }
+  .detail-box p { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .selected-detail { background: var(--surface2); border: 1px solid var(--accent); border-radius: 8px; padding: 1.25rem; margin-top: 1rem; display: none; }
   .selected-detail.visible { display: block; }
   .selected-detail h4 { color: var(--accent); margin-bottom: 0.5rem; }
   .selected-detail p { font-size: 0.85rem; color: var(--text-dim); }
   .selected-detail .cmd { color: var(--green); font-weight: 600; }
   .selected-detail ul { padding-left: 1.25rem; margin: 0.5rem 0; }
   .selected-detail li { font-size: 0.8rem; color: var(--text); margin: 0.25rem 0; }
-
+  .loop-diagram { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; text-align: center; margin: 1.5rem 0; }
+  .loop-diagram pre { font-size: 0.75rem; line-height: 1.4; color: var(--cyan); display: inline-block; text-align: left; }
+  .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+  .level-card { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 1.25rem; transition: all 0.3s; cursor: pointer; }
+  .level-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .level-card .level-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+  .level-card .level-name { font-weight: 700; font-size: 1.1rem; }
+  .level-card .badge { font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600; }
+  .level-card .phases { font-size: 0.75rem; color: var(--text-dim); margin: 0.5rem 0; }
+  .level-card .files { font-size: 0.8rem; }
+  .level-card .detail-row { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.35rem; }
+  .level-card .detail-row span { color: var(--text); }
+  .level-card .example { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.5rem; font-style: italic; }
+  .escalation { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin: 1rem 0; font-size: 0.8rem; }
+  .escalation .esc-label { background: var(--surface2); padding: 0.3rem 0.8rem; border-radius: 4px; color: var(--text-dim); font-size: 0.7rem; }
+  .escalation .esc-arrow { color: var(--orange); font-size: 1.2rem; }
+  .methods { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+  .method-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; transition: all 0.3s; }
+  .method-card:hover { border-color: var(--accent); }
+  .method-card h4 { color: var(--accent); font-size: 0.95rem; margin-bottom: 0.5rem; }
+  .method-card .source { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 0.25rem; }
+  .method-card .synergy { font-size: 0.7rem; color: var(--purple); margin-bottom: 0.5rem; }
+  .method-card .contributes { font-size: 0.8rem; color: var(--text); }
+  .method-card .contributes li { margin: 0.25rem 0; padding-left: 0.5rem; list-style: none; }
+  .method-card .contributes li::before { content: "->  "; color: var(--accent); }
+  .ctx-layers { display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem 0; }
+  .ctx-layer { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; }
+  .ctx-layer .ctx-icon { font-size: 1.5rem; min-width: 2.5rem; text-align: center; }
+  .ctx-layer .ctx-label { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.2rem; }
+  .ctx-layer .ctx-desc { font-size: 0.8rem; color: var(--text-dim); }
+  .ctx-layer .ctx-items { font-size: 0.75rem; color: var(--text); margin-top: 0.25rem; }
+  .dim-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0; }
+  .dim-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center; }
+  .dim-card h4 { font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .dim-card p { font-size: 0.75rem; color: var(--text-dim); }
+  .dim-card .val { font-size: 0.9rem; font-weight: 600; margin: 0.5rem 0; }
+  .fork-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  .fork-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+  .fork-card h4 { font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .fork-card p { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.25rem; }
+  .fork-card ul { padding-left: 1rem; } .fork-card li { font-size: 0.75rem; color: var(--text); margin: 0.2rem 0; }
+  .catalog-section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+  .catalog-section h4 { font-size: 0.9rem; margin-bottom: 0.75rem; }
+  .catalog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.5rem; }
+  .catalog-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 0.8rem; font-size: 0.8rem; transition: border-color 0.2s; }
+  .catalog-item:hover { border-color: var(--accent); }
+  .catalog-item .item-name { font-weight: 600; margin-bottom: 0.15rem; }
+  .catalog-item .item-desc { font-size: 0.7rem; color: var(--text-dim); }
+  .catalog-item .item-invoke { font-size: 0.65rem; color: var(--green); margin-top: 0.15rem; }
+  .lifecycle-flow { display: flex; align-items: stretch; flex-wrap: wrap; justify-content: center; margin: 1.5rem 0; }
+  .lc-step { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 1rem; min-width: 155px; max-width: 190px; text-align: center; transition: all 0.3s; }
+  .lc-step:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+  .lc-step .lc-num { font-size: 0.65rem; color: var(--text-dim); margin-bottom: 0.25rem; }
+  .lc-step .lc-name { font-weight: 600; font-size: 0.85rem; margin-bottom: 0.35rem; }
+  .lc-step .lc-desc { font-size: 0.7rem; color: var(--text-dim); }
+  .lc-arrow { display: flex; align-items: center; color: var(--text-dim); font-size: 1.3rem; padding: 0 0.3rem; }
+  .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+  .concept { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+  .concept h4 { font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .concept .formula { background: var(--surface2); padding: 0.75rem; border-radius: 6px; font-size: 0.8rem; color: var(--cyan); margin: 0.5rem 0; }
+  .concept p { font-size: 0.8rem; color: var(--text-dim); }
+  .qr-table { width: 100%; font-size: 0.8rem; border-collapse: collapse; margin: 0.75rem 0; }
+  .qr-table th { text-align: left; padding: 0.5rem; color: var(--accent); border-bottom: 1px solid var(--border); font-size: 0.75rem; }
+  .qr-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border); color: var(--text); }
+  .qr-table td:first-child { color: var(--green); font-weight: 600; white-space: nowrap; }
+  .qr-table tr:last-child td { border-bottom: none; }
+  .qr-section { margin-bottom: 1.5rem; }
+  .qr-section h3 { color: var(--accent); font-size: 0.95rem; margin-bottom: 0.5rem; }
+  .kb-ref { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.7rem; color: var(--text-dim); }
+  .data-source { font-size: 0.6rem; color: var(--text-dim); opacity: 0.5; margin-top: 0.25rem; }
   @media (max-width: 768px) {
-    .flow { flex-direction: column; }
-    .flow-arrow { transform: rotate(90deg); }
-    .levels { grid-template-columns: 1fr; }
-    .methods { grid-template-columns: 1fr; }
-    .concept-grid { grid-template-columns: 1fr; }
+    .flow { flex-direction: column; } .flow-arrow { transform: rotate(90deg); }
+    .levels, .methods, .concept-grid { grid-template-columns: 1fr; }
+    .dim-grid, .fork-compare { grid-template-columns: 1fr; }
+    .lifecycle-flow { flex-direction: column; align-items: center; }
+    .lc-arrow { transform: rotate(90deg); }
+    .tab { padding: 0.6rem 0.8rem; font-size: 0.7rem; }
   }
 </style>
 </head>
 <body>
 
+<!-- ===================================================================
+  DATA-DRIVEN WORKFLOW HUB
+  All content rendered from the DATA object below.
+  Source of truth: core/data/workflow-data.yaml
+  To update: edit workflow-data.yaml, then run scripts/sync-hub.py
+=================================================================== -->
+
 <div class="header">
   <h1>AI Workflow Hub</h1>
-  <p>Multi-Agent Workflow Plugin v3.2.0 -- Integrated Methodology Map</p>
+  <p>Multi-Agent Workflow Plugin -- Knowledge Base Navigator</p>
+  <div class="version" id="version-label"></div>
 </div>
-
 <div class="tabs">
-  <button class="tab active" data-panel="workflow">Workflow</button>
-  <button class="tab" data-panel="levels">Complexity Levels</button>
+  <button class="tab active" data-panel="workflow">Workflow Flow</button>
+  <button class="tab" data-panel="levels">Complexity L1-L4</button>
   <button class="tab" data-panel="methodologies">Methodologies</button>
-  <button class="tab" data-panel="concepts">Concepts</button>
-  <button class="tab" data-panel="structure">Structure</button>
+  <button class="tab" data-panel="context">Context Model</button>
+  <button class="tab" data-panel="agents">Agents &amp; Skills</button>
+  <button class="tab" data-panel="session">Session Lifecycle</button>
+  <button class="tab" data-panel="quickref">Quick Reference</button>
 </div>
-
 <div class="content">
-
-  <!-- TAB 1: WORKFLOW -->
-  <div class="panel active" id="workflow">
-    <h2>The Integrated Flow</h2>
-    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem;">Click any phase to see details. Every request starts with routing -- no exceptions.</p>
-
-    <div class="flow">
-      <div class="flow-node route" onclick="showDetail('route')">
-        <div class="name">ROUTE</div>
-        <div class="pct">entry point</div>
-      </div>
-      <div class="flow-arrow">-></div>
-      <div class="flow-node shape" onclick="showDetail('shape')">
-        <div class="name">SHAPE</div>
-        <div class="pct">optional</div>
-      </div>
-      <div class="flow-arrow">-></div>
-      <div class="flow-node plan" onclick="showDetail('plan')">
-        <div class="name">PLAN</div>
-        <div class="pct">80%</div>
-      </div>
-      <div class="flow-arrow">-></div>
-      <div class="flow-node work" onclick="showDetail('work')">
-        <div class="name">WORK</div>
-        <div class="pct">15%</div>
-      </div>
-      <div class="flow-arrow">-></div>
-      <div class="flow-node review" onclick="showDetail('review')">
-        <div class="name">REVIEW</div>
-        <div class="pct">4%</div>
-      </div>
-      <div class="flow-arrow">-></div>
-      <div class="flow-node compound" onclick="showDetail('compound')">
-        <div class="name">COMPOUND</div>
-        <div class="pct">1%</div>
-      </div>
-    </div>
-
-    <div class="selected-detail" id="phase-detail">
-      <h4 id="detail-title"></h4>
-      <p id="detail-cmd" class="cmd"></p>
-      <p id="detail-desc"></p>
-      <ul id="detail-list"></ul>
-    </div>
-
-    <h2>Compound Feedback Loop</h2>
-    <div class="loop-diagram">
-      <pre>
-Feature N                                    Feature N+1
-+-----------+                               +-----------+
-|   PLAN    |  reads compound-memory.md  -> |   PLAN    |
-+-----------+  reads next-feature-brief     +-----------+
-      |                                           |
-      v                                           v
-+-----------+                               +-----------+
-|   WORK    |  reads patterns/anti-patterns |   WORK    |
-+-----------+                               +-----------+
-      |                                           |
-      v                                           v
-+-----------+   generates briefing for      +-----------+
-| COMPOUND  |  -------  N+1  ------------>  | COMPOUND  |
-+-----------+                               +-----------+
-
-Each feature makes the next one faster.
-      </pre>
-    </div>
-
-    <div class="detail-box">
-      <h3>Time Distribution (The 80/20 Rule)</h3>
-      <p>PLAN ################################ 80% -- Where the real value is</p>
-      <p>WORK ######## 15% -- Fast when planning is thorough</p>
-      <p>REVIEW ## 4% -- Multi-agent quality review</p>
-      <p>COMPOUND # 1% -- Small effort, massive future returns</p>
-    </div>
-  </div>
-
-  <!-- TAB 2: COMPLEXITY LEVELS -->
-  <div class="panel" id="levels">
-    <h2>Complexity Routing (L1-L4)</h2>
-    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem;">The router classifies every request into one of 4 levels. Each activates a different workflow subset.</p>
-
-    <div class="levels">
-      <div class="level-card l1">
-        <div class="level-header">
-          <span class="level-name">L1: Trivial</span>
-          <span class="badge">QUICK MODE</span>
-        </div>
-        <div class="phases">ROUTE -> QUICK</div>
-        <div class="files">3 files or fewer, &lt; 30 min</div>
-        <div class="example">"Fix typo", "rename variable", "update dependency"</div>
-      </div>
-
-      <div class="level-card l2">
-        <div class="level-header">
-          <span class="level-name">L2: Simple</span>
-          <span class="badge">DEFAULT</span>
-        </div>
-        <div class="phases">ROUTE -> PLAN -> WORK -> REVIEW</div>
-        <div class="files">4-10 files, 1-4 hours</div>
-        <div class="example">"Bug fix", "simple feature", "single-layer refactor"</div>
-      </div>
-
-      <div class="level-card l3">
-        <div class="level-header">
-          <span class="level-name">L3: Moderate</span>
-          <span class="badge">TASK-BREAKDOWN</span>
-        </div>
-        <div class="phases">ROUTE -> PLAN -> WORK -> REVIEW -> COMPOUND</div>
-        <div class="files">10-30 files, 4-16 hours</div>
-        <div class="example">"Multi-layer feature", "API + frontend", "integration"</div>
-      </div>
-
-      <div class="level-card l4">
-        <div class="level-header">
-          <span class="level-name">L4: Complex</span>
-          <span class="badge">SHAPE-FIRST</span>
-        </div>
-        <div class="phases">ROUTE -> SHAPE -> PLAN -> WORK -> REVIEW -> COMPOUND</div>
-        <div class="files">30+ files, 16+ hours, multi-session</div>
-        <div class="example">"New domain", "migration", "payment system"</div>
-      </div>
-    </div>
-
-    <div class="detail-box">
-      <h3>Level Selection Signals</h3>
-      <table style="width:100%;font-size:0.8rem;border-collapse:collapse;">
-        <tr style="border-bottom:1px solid var(--border);">
-          <th style="text-align:left;padding:0.5rem;color:var(--text-dim);">Signal</th>
-          <th style="text-align:center;padding:0.5rem;color:var(--green);">L1</th>
-          <th style="text-align:center;padding:0.5rem;color:var(--blue);">L2</th>
-          <th style="text-align:center;padding:0.5rem;color:var(--yellow);">L3</th>
-          <th style="text-align:center;padding:0.5rem;color:var(--red);">L4</th>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:0.5rem;">Files</td>
-          <td style="text-align:center;padding:0.5rem;">1-3</td>
-          <td style="text-align:center;padding:0.5rem;">4-10</td>
-          <td style="text-align:center;padding:0.5rem;">10-30</td>
-          <td style="text-align:center;padding:0.5rem;">30+</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:0.5rem;">Components</td>
-          <td style="text-align:center;padding:0.5rem;">1</td>
-          <td style="text-align:center;padding:0.5rem;">1</td>
-          <td style="text-align:center;padding:0.5rem;">2-3</td>
-          <td style="text-align:center;padding:0.5rem;">4+</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:0.5rem;">New Entities</td>
-          <td style="text-align:center;padding:0.5rem;">0</td>
-          <td style="text-align:center;padding:0.5rem;">0-1</td>
-          <td style="text-align:center;padding:0.5rem;">1-3</td>
-          <td style="text-align:center;padding:0.5rem;">3+</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:0.5rem;">Unknowns</td>
-          <td style="text-align:center;padding:0.5rem;">None</td>
-          <td style="text-align:center;padding:0.5rem;">None</td>
-          <td style="text-align:center;padding:0.5rem;">Few</td>
-          <td style="text-align:center;padding:0.5rem;">Many</td>
-        </tr>
-        <tr style="border-bottom:1px solid var(--border);">
-          <td style="padding:0.5rem;">Sensitive Paths</td>
-          <td style="text-align:center;padding:0.5rem;">No</td>
-          <td style="text-align:center;padding:0.5rem;">Maybe</td>
-          <td style="text-align:center;padding:0.5rem;">Maybe</td>
-          <td style="text-align:center;padding:0.5rem;">Likely</td>
-        </tr>
-        <tr>
-          <td style="padding:0.5rem;">Multi-Session</td>
-          <td style="text-align:center;padding:0.5rem;">No</td>
-          <td style="text-align:center;padding:0.5rem;">No</td>
-          <td style="text-align:center;padding:0.5rem;">Maybe</td>
-          <td style="text-align:center;padding:0.5rem;">Yes</td>
-        </tr>
-      </table>
-    </div>
-  </div>
-
-  <!-- TAB 3: METHODOLOGIES -->
-  <div class="panel" id="methodologies">
-    <h2>Methodology Sources (8)</h2>
-    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem;">Each methodology contributes specific capabilities to the integrated workflow.</p>
-
-    <div class="methods">
-      <div class="method-card">
-        <h4>Compound Engineering</h4>
-        <div class="source">Source: Every.to</div>
-        <ul class="contributes">
-          <li>Core loop: Plan -> Work -> Review -> Compound</li>
-          <li>Compounding returns (each feature accelerates the next)</li>
-          <li>50/50 rule (planning = implementation time)</li>
-          <li>compound-memory.md, compound_log.md</li>
-        </ul>
-      </div>
-
-      <div class="method-card">
-        <h4>Shape Up</h4>
-        <div class="source">Source: Ryan Singer (Basecamp)</div>
-        <ul class="contributes">
-          <li>Shaping phase: Frame -> Spike -> Scope</li>
-          <li>Appetite-based scoping (time-box the solution)</li>
-          <li>Fat marker sketches, breadboards</li>
-          <li>Vertical slices (demoable increments)</li>
-        </ul>
-      </div>
-
-      <div class="method-card">
-        <h4>Karpathy Principles</h4>
-        <div class="source">Source: Andrej Karpathy</div>
-        <ul class="contributes">
-          <li>Think Before Coding (state assumptions)</li>
-          <li>Simplicity First (YAGNI is law)</li>
-          <li>Surgical Changes (minimal diffs)</li>
-          <li>Goal-Driven Execution (testable criteria)</li>
-        </ul>
-      </div>
-
-      <div class="method-card">
-        <h4>Spec-Driven Development</h4>
-        <div class="source">Source: OpenSpec / BMAD / GSD</div>
-        <ul class="contributes">
-          <li>Artifact pipeline: proposal -> specs -> design -> tasks</li>
-          <li>Baseline freeze (openspec/specs/ is read-only)</li>
-          <li>Spec merge cycle (compound merges into baseline)</li>
-          <li>Test contract sketch (Phase 2.5)</li>
-        </ul>
-      </div>
-
-      <div class="method-card">
-        <h4>Context Engineering</h4>
-        <div class="source">Source: Martin Fowler</div>
-        <ul class="contributes">
-          <li>Activation taxonomy: always / software / LLM / human</li>
-          <li>Fork strategy (heavy ops in isolated context)</li>
-          <li>Context budget awareness</li>
-          <li>Strategic context calibration</li>
-        </ul>
-      </div>
-
-      <div class="method-card">
-        <h4>Code Factory Patterns</h4>
-        <div class="source">Source: Code Factory / Rick Hightower</div>
-        <ul class="contributes">
-          <li>Risk tiers (high/medium/low)</li>
-          <li>Deterministic quality gates</li>
-          <li>Policy enforcement (policy-gate skill)</li>
-          <li>Queen Agent pattern for intelligent routing</li>
-        </ul>
-      </div>
-
-      <div class="method-card">
-        <h4>Ralph Method</h4>
-        <div class="source">Source: Ralph Method</div>
-        <ul class="contributes">
-          <li>Anti-context-rot (state externalization)</li>
-          <li>Deliberate rotation (one role per session)</li>
-          <li>Context breadcrumbs (resume points)</li>
-          <li>Handoff protocol (checkpoint + state update)</li>
-        </ul>
-      </div>
-
-      <div class="method-card">
-        <h4>Addy Osmani's 10 Pillars</h4>
-        <div class="source">Source: Beyond Vibe Coding</div>
-        <ul class="contributes">
-          <li>The 70% Problem (AI fast to 70%, slow to 100%)</li>
-          <li>Comprehension debt awareness</li>
-          <li>Review every line, verify everything</li>
-          <li>Own the architecture, never skip review</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 4: CONCEPTS -->
-  <div class="panel" id="concepts">
-    <h2>Cross-Cutting Concepts</h2>
-    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem;">Principles that span the entire workflow.</p>
-
-    <div class="concept-grid">
-      <div class="concept">
-        <h4 style="color:var(--cyan);">Validation Learning Loop</h4>
-        <div class="formula">Question -> Ask User -> Log Answer -> Pattern -> Promote to Rule</div>
-        <p>Effectiveness: 0% (feature 1) -> 40% (feature 2) -> 67% (feature 3) -> 100% (mature)</p>
-      </div>
-
-      <div class="concept">
-        <h4 style="color:var(--yellow);">Bounded Correction Protocol (BCP)</h4>
-        <div class="formula">Test fails -> Identify deviation -> Auto-correct -> Repeat (within limits)</div>
-        <p>Limits: simple=5, moderate=10, complex=15. After 3 same errors -> diagnostic-agent.</p>
-      </div>
-
-      <div class="concept">
-        <h4 style="color:var(--green);">Spec Lifecycle</h4>
-        <div class="formula">Plan writes -> changes/{slug}/specs.md -> Work implements -> Review validates -> Compound merges -> specs/</div>
-        <p>Feature specs are isolated. Only /workflows:compound writes to the project baseline.</p>
-      </div>
-
-      <div class="concept">
-        <h4 style="color:var(--purple);">Context Budget</h4>
-        <div class="formula">Always: CLAUDE.md + rules | On-demand: roles, scoped rules | Forked: heavy skills, review agents</div>
-        <p>Heavy operations run in isolated context (fork), returning only summaries.</p>
-      </div>
-
-      <div class="concept">
-        <h4 style="color:var(--orange);">The 70% Problem</h4>
-        <div class="formula">0%-70%: AI excels (scaffolding, CRUD, happy paths) | 70%-100%: Human expertise (edge cases, security, integration)</div>
-        <p>Compound captures WHERE the 70% boundary was, so future planning accounts for real complexity.</p>
-      </div>
-
-      <div class="concept">
-        <h4 style="color:var(--red);">Contradiction Detection (CDP)</h4>
-        <div class="formula">Contradiction detected -> STOP -> Identify both sources -> Present options -> User resolves -> Log decision</div>
-        <p>Never silently resolve conflicts between artifacts. Always ask the user.</p>
-      </div>
-
-      <div class="concept">
-        <h4 style="color:var(--blue);">SOLID Constraint</h4>
-        <div class="formula">Phase 3: COMPLIANT required | Work: verified at checkpoints | Review: architecture-reviewer validates</div>
-        <p>Solutions must demonstrate SOLID compliance with contextual analysis.</p>
-      </div>
-
-      <div class="concept">
-        <h4 style="color:var(--accent);">Ralph Discipline (Session Hygiene)</h4>
-        <div class="formula">Externalize state -> Write before advance -> Checkpoint at milestones -> Leave breadcrumbs</div>
-        <p>Never rely on conversation memory. All state lives in files. One role per session.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB 5: STRUCTURE -->
-  <div class="panel" id="structure">
-    <h2>Plugin Structure</h2>
-    <p style="color:var(--text-dim);font-size:0.85rem;margin-bottom:1rem;">Complete directory layout of the Multi-Agent Workflow Plugin.</p>
-
-    <div class="detail-box">
-      <div class="tree">
-        <div><span class="dir">plugins/workflow/</span></div>
-        <div>&nbsp;&nbsp;<span class="dir">agents/</span> <span class="comment">-- 8 AI agents</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">research/</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">codebase-analyzer.md</span> <span class="comment">-- analyze project structure</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">learnings-researcher.md</span> <span class="comment">-- search past solutions</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">review/</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">code-reviewer.md</span> <span class="comment">-- stack-agnostic code review</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">architecture-reviewer.md</span> <span class="comment">-- DDD + SOLID compliance</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">security-reviewer.md</span> <span class="comment">-- OWASP, vulnerability scanning</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">performance-reviewer.md</span> <span class="comment">-- performance analysis</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">workflow/</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">diagnostic-agent.md</span> <span class="comment">-- systematic debugging</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">spec-analyzer.md</span> <span class="comment">-- validate impl vs specs</span></div>
-        <div>&nbsp;&nbsp;<span class="dir">commands/workflows/</span> <span class="comment">-- 10 commands</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">route.md</span> <span class="comment">-- mandatory entry point</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">quick.md</span> <span class="comment">-- lightweight path (L1)</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">shape.md</span> <span class="comment">-- problem shaping (L4)</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">plan.md</span> <span class="comment">-- architecture-first planning</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">work.md</span> <span class="comment">-- TDD execution</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">review.md</span> <span class="comment">-- multi-agent review</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">compound.md</span> <span class="comment">-- capture learnings</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">status.md</span> <span class="comment">-- view progress</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">help.md</span> <span class="comment">-- quick reference</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">discover.md</span> <span class="comment">-- project analysis</span></div>
-        <div>&nbsp;&nbsp;<span class="dir">skills/</span> <span class="comment">-- 15 skills</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">breadboarder/</span>, <span class="dir">checkpoint/</span>, <span class="dir">commit-formatter/</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">consultant/</span>, <span class="dir">coverage-checker/</span>, <span class="dir">git-sync/</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">lint-fixer/</span>, <span class="dir">policy-gate/</span>, <span class="dir">shaper/</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">source-report/</span>, <span class="dir">spec-merger/</span>, <span class="dir">test-runner/</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">validation-learning-log/</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">mcp-connector.md</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">workflow-skill-solid-analyzer.md</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">workflow-skill-criteria-generator.md</span></div>
-        <div>&nbsp;&nbsp;<span class="dir">core/</span> <span class="comment">-- operational infrastructure</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">roles/</span> <span class="comment">-- planner, implementer, reviewer</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">rules/</span> <span class="comment">-- framework, testing, security, git</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">docs/</span> <span class="comment">-- 9 reference documents</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">templates/</span> <span class="comment">-- 7+ artifact templates</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">providers.yaml</span> <span class="comment">-- capability providers</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">architecture-reference.md</span></div>
-        <div>&nbsp;&nbsp;<span class="file">CLAUDE.md</span> <span class="comment">-- always-loaded entry point</span></div>
-        <div>&nbsp;&nbsp;<span class="file">README.md</span> <span class="comment">-- public docs</span></div>
-      </div>
-    </div>
-
-    <h2>Project Runtime Structure</h2>
-    <div class="detail-box">
-      <div class="tree">
-        <div><span class="dir">openspec/</span> <span class="comment">-- generated per-project</span></div>
-        <div>&nbsp;&nbsp;<span class="dir">specs/</span> <span class="comment">-- READ-ONLY baseline (only compound writes)</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">architecture-profile.yaml</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">constitution.md</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">spec-manifest.yaml</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">entities/</span>, <span class="dir">api-contracts/</span>, <span class="dir">business-rules/</span></div>
-        <div>&nbsp;&nbsp;<span class="dir">changes/</span> <span class="comment">-- per-feature artifacts</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">{feature-slug}/</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">00_routing.md</span> <span class="comment">-- classification, assumptions</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">01_shaped_brief.md</span> <span class="comment">-- if shaped</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">proposal.md</span> <span class="comment">-- WHAT we're solving</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">specs.md</span> <span class="comment">-- WHAT the system must do</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">design.md</span> <span class="comment">-- HOW to implement</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">tasks.md</span> <span class="comment">-- actionable tasks + state</span></div>
-        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">scratchpad.md</span> <span class="comment">-- working notes</span></div>
-        <div><span class="dir">.ai/project/</span> <span class="comment">-- compound memory</span></div>
-        <div>&nbsp;&nbsp;<span class="file">compound-memory.md</span> <span class="comment">-- pain points, patterns</span></div>
-        <div>&nbsp;&nbsp;<span class="file">next-feature-briefing.md</span> <span class="comment">-- actionable intelligence</span></div>
-        <div>&nbsp;&nbsp;<span class="file">validation-learning-log.md</span> <span class="comment">-- user preferences</span></div>
-        <div>&nbsp;&nbsp;<span class="file">compound_log.md</span> <span class="comment">-- historical record</span></div>
-      </div>
-    </div>
-  </div>
-
+  <div class="panel active" id="workflow"></div>
+  <div class="panel" id="levels"></div>
+  <div class="panel" id="methodologies"></div>
+  <div class="panel" id="context"></div>
+  <div class="panel" id="agents"></div>
+  <div class="panel" id="session"></div>
+  <div class="panel" id="quickref"></div>
 </div>
 
 <script>
-  // Tab switching
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById(tab.dataset.panel).classList.add('active');
-    });
-  });
-
-  // Phase details
-  const phases = {
-    route: {
-      title: 'ROUTE - Workflow Router',
-      cmd: '/workflows:route',
-      desc: 'Mandatory entry point. Classifies requests, asks clarifying questions, selects appropriate workflow. Includes Decision-Challenge Loop.',
-      items: [
-        'Classifies: feature, bug, refactor, investigation, docs, review',
-        'Estimates complexity: L1 (trivial) to L4 (complex)',
-        'States assumptions explicitly (Karpathy: Think Before Coding)',
-        'Defines testable success criteria (Karpathy: Goal-Driven)',
-        'Challenges initial plan against alternatives',
-        'Persists routing state to 00_routing.md'
+// =============================================================================
+// DATA — Mirrors core/data/workflow-data.yaml (generated by scripts/sync-hub.py)
+// DO NOT edit manually — edit workflow-data.yaml and run the sync script.
+// =============================================================================
+var DATA = {
+  "version": "3.4.0",
+  "flow": {
+    "phases": [
+      {"id":"route","name":"ROUTE","cmd":"/workflows:route","purpose":"Classify request, ask questions, select workflow","when":"Always first","time_pct":0,"color":"blue","guard":null,"details":["Classifies: feature, bug, refactor, investigation, docs, review","Estimates complexity: L1 (trivial) to L4 (complex)","States assumptions explicitly (Karpathy: Think Before Coding)","Defines testable success criteria (Karpathy: Goal-Driven)","Challenges initial plan against alternatives","Persists routing state to 00_routing.md"]},
+      {"id":"shape","name":"SHAPE","cmd":"/workflows:shape","purpose":"Separate problem from solution, spike unknowns","when":"L4 complex tasks","time_pct":0,"color":"purple","optional":true,"guard":"00_routing.md exists OR routing context in conversation","details":["Frame: define appetite (time-box), narrow the problem","Spike: investigate unknowns, test assumptions","Scope: breadboard flows, identify vertical slices","Output: 01_shaped_brief.md, 02_breadboard.md, 03_slices.md","Only for L4 (complex) tasks with significant unknowns"]},
+      {"id":"plan","name":"PLAN","cmd":"/workflows:plan","purpose":"Architecture-first planning with SOLID constraint","when":"Before implementation","time_pct":80,"color":"green","guard":"routing done; if shaped, all Shaping Progress = COMPLETED","details":["Step 0.0d: Read compound-memory.md, retrospectives, learned patterns","Phase 1: Proposal (problem, context, success criteria)","Phase 2: Specs (functional requirements, acceptance criteria)","Phase 2.5: Test Contract Sketch (test boundaries, scenarios)","Phase 3: Design (SOLID solutions, patterns, architecture)","Phase 4: Tasks (actionable list with decision log)","SOLID compliance is mandatory in Phase 3"]},
+      {"id":"work","name":"WORK","cmd":"/workflows:work","purpose":"TDD execution + Bounded Correction Protocol","when":"After plan COMPLETED","time_pct":15,"color":"yellow","guard":"plan status = COMPLETED in tasks.md Workflow State","details":["Git sync (pulls latest before starting)","Step 3.5: Read patterns/anti-patterns, next-feature-briefing.md","TDD cycle: Red -> Green -> Refactor","BCP: auto-correct deviations (5/10/15 iteration limits)","Diagnostic-agent escalation after 3 consecutive same errors","HITL checkpoint for high-risk tasks (auth, payments)","SOLID verification at each checkpoint","Checkpoint + commit after each logical unit"]},
+      {"id":"review","name":"REVIEW","cmd":"/workflows:review","purpose":"Multi-agent quality review + validation learning","when":"After work COMPLETED","time_pct":4,"color":"orange","guard":"work status = COMPLETED in tasks.md Workflow State","details":["code-reviewer: stack-agnostic code quality","architecture-reviewer: DDD + SOLID compliance","security-reviewer: OWASP, vulnerability scanning","performance-reviewer: efficiency analysis","Validation step: AI self-questions solutions","Output: APPROVED or REJECTED with feedback","Design flaws route back to PLAN (not just reject)"]},
+      {"id":"compound","name":"COMPOUND","cmd":"/workflows:compound","purpose":"Capture learnings, extract patterns, brief next feature","when":"After review APPROVED","time_pct":1,"color":"cyan","guard":"QA status = APPROVED in tasks.md Workflow State","details":["Analyze feature history (git log, diffs)","Extract patterns and anti-patterns","Identify the 70% boundary (where progress slowed)","Update compound-memory.md","Update project rules if patterns are universal","Merge feature specs into project baseline","Step 6b: Generate next-feature-briefing.md","Write retrospective for complex features"]}
+    ],
+    "support_commands": [
+      {"cmd":"/workflows:status","purpose":"View all roles' progress","when":"Anytime"},
+      {"cmd":"/workflows:help","purpose":"Quick reference and guidance","when":"Anytime"},
+      {"cmd":"/workflows:discover","purpose":"Auto-analyze project architecture (--setup for onboarding, --seed for greenfield)","when":"Onboarding"}
+    ],
+    "time_distribution": {"plan":80,"work":15,"review":4,"compound":1},
+    "common_workflows": [
+      {"name":"Quick fix","level":"L1","path":"route -> quick","color":"green"},
+      {"name":"Standard feature","level":"L2","path":"route -> plan -> work -> review","color":"blue"},
+      {"name":"Moderate feature","level":"L3","path":"route -> plan -> work -> review -> compound","color":"yellow"},
+      {"name":"Complex feature","level":"L4","path":"route -> shape -> plan -> work -> review -> compound","color":"red"},
+      {"name":"New project","level":"any","path":"/workflows:discover --seed","color":"cyan"},
+      {"name":"Resume session","level":"any","path":"/workflows:status -> read tasks.md -> continue","color":"purple"}
+    ]
+  },
+  "complexity": {
+    "levels": {
+      "L1": {"name":"Trivial","badge":"QUICK MODE","color":"green","files":"1-3","duration":"< 30 min","phases":"ROUTE -> QUICK","artifacts":"00_routing.md only","bcp_limit":5,"examples":["Fix typo","rename variable","update dependency"]},
+      "L2": {"name":"Simple","badge":"DEFAULT","color":"blue","files":"4-10","duration":"1-4 hours","phases":"ROUTE -> PLAN -> WORK -> REVIEW","artifacts":"routing, proposal, specs, design, tasks","bcp_limit":5,"examples":["Bug fix","simple feature","single-layer refactor"]},
+      "L3": {"name":"Moderate","badge":"+ COMPOUND","color":"yellow","files":"10-30","duration":"4-16 hours","phases":"ROUTE -> PLAN -> WORK -> REVIEW -> COMPOUND","artifacts":"full SDD pipeline + compound","bcp_limit":10,"examples":["Multi-layer feature","API + frontend","integration"]},
+      "L4": {"name":"Complex","badge":"SHAPE-FIRST","color":"red","files":"30+","duration":"16+ hours, multi-session","phases":"ROUTE -> SHAPE -> PLAN -> WORK -> REVIEW -> COMPOUND","artifacts":"shaped brief + breadboard + full SDD + compound","bcp_limit":15,"examples":["New domain","migration","payment system"]}
+    },
+    "signal_matrix": {
+      "headers": ["Signal","L1","L2","L3","L4"],
+      "rows": [
+        ["Files affected","1-3","4-10","10-30","30+"],
+        ["Components","1","1","2-3","4+"],
+        ["New entities","0","0-1","1-3","3+"],
+        ["External APIs","0","0","0-1","1+"],
+        ["Dimensional change","No","No","Maybe","Yes"],
+        ["Unknowns","None","None","Few","Many"],
+        ["Sensitive paths","No","Maybe","Maybe","Likely"],
+        ["Multi-session","No","No","Maybe","Yes"]
       ]
     },
-    shape: {
-      title: 'SHAPE - Problem Shaping (L4 only)',
-      cmd: '/workflows:shape',
-      desc: 'Separates problem from solution. Spikes unknowns before committing to a plan. Based on Ryan Singer\'s Shape Up methodology.',
-      items: [
-        'Frame: define appetite (time-box), narrow the problem',
-        'Spike: investigate unknowns, test assumptions',
-        'Scope: breadboard flows, identify vertical slices',
-        'Output: 01_shaped_brief.md, 02_breadboard.md, 03_slices.md',
-        'Only for L4 (complex) tasks with significant unknowns'
+    "escalation": [
+      {"from":"L1","to":"L2","trigger":"scope grows"},
+      {"from":"L2","to":"L3","trigger":"multi-component"},
+      {"from":"L3","to":"L4","trigger":"unknowns found"}
+    ]
+  },
+  "methodologies": [
+    {"id":"compound-engineering","name":"Compound Engineering","source":"Every.to","synergy":"Karpathy, Shape Up, Spec-Driven","contributions":["Core loop: Plan -> Work -> Review -> Compound","Compounding returns (each feature accelerates the next)","50/50 rule (planning = implementation time)","compound-memory.md, compound_log.md"]},
+    {"id":"shape-up","name":"Shape Up","source":"Ryan Singer (Basecamp)","synergy":"Compound, Karpathy","contributions":["Shaping phase: Frame -> Spike -> Scope","Appetite-based scoping (time-box the solution)","Fat marker sketches, breadboards","Vertical slices (demoable increments)"]},
+    {"id":"karpathy","name":"Karpathy Principles","source":"Andrej Karpathy","synergy":"all phases (cross-cutting)","contributions":["Think Before Coding (state assumptions)","Simplicity First (YAGNI is law)","Surgical Changes (minimal diffs)","Goal-Driven Execution (testable criteria)"]},
+    {"id":"spec-driven","name":"Spec-Driven Development","source":"OpenSpec / BMAD / GSD","synergy":"Compound, Context Engineering","contributions":["Artifact pipeline: proposal -> specs -> design -> tasks","Baseline freeze (openspec/specs/ is read-only)","Spec merge cycle (compound merges into baseline)","Test contract sketch (Phase 2.5)"]},
+    {"id":"context-engineering","name":"Context Engineering","source":"Martin Fowler","synergy":"Ralph Method, Capability Providers","contributions":["Activation taxonomy: always / software / LLM / human","Fork strategy (heavy ops in isolated context)","Context budget awareness","Strategic context calibration"]},
+    {"id":"code-factory","name":"Code Factory Patterns","source":"Code Factory / Rick Hightower","synergy":"Compound, Spec-Driven","contributions":["Risk tiers (high/medium/low)","Deterministic quality gates","Policy enforcement (policy-gate skill)","Queen Agent pattern for intelligent routing"]},
+    {"id":"ralph-method","name":"Ralph Method","source":"Ralph Method","synergy":"Context Engineering, Compound","contributions":["Anti-context-rot (state externalization)","Deliberate rotation (one role per session)","Context breadcrumbs (resume points)","Handoff protocol (checkpoint + state update)"]},
+    {"id":"osmani","name":"Addy Osmani's 10 Pillars","source":"Beyond Vibe Coding","synergy":"Compound (70% boundary tracking)","contributions":["The 70% Problem (AI fast to 70%, slow to 100%)","Comprehension debt awareness","Review every line, verify everything","Own the architecture, never skip review"]},
+    {"id":"validation-learning","name":"AI Validation Learning","source":"Validation Learning Framework","synergy":"Compound, Review","contributions":["Self-questioning: AI challenges own solutions","Question -> Ask -> Log -> Pattern -> Promote","Maturity curve: 0% -> 40% -> 67% -> 100%","Feeds into compound-memory for future features"]}
+  ],
+  "synergies": [
+    "Compound x Shape Up = Shape BEFORE Plan (explore unknowns, then compound learnings)",
+    "Karpathy x Context Eng. = Think before coding + strategic context calibration",
+    "SDD x Compound = Feature specs merge into baseline (spec-merger in compound phase)",
+    "BMAD x GSD = Scale-adaptive BCP limits + quick mode escape to full workflow",
+    "Ralph x Context Eng. = State externalization + fork strategy prevent context rot",
+    "Code Factory x Security Rules = Risk tiers inform trust model and HITL checkpoints",
+    "Osmani x Compound = 70% boundary analysis feeds compound memory for next feature"
+  ],
+  "capabilities": {
+    "roles": [
+      {"name":"planner","description":"Architecture-first planning, SOLID compliance, spec generation","invoked_by":"/workflows:plan","color":"green"},
+      {"name":"implementer","description":"TDD execution, BCP adherence, checkpoint management","invoked_by":"/workflows:work","color":"yellow"},
+      {"name":"reviewer","description":"Orchestrates multi-agent quality review","invoked_by":"/workflows:review","color":"orange"}
+    ],
+    "agents": {
+      "research": [
+        {"name":"codebase-analyzer","description":"Analyze project structure, patterns, dependencies","invoked_by":"/workflows:route, /workflows:discover"},
+        {"name":"learnings-researcher","description":"Search compound memory and past solutions","invoked_by":"/workflows:plan (Step 0.0d)"}
+      ],
+      "review": [
+        {"name":"code-reviewer","description":"Stack-agnostic code quality analysis","invoked_by":"/workflows:review (parallel fork)"},
+        {"name":"architecture-reviewer","description":"DDD + SOLID compliance verification","invoked_by":"/workflows:review (parallel fork)"},
+        {"name":"security-reviewer","description":"OWASP, vulnerability scanning, threat model","invoked_by":"/workflows:review (parallel fork)"},
+        {"name":"performance-reviewer","description":"Efficiency, complexity, resource analysis","invoked_by":"/workflows:review (parallel fork)"}
+      ],
+      "workflow": [
+        {"name":"diagnostic-agent","description":"Systematic debugging, invoked after 3 consecutive same errors","invoked_by":"/workflows:work (BCP escalation)"},
+        {"name":"spec-analyzer","description":"Validate implementation against specs","invoked_by":"/workflows:review"}
       ]
     },
-    plan: {
-      title: 'PLAN - Architecture-First Planning',
-      cmd: '/workflows:plan',
-      desc: 'Where 80% of the engineering value lives. 4 phases producing structured SDD artifacts.',
-      items: [
-        'Phase 1: Proposal (problem, context, success criteria)',
-        'Phase 2: Specs (functional requirements, acceptance criteria)',
-        'Phase 2.5: Test Contract Sketch (test boundaries, scenarios)',
-        'Phase 3: Design (SOLID solutions, patterns, architecture)',
-        'Phase 4: Tasks (actionable list with decision log)',
-        'Reads compound memory for learnings from previous features',
-        'SOLID compliance is mandatory in Phase 3'
-      ]
-    },
-    work: {
-      title: 'WORK - TDD Implementation',
-      cmd: '/workflows:work',
-      desc: 'Execute with TDD + Bounded Correction Protocol. Auto-corrections with scale-adaptive limits.',
-      items: [
-        'Git sync (pulls latest before starting)',
-        'Reads patterns from compound memory',
-        'TDD cycle: Red -> Green -> Refactor',
-        'BCP: auto-correct deviations (5/10/15 iteration limits)',
-        'HITL checkpoint for high-risk tasks (auth, payments)',
-        'SOLID verification at each checkpoint',
-        'Checkpoint + commit after each logical unit'
-      ]
-    },
-    review: {
-      title: 'REVIEW - Multi-Agent Quality Review',
-      cmd: '/workflows:review',
-      desc: '4 specialized review agents run in parallel (forked context). Includes validation learning.',
-      items: [
-        'code-reviewer: stack-agnostic code quality',
-        'architecture-reviewer: DDD + SOLID compliance',
-        'security-reviewer: OWASP, vulnerability scanning',
-        'performance-reviewer: efficiency analysis',
-        'Validation step: AI self-questions solutions',
-        'Output: APPROVED or REJECTED with feedback',
-        'Design flaws route back to PLAN (not just reject)'
-      ]
-    },
-    compound: {
-      title: 'COMPOUND - Capture Learnings',
-      cmd: '/workflows:compound',
-      desc: 'The key differentiator. Extracts patterns, updates specs, generates briefing for next feature.',
-      items: [
-        'Analyze feature history (git log, diffs)',
-        'Extract patterns and anti-patterns',
-        'Identify the 70% boundary (where progress slowed)',
-        'Update compound-memory.md',
-        'Update project rules if patterns are universal',
-        'Merge feature specs into project baseline',
-        'Generate next-feature-briefing.md',
-        'Write retrospective for complex features'
+    "skills": {
+      "core": [
+        {"name":"consultant","description":"Expert consultation and guidance"},
+        {"name":"checkpoint","description":"Save progress, create restore points"},
+        {"name":"git-sync","description":"Pull latest, manage branches"},
+        {"name":"commit-formatter","description":"Conventional commit messages"}
+      ],
+      "quality": [
+        {"name":"test-runner","description":"Execute tests, report results"},
+        {"name":"coverage-checker","description":"Measure and report code coverage"},
+        {"name":"lint-fixer","description":"Auto-fix lint violations"}
+      ],
+      "compound": [
+        {"name":"spec-merger","description":"Merge feature specs into baseline"},
+        {"name":"validation-learning-log","description":"Log AI learnings for reuse"}
+      ],
+      "integration": [
+        {"name":"mcp-connector","description":"Connect to external MCP tools"},
+        {"name":"source-report","description":"Source analysis reports"}
+      ],
+      "solid": [
+        {"name":"solid-analyzer","description":"Analyze SOLID compliance"},
+        {"name":"criteria-generator","description":"Generate success criteria"}
+      ],
+      "shaping": [
+        {"name":"shaper","description":"Problem framing, appetite scoping"},
+        {"name":"breadboarder","description":"Flow diagrams, wiring"}
+      ],
+      "session": [
+        {"name":"workflow-navigator","description":"Session initialization + context optimizer"}
       ]
     }
-  };
+  },
+  "context": {
+    "activation_layers": [
+      {"level":"always","label":"Always Loaded","icon":"\u25cf","description":"Present in every session, every command.","items":["CLAUDE.md","framework_rules.md"],"color":"green"},
+      {"level":"on_demand","label":"On-Demand (Software / LLM triggered)","icon":"\u25cb","description":"Loaded when matching file types edited or when role is active.","items":["Scoped rules (*-rules.md)","role definitions (roles/*.md)","project rules (.ai/project/rules/)"],"color":"yellow"},
+      {"level":"forked","label":"Forked (Isolated Context Windows)","icon":"\u25c6","description":"Heavy skills and review agents run in isolated windows, returning summaries only.","items":["Review agents (4)","heavy skills (test-runner, coverage-checker, lint-fixer, etc.)"],"color":"orange"}
+    ],
+    "fork_strategies": {
+      "aggressive": {"label":"Aggressive Fork","color":"orange","description":"Fork everything that can be forked.","traits":["Maximum context preservation in main window","Higher overhead (more fork/return cycles)","Best for: L3-L4 complex tasks, long sessions","Providers: models with native parallelism"]},
+      "selective": {"label":"Selective Fork","color":"blue","description":"Fork only known-heavy operations.","traits":["Lower overhead, fewer context switches","Trades context budget for simplicity","Best for: L1-L2 tasks, short sessions","Providers: models without native parallelism"]}
+    },
+    "dimensions": [
+      {"name":"Scope","question":"What to Load","description":"Which files, rules, roles are relevant to this specific operation.","color":"green"},
+      {"name":"Timing","question":"When to Load","description":"Always, on file-type match, on role activation, or on explicit invocation.","color":"yellow"},
+      {"name":"Isolation","question":"Where to Run","description":"Main context window vs. forked (isolated) window returning only summaries.","color":"cyan"}
+    ]
+  },
+  "session": {
+    "lifecycle_steps": [
+      {"step":1,"name":"Resume","description":"Read tasks.md, scratchpad, compound memory. Reconstruct context.","color":"blue"},
+      {"step":2,"name":"Execute","description":"Work in active role. One role per session. Write as you go.","color":"green"},
+      {"step":3,"name":"Checkpoint","description":"Save state at milestones. Git commit. Update tasks.md status.","color":"yellow"},
+      {"step":4,"name":"Handoff","description":"Write breadcrumbs. Update scratchpad. Mark role complete.","color":"orange"},
+      {"step":5,"name":"Rotate","description":"Next session picks up next role. Fresh context, externalized state.","color":"cyan"}
+    ],
+    "state_files": [
+      {"name":"tasks.md","label":"Workflow State","description":"All roles communicate via tasks.md. The single source of truth for workflow progress.","status_values":"PENDING | IN_PROGRESS | BLOCKED | WAITING_API | COMPLETED | APPROVED | REJECTED","color":"green"},
+      {"name":"scratchpad.md","label":"Working Notes","description":"Ephemeral, per-feature. Written before advancing to next step. Read on resume.","color":"yellow"},
+      {"name":"compound-memory.md","label":"Persistent Memory","description":"Persists across features. Read by plan (Step 0.0d) and work (Step 3.5).","color":"cyan"},
+      {"name":"next-feature-briefing.md","label":"Feature Bridge","description":"Generated by compound. Consumed by plan. The bridge between features.","color":"purple"}
+    ],
+    "key_principles": {
+      "never": ["Rely on conversation memory for state -- always externalize to files","Run two roles in the same session -- deliberate rotation prevents context rot"],
+      "always": ["Write before advancing -- if it's not in a file, it doesn't exist","Leave breadcrumbs -- the next session must be able to resume cold"]
+    },
+    "handoff_protocol": [
+      "Complete current task and update tasks.md status",
+      "Write scratchpad.md with findings, blockers, next steps",
+      "Git commit with checkpoint (skill: checkpoint)",
+      "Mark phase COMPLETED in tasks.md Workflow State",
+      "Next role reads tasks.md + scratchpad.md to reconstruct context"
+    ]
+  },
+  "patterns": [
+    {"name":"Karpathy","summary":"Think before coding, simplicity first, surgical changes, goal-driven"},
+    {"name":"BCP","summary":"Bounded Correction: 3 deviation types, limits 5/10/15, diagnostic after 3 same"},
+    {"name":"Compound","summary":"Extract patterns after each feature, update rules via /workflows:compound"},
+    {"name":"Validation Learning","summary":"AI self-questions solutions, logs answers for future use"},
+    {"name":"SOLID Constraint","summary":"Phase 3 designs must be COMPLIANT per contextual analysis"},
+    {"name":"CDP","summary":"Contradiction Detection: stop, identify sources, user resolves"},
+    {"name":"Ralph Discipline","summary":"State externalization, one role/session, write before advance"},
+    {"name":"70% Problem","summary":"AI fast to 70%, compound tracks WHERE progress slowed"}
+  ],
+  "sdd_pipeline": [
+    {"phase":"Route","artifact":"00_routing.md","content":"classification, assumptions, criteria","color":"blue"},
+    {"phase":"Shape","artifact":"01_shaped_brief.md, 02_breadboard.md, 03_slices.md","content":"framing, spikes, vertical slices","color":"purple"},
+    {"phase":"Plan Phase 1","artifact":"proposal.md","content":"WHAT we're solving","color":"green"},
+    {"phase":"Plan Phase 2","artifact":"specs.md","content":"WHAT the system must do + test contract sketch","color":"green"},
+    {"phase":"Plan Phase 3","artifact":"design.md","content":"HOW to implement, SOLID","color":"green"},
+    {"phase":"Plan Phase 4","artifact":"tasks.md","content":"actionable list + decision log","color":"green"},
+    {"phase":"Runtime","artifact":"scratchpad.md","content":"ephemeral working notes","color":"yellow"}
+  ]
+};
 
-  function showDetail(phase) {
-    const data = phases[phase];
-    const el = document.getElementById('phase-detail');
-    document.getElementById('detail-title').textContent = data.title;
-    document.getElementById('detail-cmd').textContent = data.cmd;
-    document.getElementById('detail-desc').textContent = data.desc;
-    const list = document.getElementById('detail-list');
-    list.innerHTML = data.items.map(i => `<li>${i}</li>`).join('');
-    el.classList.add('visible');
-  }
+// =============================================================================
+// RENDERER — Builds all tabs from DATA
+// =============================================================================
+function c(color) { return color === 'accent' ? 'var(--accent)' : 'var(--' + color + ')'; }
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function renderWorkflow() {
+  var panel = document.getElementById('workflow');
+  var mainPhases = DATA.flow.phases.filter(function(p) { return p.id !== 'quick'; });
+  var html = '<h2>The Integrated Flow -- 7 Phases</h2>';
+  html += '<p class="subtitle">Click any phase to see details. Every request starts with routing -- no exceptions.</p>';
+
+  // Flow nodes
+  html += '<div class="flow">';
+  mainPhases.forEach(function(p, i) {
+    html += '<div class="flow-node ' + p.id + '" onclick="showDetail(\'' + p.id + '\')">';
+    html += '<div class="name">' + esc(p.name) + '</div>';
+    html += '<div class="pct">' + (p.time_pct > 0 ? p.time_pct + '%' : (p.optional ? 'optional' : 'entry point')) + '</div>';
+    html += '</div>';
+    if (i < mainPhases.length - 1) html += '<div class="flow-arrow">-></div>';
+  });
+  html += '</div>';
+
+  // Quick path
+  html += '<div style="text-align:center;margin:0.5rem 0 1rem;">';
+  html += '<span style="font-size:0.75rem;color:var(--text-dim);">Lightweight alternative: </span>';
+  html += '<span style="font-size:0.75rem;color:var(--blue);font-weight:600;">ROUTE</span>';
+  html += '<span style="font-size:0.75rem;color:var(--text-dim);"> -> </span>';
+  html += '<span style="font-size:0.75rem;color:var(--green);font-weight:600;">QUICK</span>';
+  html += '<span style="font-size:0.75rem;color:var(--text-dim);"> (for L1 trivial tasks)</span>';
+  html += '</div>';
+
+  // Detail panel
+  html += '<div class="selected-detail" id="phase-detail"><h4 id="detail-title"></h4><p id="detail-cmd" class="cmd"></p><p id="detail-desc"></p><ul id="detail-list"></ul></div>';
+
+  // Compound loop
+  html += '<h2>Compound Feedback Loop</h2>';
+  html += '<div class="loop-diagram"><pre>';
+  html += 'Feature N                                    Feature N+1\n';
+  html += '+-----------+                               +-----------+\n';
+  html += '|   PLAN    |  reads compound-memory.md  -> |   PLAN    |\n';
+  html += '+-----------+  reads next-feature-brief     +-----------+\n';
+  html += '      |                                           |\n';
+  html += '      v                                           v\n';
+  html += '+-----------+                               +-----------+\n';
+  html += '|   WORK    |  reads patterns/anti-patterns |   WORK    |\n';
+  html += '+-----------+                               +-----------+\n';
+  html += '      |                                           |\n';
+  html += '      v                                           v\n';
+  html += '+-----------+   generates briefing for      +-----------+\n';
+  html += '| COMPOUND  |  -------  N+1  ------------>  | COMPOUND  |\n';
+  html += '+-----------+                               +-----------+\n';
+  html += '\nEach feature makes the next one faster.</pre></div>';
+
+  // Time distribution
+  var td = DATA.flow.time_distribution;
+  html += '<div class="detail-box"><h3>Time Distribution (The 80/20 Rule)</h3>';
+  html += '<p>PLAN ' + '#'.repeat(32) + ' ' + td.plan + '% -- Where the real value is</p>';
+  html += '<p>WORK ' + '#'.repeat(8) + ' ' + td.work + '% -- Fast when planning is thorough</p>';
+  html += '<p>REVIEW ' + '#'.repeat(2) + ' ' + td.review + '% -- Multi-agent quality review</p>';
+  html += '<p>COMPOUND ' + '#' + ' ' + td.compound + '% -- Small effort, massive future returns</p>';
+  html += '</div>';
+
+  // Flow guards
+  html += '<h2>Flow Guards (Enforced)</h2><div class="detail-box">';
+  DATA.flow.phases.forEach(function(p) {
+    if (p.guard) {
+      html += '<p><span style="color:' + c(p.color) + ';">' + p.id + '</span> requires: ' + esc(p.guard) + '</p>';
+    }
+  });
+  html += '</div>';
+  html += '<div class="kb-ref">Full reference: KNOWLEDGE_BASE.md &sect; The Integrated Workflow - 7 Phases</div>';
+  html += '<div class="data-source">Data source: core/data/workflow-data.yaml</div>';
+
+  panel.innerHTML = html;
+}
+
+function renderLevels() {
+  var panel = document.getElementById('levels');
+  var levels = DATA.complexity.levels;
+  var html = '<h2>Complexity Routing (L1-L4)</h2>';
+  html += '<p class="subtitle">The router classifies every request into one of 4 levels. Each activates a different workflow subset with scale-adaptive limits.</p>';
+
+  // Level cards
+  html += '<div class="levels">';
+  Object.keys(levels).forEach(function(key) {
+    var lv = levels[key];
+    var cls = key.toLowerCase();
+    html += '<div class="level-card ' + cls + '">';
+    html += '<div class="level-header"><span class="level-name">' + key + ': ' + esc(lv.name) + '</span><span class="badge">' + esc(lv.badge) + '</span></div>';
+    html += '<div class="phases">' + esc(lv.phases) + '</div>';
+    html += '<div class="files">' + esc(lv.files) + ' files, ' + esc(lv.duration) + '</div>';
+    html += '<div class="detail-row">Artifacts: <span>' + esc(lv.artifacts) + '</span></div>';
+    html += '<div class="detail-row">BCP limit: <span>' + lv.bcp_limit + ' iterations</span></div>';
+    html += '<div class="example">"' + lv.examples.join('", "') + '"</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Escalation arrows
+  html += '<div class="escalation">';
+  DATA.complexity.escalation.forEach(function(e, i) {
+    if (i === 0) html += '<span style="color:' + c(levels[e.from].color) + ';font-weight:600;">' + e.from + '</span>';
+    html += '<span class="esc-arrow">-></span><span class="esc-label">' + esc(e.trigger) + '</span><span class="esc-arrow">-></span>';
+    html += '<span style="color:' + c(levels[e.to].color) + ';font-weight:600;">' + e.to + '</span>';
+  });
+  html += '</div>';
+
+  // Signal matrix
+  var sm = DATA.complexity.signal_matrix;
+  html += '<div class="detail-box"><h3>Level Selection Signals</h3><table class="qr-table">';
+  html += '<tr>';
+  sm.headers.forEach(function(h, i) {
+    var style = i === 0 ? 'color:var(--text-dim);' : 'text-align:center;color:' + c(levels['L' + i] ? levels['L' + i].color : 'accent') + ';';
+    html += '<th style="' + style + '">' + esc(h) + '</th>';
+  });
+  html += '</tr>';
+  sm.rows.forEach(function(row) {
+    html += '<tr>';
+    row.forEach(function(cell, i) {
+      html += '<td' + (i > 0 ? ' style="text-align:center;"' : '') + '>' + esc(cell) + '</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</table></div>';
+  html += '<div class="kb-ref">Full reference: KNOWLEDGE_BASE.md &sect; Complexity Levels L1-L4</div>';
+  html += '<div class="data-source">Data source: core/data/workflow-data.yaml</div>';
+
+  panel.innerHTML = html;
+}
+
+function renderMethodologies() {
+  var panel = document.getElementById('methodologies');
+  var html = '<h2>Ecosystem Map -- Methodology Contributions</h2>';
+  html += '<p class="subtitle">9 methodologies integrated into a unified workflow. Each contributes specific capabilities and synergizes with the others.</p>';
+  html += '<div class="methods">';
+  DATA.methodologies.forEach(function(m) {
+    html += '<div class="method-card"><h4>' + esc(m.name) + '</h4>';
+    html += '<div class="source">Source: ' + esc(m.source) + '</div>';
+    html += '<div class="synergy">Synergizes with: ' + esc(m.synergy) + '</div>';
+    html += '<ul class="contributes">';
+    m.contributions.forEach(function(item) { html += '<li>' + esc(item) + '</li>'; });
+    html += '</ul></div>';
+  });
+  html += '</div>';
+
+  // Synergies
+  html += '<h2>Cross-Methodology Synergies</h2><div class="detail-box">';
+  DATA.synergies.forEach(function(s) { html += '<p>' + esc(s) + '</p>'; });
+  html += '</div>';
+  html += '<div class="kb-ref">Full reference: KNOWLEDGE_BASE.md &sect; Ecosystem Map, &sect; Methodology Contributions</div>';
+  html += '<div class="data-source">Data source: core/data/workflow-data.yaml</div>';
+
+  panel.innerHTML = html;
+}
+
+function renderContext() {
+  var panel = document.getElementById('context');
+  var ctx = DATA.context;
+  var html = '<h2>Context Activation Model</h2>';
+  html += '<p class="subtitle">Three activation layers control what context is loaded and when. Heavy operations run in forked (isolated) context windows.</p>';
+
+  // Activation layers
+  html += '<div class="ctx-layers">';
+  ctx.activation_layers.forEach(function(layer) {
+    html += '<div class="ctx-layer" style="border-color:' + c(layer.color) + ';">';
+    html += '<div class="ctx-icon">' + layer.icon + '</div><div>';
+    html += '<div class="ctx-label" style="color:' + c(layer.color) + ';">' + esc(layer.label) + '</div>';
+    html += '<div class="ctx-desc">' + esc(layer.description) + '</div>';
+    html += '<div class="ctx-items">' + esc(layer.items.join(', ')) + '</div>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+
+  // Fork strategies
+  html += '<h2>Fork Strategy</h2><div class="fork-compare">';
+  Object.keys(ctx.fork_strategies).forEach(function(key) {
+    var fs = ctx.fork_strategies[key];
+    html += '<div class="fork-card" style="border-color:' + c(fs.color) + ';">';
+    html += '<h4 style="color:' + c(fs.color) + ';">' + esc(fs.label) + '</h4>';
+    html += '<p>' + esc(fs.description) + '</p><ul>';
+    fs.traits.forEach(function(t) { html += '<li>' + esc(t) + '</li>'; });
+    html += '</ul></div>';
+  });
+  html += '</div>';
+
+  // Dimensions
+  html += '<h2>Three Dimensions of Context</h2><div class="dim-grid">';
+  ctx.dimensions.forEach(function(d) {
+    html += '<div class="dim-card"><h4 style="color:' + c(d.color) + ';">' + esc(d.name) + '</h4>';
+    html += '<div class="val" style="color:' + c(d.color) + ';">' + esc(d.question) + '</div>';
+    html += '<p>' + esc(d.description) + '</p></div>';
+  });
+  html += '</div>';
+
+  // Tips
+  html += '<div class="detail-box"><h3>Context Budget Tips</h3>';
+  html += '<p>Monitor usage with <span style="color:var(--green);">/context</span>; compact with <span style="color:var(--green);">/compact</span> at logical breakpoints.</p>';
+  html += '<p>Set <span style="color:var(--cyan);">CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50</span> for aggressive compaction on long sessions.</p>';
+  html += '<p>Each MCP tool description consumes tokens even when idle -- disable unused servers.</p>';
+  html += '</div>';
+  html += '<div class="kb-ref">Full reference: KNOWLEDGE_BASE.md &sect; Context Engineering, &sect; Capability Providers</div>';
+  html += '<div class="data-source">Data source: core/data/workflow-data.yaml</div>';
+
+  panel.innerHTML = html;
+}
+
+function renderAgents() {
+  var panel = document.getElementById('agents');
+  var cap = DATA.capabilities;
+  var html = '<h2>Agent Catalog (10 Agents)</h2>';
+  html += '<p class="subtitle">Agents are invoked automatically by core commands. Organized by category.</p>';
+
+  // Roles
+  html += '<div class="catalog-section"><h4 style="color:var(--green);">Roles (3) -- Primary workflow actors</h4><div class="catalog-grid">';
+  cap.roles.forEach(function(r) {
+    html += '<div class="catalog-item"><div class="item-name" style="color:' + c(r.color) + ';">' + esc(r.name) + '</div>';
+    html += '<div class="item-desc">' + esc(r.description) + '</div>';
+    html += '<div class="item-invoke">Invoked by: ' + esc(r.invoked_by) + '</div></div>';
+  });
+  html += '</div></div>';
+
+  // Agent categories
+  var agentCategories = [
+    {key:'review', title:'Review Agents (4) -- Run in forked context', color:'orange'},
+    {key:'research', title:'Research Agents (2)', color:'blue'},
+    {key:'workflow', title:'Workflow Agents (2)', color:'purple'}
+  ];
+  agentCategories.forEach(function(cat) {
+    html += '<div class="catalog-section"><h4 style="color:var(--' + cat.color + ');">' + cat.title + '</h4><div class="catalog-grid">';
+    cap.agents[cat.key].forEach(function(a) {
+      html += '<div class="catalog-item"><div class="item-name" style="color:var(--' + cat.color + ');">' + esc(a.name) + '</div>';
+      html += '<div class="item-desc">' + esc(a.description) + '</div>';
+      html += '<div class="item-invoke">Invoked by: ' + esc(a.invoked_by) + '</div></div>';
+    });
+    html += '</div></div>';
+  });
+
+  // Skills
+  html += '<h2>Skill Catalog (16 Skills)</h2>';
+  html += '<p class="subtitle">Skills are invoked via /skill:X commands or automatically by workflow phases.</p>';
+  var skillCategories = [
+    {key:'core', title:'Core (4)', color:'accent'},
+    {key:'quality', title:'Quality (3)', color:'green'},
+    {key:'compound', title:'Compound (2)', color:'cyan'},
+    {key:'solid', title:'SOLID (2)', color:'purple'},
+    {key:'shaping', title:'Shaping (2)', color:'yellow'},
+    {key:'integration', title:'Integration (2)', color:'blue'},
+    {key:'session', title:'Session (1)', color:'accent'}
+  ];
+  skillCategories.forEach(function(cat) {
+    html += '<div class="catalog-section"><h4 style="color:' + c(cat.color) + ';">' + cat.title + '</h4><div class="catalog-grid">';
+    cap.skills[cat.key].forEach(function(s) {
+      html += '<div class="catalog-item"><div class="item-name">' + esc(s.name) + '</div>';
+      html += '<div class="item-desc">' + esc(s.description) + '</div></div>';
+    });
+    html += '</div></div>';
+  });
+
+  html += '<div class="kb-ref">Full reference: KNOWLEDGE_BASE.md &sect; Plugin Architecture Summary</div>';
+  html += '<div class="data-source">Data source: core/data/workflow-data.yaml</div>';
+
+  panel.innerHTML = html;
+}
+
+function renderSession() {
+  var panel = document.getElementById('session');
+  var sess = DATA.session;
+  var html = '<h2>Session Lifecycle -- Ralph Discipline</h2>';
+  html += '<p class="subtitle">Anti-context-rot protocol. All state lives in files, never in conversation memory alone.</p>';
+
+  // Lifecycle steps
+  html += '<div class="lifecycle-flow">';
+  sess.lifecycle_steps.forEach(function(s, i) {
+    html += '<div class="lc-step" style="border-color:' + c(s.color) + ';">';
+    html += '<div class="lc-num">Step ' + s.step + '</div>';
+    html += '<div class="lc-name" style="color:' + c(s.color) + ';">' + esc(s.name) + '</div>';
+    html += '<div class="lc-desc">' + esc(s.description) + '</div></div>';
+    if (i < sess.lifecycle_steps.length - 1) html += '<div class="lc-arrow">-></div>';
+  });
+  html += '</div>';
+
+  // State externalization
+  html += '<h2>State Externalization</h2><div class="concept-grid">';
+  sess.state_files.forEach(function(f) {
+    html += '<div class="concept"><h4 style="color:' + c(f.color) + ';">' + esc(f.name) + ' (' + esc(f.label) + ')</h4>';
+    if (f.status_values) html += '<div class="formula">' + esc(f.status_values) + '</div>';
+    html += '<p>' + esc(f.description) + '</p></div>';
+  });
+  html += '</div>';
+
+  // Handoff protocol
+  html += '<h2>Cross-Role Handoff Protocol</h2><div class="detail-box">';
+  sess.handoff_protocol.forEach(function(step, i) {
+    html += '<p><span style="color:var(--green);font-weight:600;">' + (i + 1) + '.</span> ' + esc(step) + '</p>';
+  });
+  html += '</div>';
+
+  // Key principles
+  html += '<h2>Key Principles</h2><div class="detail-box">';
+  sess.key_principles.never.forEach(function(p) {
+    html += '<p><span style="color:var(--red);">Never</span> ' + esc(p) + '</p>';
+  });
+  sess.key_principles.always.forEach(function(p) {
+    html += '<p><span style="color:var(--green);">Always</span> ' + esc(p) + '</p>';
+  });
+  html += '</div>';
+  html += '<div class="kb-ref">Full reference: KNOWLEDGE_BASE.md &sect; Session Continuity &amp; Ralph Discipline</div>';
+  html += '<div class="data-source">Data source: core/data/workflow-data.yaml</div>';
+
+  panel.innerHTML = html;
+}
+
+function renderQuickRef() {
+  var panel = document.getElementById('quickref');
+  var html = '<h2>Quick Reference -- Cheat Sheet</h2>';
+  html += '<p class="subtitle">All commands, agents, skills, and key patterns at a glance.</p>';
+
+  // Commands
+  html += '<div class="qr-section"><h3>Core Commands (7) + Support Commands (3)</h3><table class="qr-table">';
+  html += '<tr><th>Command</th><th>Purpose</th><th>When</th></tr>';
+  DATA.flow.phases.forEach(function(p) {
+    html += '<tr><td>' + esc(p.cmd) + '</td><td>' + esc(p.purpose) + '</td><td>' + esc(p.when) + '</td></tr>';
+  });
+  DATA.flow.support_commands.forEach(function(sc) {
+    html += '<tr><td>' + esc(sc.cmd) + '</td><td>' + esc(sc.purpose) + '</td><td>' + esc(sc.when) + '</td></tr>';
+  });
+  html += '</table></div>';
+
+  // Agents
+  html += '<div class="qr-section"><h3>All 10 Agents</h3><table class="qr-table">';
+  html += '<tr><th>Agent</th><th>Category</th><th>Invoked By</th></tr>';
+  DATA.capabilities.roles.forEach(function(r) {
+    html += '<tr><td>' + esc(r.name) + '</td><td>Role</td><td>' + esc(r.invoked_by) + '</td></tr>';
+  });
+  Object.keys(DATA.capabilities.agents).forEach(function(cat) {
+    DATA.capabilities.agents[cat].forEach(function(a) {
+      html += '<tr><td>' + esc(a.name) + '</td><td>' + cat.charAt(0).toUpperCase() + cat.slice(1) + '</td><td>' + esc(a.invoked_by) + '</td></tr>';
+    });
+  });
+  html += '</table></div>';
+
+  // Skills
+  html += '<div class="qr-section"><h3>All 16 Skills</h3><table class="qr-table">';
+  html += '<tr><th>Skill</th><th>Category</th><th>Purpose</th></tr>';
+  Object.keys(DATA.capabilities.skills).forEach(function(cat) {
+    DATA.capabilities.skills[cat].forEach(function(s) {
+      html += '<tr><td>' + esc(s.name) + '</td><td>' + cat.charAt(0).toUpperCase() + cat.slice(1) + '</td><td>' + esc(s.description) + '</td></tr>';
+    });
+  });
+  html += '</table></div>';
+
+  // Key Patterns
+  html += '<div class="qr-section"><h3>Key Patterns</h3><table class="qr-table">';
+  html += '<tr><th>Pattern</th><th>Summary</th></tr>';
+  DATA.patterns.forEach(function(p) {
+    html += '<tr><td>' + esc(p.name) + '</td><td>' + esc(p.summary) + '</td></tr>';
+  });
+  html += '</table></div>';
+
+  // Common Workflows
+  html += '<div class="qr-section"><h3>Common Workflows</h3><div class="detail-box" style="margin-top:0;">';
+  DATA.flow.common_workflows.forEach(function(w) {
+    html += '<p><span style="color:' + c(w.color) + ';font-weight:600;">' + esc(w.name) + ':</span> ' + esc(w.path) + '</p>';
+  });
+  html += '</div></div>';
+
+  // SDD Pipeline
+  html += '<div class="qr-section"><h3>SDD Artifact Pipeline</h3><div class="detail-box" style="margin-top:0;">';
+  DATA.sdd_pipeline.forEach(function(s) {
+    html += '<p><span style="color:' + c(s.color) + ';">' + esc(s.phase) + ':</span> ' + esc(s.artifact) + ' (' + esc(s.content) + ')</p>';
+  });
+  html += '</div></div>';
+
+  html += '<div class="kb-ref">Full reference: KNOWLEDGE_BASE.md &sect; When to Use What, &sect; Source References</div>';
+  html += '<div class="data-source">Data source: core/data/workflow-data.yaml</div>';
+
+  panel.innerHTML = html;
+}
+
+// =============================================================================
+// INIT
+// =============================================================================
+document.getElementById('version-label').textContent = 'v' + DATA.version + ' | Knowledge Base Navigator | Data-driven from workflow-data.yaml';
+
+renderWorkflow();
+renderLevels();
+renderMethodologies();
+renderContext();
+renderAgents();
+renderSession();
+renderQuickRef();
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.panel).classList.add('active');
+  });
+});
+
+// Phase detail popover (workflow tab)
+function showDetail(phaseId) {
+  var phase = DATA.flow.phases.filter(function(p) { return p.id === phaseId; })[0];
+  if (!phase) return;
+  document.getElementById('detail-title').textContent = phase.name + ' - ' + phase.purpose;
+  document.getElementById('detail-cmd').textContent = phase.cmd;
+  document.getElementById('detail-desc').textContent = phase.when;
+  var list = document.getElementById('detail-list');
+  list.innerHTML = phase.details.map(function(d) { return '<li>' + esc(d) + '</li>'; }).join('');
+  document.getElementById('phase-detail').classList.add('visible');
+}
 </script>
-
 </body>
 </html>

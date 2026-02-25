@@ -1,0 +1,714 @@
+# =============================================================================
+# Workflow Data Contract — SINGLE SOURCE OF TRUTH
+# =============================================================================
+# All structured data for the Multi-Agent Workflow Plugin lives here.
+# Other files (KNOWLEDGE_BASE.md, workflow-hub.html, CLAUDE.md) reference
+# this file rather than maintaining their own copies.
+#
+# Version: 3.4.0
+# Updated: 2026-02-25
+# =============================================================================
+
+version: "3.4.0"
+
+# =============================================================================
+# FLOW — The 7 Phases
+# =============================================================================
+flow:
+  phases:
+    - id: route
+      name: ROUTE
+      cmd: /workflows:route
+      purpose: Classify request, ask questions, select workflow
+      when: Always first
+      time_pct: 0
+      color: blue
+      details:
+        - "Classifies: feature, bug, refactor, investigation, docs, review"
+        - "Estimates complexity: L1 (trivial) to L4 (complex)"
+        - "States assumptions explicitly (Karpathy: Think Before Coding)"
+        - "Defines testable success criteria (Karpathy: Goal-Driven)"
+        - "Challenges initial plan against alternatives"
+        - "Persists routing state to 00_routing.md"
+
+    - id: quick
+      name: QUICK
+      cmd: /workflows:quick
+      purpose: Lightweight path for simple tasks (<=3 files)
+      when: L1 trivial tasks
+      time_pct: 0
+      color: green
+      details:
+        - "Direct implementation without full planning"
+        - "Maximum 3 files, no architecture impact"
+        - "BCP limit: 5 iterations"
+        - "Can escalate to full workflow if scope grows"
+
+    - id: shape
+      name: SHAPE
+      cmd: /workflows:shape
+      purpose: Separate problem from solution, spike unknowns
+      when: L4 complex tasks
+      time_pct: 0
+      optional: true
+      color: purple
+      guard: "00_routing.md exists OR routing context in conversation"
+      details:
+        - "Frame: define appetite (time-box), narrow the problem"
+        - "Spike: investigate unknowns, test assumptions"
+        - "Scope: breadboard flows, identify vertical slices"
+        - "Output: 01_shaped_brief.md, 02_breadboard.md, 03_slices.md"
+        - "Only for L4 (complex) tasks with significant unknowns"
+
+    - id: plan
+      name: PLAN
+      cmd: /workflows:plan
+      purpose: Architecture-first planning with SOLID constraint
+      when: Before implementation
+      time_pct: 80
+      color: green
+      guard: "routing done; if shaped, all Shaping Progress = COMPLETED"
+      details:
+        - "Step 0.0d: Read compound-memory.md, retrospectives, learned patterns"
+        - "Phase 1: Proposal (problem, context, success criteria)"
+        - "Phase 2: Specs (functional requirements, acceptance criteria)"
+        - "Phase 2.5: Test Contract Sketch (test boundaries, scenarios)"
+        - "Phase 3: Design (SOLID solutions, patterns, architecture)"
+        - "Phase 4: Tasks (actionable list with decision log)"
+        - "SOLID compliance is mandatory in Phase 3"
+
+    - id: work
+      name: WORK
+      cmd: /workflows:work
+      purpose: TDD execution + Bounded Correction Protocol
+      when: After plan COMPLETED
+      time_pct: 15
+      color: yellow
+      guard: "plan status = COMPLETED in tasks.md Workflow State"
+      details:
+        - "Git sync (pulls latest before starting)"
+        - "Step 3.5: Read patterns/anti-patterns, next-feature-briefing.md"
+        - "TDD cycle: Red -> Green -> Refactor"
+        - "BCP: auto-correct deviations (5/10/15 iteration limits)"
+        - "Diagnostic-agent escalation after 3 consecutive same errors"
+        - "HITL checkpoint for high-risk tasks (auth, payments)"
+        - "SOLID verification at each checkpoint"
+        - "Checkpoint + commit after each logical unit"
+
+    - id: review
+      name: REVIEW
+      cmd: /workflows:review
+      purpose: Multi-agent quality review + validation learning
+      when: After work COMPLETED
+      time_pct: 4
+      color: orange
+      guard: "work status = COMPLETED in tasks.md Workflow State"
+      details:
+        - "code-reviewer: stack-agnostic code quality"
+        - "architecture-reviewer: DDD + SOLID compliance"
+        - "security-reviewer: OWASP, vulnerability scanning"
+        - "performance-reviewer: efficiency analysis"
+        - "Validation step: AI self-questions solutions"
+        - "Output: APPROVED or REJECTED with feedback"
+        - "Design flaws route back to PLAN (not just reject)"
+
+    - id: compound
+      name: COMPOUND
+      cmd: /workflows:compound
+      purpose: Capture learnings, extract patterns, brief next feature
+      when: After review APPROVED
+      time_pct: 1
+      color: cyan
+      guard: "QA status = APPROVED in tasks.md Workflow State"
+      details:
+        - "Analyze feature history (git log, diffs)"
+        - "Extract patterns and anti-patterns"
+        - "Identify the 70% boundary (where progress slowed)"
+        - "Update compound-memory.md"
+        - "Update project rules if patterns are universal"
+        - "Merge feature specs into project baseline"
+        - "Step 6b: Generate next-feature-briefing.md"
+        - "Write retrospective for complex features"
+
+  support_commands:
+    - cmd: /workflows:status
+      purpose: View all roles' progress
+      when: Anytime
+    - cmd: /workflows:help
+      purpose: Quick reference and guidance
+      when: Anytime
+    - cmd: /workflows:discover
+      purpose: "Auto-analyze project architecture (--setup for onboarding, --seed for greenfield)"
+      when: Onboarding
+
+  time_distribution:
+    plan: 80
+    work: 15
+    review: 4
+    compound: 1
+
+  common_workflows:
+    - name: Quick fix
+      level: L1
+      path: [route, quick]
+      color: green
+    - name: Standard feature
+      level: L2
+      path: [route, plan, work, review]
+      color: blue
+    - name: Moderate feature
+      level: L3
+      path: [route, plan, work, review, compound]
+      color: yellow
+    - name: Complex feature
+      level: L4
+      path: [route, shape, plan, work, review, compound]
+      color: red
+    - name: New project
+      level: any
+      path: [discover --seed]
+      color: cyan
+    - name: Resume session
+      level: any
+      path: [status, "read tasks.md", continue]
+      color: purple
+
+# =============================================================================
+# COMPLEXITY — Levels L1-L4
+# =============================================================================
+complexity:
+  levels:
+    L1:
+      name: Trivial
+      badge: QUICK MODE
+      color: green
+      scope:
+        files: "1-3"
+        duration: "< 30 min"
+        components: 1
+        new_entities: 0
+        external_apis: 0
+      phases: [route, quick]
+      artifacts: ["00_routing.md only"]
+      bcp_limit: 5
+      signals:
+        dimensional_change: false
+        unknowns: none
+        sensitive_paths: false
+        multi_session: false
+      examples: ["Fix typo", "rename variable", "update dependency", "add field"]
+      ralph_discipline: "Minimal: just quick task log"
+
+    L2:
+      name: Simple
+      badge: DEFAULT
+      color: blue
+      scope:
+        files: "4-10"
+        duration: "1-4 hours"
+        components: 1
+        new_entities: "0-1"
+        external_apis: 0
+      phases: [route, plan, work, review]
+      artifacts: ["routing", "proposal", "specs", "design", "tasks"]
+      bcp_limit: 5
+      signals:
+        dimensional_change: false
+        unknowns: none
+        sensitive_paths: maybe
+        multi_session: false
+      examples: ["Bug fix", "simple feature", "single-layer refactor"]
+      ralph_discipline: "Standard: tasks.md updates, basic resume point"
+
+    L3:
+      name: Moderate
+      badge: "+ COMPOUND"
+      color: yellow
+      scope:
+        files: "10-30"
+        duration: "4-16 hours"
+        components: "2-3"
+        new_entities: "1-3"
+        external_apis: "0-1"
+      phases: [route, plan, work, review, compound]
+      artifacts: ["full SDD pipeline + compound"]
+      bcp_limit: 10
+      signals:
+        dimensional_change: maybe
+        unknowns: few
+        sensitive_paths: maybe
+        multi_session: maybe
+      examples: ["Multi-layer feature", "API + frontend", "integration"]
+      ralph_discipline: "Full: scratchpad, detailed resume points, decision log"
+
+    L4:
+      name: Complex
+      badge: SHAPE-FIRST
+      color: red
+      scope:
+        files: "30+"
+        duration: "16+ hours"
+        components: "4+"
+        new_entities: "3+"
+        external_apis: "1+"
+      phases: [route, shape, plan, work, review, compound]
+      artifacts: ["shaped brief + breadboard + full SDD + compound + retrospective"]
+      bcp_limit: 15
+      signals:
+        dimensional_change: true
+        unknowns: many
+        sensitive_paths: likely
+        multi_session: true
+      examples: ["New domain", "migration", "auth system", "payment integration"]
+      ralph_discipline: "Maximum: all above + mandatory checkpoints between phases"
+
+  signal_matrix:
+    headers: [Signal, L1, L2, L3, L4]
+    rows:
+      - [Files affected, "1-3", "4-10", "10-30", "30+"]
+      - [Components, "1", "1", "2-3", "4+"]
+      - [New entities, "0", "0-1", "1-3", "3+"]
+      - [External APIs, "0", "0", "0-1", "1+"]
+      - [Dimensional change, "No", "No", "Maybe", "Yes"]
+      - [Unknowns, "None", "None", "Few", "Many"]
+      - [Sensitive paths, "No", "Maybe", "Maybe", "Likely"]
+      - [Multi-session, "No", "No", "Maybe", "Yes"]
+
+  escalation_rules:
+    - "Any signal exceeding level threshold -> escalate to next level"
+    - "Dimensional changes always force at least L3 (task-breakdown)"
+    - "Sensitive paths (auth/, security/, payment/) with unknowns -> always L4"
+    - "Quick Mode (L1) can escalate mid-execution if scope > 3 files"
+
+# =============================================================================
+# METHODOLOGIES — The 9 Integrated Approaches
+# =============================================================================
+methodologies:
+  - id: compound-engineering
+    name: Compound Engineering
+    source: Every.to
+    color: cyan
+    synergizes_with: [karpathy, shape-up, spec-driven]
+    contributions:
+      - "Core loop: Plan -> Work -> Review -> Compound"
+      - "Compounding returns (each feature accelerates the next)"
+      - "50/50 rule (planning = implementation time)"
+      - "compound-memory.md, compound_log.md"
+    where: "compound.md, compound-memory"
+
+  - id: shape-up
+    name: Shape Up
+    source: Ryan Singer (Basecamp)
+    color: purple
+    synergizes_with: [compound-engineering, karpathy]
+    contributions:
+      - "Shaping phase: Frame -> Spike -> Scope"
+      - "Appetite-based scoping (time-box the solution)"
+      - "Fat marker sketches, breadboards"
+      - "Vertical slices (demoable increments)"
+    where: "shape.md, shaper/, breadboarder/"
+
+  - id: karpathy
+    name: Karpathy Principles
+    source: Andrej Karpathy
+    color: green
+    synergizes_with: [all]
+    contributions:
+      - "Think Before Coding (state assumptions)"
+      - "Simplicity First (YAGNI is law)"
+      - "Surgical Changes (minimal diffs)"
+      - "Goal-Driven Execution (testable criteria)"
+    where: "KB §6"
+
+  - id: spec-driven
+    name: Spec-Driven Development
+    source: OpenSpec / BMAD / GSD
+    color: blue
+    synergizes_with: [compound-engineering, context-engineering]
+    contributions:
+      - "Artifact pipeline: proposal -> specs -> design -> tasks"
+      - "Baseline freeze (openspec/specs/ is read-only)"
+      - "Spec merge cycle (compound merges into baseline)"
+      - "Test contract sketch (Phase 2.5)"
+    where: "plan.md, spec-merger/, openspec/"
+
+  - id: context-engineering
+    name: Context Engineering
+    source: Martin Fowler
+    color: orange
+    synergizes_with: [ralph-method, capability-providers]
+    contributions:
+      - "Activation taxonomy: always / software / LLM / human"
+      - "Fork strategy (heavy ops in isolated context)"
+      - "Context budget awareness"
+      - "Strategic context calibration"
+    where: "KB §7"
+
+  - id: code-factory
+    name: Code Factory Patterns
+    source: Code Factory / Rick Hightower
+    color: red
+    synergizes_with: [compound-engineering, spec-driven]
+    contributions:
+      - "Risk tiers (high/medium/low)"
+      - "Deterministic quality gates"
+      - "Policy enforcement (policy-gate skill)"
+      - "Queen Agent pattern for intelligent routing"
+    where: "policy-gate/, security-rules.md"
+
+  - id: ralph-method
+    name: Ralph Method
+    source: Ralph Method
+    color: yellow
+    synergizes_with: [context-engineering, compound-engineering]
+    contributions:
+      - "Anti-context-rot (state externalization)"
+      - "Deliberate rotation (one role per session)"
+      - "Context breadcrumbs (resume points)"
+      - "Handoff protocol (checkpoint + state update)"
+    where: "KB §8"
+
+  - id: osmani
+    name: Addy Osmani's 10 Pillars
+    source: Beyond Vibe Coding
+    color: accent
+    synergizes_with: [compound-engineering]
+    contributions:
+      - "The 70% Problem (AI fast to 70%, slow to 100%)"
+      - "Comprehension debt awareness"
+      - "Review every line, verify everything"
+      - "Own the architecture, never skip review"
+    where: "KB §14"
+
+  - id: validation-learning
+    name: AI Validation Learning
+    source: Validation Learning Framework
+    color: purple
+    synergizes_with: [compound-engineering, review]
+    contributions:
+      - "Self-questioning: AI challenges own solutions"
+      - "Question -> Ask -> Log -> Pattern -> Promote"
+      - "Maturity curve: 0% -> 40% -> 67% -> 100%"
+      - "Feeds into compound-memory for future features"
+    where: "KB §10, validation-learning-log/"
+
+  synergies:
+    - "Compound x Shape Up = Shape BEFORE Plan (explore unknowns, then compound learnings)"
+    - "Karpathy x Context Eng. = Think before coding + strategic context calibration"
+    - "SDD x Compound = Feature specs merge into baseline (spec-merger in compound phase)"
+    - "BMAD x GSD = Scale-adaptive BCP limits + quick mode escape to full workflow"
+    - "Ralph x Context Eng. = State externalization + fork strategy prevent context rot"
+    - "Code Factory x Security Rules = Risk tiers inform trust model and HITL checkpoints"
+    - "Osmani x Compound = 70% boundary analysis feeds compound memory for next feature"
+
+# =============================================================================
+# CAPABILITIES — Agents, Skills, Roles
+# =============================================================================
+capabilities:
+  roles:
+    - id: planner
+      name: planner
+      description: Architecture-first planning, SOLID compliance, spec generation
+      invoked_by: /workflows:plan
+      color: green
+
+    - id: implementer
+      name: implementer
+      description: TDD execution, BCP adherence, checkpoint management
+      invoked_by: /workflows:work
+      color: yellow
+
+    - id: reviewer
+      name: reviewer
+      description: Orchestrates multi-agent quality review
+      invoked_by: /workflows:review
+      color: orange
+
+  agents:
+    research:
+      - id: codebase-analyzer
+        name: codebase-analyzer
+        description: Analyze project structure, patterns, dependencies
+        invoked_by: "/workflows:route, /workflows:discover"
+      - id: learnings-researcher
+        name: learnings-researcher
+        description: Search compound memory and past solutions
+        invoked_by: "/workflows:plan (Step 0.0d)"
+
+    review:
+      - id: code-reviewer
+        name: code-reviewer
+        description: Stack-agnostic code quality analysis
+        invoked_by: "/workflows:review (parallel fork)"
+        context: fork
+      - id: architecture-reviewer
+        name: architecture-reviewer
+        description: DDD + SOLID compliance verification
+        invoked_by: "/workflows:review (parallel fork)"
+        context: fork
+      - id: security-reviewer
+        name: security-reviewer
+        description: OWASP, vulnerability scanning, threat model
+        invoked_by: "/workflows:review (parallel fork)"
+        context: fork
+      - id: performance-reviewer
+        name: performance-reviewer
+        description: Efficiency, complexity, resource analysis
+        invoked_by: "/workflows:review (parallel fork)"
+        context: fork
+
+    workflow:
+      - id: diagnostic-agent
+        name: diagnostic-agent
+        description: Systematic debugging, invoked after 3 consecutive same errors
+        invoked_by: "/workflows:work (BCP escalation)"
+      - id: spec-analyzer
+        name: spec-analyzer
+        description: Validate implementation against specs
+        invoked_by: /workflows:review
+
+  skills:
+    core:
+      - id: consultant
+        name: consultant
+        description: Expert consultation and guidance
+      - id: checkpoint
+        name: checkpoint
+        description: Save progress, create restore points
+      - id: git-sync
+        name: git-sync
+        description: Pull latest, manage branches
+      - id: commit-formatter
+        name: commit-formatter
+        description: Conventional commit messages
+
+    quality:
+      - id: test-runner
+        name: test-runner
+        description: Execute tests, report results
+      - id: coverage-checker
+        name: coverage-checker
+        description: Measure and report code coverage
+      - id: lint-fixer
+        name: lint-fixer
+        description: Auto-fix lint violations
+
+    compound:
+      - id: spec-merger
+        name: spec-merger
+        description: Merge feature specs into baseline
+      - id: validation-learning-log
+        name: validation-learning-log
+        description: Log AI learnings for reuse
+
+    integration:
+      - id: mcp-connector
+        name: mcp-connector
+        description: Connect to external MCP tools
+      - id: source-report
+        name: source-report
+        description: Source analysis reports
+
+    solid:
+      - id: solid-analyzer
+        name: solid-analyzer
+        description: Analyze SOLID compliance
+      - id: criteria-generator
+        name: criteria-generator
+        description: Generate success criteria
+
+    shaping:
+      - id: shaper
+        name: shaper
+        description: Problem framing, appetite scoping
+      - id: breadboarder
+        name: breadboarder
+        description: Flow diagrams, wiring
+
+    session:
+      - id: workflow-navigator
+        name: workflow-navigator
+        description: Session initialization + context optimizer
+
+# =============================================================================
+# CONTEXT MODEL — Activation, Fork Strategy, Budget
+# =============================================================================
+context:
+  activation_layers:
+    - level: always
+      label: Always Loaded
+      icon: "●"
+      description: Present in every session, every command.
+      items: ["CLAUDE.md", "framework_rules.md"]
+      color: green
+
+    - level: on_demand
+      label: "On-Demand (Software / LLM triggered)"
+      icon: "○"
+      description: Loaded when matching file types edited or when role is active.
+      items: ["Scoped rules (*-rules.md)", "role definitions (roles/*.md)", "project rules (.ai/project/rules/)"]
+      color: yellow
+
+    - level: forked
+      label: "Forked (Isolated Context Windows)"
+      icon: "◆"
+      description: Heavy skills and review agents run in isolated windows, returning summaries only.
+      items: ["Review agents (4)", "heavy skills (test-runner, coverage-checker, lint-fixer, etc.)"]
+      color: orange
+
+  fork_strategies:
+    aggressive:
+      label: Aggressive Fork
+      color: orange
+      description: Fork everything that can be forked.
+      traits:
+        - "Maximum context preservation in main window"
+        - "Higher overhead (more fork/return cycles)"
+        - "Best for: L3-L4 complex tasks, long sessions"
+        - "Providers: models with native parallelism"
+
+    selective:
+      label: Selective Fork
+      color: blue
+      description: Fork only known-heavy operations.
+      traits:
+        - "Lower overhead, fewer context switches"
+        - "Trades context budget for simplicity"
+        - "Best for: L1-L2 tasks, short sessions"
+        - "Providers: models without native parallelism"
+
+  dimensions:
+    - name: Scope
+      question: What to Load
+      description: Which files, rules, roles are relevant to this specific operation.
+      color: green
+    - name: Timing
+      question: When to Load
+      description: Always, on file-type match, on role activation, or on explicit invocation.
+      color: yellow
+    - name: Isolation
+      question: Where to Run
+      description: Main context window vs. forked (isolated) window returning only summaries.
+      color: cyan
+
+# =============================================================================
+# SESSION LIFECYCLE — Ralph Discipline Steps
+# =============================================================================
+session:
+  lifecycle_steps:
+    - step: 1
+      name: Resume
+      description: Read tasks.md, scratchpad, compound memory. Reconstruct context.
+      color: blue
+    - step: 2
+      name: Execute
+      description: Work in active role. One role per session. Write as you go.
+      color: green
+    - step: 3
+      name: Checkpoint
+      description: Save state at milestones. Git commit. Update tasks.md status.
+      color: yellow
+    - step: 4
+      name: Handoff
+      description: Write breadcrumbs. Update scratchpad. Mark role complete.
+      color: orange
+    - step: 5
+      name: Rotate
+      description: Next session picks up next role. Fresh context, externalized state.
+      color: cyan
+
+  state_files:
+    - name: tasks.md
+      label: Workflow State
+      description: All roles communicate via tasks.md. The single source of truth for workflow progress.
+      status_values: [PENDING, IN_PROGRESS, BLOCKED, WAITING_API, COMPLETED, APPROVED, REJECTED]
+      color: green
+    - name: scratchpad.md
+      label: Working Notes
+      description: "Ephemeral, per-feature. Written before advancing to next step. Read on resume."
+      color: yellow
+    - name: compound-memory.md
+      label: Persistent Memory
+      description: "Persists across features. Read by plan (Step 0.0d) and work (Step 3.5)."
+      color: cyan
+    - name: next-feature-briefing.md
+      label: Feature Bridge
+      description: "Generated by compound. Consumed by plan. The bridge between features."
+      color: purple
+
+  key_principles:
+    never:
+      - "Rely on conversation memory for state -- always externalize to files"
+      - "Run two roles in the same session -- deliberate rotation prevents context rot"
+    always:
+      - "Write before advancing -- if it's not in a file, it doesn't exist"
+      - "Leave breadcrumbs -- the next session must be able to resume cold"
+
+  handoff_protocol:
+    - "Complete current task and update tasks.md status"
+    - "Write scratchpad.md with findings, blockers, next steps"
+    - "Git commit with checkpoint (skill: checkpoint)"
+    - "Mark phase COMPLETED in tasks.md Workflow State"
+    - "Next role reads tasks.md + scratchpad.md to reconstruct context"
+
+# =============================================================================
+# KEY PATTERNS — Quick Reference
+# =============================================================================
+patterns:
+  - id: karpathy
+    name: Karpathy
+    summary: "Think before coding, simplicity first, surgical changes, goal-driven"
+  - id: bcp
+    name: BCP
+    summary: "Bounded Correction: 3 deviation types, limits 5/10/15, diagnostic after 3 same"
+  - id: compound
+    name: Compound
+    summary: "Extract patterns after each feature, update rules via /workflows:compound"
+  - id: validation-learning
+    name: Validation Learning
+    summary: "AI self-questions solutions, logs answers for future use"
+  - id: solid-constraint
+    name: SOLID Constraint
+    summary: "Phase 3 designs must be COMPLIANT per contextual analysis"
+  - id: cdp
+    name: CDP
+    summary: "Contradiction Detection: stop, identify sources, user resolves"
+  - id: ralph-discipline
+    name: Ralph Discipline
+    summary: "State externalization, one role/session, write before advance"
+  - id: seventy-percent
+    name: 70% Problem
+    summary: "AI fast to 70%, compound tracks WHERE progress slowed"
+
+# =============================================================================
+# SDD ARTIFACT PIPELINE
+# =============================================================================
+sdd_pipeline:
+  - phase: Route
+    artifact: 00_routing.md
+    content: "classification, assumptions, criteria"
+    color: blue
+  - phase: Shape
+    artifact: "01_shaped_brief.md, 02_breadboard.md, 03_slices.md"
+    content: "framing, spikes, vertical slices"
+    color: purple
+  - phase: "Plan Phase 1"
+    artifact: proposal.md
+    content: "WHAT we're solving"
+    color: green
+  - phase: "Plan Phase 2"
+    artifact: specs.md
+    content: "WHAT the system must do + test contract sketch"
+    color: green
+  - phase: "Plan Phase 3"
+    artifact: design.md
+    content: "HOW to implement, SOLID"
+    color: green
+  - phase: "Plan Phase 4"
+    artifact: tasks.md
+    content: "actionable list + decision log"
+    color: green
+  - phase: Runtime
+    artifact: scratchpad.md
+    content: "ephemeral working notes"
+    color: yellow
