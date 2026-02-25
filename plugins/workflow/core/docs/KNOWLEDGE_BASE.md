@@ -1,8 +1,8 @@
 # AI Workflow Knowledge Base
 
-> Single source of truth for the Multi-Agent Workflow Plugin methodology. All reference documentation consolidated here.
+> Narrative source of truth for the Multi-Agent Workflow Plugin methodology. All reference documentation consolidated here. For structured data (phases, levels, agents, skills), see `core/data/workflow-data.yaml`.
 
-**Version**: 2.0.0
+**Version**: 2.1.0
 **Created**: 2026-02-24
 **Updated**: 2026-02-25
 
@@ -1060,15 +1060,28 @@ plugins/workflow/
 +-- skills/                    # 16 skills across 7 categories
 |   +-- workflow-navigator/    # Session optimizer (NEW in v3.4.0)
 +-- core/
+|   +-- data/
+|   |   +-- workflow-data.yaml # STRUCTURED DATA CONTRACT (phases, levels, agents, skills)
 |   +-- roles/                 # planner, implementer, reviewer
 |   +-- rules/                 # framework, testing, security, git
-|   +-- docs/                  # KNOWLEDGE_BASE.md (this file) + workflow-hub.html
+|   +-- docs/                  # KNOWLEDGE_BASE.md (narrative) + workflow-hub.html (data-driven)
 |   +-- templates/             # Artifact templates
 |   +-- providers.yaml         # Capability provider configuration
 |   +-- architecture-reference.md
-+-- CLAUDE.md                  # Always-loaded entry point (lean, ~118 lines)
++-- scripts/
+|   +-- sync-hub.py            # Syncs workflow-data.yaml -> workflow-hub.html
++-- CLAUDE.md                  # Always-loaded entry point (lean)
 +-- .claude-plugin/plugin.json # Plugin metadata
 ```
+
+### 4-Layer Knowledge Architecture
+
+| Layer | File | Content Type |
+|-------|------|-------------|
+| **Data Contract** | `core/data/workflow-data.yaml` | Structured data (parseable, single source of truth for all structured elements) |
+| **Knowledge Base** | `core/docs/KNOWLEDGE_BASE.md` | Narrative reference (methodology deep-dives, principles, protocols — this file) |
+| **Visual Navigator** | `core/docs/workflow-hub.html` | Interactive HTML (data-driven from YAML, renders all tabs dynamically) |
+| **Session Optimizer** | `skills/workflow-navigator/SKILL.md` | Operational skill (reads YAML + KB, configures session context) |
 
 ---
 
@@ -1087,4 +1100,4 @@ plugins/workflow/
 
 ---
 
-**This document is the single source of truth for all methodology knowledge in the Multi-Agent Workflow Plugin. For operational rules, see `core/rules/framework_rules.md`. For visual navigation, open `core/docs/workflow-hub.html`. For session initialization, invoke the `workflow-navigator` skill.**
+**This document is the narrative source of truth for all methodology knowledge. For structured data (phases, levels, agents, skills, methodologies), see `core/data/workflow-data.yaml`. For operational rules, see `core/rules/framework_rules.md`. For visual navigation, open `core/docs/workflow-hub.html` (data-driven from the YAML). For session initialization, invoke the `workflow-navigator` skill.**

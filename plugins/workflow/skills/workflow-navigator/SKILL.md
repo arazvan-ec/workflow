@@ -26,6 +26,7 @@ Session-level orchestrator that bridges the Knowledge Base (source of truth) wit
 ### Step 1: State Detection
 
 Read these files (if they exist):
+- `core/data/workflow-data.yaml` — load structured data (phases, levels, agents, skills)
 - `openspec/changes/*/tasks.md` — find the active feature's Workflow State
 - `.ai/project/compound-memory.md` — check for existing learnings
 - `.ai/project/validation-learning-log.md` — check for learned patterns
@@ -92,7 +93,8 @@ The session is now configured. Proceed with the recommended next step or wait fo
 
 ## Relationship to Other Components
 
+- **workflow-data.yaml**: Structured data contract (phases, levels, agents, skills). Read for structured lookups.
 - **CLAUDE.md**: Always-loaded minimal pointer. workflow-navigator extends it per-session.
-- **KNOWLEDGE_BASE.md**: The source of truth. This skill reads sections from it on demand.
+- **KNOWLEDGE_BASE.md**: Narrative source of truth. This skill reads sections from it on demand for deep context.
 - **framework_rules.md**: Operational rules. Always loaded independently.
-- **workflow-hub.html**: Visual navigator (for humans). This skill is the programmatic equivalent (for Claude).
+- **workflow-hub.html**: Visual navigator (for humans). Data-driven from workflow-data.yaml. This skill is the programmatic equivalent (for Claude).

@@ -97,15 +97,16 @@ All roles communicate via `tasks.md` (Workflow State section in `openspec/change
 10. Log decisions — every design choice gets a rationale in the Decision Log
 11. Self-review before transition — reflect on output before marking phase COMPLETED
 
-## Knowledge Architecture (3 Layers)
+## Knowledge Architecture (4 Layers)
 
 | Layer | File | Purpose |
 |-------|------|---------|
-| **Source of Truth** | `core/docs/KNOWLEDGE_BASE.md` | Complete methodology reference — all patterns, protocols, principles, and integrations consolidated in one document (17 sections) |
-| **Visual Navigator** | `core/docs/workflow-hub.html` | Interactive map of the workflow — browse methodology relationships, complexity levels, agents, and session lifecycle |
-| **Session Optimizer** | `skills/workflow-navigator/SKILL.md` | Invoke at session start — reads project state, loads relevant KB sections, configures context |
+| **Data Contract** | `core/data/workflow-data.yaml` | Single source of truth for structured data — phases, levels, agents, skills, methodologies, patterns. All other files reference this. |
+| **Knowledge Base** | `core/docs/KNOWLEDGE_BASE.md` | Narrative methodology reference — all patterns, protocols, principles, and integrations consolidated in one document (17 sections) |
+| **Visual Navigator** | `core/docs/workflow-hub.html` | Interactive map — data-driven from `workflow-data.yaml`, renders all tabs dynamically |
+| **Session Optimizer** | `skills/workflow-navigator/SKILL.md` | Invoke at session start — reads YAML + project state, loads relevant KB sections, configures context |
 
-All detailed reference content (Karpathy Principles, L1-L4 routing, Ralph Discipline, Context Engineering, Capability Providers, Validation Learning, Decision Matrix, MCP Integration) lives in the Knowledge Base. Individual doc files in `core/docs/` redirect to their KB section.
+Structured data (phases, levels, agents, skills) lives in `workflow-data.yaml`. Narrative reference (methodology deep-dives, principles, protocols) lives in `KNOWLEDGE_BASE.md`. Individual doc files in `core/docs/` redirect to their KB section. The HTML hub is rendered from the YAML data via `scripts/sync-hub.py`.
 
 ## Operational Rules
 
