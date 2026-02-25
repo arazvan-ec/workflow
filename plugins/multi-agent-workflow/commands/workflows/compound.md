@@ -280,6 +280,100 @@ After documenting patterns and anti-patterns, update the project's architecture 
 
 6. **Write** updated `openspec/specs/architecture-profile.yaml`
 
+### Step 3d: Discover and Propose Insights (Bidirectional Learning)
+
+After analyzing patterns and anti-patterns, check if any observations qualify as discovered insights — patterns that the user might want to adopt as collaboration heuristics.
+
+```
+INSIGHT DISCOVERY PROTOCOL:
+
+1. ANALYZE feature data for recurring patterns:
+
+   a. CROSS-FEATURE ANTI-PATTERNS:
+      - Read compound_log.md for anti-patterns from past features
+      - If current feature's anti-patterns match previous ones (2+ occurrences):
+        → Propose discovered insight with confidence 0.6+
+        → Observation: "Anti-pattern X has appeared in N features"
+        → when_to_apply: [implementation, review]
+
+   b. BCP ITERATION PATTERNS:
+      - If specific coding approaches consistently reduce BCP iterations:
+        → Propose with confidence 0.5+
+        → Observation: "Approach X reduced correction cycles by Y%"
+        → when_to_apply: [implementation]
+
+   c. 70% BOUNDARY PATTERNS:
+      - If the 70% boundary consistently falls at the same type of work:
+        → Propose with confidence 0.5+
+        → Observation: "In this project, complexity consistently hides in X"
+        → when_to_apply: [planning, design]
+
+   d. REVIEW REJECTION PATTERNS:
+      - If reviews are rejected for the same category of issues:
+        → Propose with confidence 0.7+
+        → Observation: "Reviews consistently flag X — proactive checking would help"
+        → when_to_apply: [implementation, review]
+
+   e. TIME CALIBRATION PATTERNS:
+      - If planning vs actual time is consistently off in the same direction:
+        → Propose with confidence 0.4+
+        → Observation: "Phase X consistently takes Y% longer than planned"
+        → when_to_apply: [planning]
+
+2. VALIDATE against existing insights:
+   - READ memory/user-insights.yaml
+   - READ memory/discovered-insights.yaml
+   - FOR each candidate:
+     IF similar insight already exists (user or discovered):
+       → Update confidence of existing discovered insight (+0.2)
+       → DO NOT create duplicate
+     IF insight contradicts existing user insight:
+       → Flag but DO NOT propose (user's explicit insight takes priority)
+     IF truly new:
+       → Create entry in discovered-insights.yaml
+
+3. WRITE new discoveries to memory/discovered-insights.yaml:
+
+   - id: {auto-generated from observation}
+   - observation: {human-readable description}
+   - confidence: {calculated 0.0-1.0}
+   - evidence:
+     - "{current_feature}: {specific evidence}"
+     - "{previous_feature}: {specific evidence}" (if cross-feature)
+   - detected_during: "compound:{feature_id}"
+   - when_to_apply: [{relevant phases}]
+   - suggested_influence: {high if confidence >= 0.7, medium if >= 0.4, low otherwise}
+   - status: pending_review
+   - user_notes: ""
+   - final_influence: null
+   - detected_at: "{today}"
+   - reviewed_at: null
+
+4. PRESENT discoveries to user:
+
+   ## New AI Discoveries from ${FEATURE_ID}
+
+   Found {N} new patterns that may be useful as collaboration insights:
+
+   | # | Observation | Confidence | Suggested Influence |
+   |---|-------------|------------|---------------------|
+   | 1 | {observation_summary} | {confidence} | {suggested_influence} |
+
+   Would you like to review these now? (/workflow-skill:insights-manager --action=review)
+   Or review later — they're saved in memory/discovered-insights.yaml.
+```
+
+**How insight discovery relates to other compound steps:**
+
+| Compound Step | Feeds Insight Discovery |
+|---------------|------------------------|
+| Step 2 (Patterns) | Successful patterns → potential "what works" insights |
+| Step 3 (Anti-Patterns + 70% Boundary) | Recurring problems → potential "what to avoid" insights |
+| Step 3b (Compound Memory) | Cross-feature data → higher confidence discoveries |
+| Step 3c (Architecture Profile) | Learned patterns → validates or contradicts discoveries |
+
+> **This is the bidirectional loop**: the user teaches the agent through `user-insights.yaml`, and the agent proposes back through `discovered-insights.yaml`. Over time, both improve.
+
 ### Step 4: Update Project Rules
 
 If patterns are generalizable, update rules:
@@ -705,6 +799,9 @@ The spec-merger skill:
 - [ ] **Listed preventions for future features**
 - [ ] **Updated compound-memory.md** (Step 3b: pain points, patterns, agent calibration)
 - [ ] **Cross-referenced validation-learning-log.md** (promote mature patterns, reconcile with compound captures)
+- [ ] **Discovered and proposed insights** (Step 3d: analyzed patterns for collaboration-level insights)
+- [ ] **Wrote discoveries to discovered-insights.yaml** (if any new patterns found)
+- [ ] **Presented discoveries to user** (or noted "no new insights" if none found)
 - [ ] Updated relevant project rules
 - [ ] Added entry to compound_log.md
 - [ ] Created/updated templates if applicable
@@ -958,6 +1055,9 @@ This command integrates with:
 - `validation-learning-log` skill - Manages validation Q&A learnings
 - `compound_log.md` - Quick reference for patterns
 - `spec-merger` skill - Intelligent spec merging and conflict resolution
+- `insights-manager` skill - Manages user insights and AI-discovered patterns
+- `memory/user-insights.yaml` - User's collaboration meta-knowledge
+- `memory/discovered-insights.yaml` - AI-proposed patterns (bidirectional learning)
 - `openspec/specs/` - Project specifications baseline (entities, API contracts, business rules)
 - `openspec/config.yaml` - Rules from feedback loop (70% boundary analysis)
 - `spec-manifest.yaml` - Central registry of all project specifications

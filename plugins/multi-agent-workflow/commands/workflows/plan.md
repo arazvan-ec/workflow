@@ -307,6 +307,42 @@ fi
 
 > **This is the compound feedback loop**: each completed feature makes the NEXT feature's planning smarter. Without reading compound learnings, every feature plans from scratch.
 
+### Step 0.0e: Load User Insights (Collaboration Meta-Knowledge)
+
+Load the user's experience-based insights about working with AI. These are not project rules — they are graduated heuristics that influence planning decisions:
+
+```bash
+# 1. User insights — collaboration patterns the user has discovered
+USER_INSIGHTS="memory/user-insights.yaml"
+if [ -f "$USER_INSIGHTS" ]; then
+  echo "User insights found. Loading collaboration meta-knowledge."
+  # FILTER: status == "active" AND ("planning" OR "design") in when_to_apply
+  # FOR each matching insight:
+  #   high influence   → incorporate proactively into planning approach
+  #   medium influence → note as consideration for design decisions
+  #   low influence    → store but don't apply unless referenced
+fi
+
+# 2. Accepted AI discoveries — validated patterns from previous features
+DISCOVERED_INSIGHTS="memory/discovered-insights.yaml"
+if [ -f "$DISCOVERED_INSIGHTS" ]; then
+  echo "Discovered insights found. Loading validated AI observations."
+  # FILTER: status IN ("accepted", "promoted") AND ("planning" OR "design") in when_to_apply
+  # Apply same influence-based logic as user insights
+fi
+```
+
+**How user insights inform planning:**
+
+| Insight Type | Planning Impact | Example |
+|-------------|-----------------|---------|
+| Code quality (high) | Incorporate into Phase 3 design constraints | "Apply SOLID" → design with SOLID from the start |
+| Architecture (medium) | Consider during Phase 3 pattern selection | "Avoid premature abstraction" → prefer concrete solutions |
+| Testing (high) | Incorporate into Phase 2 test contract sketch | "Tests before refactor" → require test coverage in specs |
+| Workflow (medium) | Adjust planning depth or approach | "Small functions" → add size constraints to task criteria |
+
+> **User insights complement compound learnings**: compound learnings are project-specific patterns (what worked HERE), while user insights are collaboration-level patterns (what works with AI IN GENERAL). Both inform better planning.
+
 ### Step 0.1: Read Existing Specifications
 
 ```bash

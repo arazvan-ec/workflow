@@ -286,6 +286,43 @@ fi
 
 > **The compound advantage**: An implementer with compound learnings produces better code on the first attempt, reducing BCP correction loops and review rejections.
 
+### Step 3.6: Load User Insights (Implementation Guidance)
+
+Load user insights relevant to implementation. These influence coding decisions without being rigid rules:
+
+```bash
+# 1. User insights for implementation phase
+USER_INSIGHTS="memory/user-insights.yaml"
+if [ -f "$USER_INSIGHTS" ]; then
+  echo "User insights found. Loading implementation guidance."
+  # FILTER: status == "active" AND "implementation" in when_to_apply
+  # FOR each matching insight with influence == "high":
+  #   → Apply as active coding guidance throughout TDD cycle
+  #   → Example: "small functions" → enforce max 20 lines per function
+  #   → Example: "SOLID improves scalability" → verify SOLID at each checkpoint
+  # FOR each matching insight with influence == "medium":
+  #   → Apply when context is ambiguous and insight provides direction
+fi
+
+# 2. Accepted AI discoveries for implementation
+DISCOVERED_INSIGHTS="memory/discovered-insights.yaml"
+if [ -f "$DISCOVERED_INSIGHTS" ]; then
+  # FILTER: status IN ("accepted", "promoted") AND "implementation" in when_to_apply
+  # Apply same logic as user insights
+fi
+```
+
+**How insights influence implementation:**
+
+| Insight | Implementation Effect |
+|---------|---------------------|
+| "Small functions" (high) | During TDD Refactor phase, split functions > 20 lines |
+| "Tests before refactor" (high) | Before any refactoring step, verify test coverage exists |
+| "Avoid premature abstraction" (medium) | Prefer concrete implementations; abstract only with 3+ repetitions |
+| "SOLID improves scalability" (high) | Apply SOLID proactively, not just at checkpoints |
+
+> **Insights + compound learnings work together**: compound learnings say "in THIS project, use X pattern for Y", while user insights say "in GENERAL, when working with AI, prefer Z approach". Both reduce BCP iterations.
+
 ### Step 4: Verify Prerequisites
 
 **For Roles mode**:

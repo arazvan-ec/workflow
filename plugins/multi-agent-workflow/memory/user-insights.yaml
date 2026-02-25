@@ -1,0 +1,131 @@
+# User Insights — Meta-Knowledge About AI Collaboration
+# Version: 1.0.0
+#
+# This file captures the user's experience-based knowledge about working with AI.
+# Unlike project rules (which are mandatory instructions), insights are INFLUENCES
+# on decision-making — heuristics the user has discovered that improve AI output.
+#
+# The agent consults relevant insights at each decision point (routing, planning,
+# implementation, review) and incorporates them as weighted guidance, not rigid rules.
+#
+# Schema:
+#   id:              Unique identifier (kebab-case)
+#   observation:     What the user has observed (in their words)
+#   when_to_apply:   Workflow phases where this insight is relevant
+#                    Values: routing, planning, design, implementation, review, refactoring, prototyping
+#   when_to_skip:    Phases or contexts where this insight should NOT apply
+#   influence:       How strongly the agent should apply this insight
+#                    high   = apply proactively without being asked
+#                    medium = suggest when relevant, defer to context
+#                    low    = only apply if explicitly requested
+#   evidence:        User's observed evidence supporting this insight
+#   tags:            Categories for filtering (e.g., code-quality, architecture, testing, workflow)
+#   created:         Date the insight was added
+#   last_validated:  Date the insight was last confirmed as still useful
+#   status:          active | paused | retired
+#                    paused  = temporarily disabled (user wants to test without it)
+#                    retired = no longer relevant (kept for history)
+
+insights:
+
+  - id: solid-improves-scalability
+    observation: >
+      When I explicitly ask the AI to apply SOLID principles, the generated code
+      is significantly more scalable and easier to modify in subsequent features.
+      Without explicit SOLID guidance, the AI tends to produce coupled code that
+      requires extensive refactoring later.
+    when_to_apply: [design, implementation, refactoring]
+    when_to_skip: [prototyping]
+    influence: high
+    evidence: >
+      Observed across multiple features: SOLID-designed code needed ~40% fewer
+      changes in subsequent features compared to non-SOLID code.
+    tags: [code-quality, architecture, scalability]
+    created: "2026-02-25"
+    last_validated: "2026-02-25"
+    status: active
+
+  - id: small-functions-reduce-bugs
+    observation: >
+      The AI generates better, more reliable code when guided to write functions
+      of maximum 20 lines. Longer functions tend to accumulate subtle bugs that
+      are hard to catch in review.
+    when_to_apply: [implementation, review]
+    when_to_skip: [prototyping, data-migrations]
+    influence: high
+    evidence: >
+      In the last 10 PRs, functions exceeding 30 lines had approximately 3x more
+      bugs than functions under 20 lines.
+    tags: [code-quality, bug-prevention]
+    created: "2026-02-25"
+    last_validated: "2026-02-25"
+    status: active
+
+  - id: tests-before-refactor
+    observation: >
+      If the AI refactors code without writing tests first, it tends to introduce
+      regressions without noticing. Always ensure test coverage exists before any
+      refactoring operation.
+    when_to_apply: [refactoring, implementation]
+    when_to_skip: []
+    influence: high
+    evidence: >
+      2 production incidents caused by refactoring without prior test coverage.
+      Both would have been caught by tests.
+    tags: [testing, refactoring, safety]
+    created: "2026-02-25"
+    last_validated: "2026-02-25"
+    status: active
+
+  - id: avoid-premature-abstraction
+    observation: >
+      The AI tends to over-abstract early. It's better to ask for concrete,
+      specific implementations first and only abstract when there are 3 or more
+      concrete repetitions. Premature abstractions are harder to modify than
+      duplicated concrete code.
+    when_to_apply: [design, implementation]
+    when_to_skip: [refactoring]
+    influence: medium
+    evidence: >
+      Consistent observation across ~20 features. Early abstractions often needed
+      to be undone or heavily modified. Concrete-first approach resulted in better
+      final abstractions.
+    tags: [architecture, code-quality, pragmatism]
+    created: "2026-02-25"
+    last_validated: "2026-02-25"
+    status: active
+
+# ─────────────────────────────────────────────────────────────────────
+# HOW TO ADD NEW INSIGHTS
+# ─────────────────────────────────────────────────────────────────────
+#
+# Option 1: Edit this file directly
+#   Add a new entry following the schema above.
+#
+# Option 2: Use the insights-manager skill
+#   /workflow-skill:insights-manager --action=add
+#   The skill will guide you through capturing a new insight interactively.
+#
+# Option 3: During compound capture
+#   The /workflows:compound command proposes new insights based on patterns
+#   detected during the feature lifecycle. You can accept, modify, or reject.
+#
+# ─────────────────────────────────────────────────────────────────────
+# HOW THE AGENT USES INSIGHTS
+# ─────────────────────────────────────────────────────────────────────
+#
+# At each decision point, the agent:
+#   1. Identifies the current phase (routing, planning, design, implementation, review)
+#   2. Filters insights where when_to_apply includes the current phase
+#   3. Excludes insights where when_to_skip matches the current context
+#   4. Applies insights based on influence level:
+#      - high:   Proactively incorporates into approach
+#      - medium: Mentions as consideration, applies if context supports
+#      - low:    Only applies if user explicitly references
+#   5. Documents which insights influenced the decision (traceability)
+#
+# The key difference from rules:
+#   - Rules are binary (on/off) and mandatory
+#   - Insights are graduated (high/medium/low) and contextual
+#   - Rules don't need evidence
+#   - Insights are backed by user experience and can be retired

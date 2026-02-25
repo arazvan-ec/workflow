@@ -21,7 +21,10 @@ A compound engineering framework for coordinating multiple AI agents on software
 
 Compound learnings from feature N automatically inform feature N+1:
 - **Plan** (Step 0.0d): reads compound-memory.md, retrospectives, learned patterns
+- **Plan** (Step 0.0e): reads user insights + accepted AI discoveries for planning/design
 - **Work** (Step 3.5): reads learned patterns/anti-patterns, next-feature-briefing.md
+- **Work** (Step 3.6): reads user insights + accepted AI discoveries for implementation
+- **Compound** (Step 3d): discovers new patterns, proposes insights to user (bidirectional learning)
 - **Compound** (Step 6b): generates next-feature-briefing.md for the next feature
 
 ### Core Commands
@@ -88,13 +91,14 @@ This generates compound-equivalent knowledge so your first feature plans like yo
 
 Agents are invoked automatically by core commands. You rarely need to invoke them directly.
 
-## Skills (15)
+## Skills (16)
 
 | Category | Skills |
 |----------|--------|
 | Core | consultant, checkpoint, git-sync, commit-formatter |
 | Quality | test-runner, coverage-checker, lint-fixer |
 | Compound | spec-merger, validation-learning-log |
+| Insights | insights-manager |
 | Integration | mcp-connector |
 | SOLID | solid-analyzer, criteria-generator |
 | Shaping | shaper, breadboarder |
@@ -106,6 +110,8 @@ Agents are invoked automatically by core commands. You rarely need to invoke the
 |---------|-----------|-------------|
 | This file (CLAUDE.md) | Always | Every session |
 | Operational rules (`core/rules/framework_rules.md`) | Always | Every session |
+| User insights (`memory/user-insights.yaml`) | LLM-determined | At each decision point (route, plan, work, review) |
+| Discovered insights (`memory/discovered-insights.yaml`) | LLM-determined | At each decision point + during compound |
 | Scoped rules (`core/rules/*-rules.md`) | Software-determined | When matching file types are edited |
 | Role definitions (`core/roles/*.md`) | LLM-determined | When role is active |
 | Skills (`skills/`) | Human-triggered | On `/skill:X` invocation |
@@ -128,6 +134,7 @@ When `providers.yaml` is set to `auto` (default), resolve providers using the De
 - **Validation Learning**: AI self-questions solutions, logs answers for future use. See `core/docs/VALIDATION_LEARNING.md`.
 - **SOLID Constraint**: Phase 3 solutions must be COMPLIANT per contextual analysis. See `core/architecture-reference.md` and `openspec/specs/architecture-profile.yaml`.
 - **Contradiction Detection Protocol (CDP)**: When artifacts contradict each other, stop and ask the user — never silently resolve. See `core/rules/framework_rules.md` §12.
+- **User Insights (Bidirectional Learning)**: User's experience-based meta-knowledge about AI collaboration, loaded at each decision point as graduated influence (high/medium/low). AI discovers patterns and proposes them back. See `memory/user-insights.yaml`, `memory/discovered-insights.yaml`.
 
 ## State Management
 
@@ -179,4 +186,4 @@ This file + `framework_rules.md` are always loaded. Keep them lean. Everything e
 
 ---
 
-**Version**: 3.2.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Spec-Driven Development + Capability Providers + Shape Up (Singer) + AI Validation Learning + GSD + BMAD
+**Version**: 3.3.0 | **Aligned with**: Compound Engineering + Karpathy + Context Engineering (Fowler) + Spec-Driven Development + Capability Providers + Shape Up (Singer) + AI Validation Learning + GSD + BMAD + Bidirectional Insights

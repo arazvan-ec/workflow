@@ -205,6 +205,43 @@ Para investigar esto efectivamente, necesito entender:
 4. **Formato de respuesta**: ¿Necesitas un reporte, código, o solo respuesta?
 ```
 
+## Step 0: Load User Insights for Routing
+
+Before analyzing the request, load relevant user insights that may influence routing decisions:
+
+```
+INSIGHTS LOADING (routing phase):
+
+1. READ memory/user-insights.yaml
+   FILTER: status == "active" AND "routing" in when_to_apply
+
+2. READ memory/discovered-insights.yaml
+   FILTER: status == "accepted" AND "routing" in when_to_apply
+
+3. FOR each matching insight:
+   IF influence == "high":
+     → Incorporate proactively into routing logic
+     → Example: If insight says "complex features need shape-first",
+       lower the threshold for recommending /workflows:shape
+   IF influence == "medium":
+     → Note as consideration, apply if context supports
+   IF influence == "low":
+     → Store but don't apply unless user references
+
+4. DOCUMENT which insights are active for this routing decision
+   (in the Initial Analysis output)
+```
+
+**How insights influence routing:**
+
+| Insight Example | Routing Impact |
+|-----------------|----------------|
+| "SOLID improves scalability" (high) | Prefer task-breakdown workflow for features that will evolve |
+| "Tests before refactor" (high) | For refactoring requests, ensure test coverage check is part of routing |
+| "Avoid premature abstraction" (medium) | For unclear features, suggest shape-first to discover concrete needs |
+
+---
+
 ## Execution Protocol
 
 ### Step 1: Initial Analysis
@@ -325,6 +362,7 @@ Basado en tu solicitud, recomiendo:
 **Assumptions Confirmed**: [list key assumptions]
 **Success Criteria**: [list testable goals]
 **Decision Challenge Notes**: [why alternatives were rejected]
+**Active Insights**: [list insights that influenced this recommendation, if any]
 
 **Pasos siguientes**:
 1. [step 1]

@@ -76,6 +76,44 @@ Never say "it works" without:
 - Screenshots/logs as evidence
 - Explicit acceptance criteria verification
 
+## Step 0: Load User Insights for Review
+
+Before starting the review process, load insights relevant to the review phase:
+
+```
+INSIGHTS LOADING (review phase):
+
+1. READ memory/user-insights.yaml
+   FILTER: status == "active" AND "review" in when_to_apply
+
+2. READ memory/discovered-insights.yaml
+   FILTER: status IN ("accepted", "promoted") AND "review" in when_to_apply
+
+3. FOR each matching insight:
+   IF influence == "high":
+     → Add as explicit review criterion
+     → Example: "small functions" → flag any function > 20 lines
+     → Example: "SOLID improves scalability" → increase SOLID scrutiny
+   IF influence == "medium":
+     → Note in review, mention if violation found but don't block approval
+   IF influence == "low":
+     → Only check if explicitly requested
+
+4. INCLUDE in QA Report: "## Insights Applied" section
+   List which insights influenced the review and any findings
+```
+
+**How insights enhance review:**
+
+| Insight | Review Enhancement |
+|---------|-------------------|
+| "Small functions" (high) | Add check: flag functions > 20 lines as NEEDS_WORK |
+| "Tests before refactor" (high) | Verify test-before-refactor pattern in git history |
+| "Avoid premature abstraction" (medium) | Note abstractions with fewer than 3 uses |
+| "SOLID improves scalability" (high) | Increase SOLID checker strictness |
+
+---
+
 ## Review Process
 
 ### Phase 1: API Testing (Backend Verification)
@@ -313,6 +351,9 @@ Criterion 3: "User redirected after registration"
   - [ ] Repository for [Y] - Implemented: ✅/❌
   - [ ] Value Object for [Z] - Implemented: ✅/❌
 - **Design Deviations Found**: [None | List what wasn't implemented as designed]
+
+## Insights Applied
+- **{insight_id}** ({influence}): {finding or "no issues found"}
 
 ## Acceptance Criteria
 - [✓] Criterion 1 - Evidence: [...]
