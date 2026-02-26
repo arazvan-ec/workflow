@@ -29,7 +29,7 @@
 #   detected_at:          Date of detection
 #   reviewed_at:          Date of user review (empty until reviewed)
 
-discovered:
+discovered: []
 
 # ─────────────────────────────────────────────────────────────────────
 # EXAMPLE (will be replaced by real discoveries)

@@ -327,7 +327,8 @@ fi
 DISCOVERED_INSIGHTS="memory/discovered-insights.yaml"
 if [ -f "$DISCOVERED_INSIGHTS" ]; then
   echo "Discovered insights found. Loading validated AI observations."
-  # FILTER: status IN ("accepted", "promoted") AND ("planning" OR "design") in when_to_apply
+  # FILTER: status == "accepted" AND ("planning" OR "design") in when_to_apply
+  # NOTE: "promoted" excluded — promoted insights already live in user-insights.yaml
   # Apply same influence-based logic as user insights
 fi
 ```
