@@ -86,7 +86,7 @@ inputs:
 | {criterion 2} | PASS/FAIL | {como se verifico} |
 
 ## SOLID Compliance
-| Componente | S | R | P | I | D | Notas |
+| Componente | S | O | L | I | D | Notas |
 |-----------|---|---|---|---|---|-------|
 | {comp 1} | OK | OK | OK | OK | OK | |
 

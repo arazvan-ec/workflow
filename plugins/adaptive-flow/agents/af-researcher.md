@@ -1,7 +1,7 @@
 ---
 name: af-researcher
 description: Objective codebase analysis for routing decisions, shaping, and architecture profiling. Use for evidence-based gravity routing and deep technical analysis.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, WebSearch
 model: inherit
 maxTurns: 20
 ---

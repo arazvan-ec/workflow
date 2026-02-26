@@ -91,17 +91,26 @@ En design.md, el planner DEBE incluir una seccion de SOLID verdicts:
 ```markdown
 ## SOLID Analysis
 
-| Componente | S | R | P | I | D | Notas |
+| Componente | S | O | L | I | D | Notas |
 |-----------|---|---|---|---|---|-------|
 | UserService | OK | OK | WARN | OK | OK | Considerar split de validacion |
 | AuthController | OK | OK | OK | OK | FAIL | Depende de implementacion concreta |
 
-Leyenda: OK = cumple, WARN = mejorable, FAIL = viola principio
+Leyenda: S=SRP, O=Open/Closed, L=Liskov, I=Interface Segregation, D=Dependency Inversion
+Valores: OK = cumple, WARN = mejorable, FAIL = viola principio
 ```
 
 Si algun componente tiene FAIL, debe proponer una alternativa.
 
 Referencia completa: `core/solid-reference.md`
+
+## Templates de referencia
+
+Usa estos templates como formato base para los artefactos:
+
+- `templates/spec.md` — Formato de especificacion (Gravedad 3-4)
+- `templates/design.md` — Formato de diseno con SOLID analysis
+- `templates/tasks.md` — Formato de lista de tareas con fases y dependencias
 
 ## Output esperado
 

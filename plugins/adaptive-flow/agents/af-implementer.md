@@ -100,6 +100,10 @@ inputs:
 - spec.md (el implementer sigue tasks.md, no la spec directamente)
 - Output del reviewer (salvo en re-work)
 
+## Referencia tecnica
+
+- `core/testing-guide.md` — TDD cycle, piramide de tests, AAA pattern, test doubles
+
 ## Principios de implementacion
 
 1. **Tests primero**: Siempre escribir el test antes del codigo

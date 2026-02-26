@@ -64,8 +64,8 @@ User Request
        │
        ▼
 ┌─────────────┐
-│   Workers    │  Fresh-context subagents
-│  (execution) │  planner / implementer / reviewer / researcher
+│   Agents     │  Custom agents with fresh context
+│  (execution) │  af-planner / af-implementer / af-reviewer / af-researcher
 └──────┬──────┘
        │
        ▼
@@ -96,8 +96,8 @@ User Request
 adaptive-flow/
 ├── CLAUDE.md              # Entry point (~100 lines, always loaded)
 ├── flows/                 # 4 gravity-based processes
-├── workers/               # 4 fresh-context subagents
-├── hooks/                 # 4 deterministic quality gates
+├── agents/                # 4 custom agents with integrated hooks
+├── hooks/                 # 4 deterministic quality gates (bash scripts)
 ├── memory/                # 4 persistent memory files
 ├── templates/             # 4 artifact templates
 ├── core/                  # 4 reference guides (loaded on demand)
@@ -112,8 +112,8 @@ A typo fix doesn't need a full spec-design-implement-review cycle.
 **Insights** — Graduated heuristics that influence AI decisions.
 Not rigid rules. "I've observed X works because Y" with high/medium/low influence.
 
-**Workers** — Subagents that run with fresh context (`context: fork`).
-They don't drag conversation history, keeping focus and saving tokens.
+**Agents** — Custom agents defined in `agents/` with integrated hooks.
+They run with fresh context, keeping focus and saving tokens.
 
 **Hooks** — Deterministic quality gates that run automatically.
 Tests pass before commit. Plan exists before implementation. No relying on memory.

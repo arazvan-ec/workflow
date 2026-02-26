@@ -38,8 +38,9 @@ Si la confianza en la clasificacion es < 60%, preguntar al usuario.
 | af-reviewer | Gravedad 3-4 | Codigo + specs + insights de review |
 | af-researcher | Cuando se necesita analisis | Pregunta especifica |
 
-Los agents corren con contexto fresco y retornan solo resumen. Cada agent tiene hooks
-integrados en su frontmatter que crean quality gates automaticos:
+Para invocar un agent, usa el Task tool con `subagent_type: "af-planner"` (o el nombre
+correspondiente). Los agents corren con contexto fresco y retornan solo resumen.
+Cada agent tiene hooks integrados en su frontmatter que crean quality gates automaticos:
 
 - **af-planner**: Stop hook valida que el plan tenga acceptance criteria y SOLID analysis
 - **af-implementer**: PreToolUse hook valida commits (archivos sensibles, tests, lint)
@@ -53,8 +54,9 @@ Los hooks en `hooks/` se ejecutan automaticamente via Claude Code hooks API,
 integrados en el frontmatter de cada agent. No dependen de que el agente
 "recuerde" ejecutarlos.
 
-Para activar el hook de pre-work (SubagentStart), copiar la configuracion de
-`settings.json.example` a `.claude/settings.json`.
+El hook de pre-work (SubagentStart) ya esta activo en `.claude/settings.json`.
+Los demas hooks (post-plan, pre-commit, post-review) estan integrados en el
+frontmatter de cada agent y se activan automaticamente.
 
 ## Skills
 
