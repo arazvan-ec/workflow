@@ -1,0 +1,27 @@
+# ─────────────────────────────────────────────────────────────────────
+# User Insights — Meta-conocimiento del usuario sobre como trabajar con IA
+# ─────────────────────────────────────────────────────────────────────
+#
+# Estos insights representan la experiencia del usuario sobre que funciona
+# y que no cuando trabaja con agentes de IA. Son heuristicas graduadas,
+# no reglas binarias.
+#
+# Schema por insight:
+#   - id: string (kebab-case, unico)
+#     observation: string (que ha observado el usuario)
+#     reasoning: string (por que cree que funciona)
+#     when_to_apply: [planning, design, implementation, review, routing]
+#     influence: high | medium | low
+#       high   → aplicar proactivamente
+#       medium → sugerir si relevante
+#       low    → solo si el usuario pregunta
+#     status: active | paused | retired
+#     tags: [string]
+#     added: YYYY-MM-DD
+#     last_validated: YYYY-MM-DD
+#
+# El usuario tiene la ultima palabra. Estos insights siempre tienen
+# prioridad sobre los descubiertos por la IA.
+# ─────────────────────────────────────────────────────────────────────
+
+insights: []
