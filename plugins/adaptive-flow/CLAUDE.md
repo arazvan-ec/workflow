@@ -3,6 +3,13 @@
 Framework de ingenieria compuesta para Claude Code.
 Adapta el proceso a la gravedad de la tarea.
 
+## Getting Started
+
+First time? The framework works automatically — just ask for what you need.
+It comes with 8 starter insights in `memory/user-insights.yaml` that you can
+adjust, pause, or retire. To add your own: `/adaptive-flow:insights-manager --add`.
+To analyze your stack and bootstrap project-specific memory: `/adaptive-flow:discover --seed`.
+
 ## Routing: Determinar Gravedad
 
 Antes de actuar, clasifica la solicitud:
@@ -43,6 +50,7 @@ No dependen de que el agente "recuerde" ejecutarlos.
 - `/adaptive-flow:insights-manager` — Gestionar insights del usuario
 - `/adaptive-flow:solid-analyzer` — Analisis SOLID contextual
 - `/adaptive-flow:compound-capture` — Capturar learnings post-feature
+- `/adaptive-flow:discover` — Analizar stack y bootstrap de memoria
 
 ## Compound: Cada tarea mejora la siguiente
 

@@ -17,6 +17,11 @@
       "name": "compound-capture",
       "description": "Post-feature knowledge capture (patterns, learnings, insights, briefing)",
       "path": "../skills/compound-capture.md"
+    },
+    {
+      "name": "discover",
+      "description": "Analyze stack and bootstrap project memory (--seed, --profile, --status)",
+      "path": "../skills/discover.md"
     }
   ]
 }
