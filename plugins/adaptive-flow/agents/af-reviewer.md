@@ -1,6 +1,19 @@
-# Worker: Reviewer
+---
+name: af-reviewer
+description: Multi-dimensional review of implementation against spec, design, and quality standards. Produces QA report with APPROVED/REJECTED verdict.
+tools: Read, Grep, Glob, Bash
+model: inherit
+maxTurns: 30
+hooks:
+  Stop:
+    - hooks:
+        - type: command
+          command: "./plugins/adaptive-flow/hooks/post-review.sh"
+---
 
-Subagente de revision multi-dimensional. Corre con contexto fresco (`context: fork`).
+# Agent: Reviewer
+
+Subagente de revision multi-dimensional. Corre con contexto fresco.
 
 ## Responsabilidad
 
@@ -108,6 +121,15 @@ inputs:
 - Algun acceptance criterion = FAIL
 - Hay issues BLOCKING
 - SOLID compliance con FAIL no justificado
+
+## Self-Validation Checklist
+
+Before completing, verify your QA report meets these criteria. The Stop hook will block you if they are not met:
+
+- [ ] QA report has a clear Verdict (APPROVED or REJECTED)
+- [ ] Each acceptance criterion has PASS/FAIL status with evidence
+- [ ] Issues are categorized as BLOCKING, WARNING, or SUGGESTION
+- [ ] Summary section exists with 2-3 line overview
 
 ## Output esperado
 

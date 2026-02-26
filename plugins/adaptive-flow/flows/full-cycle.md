@@ -16,19 +16,22 @@ Ciclo completo: plan → TDD → review → compound. Para tareas complejas o de
 2. Cargar insights (planning + design + implementation + review)
 
 PLANNING
-3. → Worker: planner (modo completo)
+3. → Agent: af-planner (modo completo)
    Produce: spec.md, design.md, tasks.md
+   Stop hook: post-plan.sh valida acceptance criteria + SOLID
 4. HITL: "Specs correctas?" → "Diseno correcto?"
 
 IMPLEMENTATION
-5. → Worker: implementer (TDD + BCP)
+5. → Agent: af-implementer (TDD + BCP)
    Recibe: tasks.md + design.md + insights de implementation
    Produce: codigo + tests
+   PreToolUse hook: pre-commit.sh valida commits
 
 REVIEW
-6. → Worker: reviewer (multi-dimensional)
+6. → Agent: af-reviewer (multi-dimensional)
    Recibe: diff + spec.md + design.md + insights de review
    Produce: QA report (APPROVED/REJECTED)
+   Stop hook: post-review.sh valida verdict + evidence
 
 7a. Si REJECTED → volver a paso 5 con feedback del reviewer
 7b. Si APPROVED → continuar
@@ -50,13 +53,13 @@ tasks.md         # Lista de tareas ordenada
 retrospective.md # Que fue bien, que mejorar (post-compound)
 ```
 
-## Workers
+## Agents
 
-| Worker | Modo | Contexto |
-|--------|------|----------|
-| planner | completo | Flow + insights (planning, design) + learnings + compound briefing |
-| implementer | TDD+BCP | tasks.md + design.md + insights (implementation) + learnings |
-| reviewer | multi-dim | diff + spec.md + design.md + insights (review) |
+| Agent | Modo | Contexto |
+|-------|------|----------|
+| af-planner | completo | Flow + insights (planning, design) + learnings + compound briefing |
+| af-implementer | TDD+BCP | tasks.md + design.md + insights (implementation) + learnings |
+| af-reviewer | multi-dim | diff + spec.md + design.md + insights (review) |
 
 ## SOLID Enforcement
 

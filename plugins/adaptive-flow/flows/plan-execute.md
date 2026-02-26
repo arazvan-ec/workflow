@@ -13,11 +13,13 @@ Plan ligero seguido de ejecucion. Para tareas de scope claro que requieren plani
 ```
 1. Cargar insights (planning + implementation)
 2. Cargar memory/learnings.yaml (si existe)
-3. → Worker: planner (modo ligero)
+3. → Agent: af-planner (modo ligero)
    Produce: plan-and-tasks.md (un solo archivo combinado)
+   Stop hook: post-plan.sh valida acceptance criteria
 4. HITL: "Este plan captura tu intencion?"
-5. → Worker: implementer (TDD)
+5. → Agent: af-implementer (TDD)
    Recibe: plan-and-tasks.md + insights de implementation
+   PreToolUse hook: pre-commit.sh valida commits
 6. Verificar: tests + lint
 7. Commit
 ```
@@ -43,12 +45,12 @@ Un solo archivo combinado en `openspec/changes/{slug}/plan-and-tasks.md`:
 - Criterion 2
 ```
 
-## Workers
+## Agents
 
-| Worker | Modo | Contexto |
-|--------|------|----------|
-| planner | ligero | Flow + insights de planning + learnings |
-| implementer | standard | plan-and-tasks.md + insights de implementation |
+| Agent | Modo | Contexto |
+|-------|------|----------|
+| af-planner | ligero | Flow + insights de planning + learnings |
+| af-implementer | standard | plan-and-tasks.md + insights de implementation |
 
 ## HITL Checkpoint
 

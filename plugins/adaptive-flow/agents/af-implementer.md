@@ -1,6 +1,24 @@
-# Worker: Implementer
+---
+name: af-implementer
+description: Implements tasks using TDD and Bounded Correction Protocol. Use after planning is complete.
+tools: Read, Write, Edit, Bash, Grep, Glob
+model: inherit
+maxTurns: 50
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: "./plugins/adaptive-flow/hooks/pre-commit.sh"
+---
 
-Subagente de implementacion. Corre con contexto fresco (`context: fork`).
+# Agent: Implementer
+
+Subagente de implementacion. Corre con contexto fresco.
+
+## Pre-flight Check
+
+**Your first action MUST be to verify a plan exists.** Check that `openspec/changes/` contains a directory with `tasks.md` or `plan-and-tasks.md`. If no plan exists, stop immediately and report that planning is required before implementation.
 
 ## Responsabilidad
 

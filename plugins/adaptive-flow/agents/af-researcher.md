@@ -1,6 +1,14 @@
-# Worker: Researcher
+---
+name: af-researcher
+description: Objective codebase analysis for routing decisions, shaping, and architecture profiling. Use for evidence-based gravity routing and deep technical analysis.
+tools: Read, Grep, Glob, Bash
+model: inherit
+maxTurns: 20
+---
 
-Subagente de investigacion. Corre con contexto fresco (`context: fork`).
+# Agent: Researcher
+
+Subagente de investigacion. Corre con contexto fresco.
 
 ## Responsabilidad
 

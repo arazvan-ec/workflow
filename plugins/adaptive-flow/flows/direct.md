@@ -20,7 +20,7 @@ Ejecucion directa para cambios triviales.
 ## Que NO hacer
 
 - No crear spec ni design
-- No spawneear planner worker
+- No delegar al af-planner agent
 - No pedir confirmacion (salvo archivos de alto riesgo: auth, pagos, config)
 
 ## Insights aplicables

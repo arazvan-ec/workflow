@@ -14,7 +14,7 @@ Descubrimiento antes de planificar. Para tareas con scope ambiguo o incertidumbr
 ```
 SHAPING
 1. Cargar insights (planning + design)
-2. → Worker: researcher (analisis)
+2. → Agent: af-researcher (analisis)
    Pregunta: "Cual es el scope real? Cuantos archivos? Que dependencies?"
    Produce: analysis report
 
@@ -63,14 +63,14 @@ retrospective.md # Del full-cycle flow
 3. {Slice 3}: {Descripcion} — {Estimacion de archivos}
 ```
 
-## Workers
+## Agents
 
-| Worker | Modo | Contexto |
-|--------|------|----------|
-| researcher | analisis profundo | Pregunta especifica + file paths relevantes |
-| planner | completo | shaped-brief.md + todo lo de full-cycle |
-| implementer | TDD+BCP | Todo lo de full-cycle |
-| reviewer | multi-dim | Todo lo de full-cycle |
+| Agent | Modo | Contexto |
+|-------|------|----------|
+| af-researcher | analisis profundo | Pregunta especifica + file paths relevantes |
+| af-planner | completo | shaped-brief.md + todo lo de full-cycle |
+| af-implementer | TDD+BCP | Todo lo de full-cycle |
+| af-reviewer | multi-dim | Todo lo de full-cycle |
 
 ## HITL Checkpoints
 

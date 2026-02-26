@@ -29,21 +29,32 @@ Si la confianza en la clasificacion es < 60%, preguntar al usuario.
 2. `memory/learnings.yaml` — Patrones del proyecto (si existen)
 3. El flow correspondiente a la gravedad
 
-## Workers (subagentes con contexto fresco)
+## Agents (subagentes con contexto fresco)
 
-| Worker | Cuando | Contexto que recibe |
-|--------|--------|---------------------|
-| planner | Gravedad 2-4 | Flow + specs existentes + insights de planning |
-| implementer | Gravedad 2-4 | Plan + insights de implementation |
-| reviewer | Gravedad 3-4 | Codigo + specs + insights de review |
-| researcher | Cuando se necesita analisis | Pregunta especifica |
+| Agent | Cuando | Contexto que recibe |
+|-------|--------|---------------------|
+| af-planner | Gravedad 2-4 | Flow + specs existentes + insights de planning |
+| af-implementer | Gravedad 2-4 | Plan + insights de implementation |
+| af-reviewer | Gravedad 3-4 | Codigo + specs + insights de review |
+| af-researcher | Cuando se necesita analisis | Pregunta especifica |
 
-Workers corren en `context: fork` — contexto fresco, retornan solo resumen.
+Los agents corren con contexto fresco y retornan solo resumen. Cada agent tiene hooks
+integrados en su frontmatter que crean quality gates automaticos:
+
+- **af-planner**: Stop hook valida que el plan tenga acceptance criteria y SOLID analysis
+- **af-implementer**: PreToolUse hook valida commits (archivos sensibles, tests, lint)
+- **af-reviewer**: Stop hook valida que el QA report tenga verdict y evidence
+
+Los agents no pueden terminar hasta que sus hooks de validacion pasen.
 
 ## Hooks (quality gates automaticos)
 
-Los hooks en `hooks/` se ejecutan automaticamente via Claude Code hooks API.
-No dependen de que el agente "recuerde" ejecutarlos.
+Los hooks en `hooks/` se ejecutan automaticamente via Claude Code hooks API,
+integrados en el frontmatter de cada agent. No dependen de que el agente
+"recuerde" ejecutarlos.
+
+Para activar el hook de pre-work (SubagentStart), copiar la configuracion de
+`settings.json.example` a `.claude/settings.json`.
 
 ## Skills
 
@@ -64,8 +75,8 @@ Despues de completar una tarea de gravedad 3+, ejecutar compound-capture para:
 1. **Gravedad proporcional**: El proceso pesa lo mismo que la tarea
 2. **Contexto minimo viable**: Cargar solo lo necesario para la decision actual
 3. **Insights sobre reglas**: Heuristicas graduadas sobre reglas binarias
-4. **Workers efimeros**: Subagentes con contexto fresco, no acumulado
-5. **Hooks deterministicos**: Validaciones automatizadas, no probabilisticas
+4. **Agents efimeros**: Subagentes con contexto fresco, no acumulado
+5. **Hooks deterministicos**: Quality gates automaticos con feedback loops
 6. **Compound por defecto**: Cada tarea alimenta la siguiente
 7. **El usuario tiene la ultima palabra**: Sus insights siempre tienen prioridad
 
@@ -75,8 +86,8 @@ Despues de completar una tarea de gravedad 3+, ejecutar compound-capture para:
 adaptive-flow/
 ├── CLAUDE.md              ← Estas aqui
 ├── flows/                 # Procesos por nivel de gravedad
-├── workers/               # Subagentes con contexto fresco
-├── hooks/                 # Quality gates deterministicos
+├── agents/                # Custom agents con hooks integrados
+├── hooks/                 # Quality gates deterministicos (scripts bash)
 ├── memory/                # Persistencia entre sesiones
 ├── templates/             # Templates para artefactos
 ├── core/                  # Referencia tecnica (carga bajo demanda)

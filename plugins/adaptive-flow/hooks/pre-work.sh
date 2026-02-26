@@ -2,34 +2,46 @@
 # ─────────────────────────────────────────────────────────────────────
 # Hook: pre-work — Verifies plan exists before implementation starts
 # ─────────────────────────────────────────────────────────────────────
-# Runs before the implementer worker is spawned.
-# Blocks work if no plan/tasks file exists.
+# Event: SubagentStart (matcher: "af-implementer")
+# Registered in: settings.json (not in agent frontmatter — SubagentStart
+#                is an external event, not an agent lifecycle event)
 #
-# Exit 0 = allow work, Exit 1 = block work.
+# SubagentStart hooks CANNOT block. Instead, they inject additionalContext
+# into the subagent via JSON output on stdout.
+#
+# If no plan exists, the injected context tells the implementer to stop.
 # ─────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
+# ── Read hook input from stdin ─────────────────────────────────────
+INPUT=$(cat /dev/stdin 2>/dev/null || echo '{}')
+CWD=$(echo "$INPUT" | jq -r '.cwd // "."' 2>/dev/null || echo ".")
+cd "$CWD"
+
 CHANGES_DIR="openspec/changes"
+
+# ── Check for plan existence ───────────────────────────────────────
 if [ ! -d "$CHANGES_DIR" ]; then
-  echo "BLOCKED: No openspec/changes/ directory. Run the planner first."
-  exit 1
+  echo '{"hookSpecificOutput":{"hookEventName":"SubagentStart","additionalContext":"CRITICAL: No openspec/changes/ directory found. You MUST stop immediately and report that planning is required before implementation. Do not write any code."}}'
+  exit 0
 fi
 
 LATEST_SLUG=$(ls -t "$CHANGES_DIR" 2>/dev/null | head -1)
 if [ -z "$LATEST_SLUG" ]; then
-  echo "BLOCKED: No change directories found. Run the planner first."
-  exit 1
+  echo '{"hookSpecificOutput":{"hookEventName":"SubagentStart","additionalContext":"CRITICAL: No change directories found in openspec/changes/. You MUST stop immediately and report that planning is required before implementation. Do not write any code."}}'
+  exit 0
 fi
 
 SLUG_DIR="$CHANGES_DIR/$LATEST_SLUG"
 
 # Check for either plan-and-tasks.md (gravity 2) or tasks.md (gravity 3-4)
 if [ -f "$SLUG_DIR/plan-and-tasks.md" ] || [ -f "$SLUG_DIR/tasks.md" ]; then
-  echo "Pre-work check passed. Plan found in $SLUG_DIR"
+  PLAN_FILE="tasks.md"
+  [ -f "$SLUG_DIR/plan-and-tasks.md" ] && PLAN_FILE="plan-and-tasks.md"
+  echo "{\"hookSpecificOutput\":{\"hookEventName\":\"SubagentStart\",\"additionalContext\":\"Plan found at $SLUG_DIR/$PLAN_FILE. Proceed with implementation.\"}}"
   exit 0
 fi
 
-echo "BLOCKED: No plan found in $SLUG_DIR"
-echo "Run the planner worker before starting implementation."
-exit 1
+echo "{\"hookSpecificOutput\":{\"hookEventName\":\"SubagentStart\",\"additionalContext\":\"CRITICAL: No plan found in $SLUG_DIR. Neither tasks.md nor plan-and-tasks.md exists. You MUST stop immediately and report that planning is required before implementation.\"}}"
+exit 0

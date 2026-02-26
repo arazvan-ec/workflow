@@ -2,13 +2,29 @@
 # ─────────────────────────────────────────────────────────────────────
 # Hook: pre-commit — Validates code quality before committing
 # ─────────────────────────────────────────────────────────────────────
-# Runs automatically via Claude Code hooks API.
-# Checks: tests pass, lint clean, no sensitive files staged.
+# Event: PreToolUse (matcher: "Bash", defined in af-implementer.md)
 #
-# Exit 0 = allow commit, Exit 1 = block commit with error message.
+# This hook fires on ALL Bash tool uses by the implementer agent.
+# It filters to only act on git commit commands; all other commands
+# are allowed through immediately.
+#
+# Exit 0 = allow the command
+# Exit 2 = block the command (agent receives stdout as feedback)
 # ─────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
+
+# ── Read hook input from stdin ─────────────────────────────────────
+INPUT=$(cat /dev/stdin 2>/dev/null || echo '{}')
+CWD=$(echo "$INPUT" | jq -r '.cwd // "."' 2>/dev/null || echo ".")
+TOOL_INPUT=$(echo "$INPUT" | jq -r '.tool_input.command // ""' 2>/dev/null || echo "")
+
+# ── Only act on git commit commands ────────────────────────────────
+if ! echo "$TOOL_INPUT" | grep -q "git commit"; then
+  exit 0
+fi
+
+cd "$CWD"
 
 STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true)
 
@@ -23,7 +39,7 @@ for pattern in "${SENSITIVE_PATTERNS[@]}"; do
   if [ -n "$MATCHES" ]; then
     echo "BLOCKED: Potentially sensitive file staged: $MATCHES"
     echo "If intentional, unstage and re-commit with explicit confirmation."
-    exit 1
+    exit 2
   fi
 done
 

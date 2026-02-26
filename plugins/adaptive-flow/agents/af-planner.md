@@ -1,6 +1,19 @@
-# Worker: Planner
+---
+name: af-planner
+description: Designs solutions with specification, SOLID architecture, and task breakdown. Use for Gravity 2-4 planning.
+tools: Read, Grep, Glob, WebSearch
+model: inherit
+maxTurns: 30
+hooks:
+  Stop:
+    - hooks:
+        - type: command
+          command: "./plugins/adaptive-flow/hooks/post-plan.sh"
+---
 
-Subagente de planificacion. Corre con contexto fresco (`context: fork`).
+# Agent: Planner
+
+Subagente de planificacion. Corre con contexto fresco.
 
 ## Responsabilidad
 
@@ -103,9 +116,11 @@ output:
   confidence: float       # 0.0-1.0 en la calidad del plan
 ```
 
-## Criterios de calidad
+## Self-Validation Checklist
 
-- [ ] spec.md tiene al menos 3 acceptance criteria testables
-- [ ] design.md tiene SOLID verdicts para cada componente nuevo
-- [ ] tasks.md tiene orden de ejecucion y archivos afectados
-- [ ] Insights consultados estan documentados en artifacts
+Before completing, verify your output meets these criteria. The Stop hook will block you if they are not met:
+
+- [ ] spec.md (or plan-and-tasks.md) has at least 3 testable acceptance criteria
+- [ ] design.md has SOLID verdicts for each new component (Gravity 3-4)
+- [ ] tasks.md has execution order and affected files per task
+- [ ] Insights consulted are documented in artifacts

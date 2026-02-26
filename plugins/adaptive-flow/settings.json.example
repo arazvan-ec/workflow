@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SubagentStart": [
+      {
+        "matcher": "af-implementer",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./plugins/adaptive-flow/hooks/pre-work.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
