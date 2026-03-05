@@ -89,7 +89,7 @@ Before executing tasks, resolve the execution mode:
 
 ### Agent Executes (default)
 
-The agent generates code following the plan. For each task in `tasks.md`:
+The agent generates code following the plan. For each task in `tasks.md` (format: `core/templates/tasks-template.md`):
 
 ` ` `
 TASK EXECUTION LOOP:

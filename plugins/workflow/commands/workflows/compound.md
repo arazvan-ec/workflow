@@ -845,6 +845,7 @@ After compound capture:
 
 ```markdown
 ## Feature: user-authentication
+<!-- Format: core/templates/tasks-template.md — update Phase Status: all phases COMPLETED, Compound = COMPLETED -->
 **Status**: COMPLETED + COMPOUNDED
 **Compound Date**: 2026-01-16
 **Patterns Captured**: 3

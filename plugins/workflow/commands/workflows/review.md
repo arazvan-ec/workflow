@@ -344,7 +344,7 @@ Criterion 3: "User redirected after registration"
 
 ## State Update
 
-After review, update `tasks.md`:
+After review, update `tasks.md` (format: `core/templates/tasks-template.md`, QA Summary section):
 
 ```markdown
 ## QA / Reviewer
