@@ -6,7 +6,7 @@ argument_hint: [topic]
 
 # /workflows:help - Quick Help and Navigation
 
-**Version**: 2.1.0
+**Version**: 3.2.0
 **Category**: Reference
 
 ---
@@ -53,23 +53,24 @@ Display this card:
 | 4 | /workflows:review   | Multi-agent quality review         |
 | 5 | /workflows:compound | Capture learnings                  |
 
+### Decision Flow
+
+  Request → route → setup needed?  → /workflows:discover --setup
+                  → simple (≤3 files)? → /workflows:quick
+                  → unclear scope?     → /workflows:shape → plan
+                  → clear scope?       → /workflows:plan
+                  → bug fix?           → /workflows:plan (implementation-only)
+
 ### What Do You Need?
 
 | If you want to...                | Use...                            |
 |----------------------------------|-----------------------------------|
 | Start something new              | /workflows:route "description"    |
+| Quick fix (≤3 files)             | /workflows:quick "description"    |
 | Check progress                   | /workflows:status feature-name    |
 | Analyze a new project            | /workflows:discover               |
 | First time setup                 | /workflows:discover --setup       |
 | First time with the plugin       | /workflows:help concepts          |
-
-### Resources
-
-| Resource      | Description              |
-|---------------|--------------------------|
-| QUICKSTART.md | Get started in 5 minutes |
-| TUTORIAL.md   | Full step-by-step example|
-| GLOSSARY.md   | Term definitions         |
 
 For more: /workflows:help [topic]
 Topics: commands, agents, concepts, troubleshooting
@@ -185,7 +186,7 @@ Every request follows this flow. Stages cannot be skipped.
                   |                          |
              [resolve]              [fix and re-review]
 
-See GLOSSARY.md for full definitions.
+See `/workflows:help concepts` for definitions.
 ```
 
 ### Topic: troubleshooting

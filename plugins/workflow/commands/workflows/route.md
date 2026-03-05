@@ -1,6 +1,6 @@
 # /workflows:route - Workflow Router (Mandatory Entry Point)
 
-**Version**: 1.2.0
+**Version**: 3.2.0
 **Category**: Core
 **Priority**: CRITICAL - Must be invoked for ALL new interactions
 
@@ -24,45 +24,24 @@ This command is the **MANDATORY entry point** for all interactions with the Mult
 /workflows:route "I need to add user authentication"
 ```
 
-## Workflow Decision Matrix
-
-### Quick Classification Questions
-
-When the need is unclear, ask these questions in order:
+## Quick Decision Flow
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    WORKFLOW ROUTER                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  1. ¿Qué tipo de trabajo necesitas?                        │
-│     [ ] Nueva funcionalidad (feature)                      │
-│     [ ] Corrección de bug                                  │
-│     [ ] Refactoring/mejora                                 │
-│     [ ] Investigación/análisis                             │
-│     [ ] Documentación                                      │
-│     [ ] Revisión de código                                 │
-│     [ ] Configuración/setup                                │
-│     [ ] Otro (describir)                                   │
-│                                                             │
-│  2. ¿Cuál es la complejidad estimada?                      │
-│     [ ] Simple (< 1 hora, pocos archivos)                  │
-│     [ ] Media (1-4 horas, varios componentes)              │
-│     [ ] Compleja (> 4 horas, múltiples capas)              │
-│     [ ] No estoy seguro                                    │
-│                                                             │
-│  3. ¿Necesitas coordinación multi-agente?                  │
-│     [ ] Sí, backend + frontend                             │
-│     [ ] Sí, múltiples capas (domain, app, infra)           │
-│     [ ] No, un solo rol es suficiente                      │
-│     [ ] No estoy seguro                                    │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+Request arrives
+  │
+  ├── New project with requirements?  → /workflows:discover --seed
+  ├── Simple (≤3 files, <1h)?         → /workflows:quick
+  ├── Feature, unclear scope?         → /workflows:shape → /workflows:plan
+  ├── Feature, clear scope?           → /workflows:plan
+  ├── Bug fix?                        → /workflows:plan (implementation-only)
+  ├── Code review?                    → /workflows:review
+  ├── Investigation?                  → Research agents (no workflow)
+  └── Unclear?                        → Ask clarifying questions, then re-route
 ```
 
 ## Routing Logic
 
-### Decision Tree
+### Detailed Decision Tree
 
 ```
 USER REQUEST
@@ -347,8 +326,13 @@ mkdir -p "openspec/changes/${SLUG}"
 #    Fill in: classification, assumptions, success criteria, recommended workflow
 #    Save as: openspec/changes/${SLUG}/00_routing.md
 
-# 3. Verify the file was written
-ls -la "openspec/changes/${SLUG}/00_routing.md"
+# 3. Create initial tasks.md from template (core/templates/tasks-template.md)
+#    Fill in: feature name, slug, timestamp
+#    Set Route phase to IN_PROGRESS, all others PENDING
+#    Save as: openspec/changes/${SLUG}/tasks.md
+
+# 4. Verify files were written
+ls -la "openspec/changes/${SLUG}/00_routing.md" "openspec/changes/${SLUG}/tasks.md"
 ```
 
 **Why persist?** Routing decisions (classification, assumptions, success criteria) are lost if context is compacted or the session restarts. The `00_routing.md` file ensures downstream commands (`/workflows:plan`, `/workflows:shape`) can recover routing context from disk.

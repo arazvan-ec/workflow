@@ -42,7 +42,7 @@ Adapts behavior based on `execution_mode` in `core/providers.yaml`:
 
 ## Permitted Operations
 
-**Read**: Feature state (`tasks.md`), contracts, rules, existing code, this role file.
+**Read**: Workflow State (`tasks.md`), contracts, rules, existing code, this role file.
 
 **Write**: Source code (`src/`), tests (`tests/`), mocks, `tasks.md` updates, `tasks.md` progress.
 

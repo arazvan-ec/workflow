@@ -8,35 +8,12 @@ argument_hint: <feature-name> [--mode=<layers|stacks>] [--layer=<layer>] [--stac
 
 Execute implementation with the compound engineering principle: make each unit of work easier.
 
-## Flow Guard (prerequisite check)
+## Prerequisites
 
-Before executing, verify the flow has been followed:
-
-```
-PREREQUISITE CHECK:
-  1. Does tasks.md exist for this feature?
-     - NO: STOP. Run /workflows:plan first.
-
-  2. Is planner status = COMPLETED in tasks.md?
-     - NO (PENDING or IN_PROGRESS): STOP. Planning not finished. Run /workflows:plan.
-     - NO (BLOCKED): STOP. Planning is blocked. Resolve blocker first.
-     - YES: Continue.
-
-  3. Do all required plan files exist on disk?
-     Check: openspec/changes/{slug}/proposal.md
-     Check: openspec/changes/{slug}/specs.md
-     Check: openspec/changes/{slug}/design.md
-     - ALL exist: Continue.
-     - ANY missing: STOP. Planning output incomplete. Run /workflows:plan to regenerate.
-
-  4. Does the role's status allow starting work?
-     - PENDING: OK, start work (set to IN_PROGRESS)
-     - IN_PROGRESS: OK, resume work from last checkpoint
-     - COMPLETED: Work already done. Confirm re-work with user.
-     - BLOCKED: Show blocker details, ask user how to proceed.
-
-  If checks 1, 2, or 3 fail, do NOT proceed. Plan first.
-```
+Read `openspec/changes/{slug}/tasks.md` and verify:
+- Plan status = COMPLETED. If not: STOP → `/workflows:plan` first.
+- All plan files exist: `proposal.md`, `specs.md`, `design.md`. If any missing: STOP → `/workflows:plan`.
+- Work status: PENDING → start (set IN_PROGRESS). IN_PROGRESS → resume from last checkpoint. COMPLETED → confirm re-work. BLOCKED → show details, ask user.
 
 ## Automatic Operations (built into this command)
 
@@ -89,7 +66,7 @@ Before executing tasks, resolve the execution mode:
 
 ### Agent Executes (default)
 
-The agent generates code following the plan. For each task in `tasks.md`:
+The agent generates code following the plan. For each task in `tasks.md` (format: `core/templates/tasks-template.md`):
 
 ` ` `
 TASK EXECUTION LOOP:
@@ -348,8 +325,8 @@ SOLUTION VALIDATION (for each task in tasks.md):
    - Verify interfaces match (DTO shapes, method signatures, API contracts)
    - If conflict detected → STOP. Consult planner before proceeding.
 
-3. DECISION CHECK: Is approach consistent with DECISIONS.md?
-   - Read DECISIONS.md for relevant architectural decisions
+3. DECISION CHECK: Is approach consistent with Decision Log in tasks.md?
+   - Read Decision Log in tasks.md for relevant architectural decisions
    - If approach contradicts a decision → STOP. Consult planner.
 
 4. COMPLEXITY ASSESSMENT: Resolve max_iterations for this task
@@ -390,30 +367,23 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 4. ✅ SOLID: Verify code follows SOLID patterns from design.md
 ```
 
-**SOLID Verification During Implementation**:
+**SOLID Verification During Implementation** (apply SOLID Verdict Matrix from `core/architecture-reference.md`):
 
 ```bash
 # After each logical unit, verify SOLID compliance
 /workflow-skill:solid-analyzer --mode=verify --path=src/modified-path --design=design.md
 
-# Must be COMPLIANT. If NEEDS_WORK, refactor before proceeding. If NON_COMPLIANT, enter BCP correction loop.
+# COMPLIANT → proceed. NEEDS_WORK → refactor before proceeding. NON_COMPLIANT → BCP correction loop.
 ```
 
 ### Step 6: Bounded Correction Protocol + Diagnostic Escalation
 
-Applies the BCP (see `core/rules/testing-rules.md` for full protocol) with these work-specific additions:
+Apply BCP (full protocol: `core/rules/testing-rules.md`). Work-specific additions:
 
 - **Scale-adaptive limits**: `MAX_ITERATIONS` from `providers.yaml` → `correction_limits` (simple:5, moderate:10, complex:15)
-- **Diagnostic escalation**: After 3 consecutive identical errors → invoke `diagnostic-agent` (forked context) for root cause analysis. If diagnosis confidence is LOW → mark BLOCKED.
-- **3 deviation types**: TYPE 1 (test failure → fix code, NEVER fix test), TYPE 2 (missing functionality → compare vs acceptance criteria), TYPE 3 (incomplete pattern → compare vs reference file)
+- **3 deviation types**: TYPE 1 (test failure → fix code), TYPE 2 (missing functionality → add implementation), TYPE 3 (incomplete pattern → complete pattern)
+- **Diagnostic escalation**: After 3 consecutive identical errors → invoke `diagnostic-agent` (forked) for root cause. If confidence LOW → mark BLOCKED.
 - **Exit**: All verified → checkpoint. Max iterations exhausted → document blocker, mark BLOCKED.
-
-**Deviation Types:**
-- **TYPE 1 — Test Failure**: Tests fail → fix implementation
-- **TYPE 2 — Missing Functionality**: Tests pass but acceptance criteria unmet → add implementation
-- **TYPE 3 — Incomplete Pattern**: Implementation doesn't follow reference file → complete pattern
-
-**Diagnostic escalation**: When the same error recurs 3 times, the `diagnostic-agent` (see `agents/workflow/diagnostic-agent.md`) runs in a forked context to analyze root cause and recommend a different approach. This prevents wasting iterations on the same failing fix.
 
 ### Step 7: Checkpoint (includes SOLID + Goal Verification)
 

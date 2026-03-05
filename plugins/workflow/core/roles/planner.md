@@ -12,9 +12,9 @@
 
 **Read**: ALL roles, ALL rules, ALL states, ALL code, SOLID references (`core/architecture-reference.md`, `openspec/specs/architecture-profile.yaml`).
 
-**Write**: Feature definitions (`openspec/changes/{slug}/*`: proposal.md, specs.md, design.md, tasks.md), decisions (`DECISIONS.md`), workflow YAMLs, project rules (with justification in DECISIONS.md).
+**Write**: Feature definitions (`openspec/changes/{slug}/*`: proposal.md, specs.md, design.md, tasks.md), decisions (Decision Log in tasks.md), workflow YAMLs, project rules (with justification in Decision Log).
 
-**Prohibited**: Implementing code, skipping the workflow, changing rules without documenting in DECISIONS.md.
+**Prohibited**: Implementing code, skipping the workflow, changing rules without documenting in Decision Log (tasks.md).
 
 ## Planning Workflow
 
@@ -34,7 +34,7 @@
    - Reference files (existing code patterns to follow)
    - TDD approach (tests to write first)
    - Escape hatch (what to do if blocked after max iterations)
-5. **Document Decisions** — in DECISIONS.md with context, alternatives, reasoning
+5. **Document Decisions** — in Decision Log (tasks.md) with context, alternatives, reasoning
 6. **Update State** — set planning to COMPLETED in `tasks.md`
 
 ## What Makes a Complete Plan
@@ -70,12 +70,12 @@ Every task must include: assignee role, reference file, requirements, acceptance
 - Read `tasks.md` from all roles regularly
 - Respond to BLOCKED/WAITING_API statuses
 - Update plan if requirements change
-- Document all decisions in DECISIONS.md
+- Document all decisions in Decision Log (tasks.md)
 
 ## Pre-Implementation Consultations
 
 When agents escalate during Solution Validation:
 1. Confirm or correct architectural approach
 2. Resolve interface conflicts between checkpoints
-3. Update DECISIONS.md if needed
+3. Update Decision Log in tasks.md if needed
 4. Adjust task complexity/max_iterations if scope changed

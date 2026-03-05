@@ -1,6 +1,6 @@
 # Capability Providers — Model-Agnostic Abstraction Layer
 
-**Version**: 1.0.0
+**Version**: 3.2.0
 **Added in**: Plugin v2.6.0
 
 ---
@@ -87,7 +87,7 @@ IF providers.parallelization == "worktrees"  →  force worktrees
 **Behavior**:
 1. Orchestrator (current session) creates shared task list from `tasks.md`
 2. Spawns teammates via `TeammateTool` for each role
-3. Each teammate gets: role definition, feature state, task assignments
+3. Each teammate gets: role definition, Workflow State, task assignments
 4. Teammates work in independent context windows
 5. Direct inter-agent communication for coordination
 6. Orchestrator monitors progress and resolves conflicts

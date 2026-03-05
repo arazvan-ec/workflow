@@ -1,6 +1,6 @@
 # Workflow Decision Matrix
 
-**Version**: 1.0.0
+**Version**: 3.2.0
 **Purpose**: Guide for selecting the appropriate workflow based on user needs
 
 ---

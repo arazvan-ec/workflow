@@ -1,6 +1,6 @@
 # Clarification Prompts Template Library
 
-**Version**: 1.0.0
+**Version**: 3.2.0
 **Purpose**: Standard prompts for gathering context before workflow selection
 
 ---

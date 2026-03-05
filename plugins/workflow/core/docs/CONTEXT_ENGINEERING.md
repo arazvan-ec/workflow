@@ -1,6 +1,6 @@
 # Context Engineering for Multi-Agent Workflows
 
-**Version**: 3.0.0
+**Version**: 3.2.0
 **Added in**: Plugin v2.4.0, updated in v2.5.0, provider-aware fork strategy in v2.6.0
 **Based on**: [Fowler: Context Engineering for Coding Agents](https://martinfowler.com/articles/exploring-gen-ai/context-engineering-coding-agents.html), [Hightower: Build Agent Skills Faster with Claude Code 2.1](https://medium.com/@richardhightower/build-agent-skills-faster-with-claude-code-2-1-release-6d821d5b8179)
 
