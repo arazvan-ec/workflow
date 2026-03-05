@@ -408,4 +408,208 @@ Orden recomendado: F1 → F2 → F3 → F4 → F5 → F6
 
 ---
 
-*Plan generado el 2026-03-05 basado en análisis comprensivo del codebase y mejores prácticas de la industria 2025-2026.*
+## FASE 7: Best Practices de la Industria — Pendientes de Incorporar
+
+**Objetivo**: Incorporar las recomendaciones del paso 3 (03-best-practices.md) que no fueron cubiertas en F1-F6.
+**Prioridad**: P1 — ALTO (el paso 3 de investigación era clave para el usuario)
+**Origen**: `plans/improvement-v2/03-best-practices.md` — 25 fuentes, 2025-2026
+**Estado**: PENDIENTE
+
+---
+
+### Trazabilidad: Best Practices → Plan
+
+Cada hallazgo del documento de best practices mapeado a una acción concreta:
+
+| # | Recomendación (03-best-practices.md) | Sección origen | Cubierta en F1-F6 | Acción FASE 7 |
+|---|--------------------------------------|----------------|-------------------|---------------|
+| 1 | Reflection Pattern en Quality Gates | §4 Reflection | ✅ F5.4, F5.5 | — |
+| 2 | Test Contract Sketch en Phase 2 | §1 SDD | ✅ F6.1 | — |
+| 3 | Reducir CLAUDE.md a < 200 líneas | §3 Context Eng. | ❌ | **F7.1** |
+| 4 | Feedback loop REVIEW → PLAN | §2 Multi-agent | ✅ F6.3 | — |
+| 5 | Security analysis en Phase 3 | §1 SDD | ✅ F6.2 | — |
+| 6 | Reducir archivos grandes | §3 Context Eng. | ✅ F3.4-F3.7 | — |
+| 7 | Plan-and-Execute (modelo grande planifica, pequeño ejecuta) | §2 Multi-agent | ❌ | **F7.2** |
+| 8 | Chunking de outputs | §1 SDD (Osmani) | ✅ F6.5 | — |
+| 9 | HITL progresivo (human-on-the-loop para bajo riesgo) | §2 Multi-agent | ⚠️ Parcial (F4.5 solo checkpoints) | **F7.3** |
+| 10 | Métricas de context usage por sesión | §3 Context Eng. | ❌ | **F7.4** |
+| 11 | Generator-Evaluator pattern (loop iterativo) | §2 Multi-agent | ❌ | **F7.5** |
+| 12 | Scratchpad enforcement per-feature | §3 Context Eng. | ❌ (template existe, no se enforce) | **F7.6** |
+| 13 | Progressive disclosure en skills | §5 Ecosistema | ⚠️ Parcial (frontmatter existe) | **F7.7** |
+| 14 | Writer/Reviewer pattern (sesiones separadas) | §5 Ecosistema | ❌ | **F7.8** |
+| 15 | Human-on-the-loop reemplaza human-in-the-loop (bajo riesgo) | §2 Tendencias 2026 | ❌ | Incluido en **F7.3** |
+| 16 | Cost optimization de agentes como first-class concern | §2 Tendencias 2026 | ❌ | **F7.9** |
+| 17 | Scratchpad real + persistencia externa (no forzar al modelo a recordar) | §3 Context Eng. | ⚠️ scratchpad.md template existe | Incluido en **F7.6** |
+| 18 | Comparison con GitHub Spec Kit (clarify workaround) | §1 SDD | ❌ (no action needed, informational) | — |
+| 19 | Comparison con AWS Kiro (formal specs en IDE) | §1 SDD | ❌ (informational) | — |
+| 20 | A2A/ACP protocolos emergentes | §2 Protocolos | ❌ (future-looking) | **F7.10** |
+
+**Resumen**: 10 subfases nuevas en FASE 7. 8 ya cubiertas. 2 informacionales (no accionables).
+
+---
+
+### F7.1 — Reducir CLAUDE.md a < 200 líneas
+
+- **Fuente**: §3 Context Engineering — HumanLayer, Anthropic docs
+- **Qué**: CLAUDE.md tiene ~300 líneas. Recomendación industria: < 200 líneas. "Para cada línea, pregunta: ¿eliminarla causaría errores?"
+- **Acción**:
+  1. Auditar cada sección de CLAUDE.md con el test "¿eliminarla causa errores?"
+  2. Mover tablas detalladas (Agents, Skills, Context Activation Model) a `core/docs/REFERENCE_TABLES.md`
+  3. En CLAUDE.md dejar solo: flow diagram, core commands (1 línea cada uno), key patterns (bullets), state management (1 párrafo), link a reference docs
+  4. Verificar que el plugin sigue funcionando con el CLAUDE.md reducido
+- **Archivos**: `CLAUDE.md`, `core/docs/REFERENCE_TABLES.md` (NUEVO)
+- **Tamaño**: ~100 líneas eliminadas de CLAUDE.md
+- **Métrica**: CLAUDE.md < 200 líneas
+
+### F7.2 — Documentar patrón Plan-and-Execute en providers.yaml
+
+- **Fuente**: §2 Multi-agent — Google ADK, UiPath
+- **Qué**: Actualmente todo usa el mismo modelo. El patrón Plan-and-Execute sugiere: modelo grande planifica, modelo pequeño ejecuta tareas repetitivas
+- **Acción**:
+  1. Añadir sección en `core/docs/CAPABILITY_PROVIDERS.md`: "Plan-and-Execute Pattern"
+  2. Documentar cuándo aplicar: planning phases → modelo grande (opus/sonnet); implementación mecánica → modelo rápido (haiku)
+  3. Añadir campo opcional `execution_model` en providers.yaml para permitir override
+  4. **NO cambiar el comportamiento por defecto** — solo documentar la opción
+- **Archivos**: `core/docs/CAPABILITY_PROVIDERS.md`, `core/providers.yaml`
+- **Tamaño**: ~20 líneas añadidas
+- **Nota**: Solo documentación. La implementación real depende del SDK del usuario
+
+### F7.3 — Implementar HITL progresivo (risk-based)
+
+- **Fuente**: §2 Multi-agent — Deloitte, Leanware; Tendencias 2026
+- **Qué**: F4.5 añadió checkpoints fijos entre fases. Pero la industria recomienda HITL variable según riesgo:
+  - **Bajo riesgo** (refactoring, docs): human-on-the-loop (notificar, no bloquear)
+  - **Medio riesgo** (nuevas features): human-in-the-loop (checkpoint entre fases clave)
+  - **Alto riesgo** (security, DB, API pública): human-in-the-loop estricto (aprobación por paso)
+- **Acción**:
+  1. Añadir tabla de "Risk Tiers" en `framework_rules.md` §HITL (o crear nueva sección)
+  2. En route.md: clasificar el risk tier durante routing
+  3. En plan.md, work.md: adaptar checkpoints según risk tier asignado en routing
+  4. Documentar que low-risk puede auto-avanzar, high-risk requiere aprobación explícita
+- **Archivos**: `core/rules/framework_rules.md`, `commands/workflows/route.md`, `commands/workflows/plan.md`, `commands/workflows/work.md`
+- **Tamaño**: ~40 líneas añadidas (distribuidas)
+
+### F7.4 — Añadir métricas de context usage
+
+- **Fuente**: §3 Context Engineering — Anthropic
+- **Qué**: No hay visibilidad de cuánto contexto consume cada fase/skill/agent
+- **Acción**:
+  1. Añadir en `core/docs/CONTEXT_ENGINEERING.md` sección "Context Budget Tracking"
+  2. Definir budget estimado por fase: Route (~2K tokens), Plan (~15K), Work (~20K), Review (~10K), Compound (~5K)
+  3. Añadir instrucción en work.md: "Al inicio de cada task, registrar en scratchpad.md: `Context: ~{X}K tokens estimated`"
+  4. Añadir en compound.md: "Registrar context usage total del feature en retrospective"
+- **Archivos**: `core/docs/CONTEXT_ENGINEERING.md`, `commands/workflows/work.md`, `commands/workflows/compound.md`
+- **Tamaño**: ~25 líneas añadidas
+
+### F7.5 — Documentar Generator-Evaluator pattern
+
+- **Fuente**: §2 Multi-agent — SitePoint, patrones agentic 2026
+- **Qué**: BCP es correctivo (arregla errores). Generator-Evaluator es proactivo (genera → evalúa → mejora antes de entregar). Es complementario al Reflection Pattern (F5.4) pero más estructurado
+- **Acción**:
+  1. Añadir en `core/docs/CAPABILITY_PROVIDERS.md` sección "Generator-Evaluator Pattern"
+  2. Documentar aplicación: work.md genera código → antes de commit, evalúa contra acceptance criteria → si gaps, genera versión mejorada → máximo 2 iteraciones
+  3. Diferenciar de BCP: BCP = corregir errores post-test. G-E = mejorar calidad pre-test
+  4. En work.md: añadir referencia al pattern como paso opcional antes de TDD cycle
+- **Archivos**: `core/docs/CAPABILITY_PROVIDERS.md`, `commands/workflows/work.md`
+- **Tamaño**: ~25 líneas añadidas
+
+### F7.6 — Enforcer scratchpad per-feature
+
+- **Fuente**: §3 Context Engineering — Anthropic (persistencia externa)
+- **Qué**: El template `scratchpad.md` existe pero no se enforce su uso. La industria dice: "no forzar al modelo a recordar todo — externalizar a archivos"
+- **Acción**:
+  1. En route.md: al crear tasks.md, también crear `scratchpad.md` desde template
+  2. En work.md: hacer obligatorio escribir hipótesis y notas en scratchpad.md (no en conversación)
+  3. En plan.md: escribir assumptions no validadas en scratchpad.md
+  4. Añadir en framework_rules.md: "Scratchpad is MANDATORY for features with >3 tasks"
+- **Archivos**: `commands/workflows/route.md`, `commands/workflows/work.md`, `commands/workflows/plan.md`, `core/rules/framework_rules.md`
+- **Tamaño**: ~20 líneas añadidas
+
+### F7.7 — Mejorar progressive disclosure en skills
+
+- **Fuente**: §5 Ecosistema — Anthropic, tendencias 2026
+- **Qué**: Skills tienen frontmatter pero no hay "discovery" — el usuario debe saber que existen. La industria recomienda skills como "knowledge packs" descubribles
+- **Acción**:
+  1. Añadir en `commands/workflows/help.md` sección "Available Skills by Category" con descripción de 1 línea cada uno
+  2. En route.md: al clasificar, sugerir skills relevantes (ej: "esta feature podría beneficiarse de `solid-analyzer`")
+  3. Verificar que todos los skills tienen frontmatter consistente: `name`, `description`, `context`, `triggers`
+- **Archivos**: `commands/workflows/help.md`, `commands/workflows/route.md`, skills/*.md (verificar frontmatter)
+- **Tamaño**: ~30 líneas añadidas
+
+### F7.8 — Documentar Writer/Reviewer pattern (sesiones separadas)
+
+- **Fuente**: §5 Ecosistema — Tendencias 2026
+- **Qué**: El pattern Writer/Reviewer usa sesiones separadas para que el reviewer tenga contexto fresco (no contaminado por las decisiones del writer)
+- **Acción**:
+  1. Documentar en `core/docs/CONTEXT_ENGINEERING.md` sección "Writer/Reviewer Isolation"
+  2. Recomendar: para features críticas, ejecutar `/workflows:review` en sesión nueva (no continuación de work)
+  3. Documentar cómo el reviewer recupera contexto: lee tasks.md + specs.md + git diff (no conversación previa)
+  4. **NO hacer obligatorio** — solo documentar como best practice para features high-risk
+- **Archivos**: `core/docs/CONTEXT_ENGINEERING.md`, `commands/workflows/review.md`
+- **Tamaño**: ~15 líneas añadidas
+
+### F7.9 — Añadir cost-awareness como concern de primera clase
+
+- **Fuente**: §2 Multi-agent — Tendencias 2026 (cost optimization de agentes como cloud cost)
+- **Qué**: No hay visibilidad del "costo" de usar el plugin (tokens, calls, etc.)
+- **Acción**:
+  1. Añadir en `core/docs/CONTEXT_ENGINEERING.md` sección "Cost Awareness"
+  2. Documentar: fork agents consumen tokens adicionales; cada MCP tool description consume tokens idle; compaction agresiva ayuda en sesiones largas
+  3. Añadir recomendación en CLAUDE.md (1 línea): "Disable unused MCP servers to reduce idle token cost"
+  4. En compound.md retrospective: registrar si el feature tuvo problemas de context/cost
+- **Archivos**: `core/docs/CONTEXT_ENGINEERING.md`, `CLAUDE.md`, `commands/workflows/compound.md`
+- **Tamaño**: ~20 líneas añadidas
+
+### F7.10 — Documentar protocolos emergentes (A2A, ACP) como future-ready
+
+- **Fuente**: §2 Protocolos — Google A2A, IBM ACP
+- **Qué**: MCP ya está soportado. A2A (Google, peer-to-peer entre agentes) y ACP (IBM, governance) son emergentes en 2026
+- **Acción**:
+  1. Añadir en `core/docs/MCP_INTEGRATION.md` sección "Emerging Protocols (2026)"
+  2. Documentar A2A y ACP: qué son, cuándo serían relevantes, qué cambiaría en el plugin
+  3. **NO implementar** — solo documentar para estar "future-ready"
+- **Archivos**: `core/docs/MCP_INTEGRATION.md`
+- **Tamaño**: ~15 líneas añadidas
+
+---
+
+### F7.11 — Verificación final de FASE 7
+
+- **Qué**: Verificar que todas las best practices están mapeadas y documentadas
+- **Acción**: Cross-check 03-best-practices.md vs plan. Confirmar 0 recomendaciones huérfanas
+- **Archivos**: ninguno (solo verificación)
+
+---
+
+## Dependencias entre Fases (actualizado)
+
+```
+Fase 1 (refs rotas) ──→ Fase 3 (reducción contexto, especialmente F3.5)
+Fase 2 (tasks.md)   ──→ Fase 4 (routing necesita saber formato de tasks.md)
+Fase 3 (reducción)  ──→ Fase 5 (añadir reflection a plan.md ya simplificado)
+Fase 5 (SOLID)      ──→ Fase 6 (test contracts + security necesitan SOLID resuelto)
+Fase 3 (reducción)  ──→ Fase 7.1 (CLAUDE.md ya reducido en F3, ahora target < 200)
+Fase 4 (HITL)       ──→ Fase 7.3 (HITL progresivo extiende F4.5)
+Fase 5 (reflection) ──→ Fase 7.5 (Generator-Evaluator complementa reflection)
+Fase 6 (funcional)  ──→ Fase 7.6 (scratchpad enforcement usa route.md ya actualizado)
+
+Orden: F1 → F2 → F3 → F4 → F5 → F6 → F7
+        ✅    ✅    ✅    ✅    ✅    ✅   PENDIENTE
+
+Dentro de F7, independientes entre sí (pueden ejecutarse en cualquier orden):
+  F7.1 ← depende de F3 (✅ done)
+  F7.2 ← independiente
+  F7.3 ← depende de F4 (✅ done)
+  F7.4 ← independiente
+  F7.5 ← depende de F5 (✅ done)
+  F7.6 ← depende de F6 (✅ done)
+  F7.7 ← independiente
+  F7.8 ← independiente
+  F7.9 ← independiente
+  F7.10 ← independiente
+```
+
+---
+
+*Plan actualizado el 2026-03-05 con FASE 7 (best practices de la industria pendientes de incorporar).*
+*Basado en análisis comprensivo del codebase y mejores prácticas de la industria 2025-2026.*

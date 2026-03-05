@@ -2,7 +2,7 @@
 
 **Última actualización**: 2026-03-05
 **Plan**: `04-improvement-plan.md`
-**Estado**: ✅ COMPLETADO — 39/39 subfases
+**Estado**: 🔄 EN PROGRESO — 39/50 subfases (F1-F6 DONE, F7 PENDIENTE)
 
 ---
 
@@ -16,8 +16,9 @@
 | F4 | Clarificación de Flujo y HITL | 6 | DONE | 6/6 |
 | F5 | Coherencia y Calidad | 6 | DONE | 6/6 |
 | F6 | Mejoras Funcionales | 7 | DONE | 7/7 |
+| **F7** | **Best Practices Industria (03-best-practices.md)** | **11** | **PENDING** | **0/11** |
 
-**Total**: 39 subfases | **Completadas**: 39/39
+**Total**: 50 subfases | **Completadas**: 39/50 | **Pendientes**: 11 (FASE 7)
 
 ---
 
@@ -139,4 +140,30 @@
 
 ---
 
-*Tracker finalizado el 2026-03-05. Plan de mejoras COMPLETADO.*
+## FASE 7: Best Practices de la Industria (03-best-practices.md)
+
+| ID | Subfase | Fuente (sección best practices) | Archivos | Estado | Commit |
+|----|---------|--------------------------------|----------|--------|--------|
+| F7.1 | Reducir CLAUDE.md a < 200 líneas | §3 Context Engineering | CLAUDE.md, REFERENCE_TABLES.md (NUEVO) | PENDING | — |
+| F7.2 | Documentar Plan-and-Execute pattern | §2 Multi-agent (Google ADK) | CAPABILITY_PROVIDERS.md, providers.yaml | PENDING | — |
+| F7.3 | HITL progresivo (risk-based) | §2 Multi-agent (Deloitte) | framework_rules.md, route.md, plan.md, work.md | PENDING | — |
+| F7.4 | Métricas de context usage | §3 Context Engineering (Anthropic) | CONTEXT_ENGINEERING.md, work.md, compound.md | PENDING | — |
+| F7.5 | Generator-Evaluator pattern | §2 Multi-agent (SitePoint) | CAPABILITY_PROVIDERS.md, work.md | PENDING | — |
+| F7.6 | Enforcer scratchpad per-feature | §3 Context Engineering (Anthropic) | route.md, work.md, plan.md, framework_rules.md | PENDING | — |
+| F7.7 | Progressive disclosure en skills | §5 Ecosistema (Anthropic) | help.md, route.md, skills/*.md | PENDING | — |
+| F7.8 | Writer/Reviewer pattern (sesiones separadas) | §5 Ecosistema | CONTEXT_ENGINEERING.md, review.md | PENDING | — |
+| F7.9 | Cost-awareness como first-class concern | §2 Tendencias 2026 | CONTEXT_ENGINEERING.md, CLAUDE.md, compound.md | PENDING | — |
+| F7.10 | Protocolos emergentes (A2A, ACP) future-ready | §2 Protocolos | MCP_INTEGRATION.md | PENDING | — |
+| F7.11 | Verificación final FASE 7 | — | — | PENDING | — |
+
+---
+
+## Trazabilidad: Best Practices → Plan
+
+> Ver tabla completa en `04-improvement-plan.md` sección "Trazabilidad: Best Practices → Plan"
+>
+> Resumen: 20 hallazgos totales → 8 ya cubiertos (F1-F6) + 10 nuevos (F7) + 2 informacionales
+
+---
+
+*Tracker actualizado el 2026-03-05. FASE 7 añadida — best practices de la industria pendientes de ejecutar.*
