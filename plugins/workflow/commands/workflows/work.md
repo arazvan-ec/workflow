@@ -367,13 +367,13 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 4. ✅ SOLID: Verify code follows SOLID patterns from design.md
 ```
 
-**SOLID Verification During Implementation**:
+**SOLID Verification During Implementation** (apply SOLID Verdict Matrix from `core/architecture-reference.md`):
 
 ```bash
 # After each logical unit, verify SOLID compliance
 /workflow-skill:solid-analyzer --mode=verify --path=src/modified-path --design=design.md
 
-# Must be COMPLIANT. If NEEDS_WORK, refactor before proceeding. If NON_COMPLIANT, enter BCP correction loop.
+# COMPLIANT → proceed. NEEDS_WORK → refactor before proceeding. NON_COMPLIANT → BCP correction loop.
 ```
 
 ### Step 6: Bounded Correction Protocol + Diagnostic Escalation

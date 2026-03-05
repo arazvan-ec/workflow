@@ -293,7 +293,7 @@ Avoid: implementing trends because they're fashionable, adding tools without con
 - Their own role definition
 - All rules files
 - Workflow definitions
-- Feature states (`tasks.md`)
+- Workflow State (`tasks.md`)
 - Code relevant to their role
 
 ### Writing — Each role can only write to:

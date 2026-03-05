@@ -131,7 +131,7 @@ npm run test:e2e -- feature-name
    git log --oneline | head -20
    # Expected: test commits before implementation commits
 
-2. **SOLID Design Implementation (CRITICAL)**:
+2. **SOLID Design Implementation (CRITICAL)** — apply SOLID Verdict Matrix from `core/architecture-reference.md`:
 
    > QA verifies that the SOLID design from design.md was IMPLEMENTED,
    > NOT whether the design itself is correct (that's Phase 3's responsibility).
@@ -245,6 +245,15 @@ Criterion 3: "User redirected after registration"
 **Assigned To**: Backend Engineer | Frontend Engineer
 **Priority**: P0 | P1 | P2
 ```
+
+## Pre-Verdict Reflection
+
+Before issuing a verdict, pause and self-question:
+1. Did I miss any untested edge case that could cause production issues?
+2. Am I approving because tests pass, or because the implementation is actually correct?
+3. Are there areas I reviewed superficially that deserve deeper inspection?
+
+If any answer raises doubt, re-examine that area before deciding.
 
 ## Decision Criteria
 
