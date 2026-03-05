@@ -8,33 +8,12 @@ argument_hint: <feature-name> [--workflow=default|task-breakdown] [--show-impact
 
 The planning phase is the foundation of compound engineering. Invest 80% of effort here.
 
-## Flow Guard (prerequisite check)
+## Prerequisites
 
-Before executing, verify the flow has been followed:
-
-```
-PREREQUISITE CHECK:
-  1. Was this request routed via /workflows:route?
-     Check: Does openspec/changes/{slug}/00_routing.md exist on disk?
-     - YES (file exists): Continue to planning. Load routing context from file.
-     - NO (file missing) but routing context is visible in current conversation:
-       Write 00_routing.md retroactively from conversation context, then continue.
-     - NO (file missing) and no routing context in conversation:
-       STOP. Run /workflows:route first, then return here.
-
-  2. Was this feature shaped? (check if 01_shaped_brief.md exists)
-     - YES: Read the Shaping Progress section. All phases must be COMPLETED.
-       If any phase is not COMPLETED → STOP. Run /workflows:shape --continue first.
-     - NO: OK, shaping was not required for this feature. Proceed.
-
-  3. If tasks.md exists in openspec/changes/{slug}/ for this feature, is this a continuation?
-     - YES (planner = IN_PROGRESS): Resume planning from last checkpoint
-     - YES (planner = COMPLETED): Plan already exists. Confirm re-planning with user.
-     - NO: Fresh start, proceed normally.
-
-  If check 1 fails, do NOT proceed. Route first.
-  If check 2 fails, do NOT proceed. Complete shaping first.
-```
+Read `openspec/changes/{slug}/` and verify:
+- `00_routing.md` exists (or routing context visible in conversation → write it retroactively). If missing: STOP → `/workflows:route` first.
+- If `01_shaped_brief.md` exists: all Shaping Progress phases must be COMPLETED. If not: STOP → `/workflows:shape --continue`.
+- If `tasks.md` exists with planner IN_PROGRESS: resume from last checkpoint. If planner COMPLETED: confirm re-planning with user.
 
 ## Usage
 

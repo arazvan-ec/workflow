@@ -8,35 +8,12 @@ argument_hint: <feature-name> [--mode=<layers|stacks>] [--layer=<layer>] [--stac
 
 Execute implementation with the compound engineering principle: make each unit of work easier.
 
-## Flow Guard (prerequisite check)
+## Prerequisites
 
-Before executing, verify the flow has been followed:
-
-```
-PREREQUISITE CHECK:
-  1. Does tasks.md exist for this feature?
-     - NO: STOP. Run /workflows:plan first.
-
-  2. Is planner status = COMPLETED in tasks.md?
-     - NO (PENDING or IN_PROGRESS): STOP. Planning not finished. Run /workflows:plan.
-     - NO (BLOCKED): STOP. Planning is blocked. Resolve blocker first.
-     - YES: Continue.
-
-  3. Do all required plan files exist on disk?
-     Check: openspec/changes/{slug}/proposal.md
-     Check: openspec/changes/{slug}/specs.md
-     Check: openspec/changes/{slug}/design.md
-     - ALL exist: Continue.
-     - ANY missing: STOP. Planning output incomplete. Run /workflows:plan to regenerate.
-
-  4. Does the role's status allow starting work?
-     - PENDING: OK, start work (set to IN_PROGRESS)
-     - IN_PROGRESS: OK, resume work from last checkpoint
-     - COMPLETED: Work already done. Confirm re-work with user.
-     - BLOCKED: Show blocker details, ask user how to proceed.
-
-  If checks 1, 2, or 3 fail, do NOT proceed. Plan first.
-```
+Read `openspec/changes/{slug}/tasks.md` and verify:
+- Plan status = COMPLETED. If not: STOP → `/workflows:plan` first.
+- All plan files exist: `proposal.md`, `specs.md`, `design.md`. If any missing: STOP → `/workflows:plan`.
+- Work status: PENDING → start (set IN_PROGRESS). IN_PROGRESS → resume from last checkpoint. COMPLETED → confirm re-work. BLOCKED → show details, ask user.
 
 ## Automatic Operations (built into this command)
 

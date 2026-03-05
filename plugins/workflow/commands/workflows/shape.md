@@ -8,26 +8,11 @@ argument_hint: <feature-name> [--mode=full|quick] [--continue]
 
 The shaping phase bridges the gap between a vague idea and a detailed plan. It forces you to understand the problem before committing to a solution.
 
-## Flow Guard (prerequisite check)
+## Prerequisites
 
-Before executing, verify the flow has been followed:
-
-```
-PREREQUISITE CHECK:
-  1. Was this request routed via /workflows:route?
-     Check: Does openspec/changes/{slug}/00_routing.md exist on disk?
-     - YES (file exists): Continue to shaping. Load routing context from file.
-     - NO (file missing) but routing context is visible in current conversation:
-       Write 00_routing.md retroactively from conversation context, then continue.
-     - NO (file missing) and no routing context in conversation:
-       STOP. Run /workflows:route first, then return here.
-
-  2. If openspec/changes/{slug}/01_shaped_brief.md exists, is this a continuation?
-     - YES + --continue flag: Read the Shaping Progress section in 01_shaped_brief.md,
-       resume from last completed phase.
-     - YES + no --continue flag: Shaped brief already exists. Confirm re-shaping with user.
-     - NO: Fresh start, proceed normally.
-```
+Read `openspec/changes/{slug}/` and verify:
+- `00_routing.md` exists (or routing context visible in conversation → write it retroactively). If missing: STOP → `/workflows:route` first.
+- If `01_shaped_brief.md` exists + `--continue`: resume from last completed phase. If exists without `--continue`: confirm re-shaping with user.
 
 ## Usage
 

@@ -8,26 +8,11 @@ argument_hint: <feature-name> [--agent=<security|performance|architecture|code>]
 
 Comprehensive review phase using specialized review agents.
 
-## Flow Guard (prerequisite check)
+## Prerequisites
 
-Before executing, verify the flow has been followed:
-
-```
-PREREQUISITE CHECK:
-  1. Does tasks.md exist for this feature?
-     - NO: STOP. This feature has not been planned or worked on.
-
-  2. Is the implementation work COMPLETED?
-     - Check backend status = COMPLETED (if applicable)
-     - Check frontend status = COMPLETED or WAITING_API (if applicable)
-     - If neither is COMPLETED: STOP. Run /workflows:work first.
-
-  3. Is QA status already APPROVED?
-     - YES: Review already passed. Confirm re-review with user.
-     - NO: Proceed with review.
-
-  If checks 1 or 2 fail, do NOT proceed.
-```
+Read `openspec/changes/{slug}/tasks.md` and verify:
+- Work status = COMPLETED. If not: STOP → `/workflows:work` first.
+- QA status: if already APPROVED → confirm re-review with user. Otherwise → proceed.
 
 ## Automatic Operations (built into this command)
 

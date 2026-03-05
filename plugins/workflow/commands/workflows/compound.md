@@ -43,22 +43,10 @@ Feature Timeline:
 
 This awareness helps future planning account for the **real complexity**, not just the easy 70%.
 
-## Flow Guard (prerequisite check)
+## Prerequisites
 
-Before executing, verify the flow has been followed:
-
-```
-PREREQUISITE CHECK:
-  1. Does tasks.md exist for this feature?
-     - NO: STOP. This feature has not been through the workflow.
-
-  2. Is QA status = APPROVED in tasks.md?
-     - NO (REJECTED): STOP. Review was rejected. Fix issues and re-review first.
-     - NO (other): STOP. Review has not been completed. Run /workflows:review first.
-     - YES: Proceed with compound capture.
-
-  If either check fails, do NOT proceed.
-```
+Read `openspec/changes/{slug}/tasks.md` and verify:
+- QA status = APPROVED. If REJECTED: STOP → fix issues and re-review. If not reviewed: STOP → `/workflows:review` first.
 
 ## Usage
 
