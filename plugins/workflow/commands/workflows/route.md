@@ -347,8 +347,13 @@ mkdir -p "openspec/changes/${SLUG}"
 #    Fill in: classification, assumptions, success criteria, recommended workflow
 #    Save as: openspec/changes/${SLUG}/00_routing.md
 
-# 3. Verify the file was written
-ls -la "openspec/changes/${SLUG}/00_routing.md"
+# 3. Create initial tasks.md from template (core/templates/tasks-template.md)
+#    Fill in: feature name, slug, timestamp
+#    Set Route phase to IN_PROGRESS, all others PENDING
+#    Save as: openspec/changes/${SLUG}/tasks.md
+
+# 4. Verify files were written
+ls -la "openspec/changes/${SLUG}/00_routing.md" "openspec/changes/${SLUG}/tasks.md"
 ```
 
 **Why persist?** Routing decisions (classification, assumptions, success criteria) are lost if context is compacted or the session restarts. The `00_routing.md` file ensures downstream commands (`/workflows:plan`, `/workflows:shape`) can recover routing context from disk.
