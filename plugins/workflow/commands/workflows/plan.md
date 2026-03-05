@@ -14,6 +14,7 @@ Read `openspec/changes/{slug}/` and verify:
 - `00_routing.md` exists (or routing context visible in conversation → write it retroactively). If missing: STOP → `/workflows:route` first.
 - If `01_shaped_brief.md` exists: all Shaping Progress phases must be COMPLETED. If not: STOP → `/workflows:shape --continue`.
 - If `tasks.md` exists with planner IN_PROGRESS: resume from last checkpoint. If planner COMPLETED: confirm re-planning with user.
+- If `proposal.md` contains `## Review Feedback` (DESIGN_FEEDBACK or SPEC_FEEDBACK from `/workflows:review`): re-execute affected phase (Phase 2 for SPEC_FEEDBACK, Phase 3 for DESIGN_FEEDBACK) incorporating the feedback.
 
 ## Usage
 
