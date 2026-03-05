@@ -18,30 +18,9 @@ Without it, you're just doing work. With it, work builds on work.
 
 ## The 70% Problem Awareness
 
-> "AI helps you reach 70% quickly, but the remaining 30% is where real complexity lives."
-> — Addy Osmani, Beyond Vibe Coding
+> "AI helps you reach 70% quickly, but the remaining 30% is where real complexity lives." — Addy Osmani
 
-When capturing learnings, pay special attention to **where the 70% ended and the 30% began**:
-
-```
-Feature Timeline:
-├── 0-70%: Fast progress (AI excels)
-│   └── Scaffolding, CRUD, happy paths
-│
-└── 70-100%: Slow progress (Human expertise needed)
-    ├── Edge cases
-    ├── Error handling
-    ├── Security hardening
-    └── Integration issues
-```
-
-**Questions to answer in compound capture:**
-- Where did progress slow down? (The 70% boundary)
-- What caused the "two-step-back" pattern? (Fixes introducing bugs)
-- What would have prevented the slowdown if known earlier?
-- What should future specs include to avoid this?
-
-This awareness helps future planning account for the **real complexity**, not just the easy 70%.
+Capture where the 70% boundary was (scaffolding/CRUD/happy paths = fast) and what made the 30% hard (edge cases, security, integration). This helps future planning account for real complexity.
 
 ## Prerequisites
 
@@ -77,30 +56,9 @@ Run after:
 
 ## What This Command Does
 
-### Execution Strategy: Parallel Subagents
+### Execution Strategy
 
-This command can launch multiple specialized subagents IN PARALLEL to maximize efficiency:
-
-**Parallel Subagents (Optional - for thorough documentation):**
-
-| Subagent | Task | Returns |
-|----------|------|---------|
-| **Context Analyzer** | Extract feature context, problem type, components | YAML frontmatter skeleton |
-| **Solution Extractor** | Analyze investigation steps, find root cause | Solution content block |
-| **Related Docs Finder** | Search docs/solutions/ for related documentation | Links and relationships |
-| **Prevention Strategist** | Develop prevention strategies, test cases | Prevention/testing content |
-| **Pattern Recognizer** | Identify reusable patterns and anti-patterns | Pattern documentation |
-
-**Launch with:**
-```
-Task general-purpose: "Analyze the conversation history for this feature.
-Extract: problem type, component affected, symptoms, and root cause.
-Return YAML frontmatter for docs/solutions/"
-
-Task general-purpose: "Search docs/solutions/ for related documentation.
-Find: cross-references, similar issues, related patterns.
-Return: list of related files and suggested links"
-```
+Optionally launch parallel subagents (Context Analyzer, Solution Extractor, Related Docs Finder, Prevention Strategist, Pattern Recognizer) for thorough documentation.
 
 **Sequential Steps (Main Flow):**
 
@@ -119,305 +77,66 @@ git diff --stat main...feature/${FEATURE_ID}
 
 ### Step 2: Extract Patterns
 
-Identify what went well:
-
-```markdown
-## Patterns Identified
-
-### Pattern 1: Email Validation Value Object
-**Where**: src/Domain/ValueObject/Email.php
-**Why it worked**: Encapsulates validation, immutable, reusable
-**Recommendation**: Use for all email fields in future entities
-
-### Pattern 2: TDD for Use Cases
-**Where**: tests/Application/CreateUserUseCaseTest.php
-**Why it worked**: Found 3 bugs during Red phase before implementation
-**Recommendation**: Always write use case tests first
-```
+Identify what went well. For each pattern: where (file path), why it worked, recommendation for reuse.
 
 ### Step 3: Identify Anti-Patterns & The 70% Boundary
 
-Document what should be avoided AND where progress slowed:
+For each anti-pattern: where, what happened, cost, rule to prevent.
 
-```markdown
-## Anti-Patterns Found
+**70% Boundary Analysis**: Document where progress slowed (milestone), what made the 30% hard (edge cases, security, integration), what would have helped, and prevention for future features.
 
-### Anti-Pattern 1: Skipping Integration Tests
-**Where**: Initial implementation had no API tests
-**What happened**: 500 error found only during QA
-**Cost**: 2 extra iterations to fix
-**Rule**: Always write integration tests for new endpoints
-
-### Anti-Pattern 2: Incomplete API Contract
-**Where**: proposal.md missing error response formats
-**What happened**: Frontend had to guess error handling
-**Cost**: 3 back-and-forth messages to clarify
-**Rule**: Always specify all error responses in contracts
-
-## The 70% Boundary Analysis
-
-### Where did the 70% end?
-**Milestone**: Basic CRUD working, happy path tests passing
-**Time spent**: 2 hours (40% of total)
-
-### What made the 30% hard?
-1. **Edge case**: Email already exists scenario
-   - Not in original spec
-   - Required new validation logic
-   - Added 1 hour
-
-2. **Security**: Password hashing integration
-   - bcrypt config not documented
-   - Trial and error with rounds
-   - Added 45 minutes
-
-3. **Integration**: Frontend form validation mismatch
-   - Backend and frontend had different rules
-   - Required sync meeting
-   - Added 30 minutes
-
-### What would have helped?
-- [ ] Spec should include ALL error scenarios upfront
-- [ ] Security requirements should reference existing patterns
-- [ ] Validation rules should be in shared contract
-
-### Prevention for future features
-- Add "Error Scenarios" section to spec template
-- Create validation rules library (shared between BE/FE)
-- Document security patterns in project_specific.md
-
-### Dimensional Learnings
-
-After feature completion, capture dimensional insights:
-
-1. **Dimensional accuracy**: Did the diagnostic (from `/workflows:discover`) correctly classify the project's dimensions for this feature?
-   - If YES: Diagnostic is reliable for this dimension
-   - If NO: Document what was wrong and why (e.g., "diagnostic said synchronous but feature required async")
-
-2. **Dimensional drift**: Did this feature change any dimension?
-   - New external API added? → `data_source_topology` may have changed
-   - New consumer platform? → `consumer_diversity` may have changed
-   - Async patterns introduced? → `concurrency_model` may have changed
-   - If any dimension changed → recommend running `/workflows:discover --refresh` to update diagnostic
-
-3. **Constraint effectiveness**: Were the dimensional constraints from design.md useful during implementation?
-   - Which constraints prevented bugs or bad patterns?
-   - Which constraints felt unnecessary or wrong?
-   - Feed back to improve constraint rules in `core/templates/api-architecture-diagnostic.yaml`
-```
+**Dimensional Learnings** (if architecture diagnostic exists):
+1. **Accuracy**: Did diagnostic correctly classify dimensions?
+2. **Drift**: Did this feature change any dimension? If so → recommend `/workflows:discover --refresh`
+3. **Constraint effectiveness**: Which constraints from design.md prevented bugs vs felt unnecessary?
 
 ### Step 3b: Update Agent Compound Memory
 
-After documenting anti-patterns and the 70% boundary, update `.ai/project/compound-memory.md`:
+Update `.ai/project/compound-memory.md` with this feature's data:
 
-```markdown
-# Update compound-memory.md with this feature's data
-
-## For each anti-pattern/pain point found in Step 3:
-
-1. Check if pain point already exists in compound-memory.md:
-   - EXISTS with `[SEED]` tag AND was accurate: PROMOTE → remove `[SEED]` tag, set real frequency
-   - EXISTS with `[SEED]` tag AND was NOT accurate: UPDATE → replace with real learning, mark `[SEED-UPDATED]`
-   - EXISTS (regular): Increment frequency (e.g., "2/5 features" → "3/6 features"), update severity if worse
-   - NEW: Add new entry under "Known Pain Points"
-
-2. For each successful pattern found in Step 2:
-   - EXISTS with `[SEED]` tag AND matched reality: PROMOTE → remove `[SEED]` tag, set real confidence
-   - EXISTS with `[SEED]` tag AND didn't match: UPDATE with real data, mark `[SEED-UPDATED]`
-   - EXISTS (regular): Increment reliability counter
-   - NEW: Add new entry under "Historical Patterns"
-
-3. Check for stale seed entries:
-   - If a `[SEED]` entry has NOT been referenced in 3+ features → mark `[SEED-STALE]`
-   - Stale entries are candidates for removal in future compound runs
-
-4. Recalculate Agent Calibration table:
-   - ≥2 related pain points for an agent → intensity = HIGH
-   - 1 related pain point → intensity = default + warning flag
-   - 0 related pain points → intensity = default
-   - ≥3 reliable good patterns → may LOWER intensity (team is consistent)
-
-5. If a pain point or pattern has been present for ≥5 features:
-   - PROMOTE to project rules (global_rules.md)
-   - Mark in memory: "[PROMOTED to global_rules.md on ${DATE}]"
-```
-
-The Agent Compound Memory specification is documented in Step 3b above.
+1. **Pain points**: Existing → increment frequency. `[SEED]` + accurate → PROMOTE (remove tag). `[SEED]` + wrong → UPDATE as `[SEED-UPDATED]`. New → add entry.
+2. **Patterns**: Same logic as pain points (promote/update/add).
+3. **Stale seeds**: `[SEED]` not referenced in 3+ features → mark `[SEED-STALE]`.
+4. **Agent Calibration**: ≥2 pain points → HIGH intensity. ≥3 reliable patterns → may LOWER intensity.
+5. **Promotion**: Pattern/pain point present ≥5 features → PROMOTE to `global_rules.md`.
 
 ### Step 3c: Enrich Architecture Profile
 
-After documenting patterns and anti-patterns, update the project's architecture profile:
-
-1. **Read** `openspec/specs/architecture-profile.yaml`
-   - If file does not exist → skip this step with note: "No architecture profile found. Run /workflows:discover --setup to generate one."
-
-2. **Update learned_patterns**: For each successful pattern identified in Step 2:
-   - If pattern not in `learned_patterns` → add with `confidence: low` and `source_features: [{current_feature}]`
-   - If pattern already exists → increment confidence (`low` → `medium` → `high`) and append current feature to `source_features`
-
-3. **Update learned_antipatterns**: For each anti-pattern discovered in Step 3:
-   - If anti-pattern not in `learned_antipatterns` → add with `frequency: 1` and `prevention` note
-   - If anti-pattern already exists → increment `frequency`
-
-4. **Update reference_files** (if applicable):
-   - If a new file exemplifies a principle better than the current reference → update `solid_relevance.{principle}.reference_good`
-   - If new reference files emerged for archetypes → update `conventions.reference_files`
-
-5. **Adjust quality_thresholds** (if applicable):
-   - If actual project data shows thresholds are wrong (e.g., average class LOC significantly different) → adjust accordingly
-
-6. **Write** updated `openspec/specs/architecture-profile.yaml`
+Update `openspec/specs/architecture-profile.yaml` (skip if missing — run `/workflows:discover --setup` first):
+- **learned_patterns**: Add new (confidence: low) or increment existing (low→medium→high)
+- **learned_antipatterns**: Add new (frequency: 1) or increment existing
+- **reference_files**: Update if better exemplars found
+- **quality_thresholds**: Adjust if actual data differs from defaults
 
 ### Step 4: Update Project Rules
 
-If patterns are generalizable, update rules:
-
-```markdown
-# Additions to global_rules.md
-
-## Email Validation (Added from user-authentication feature)
-All email fields must use the Email value object pattern:
-- Create src/Domain/ValueObject/Email.php
-- Validation in constructor
-- Immutable (no setters)
-- Reference: src/Domain/ValueObject/Email.php from user-auth feature
-```
+If patterns are generalizable, add them to `global_rules.md` with source feature reference.
 
 ### Step 5: Create Compound Log Entry
 
-Append to `.ai/project/compound_log.md`:
-
-```markdown
-# Compound Log
-
-## 2026-01-16: user-authentication
-
-### Summary
-Implemented user registration with email/password authentication.
-3 iterations to complete Domain layer, 2 for Application layer.
-
-### Time Investment
-- Planning: 2 hours (40%)
-- Implementation: 2 hours (40%)
-- Review: 30 minutes (10%)
-- Compound: 30 minutes (10%)
-- **Total**: 5 hours
-
-### Learnings Captured
-
-#### Patterns to Reuse
-1. **Email Value Object** - Use for all email validation
-   - File: src/Domain/ValueObject/Email.php
-   - Tests: tests/Unit/Domain/ValueObject/EmailTest.php
-
-2. **Registration Form Pattern** - Use for all auth forms
-   - File: src/components/RegistrationForm.tsx
-   - Tests: src/__tests__/RegistrationForm.test.tsx
-
-#### Rules Updated
-- global_rules.md: Added Email VO requirement
-- framework_rules.md: Added Value Object immutability check
-
-#### Anti-Patterns Documented
-1. Skipping integration tests → Added to QA checklist
-2. Incomplete API contracts → Added template requirement
-
-### Specs Updated
-Records what project specifications were created or modified by this feature.
-
-#### Entities
-| Entity | Action | File |
-|--------|--------|------|
-| User | CREATED | openspec/specs/entities/user.md |
-| EmailVO | CREATED | openspec/specs/entities/email-vo.md |
-
-#### API Contracts
-| Endpoint | Action | File |
-|----------|--------|------|
-| POST /api/users | CREATED | openspec/specs/api-contracts/users.md |
-| GET /api/users/{id} | CREATED | openspec/specs/api-contracts/users.md |
-
-#### Business Rules
-| Rule ID | Action | File |
-|---------|--------|------|
-| BR-AUTH-001 | CREATED | openspec/specs/business-rules/authentication.md |
-| BR-AUTH-002 | CREATED | openspec/specs/business-rules/authentication.md |
-| BR-AUTH-003 | CREATED | openspec/specs/business-rules/authentication.md |
-
-#### Spec Manifest Update
-- Timestamp: 2026-01-16T14:30:00Z
-- History entry added: Yes
-- Files affected: 5
-
-### Impact on Future Work
-- Next auth feature (password reset) can reuse:
-  - Email VO ✓
-  - Form pattern ✓
-  - Test structure ✓
-- **Project specs now reflect**: User entity, users API, auth rules
-- Estimated time savings: 30-40%
-
-### Questions for Future
-- Should we create a shared auth package?
-- Is JWT refresh token pattern documented?
-```
+Append to `.ai/project/compound_log.md` with sections:
+- **Summary**: What was implemented, iteration count
+- **Time Investment**: Per phase (planning, implementation, review, compound)
+- **Patterns to Reuse**: Pattern name, file paths, tests
+- **Rules Updated**: Which rule files changed
+- **Anti-Patterns Documented**: What happened, cost, prevention
+- **Specs Updated**: Tables of entities, API contracts, business rules created/modified (with action + file)
+- **Impact on Future Work**: Reusable assets, estimated time savings, open questions
 
 ### Step 6: Update Feature Templates
 
-If new templates discovered:
+If new templates discovered, save successful patterns as templates in `.ai/workflow/templates/`.
 
-```bash
-# Save successful patterns as templates
-cp openspec/changes/user-auth/proposal.md \
-   .ai/workflow/templates/proposal_auth_template.md
-```
+### Step 6b: Generate Next Feature Briefing
 
-### Step 6b: Generate Next Feature Briefing (Feedback Loop Output)
+Write `.ai/project/next-feature-briefing.md` (overwritten each compound run) with:
+- **Reusable Patterns**: Pattern, files, confidence, when to use
+- **Known Risks**: Risk, area, mitigation, source
+- **Recommended Test Strategy**: Integration test priorities, recurring edge cases
+- **Time Calibration**: Expected vs actual per phase
+- **70% Boundary Warning**: Where complexity started, areas to plan for
 
-After capturing all learnings, generate a concise briefing designed to be consumed by the NEXT feature's `/workflows:plan` (Step 0.0d) and `/workflows:work` (Step 3.5):
-
-```markdown
-# Next Feature Briefing
-# Generated by /workflows:compound after: ${FEATURE_ID}
-# Location: .ai/project/next-feature-briefing.md
-# This file is OVERWRITTEN by each compound run (latest feature wins)
-
-## Reusable Patterns (from ${FEATURE_ID})
-
-| Pattern | Files | Confidence | When to Use |
-|---------|-------|------------|-------------|
-| ${pattern_name} | ${file_paths} | ${high/medium/low} | ${context} |
-
-## Known Risks for Next Feature
-
-| Risk | Area | Mitigation | Source |
-|------|------|-----------|--------|
-| ${risk_description} | ${module/layer} | ${what_to_do} | ${which_anti_pattern} |
-
-## Recommended Test Strategy
-
-Based on what worked and what was missed in ${FEATURE_ID}:
-- Write integration tests EARLY for: ${areas_where_late_testing_hurt}
-- Edge cases to always check: ${recurring_edge_cases}
-- Test patterns that saved time: ${effective_test_approaches}
-
-## Time Calibration
-
-| Phase | Expected | Actual | Delta | Insight |
-|-------|----------|--------|-------|---------|
-| Planning | ${expected} | ${actual} | ${delta} | ${why} |
-| Implementation | ${expected} | ${actual} | ${delta} | ${why} |
-| Review | ${expected} | ${actual} | ${delta} | ${why} |
-
-## 70% Boundary Warning
-
-The 70% boundary for ${FEATURE_ID} was at: ${description}
-For similar features, plan for complexity in: ${areas}
-```
-
-**Write** this to `.ai/project/next-feature-briefing.md`.
-
-> **This is the forward-looking output of compound**: while compound_log.md is historical record, next-feature-briefing.md is actionable intelligence for the next feature. Plan reads it in Step 0.0d, Work reads it in Step 3.5.
+This is the forward-looking output — Plan reads it in Step 0.0d, Work in Step 3.5.
 
 ### Spec Flow Pipeline
 
@@ -435,253 +154,23 @@ Plan Phase 2 reads `openspec/specs/` as baseline context before generating featu
 
 ### Step 7: Spec Diff Analysis
 
-Compare feature specifications with existing project specs to identify changes:
+Compare feature specs (`specs.md`, `design.md`) with project baseline (`openspec/specs/`):
 
-```bash
-# Feature spec files to analyze
-FEATURE_SPECS="openspec/changes/${FEATURE_ID}/specs.md"
-FEATURE_SOLUTIONS="openspec/changes/${FEATURE_ID}/design.md"
+1. Parse feature specs → extract entities, acceptance criteria, business rules
+2. Parse feature solutions → extract patterns, API contracts, architectural decisions
+3. Compare with existing `openspec/specs/{entities,api-contracts,business-rules}/`
+4. Generate diff report: NEW / MODIFIED / UNCHANGED for each entity, endpoint, rule, pattern
 
-# Project spec directories
-PROJECT_ENTITIES="openspec/specs/entities/"
-PROJECT_API="openspec/specs/api-contracts/"
-PROJECT_RULES="openspec/specs/business-rules/"
-```
+### Step 8: Update Project Specs
 
-#### Spec Diff Report Generation
+Skip if `--update-specs=false`. Otherwise update project baseline:
 
-```markdown
-## Spec Diff Report: ${FEATURE_NAME}
+- **8.1 Entity Specs**: Create/update `openspec/specs/entities/{entity}.md` with YAML frontmatter (entity, version, source_feature), properties table, invariants, related entities
+- **8.2 API Contract Specs**: Create/update `openspec/specs/api-contracts/{group}.md` with endpoints, request/response schemas, error responses
+- **8.3 Business Rules Specs**: Create/update `openspec/specs/business-rules/{domain}.md` with rule IDs, enforcement, errors
+- **8.4 Spec Manifest**: Update `openspec/specs/spec-manifest.yaml` with entities, api_contracts, business_rules, and history entry
 
-### New Entities Detected
-| Entity | Source File | Status |
-|--------|-------------|--------|
-| User | specs.md:45 | NEW |
-| EmailVO | design.md:23 | NEW |
-
-### Modified Entities
-| Entity | Changes | Source |
-|--------|---------|--------|
-| Account | +passwordHash field | specs.md:67 |
-
-### New API Endpoints
-| Endpoint | Method | Source |
-|----------|--------|--------|
-| /api/users | POST | design.md:89 |
-| /api/users/{id} | GET | design.md:95 |
-
-### New Business Rules
-| Rule ID | Description | Source |
-|---------|-------------|--------|
-| BR-AUTH-001 | Email must be unique | specs.md:120 |
-| BR-AUTH-002 | Password min 8 chars | specs.md:125 |
-
-### New Patterns Identified
-| Pattern | Location | Reusability |
-|---------|----------|-------------|
-| Email Value Object | Domain/ValueObject | High |
-| JWT Token Strategy | Infrastructure/Auth | Medium |
-```
-
-#### Diff Analysis Process
-
-1. **Parse feature specs** (specs.md):
-   - Extract entity definitions
-   - Extract acceptance criteria
-   - Extract business rules
-
-2. **Parse feature solutions** (design.md):
-   - Extract implementation patterns
-   - Extract API contracts
-   - Extract architectural decisions
-
-3. **Compare with existing project specs**:
-   - Check `openspec/specs/entities/` for existing entities
-   - Check `openspec/specs/api-contracts/` for existing endpoints
-   - Check `openspec/specs/business-rules/` for existing rules
-
-4. **Generate diff report**:
-   - NEW: Entity/endpoint/rule not in project specs
-   - MODIFIED: Entity/endpoint/rule exists but changed
-   - UNCHANGED: Already in project specs
-
-### Step 8: Update Project Specs (NEW)
-
-Automatically update project specifications to reflect the new feature state:
-
-```bash
-# Skip if --update-specs=false
-if [[ "${UPDATE_SPECS}" == "false" ]]; then
-    echo "Skipping spec updates (--update-specs=false)"
-    exit 0
-fi
-```
-
-#### 8.1 Update Entity Specs
-
-```markdown
-# openspec/specs/entities/user.md (created/updated)
-
----
-entity: User
-version: 1.0.0
-created: 2026-01-16
-last_updated: 2026-01-16
-source_feature: user-authentication
----
-
-## Entity: User
-
-### Properties
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| id | UUID | Yes | Unique identifier |
-| email | Email (VO) | Yes | User email address |
-| passwordHash | string | Yes | Bcrypt hashed password |
-| createdAt | DateTime | Yes | Account creation timestamp |
-
-### Invariants
-- Email must be unique across all users
-- Password hash must use bcrypt with cost factor >= 12
-
-### Related Entities
-- Profile (1:1)
-- Session (1:N)
-```
-
-#### 8.2 Update API Contract Specs
-
-```markdown
-# openspec/specs/api-contracts/users.md (created/updated)
-
----
-api_group: users
-version: 1.0.0
-created: 2026-01-16
-last_updated: 2026-01-16
-source_feature: user-authentication
----
-
-## API Group: Users
-
-### POST /api/users
-**Purpose**: Create new user account
-
-**Request Body**:
-```json
-{
-  "email": "string (required)",
-  "password": "string (required, min 8 chars)"
-}
-```
-
-**Response 201**:
-```json
-{
-  "id": "uuid",
-  "email": "string",
-  "createdAt": "ISO8601"
-}
-```
-
-**Error Responses**:
-- 400: Validation error
-- 409: Email already exists
-```
-
-#### 8.3 Update Business Rules Specs
-
-```markdown
-# openspec/specs/business-rules/authentication.md (created/updated)
-
----
-domain: authentication
-version: 1.0.0
-created: 2026-01-16
-last_updated: 2026-01-16
-source_feature: user-authentication
----
-
-## Business Rules: Authentication
-
-### BR-AUTH-001: Unique Email
-- **Rule**: Each user email must be unique in the system
-- **Enforcement**: Database unique constraint + application validation
-- **Error**: "Email already registered"
-
-### BR-AUTH-002: Password Requirements
-- **Rule**: Password must be at least 8 characters
-- **Enforcement**: Application validation
-- **Error**: "Password must be at least 8 characters"
-
-### BR-AUTH-003: Password Hashing
-- **Rule**: Passwords must be hashed with bcrypt (cost >= 12)
-- **Enforcement**: Domain service
-- **Audit**: Security review required for changes
-```
-
-#### 8.4 Update Spec Manifest
-
-```yaml
-# openspec/specs/spec-manifest.yaml
-
-version: "1.0"
-last_updated: "2026-01-16T14:30:00Z"
-
-entities:
-  - name: User
-    file: entities/user.md
-    version: 1.0.0
-    created: 2026-01-16
-    source_feature: user-authentication
-
-api_contracts:
-  - group: users
-    file: api-contracts/users.md
-    version: 1.0.0
-    created: 2026-01-16
-    source_feature: user-authentication
-    endpoints:
-      - POST /api/users
-      - GET /api/users/{id}
-
-business_rules:
-  - domain: authentication
-    file: business-rules/authentication.md
-    version: 1.0.0
-    created: 2026-01-16
-    source_feature: user-authentication
-    rules:
-      - BR-AUTH-001
-      - BR-AUTH-002
-      - BR-AUTH-003
-
-history:
-  - date: 2026-01-16
-    feature: user-authentication
-    changes:
-      - "Added User entity"
-      - "Added users API contract"
-      - "Added authentication business rules"
-```
-
-#### Using the Spec-Merger Skill
-
-```bash
-# Invoke spec-merger skill for intelligent merging
-/workflow-skill:spec-merger \
-  --feature="${FEATURE_ID}" \
-  --source="openspec/changes/${FEATURE_ID}/" \
-  --target="openspec/specs/" \
-  --mode=merge  # merge | overwrite | dry-run
-```
-
-The spec-merger skill:
-1. Parses feature specs and solutions
-2. Identifies new/modified specs
-3. Merges changes preserving existing content
-4. Updates manifest with timestamps
-5. Creates backup before modifications
+Use `/workflow-skill:spec-merger --feature=${FEATURE_ID} --source=openspec/changes/${FEATURE_ID}/ --target=openspec/specs/ --mode=merge` for intelligent merging with backup.
 
 ## Compound Checklist
 
@@ -709,321 +198,37 @@ The spec-merger skill:
 
 ## Output
 
-After running compound:
+Display summary showing: patterns captured, anti-patterns documented, rules updated, templates created, spec diff analysis (new/modified entities/endpoints/rules), project specs updated (file list with CREATED/UPDATED), estimated time savings, and next feature recommendation.
 
-```
-Compound capture complete for: user-authentication
-
-Patterns captured: 3
-Anti-patterns documented: 2
-Rules updated: 2 files
-Templates created: 1
-
-═══════════════════════════════════════════════════════════════
-SPEC UPDATES (--update-specs=true)
-═══════════════════════════════════════════════════════════════
-
-Spec Diff Analysis:
-  New entities detected: 2
-  Modified entities: 1
-  New API endpoints: 2
-  New business rules: 3
-
-Project Specs Updated:
-  ✓ openspec/specs/entities/user.md (CREATED)
-  ✓ openspec/specs/entities/email-vo.md (CREATED)
-  ✓ openspec/specs/api-contracts/users.md (CREATED)
-  ✓ openspec/specs/business-rules/authentication.md (CREATED)
-  ✓ openspec/specs/spec-manifest.yaml (UPDATED)
-
-Spec Manifest History Entry:
-  - date: 2026-01-16
-  - feature: user-authentication
-  - changes: 4 files created, 1 file updated
-
-═══════════════════════════════════════════════════════════════
-
-Estimated future time savings: 30-40% on similar features
-
-Next feature recommendation:
-- Use Email VO pattern
-- Follow RegistrationForm pattern
-- Reference: .ai/project/compound_log.md
-- Reference: openspec/specs/ (updated specs)
-
-Compound log updated: .ai/project/compound_log.md
-```
-
-### Output with --specs-only
-
-```
-Spec-only update complete for: user-authentication
-
-═══════════════════════════════════════════════════════════════
-SPEC UPDATES
-═══════════════════════════════════════════════════════════════
-
-Spec Diff Analysis:
-  New entities detected: 2
-  Modified entities: 1
-  New API endpoints: 2
-  New business rules: 3
-
-Project Specs Updated:
-  ✓ openspec/specs/entities/user.md (CREATED)
-  ✓ openspec/specs/entities/email-vo.md (CREATED)
-  ✓ openspec/specs/api-contracts/users.md (CREATED)
-  ✓ openspec/specs/business-rules/authentication.md (CREATED)
-  ✓ openspec/specs/spec-manifest.yaml (UPDATED)
-
-Note: Pattern capture and other compound steps skipped (--specs-only mode)
-To run full compound: /workflows:compound user-authentication
-```
-
-### Output with --update-specs=false
-
-```
-Compound capture complete for: user-authentication
-
-Patterns captured: 3
-Anti-patterns documented: 2
-Rules updated: 2 files
-Templates created: 1
-
-Spec updates: SKIPPED (--update-specs=false)
-  To update specs manually: /workflows:compound user-authentication --specs-only
-
-Estimated future time savings: 30-40% on similar features
-
-Compound log updated: .ai/project/compound_log.md
-```
+Variations: `--specs-only` skips pattern capture. `--update-specs=false` skips spec updates.
 
 ## Compound Metrics
 
-Track compounding effect over time:
-
-```markdown
-## Compound Metrics
-
-| Feature | Planning | Implementation | Review | Compound | Total | Patterns |
-|---------|----------|----------------|--------|----------|-------|----------|
-| user-auth | 2h | 2h | 0.5h | 0.5h | 5h | 3 new |
-| password-reset | 1h | 1h | 0.5h | 0.5h | 3h | 2 reused |
-| profile-edit | 0.5h | 1h | 0.5h | 0.5h | 2.5h | 3 reused |
-
-**Trend**: Each feature takes less time as patterns compound.
-```
-
-## The Compound Effect
-
-```
-Feature 1: 5 hours + 3 patterns captured
-Feature 2: 3 hours (reused 2 patterns) + 2 new patterns
-Feature 3: 2.5 hours (reused 4 patterns) + 1 new pattern
-Feature 4: 2 hours (reused 5 patterns)
-
-Total: 12.5 hours for 4 features
-Without compounding: ~20 hours (5h each)
-Time saved: 37.5%
-```
+Track compounding effect: time per feature should decrease as patterns accumulate. Log per-feature metrics (planning, implementation, review, compound, total, patterns new/reused) in `compound_log.md`.
 
 ## State Update
 
-After compound capture:
-
-```markdown
-## Feature: user-authentication
-<!-- Format: core/templates/tasks-template.md — update Phase Status: all phases COMPLETED, Compound = COMPLETED -->
-**Status**: COMPLETED + COMPOUNDED
-**Compound Date**: 2026-01-16
-**Patterns Captured**: 3
-**Rules Updated**: 2
-
-### Compound Summary
-- Email VO pattern documented
-- RegistrationForm pattern documented
-- Integration test requirement added to rules
-- Estimated 30-40% time savings on similar features
-```
+Update `tasks.md` Phase Status: all phases COMPLETED, Compound = COMPLETED. Add Compound Summary with patterns captured, rules updated, estimated time savings.
 
 ## Best Practices
 
-1. **Run immediately after QA approval** - Context is fresh
-2. **Be specific about patterns** - Include file paths
-3. **Quantify impact** - "Saved 2 iterations" not "was helpful"
-4. **Update rules** - Make patterns enforceable
-5. **Reference future work** - Connect to next features
-
-## Compound Effect Over Time
-
-```
-Month 1: Establishing patterns (slower)
-Month 2: Reusing patterns (faster)
-Month 3: Pattern library mature (much faster)
-Month 6: New features feel like "already done"
-```
-
-The compound effect is why planning matters: good planning creates good patterns, good patterns accelerate future work.
+1. **Run immediately after QA approval** — context is fresh
+2. **Be specific about patterns** — include file paths
+3. **Quantify impact** — "Saved 2 iterations" not "was helpful"
+4. **Update rules** — make patterns enforceable
+5. **Reference future work** — connect to next features
 
 ## Structured Documentation (docs/solutions/)
 
-For permanent institutional knowledge, create files in `docs/solutions/` with YAML frontmatter:
+For permanent knowledge, create files in `docs/solutions/{category}/` (categories: performance-issues, database-issues, runtime-errors, security-issues, integration-issues, ui-bugs, logic-errors, test-failures, build-errors, best-practices, patterns) with YAML frontmatter (title, category, tags, module, component, symptoms, root_cause, severity, date_discovered, feature_origin).
 
-### Directory Structure
-```
-docs/solutions/
-├── performance-issues/
-├── database-issues/
-├── runtime-errors/
-├── security-issues/
-├── integration-issues/
-├── ui-bugs/
-├── logic-errors/
-├── test-failures/
-├── build-errors/
-├── best-practices/
-└── patterns/
-    └── critical-patterns.md   # Must-know patterns for all work
-```
+Create when: problem took >30min to diagnose, root cause non-obvious, applies to multiple modules, security/data issue, or performance >50% degradation.
 
-### Frontmatter Schema
-```yaml
----
-title: "N+1 Query Fix for User Dashboard"
-category: performance-issues
-tags: [orm, n-plus-one, eager-loading, database]
-module: UserDashboard
-component: api
-symptoms:
-  - "Slow page load (>2s)"
-  - "Multiple queries in logs"
-root_cause: "Missing includes on association"
-severity: high
-date_discovered: 2026-01-15
-feature_origin: user-authentication
----
-```
+## Integration
 
-### When to Create docs/solutions/ Entry
-
-Create a structured solution document when:
-- Problem took >30 minutes to diagnose
-- Root cause was non-obvious
-- Pattern applies to multiple modules
-- Security or data integrity issue
-- Performance degradation >50%
-
-### Auto-Invoke Triggers
-
-<auto_invoke>
-<trigger_phrases>
-- "that worked"
-- "it's fixed"
-- "working now"
-- "problem solved"
-- "tests passing"
-- "QA approved"
-</trigger_phrases>
-
-<manual_override>
-Use `/workflows:compound [feature]` to document immediately.
-</manual_override>
-</auto_invoke>
-
-## Applicable Review Agents
-
-After compound capture, these agents can enhance documentation:
-
-### Domain Experts
-- **security-reviewer**: Reviews security issues
-- **performance-reviewer**: Validates optimization approaches
-- **architecture-reviewer**: Checks architectural learnings
-
-### Integration
-This command integrates with:
-- `/workflows:plan` - Learnings inform future plans
-- Validation integration - Validation learnings cross-referenced with compound captures
-- `learnings-researcher` agent - Searches documented solutions
-- `validation-learning-log` skill - Manages validation Q&A learnings
-- `compound_log.md` - Quick reference for patterns
-- `spec-merger` skill - Intelligent spec merging and conflict resolution
-- `openspec/specs/` - Project specifications baseline (entities, API contracts, business rules)
-- `openspec/config.yaml` - Rules from feedback loop (70% boundary analysis)
-- `spec-manifest.yaml` - Central registry of all project specifications
-
-### Spec Update Flow
-
-```
-Feature Complete
-       │
-       ▼
-┌──────────────────┐
-│ Spec Diff        │ Compare openspec/changes/{slug}/specs.md & design.md
-│ Analysis         │ with existing openspec/specs/
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│ Generate Diff    │ Identify NEW, MODIFIED, UNCHANGED specs
-│ Report           │
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│ Update Specs     │ Use spec-merger skill
-│ (if enabled)     │
-└────────┬─────────┘
-         │
-    ┌────┴────┐
-    │         │
-    ▼         ▼
-┌───────┐ ┌───────────┐
-│Entities│ │API Contracts│
-└───┬───┘ └─────┬─────┘
-    │           │
-    │     ┌─────┴─────┐
-    │     │           │
-    │     ▼           ▼
-    │ ┌───────────┐ ┌──────────┐
-    │ │Business   │ │Spec      │
-    │ │Rules      │ │Manifest  │
-    │ └───────────┘ └──────────┘
-    │
-    ▼
-┌──────────────────┐
-│ compound_log.md  │ Log specs_updated section
-│ Entry            │
-└──────────────────┘
-```
-
-### Project Specs Directory Structure
-
-After compound with spec updates:
-
-```
-openspec/
-├── config.yaml                  # Rules from feedback loop (70% boundary)
-├── specs/                       # BASELINE — updated only by compound
-│   ├── spec-manifest.yaml       # Central registry with history
-│   ├── entities/
-│   │   ├── user.md              # User entity spec
-│   │   ├── email-vo.md          # Email value object spec
-│   │   └── ...
-│   ├── api-contracts/
-│   │   ├── users.md             # Users API endpoints
-│   │   ├── auth.md              # Auth API endpoints
-│   │   └── ...
-│   └── business-rules/
-│       ├── authentication.md    # Auth domain rules
-│       ├── user-management.md   # User domain rules
-│       └── ...
-└── changes/                     # Active feature changes
-    └── ${FEATURE_ID}/
-        ├── proposal.md
-        ├── specs.md
-        ├── design.md
-        └── tasks.md
-```
+- **Review agents**: security-reviewer, performance-reviewer, architecture-reviewer can enhance documentation
+- **Integrates with**: `/workflows:plan` (learnings inform plans), `learnings-researcher` agent, `validation-learning-log` skill, `spec-merger` skill, `compound_log.md`, `openspec/specs/` baseline, `spec-manifest.yaml`
+- **Spec flow**: Feature specs (`openspec/changes/{slug}/`) → diff analysis → merge to baseline (`openspec/specs/{entities,api-contracts,business-rules}/`) → update manifest
 
 ---
 
