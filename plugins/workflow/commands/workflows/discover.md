@@ -1342,7 +1342,7 @@ El discovery se ejecuta automáticamente cuando:
 
 ## Setup Mode (`--setup`)
 
-Interactive onboarding that auto-detects your project stack and configures the plugin. Replaces the former `/workflows:quickstart` command.
+Interactive onboarding that auto-detects your project stack and configures the plugin.
 
 ### When to Use
 
