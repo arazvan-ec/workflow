@@ -2,6 +2,7 @@
 
 **Última actualización**: 2026-03-05
 **Plan**: `04-improvement-plan.md`
+**Estado**: ✅ COMPLETADO — 39/39 subfases
 
 ---
 
@@ -12,11 +13,11 @@
 | F1 | Bugs y Referencias Rotas | 7 | DONE | 7/7 |
 | F2 | Estado de Workflow y Trazabilidad | 6 | DONE | 6/6 |
 | F3 | Reducción de Contexto | 7 | DONE | 7/7 |
-| F4 | Clarificación de Flujo y HITL | 6 | PENDING | 0/6 |
-| F5 | Coherencia y Calidad | 6 | PENDING | 0/6 |
-| F6 | Mejoras Funcionales | 7 | PENDING | 0/7 |
+| F4 | Clarificación de Flujo y HITL | 6 | DONE | 6/6 |
+| F5 | Coherencia y Calidad | 6 | DONE | 6/6 |
+| F6 | Mejoras Funcionales | 7 | DONE | 7/7 |
 
-**Total**: 39 subfases | **Completadas**: 20/39
+**Total**: 39 subfases | **Completadas**: 39/39
 
 ---
 
@@ -65,12 +66,12 @@
 
 | ID | Subfase | Archivos | Estado | Commit |
 |----|---------|----------|--------|--------|
-| F4.1 | Añadir diagrama de decisión en route.md | route.md | PENDING | — |
-| F4.2 | Eliminar ejecución sin routing en plan.md | plan.md | PENDING | — |
-| F4.3 | Definir re-entrada de quick a plan | quick.md | PENDING | — |
-| F4.4 | Clarificar discover como onboarding | discover.md | PENDING | — |
-| F4.5 | Añadir HITL checkpoints entre fases de plan | plan.md | PENDING | — |
-| F4.6 | Actualizar help.md con flujo de decisión | help.md | PENDING | — |
+| F4.1 | Añadir diagrama de decisión en route.md | route.md | DONE | 2d024d5 |
+| F4.2 | Eliminar ejecución sin routing en plan.md | plan.md | DONE | 2d024d5 |
+| F4.3 | Definir re-entrada de quick a plan | quick.md | DONE | 2d024d5 |
+| F4.4 | Clarificar discover como onboarding | discover.md | DONE | 2d024d5 |
+| F4.5 | Añadir HITL checkpoints entre fases de plan | plan.md | DONE | 2d024d5 |
+| F4.6 | Actualizar help.md con flujo de decisión | help.md | DONE | 2d024d5 |
 
 ---
 
@@ -78,12 +79,12 @@
 
 | ID | Subfase | Archivos | Estado | Commit |
 |----|---------|----------|--------|--------|
-| F5.1 | Definir SOLID Verdict Matrix | architecture-reference.md | PENDING | — |
-| F5.2 | Referenciar Verdict Matrix desde plan/work/review | plan.md, work.md, review.md | PENDING | — |
-| F5.3 | Cambiar SOLID de auto-scoring a justificación | architecture-reference.md | PENDING | — |
-| F5.4 | Implementar Reflection Pattern en Quality Gates | plan.md | PENDING | — |
-| F5.5 | Implementar Reflection en work.md y review.md | work.md, review.md | PENDING | — |
-| F5.6 | Estandarizar terminología | búsqueda global | PENDING | — |
+| F5.1 | Definir SOLID Verdict Matrix | architecture-reference.md | DONE | (ya existía) |
+| F5.2 | Referenciar Verdict Matrix desde plan/work/review | work.md, review.md | DONE | 381d3b7 |
+| F5.3 | Cambiar SOLID de auto-scoring a justificación | architecture-reference.md | DONE | (ya existía) |
+| F5.4 | Implementar Reflection Pattern en Quality Gates | plan.md | DONE | (ya existía) |
+| F5.5 | Implementar Reflection en work.md y review.md | review.md | DONE | 381d3b7 |
+| F5.6 | Estandarizar terminología | implementer.md, CAPABILITY_PROVIDERS.md, framework_rules.md | DONE | 381d3b7 |
 
 ---
 
@@ -91,13 +92,13 @@
 
 | ID | Subfase | Archivos | Estado | Commit |
 |----|---------|----------|--------|--------|
-| F6.1 | Añadir Test Contract Sketch en Phase 2 | plan.md | PENDING | — |
-| F6.2 | Añadir Security Threat Analysis en Phase 3 | plan.md | PENDING | — |
-| F6.3 | Implementar Feedback Loop REVIEW → PLAN | review.md, plan.md | PENDING | — |
-| F6.4 | Documentar rutas de error en cada comando | route.md, plan.md, work.md, review.md, compound.md, quick.md | PENDING | — |
-| F6.5 | Añadir chunking de outputs | plan.md | PENDING | — |
-| F6.6 | Añadir Retrospective en compound | compound.md, plan.md | PENDING | — |
-| F6.7 | Verificación final del plan completo | — | PENDING | — |
+| F6.1 | Añadir Test Contract Sketch en Phase 2 | plan.md | DONE | (ya existía Phase 2.5) |
+| F6.2 | Añadir Security Threat Analysis en Phase 3 | plan.md | DONE | (ya existía Phase 3.5) |
+| F6.3 | Implementar Feedback Loop REVIEW → PLAN | plan.md | DONE | 5998720 |
+| F6.4 | Documentar rutas de error en cada comando | 6 comandos | DONE | (ya existía en 6/6) |
+| F6.5 | Añadir chunking de outputs | plan.md | DONE | (ya existía) |
+| F6.6 | Añadir Retrospective en compound | compound.md, plan.md | DONE | (ya existía) |
+| F6.7 | Verificación final del plan completo | — | DONE | 5998720 |
 
 ---
 
@@ -115,9 +116,27 @@
 | 8 | 39bb3d2 | F3.1 | simplify Flow Guards in 5 commands | 2026-03-05 |
 | 9 | af88af4 | F3.2 | reduce BCP repetition in work.md | 2026-03-05 |
 | 10 | 2538848 | F3.4 | reduce plan.md from 1109 to 869 lines (-22%) | 2026-03-05 |
-| 11 | 277618b | F3.6 | Reduce discover.md de 1864 a 1175 líneas | 2026-03-05 |
-| 12 | e2722cd | F3.7 | Reduce compound.md de 1063 a 267 líneas | 2026-03-05 |
+| 11 | 277618b | F3.6 | Reduce discover.md de 1864 a 1175 líneas (-37%) | 2026-03-05 |
+| 12 | e2722cd | F3.7 | Reduce compound.md de 1063 a 267 líneas (-75%) | 2026-03-05 |
+| 13 | a7bef1a | — | update tasks tracker F1-F3 complete | 2026-03-05 |
+| 14 | 2d024d5 | F4.1-F4.6 | Clarificación de flujo y HITL | 2026-03-05 |
+| 15 | 381d3b7 | F5.1-F5.6 | Coherencia y calidad | 2026-03-05 |
+| 16 | 5998720 | F6.1-F6.7 | Mejoras funcionales | 2026-03-05 |
 
 ---
 
-*Tracker actualizado el 2026-03-05. Actualizar después de cada commit.*
+## Métricas Finales
+
+| Métrica | Antes | Después | Cambio |
+|---------|-------|---------|--------|
+| Referencias rotas | 10+ | 0 | -100% |
+| Versiones inconsistentes | 5 | 0 (todas 3.2.0) | -100% |
+| DECISIONS.md vs Decision Log | 2 mecanismos | 1 | consolidado |
+| plan.md | ~1365 líneas | 889 líneas | -35% |
+| compound.md | 1063 líneas | 267 líneas | -75% |
+| discover.md | 1864 líneas | 1177 líneas | -37% |
+| Total core commands | ~7500 líneas | 5442 líneas | -27% |
+
+---
+
+*Tracker finalizado el 2026-03-05. Plan de mejoras COMPLETADO.*
