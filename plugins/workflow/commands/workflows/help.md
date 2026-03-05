@@ -63,14 +63,6 @@ Display this card:
 | First time setup                 | /workflows:discover --setup       |
 | First time with the plugin       | /workflows:help concepts          |
 
-### Resources
-
-| Resource      | Description              |
-|---------------|--------------------------|
-| QUICKSTART.md | Get started in 5 minutes |
-| TUTORIAL.md   | Full step-by-step example|
-| GLOSSARY.md   | Term definitions         |
-
 For more: /workflows:help [topic]
 Topics: commands, agents, concepts, troubleshooting
 ```
@@ -185,7 +177,7 @@ Every request follows this flow. Stages cannot be skipped.
                   |                          |
              [resolve]              [fix and re-review]
 
-See GLOSSARY.md for full definitions.
+See `/workflows:help concepts` for definitions.
 ```
 
 ### Topic: troubleshooting
