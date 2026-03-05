@@ -187,157 +187,27 @@ When `planning_depth` is `minimal`, the Quality Gates for Phase 2 and Phase 3 ar
 
 Before planning any new feature, load and understand the existing project architecture.
 
-### Step 0.0: Load Implementation Preferences (if exists)
+### Step 0.0: Load Project Context
 
-```bash
-# Check if pre-planning phase captured preferences
-PREFERENCES="openspec/changes/${FEATURE_ID}/01_preferences.md"
-if [ -f "$PREFERENCES" ]; then
-  echo "Preferences found from pre-planning. Loading into planning context."
-  # Read technology choices, architecture preferences, code style, constraints
-  # Do NOT re-ask questions already answered in 01_preferences.md
-  # Use preferences to guide Phase 1 constraints and Phase 3 design
-fi
-```
+Load all available context files (if they exist). Do NOT re-ask questions already answered in these files:
 
-### Step 0.0b: Check for Shaped Brief (if exists)
+| File | Purpose | Apply To |
+|------|---------|----------|
+| `openspec/changes/${FEATURE_ID}/00_routing.md` | Classification, assumptions, success criteria | Phase 1 context, Phase 2 acceptance criteria |
+| `openspec/changes/${FEATURE_ID}/01_preferences.md` | Technology choices, code style constraints | Phase 1 constraints, Phase 3 design |
+| `openspec/changes/${FEATURE_ID}/01_shaped_brief.md` | Problem/solution separation, breadboard | Accelerate Phase 1 and Phase 2 |
+| `openspec/specs/constitution.md` | Non-negotiable project principles | ALL phases (flag violations) |
+| `openspec/specs/architecture-profile.yaml` | Learned patterns/anti-patterns | Phase 3 design defaults + warnings |
+| `.ai/project/compound-memory.md` | Known pain points, reliable patterns | Phase 2 specs (proactive criteria) |
+| `.ai/project/next-feature-briefing.md` | Risks, reusable patterns, test strategy | Phase 2 + Phase 3 |
+| `openspec/changes/*/99_retrospective.md` | Lessons from similar past features | Phase 1 complexity calibration |
+| `.ai/project/compound_log.md` | Feature history, time data | Phase 4 task complexity |
 
-```bash
-# Check if shaping was done before planning
-SHAPED_BRIEF="openspec/changes/${FEATURE_ID}/01_shaped_brief.md"
-if [ -f "$SHAPED_BRIEF" ]; then
-  echo "Shaped brief found. Using as input for planning."
-  # Read shaped brief, breadboard, slices
-  # Accelerate Phase 1 and Phase 2 with existing context
-fi
-```
-
-### Step 0.0c: Load Project Constitution (if exists)
-
-```bash
-# Check for project constitution (non-negotiable principles)
-CONSTITUTION="openspec/specs/constitution.md"
-if [ -f "$CONSTITUTION" ]; then
-  echo "Project constitution found. Loading constraints into planning context."
-  # Read architecture principles, quality standards, technology constraints
-  # ALL planning decisions must be consistent with constitution.md
-  # If a design decision would violate a constitutional principle, flag it to the user
-fi
-# Template: core/templates/constitution-template.md
-# Create with: /workflows:discover --setup (generates initial constitution from project analysis)
-```
-
-### Step 0.0d: Load Compound Learnings (Feedback Loop)
-
-Before planning, load insights from previous features to avoid repeating mistakes and reuse proven patterns:
-
-```bash
-# 1. Compound Memory — known pain points, reliable patterns, agent calibration
-COMPOUND_MEMORY=".ai/project/compound-memory.md"
-if [ -f "$COMPOUND_MEMORY" ]; then
-  echo "Compound memory found. Loading known patterns and pain points."
-  # Read: Known Pain Points (what to watch for in this feature)
-  # Read: Historical Patterns (what has worked before)
-  # Read: Agent Calibration (adjusted intensity per agent)
-  # Use pain points to PROACTIVELY address common issues in specs/design
-fi
-
-# 2. Previous Retrospectives — lessons from similar features
-RETROSPECTIVES=$(ls openspec/changes/*/99_retrospective.md 2>/dev/null)
-if [ -n "$RETROSPECTIVES" ]; then
-  echo "Previous retrospectives found. Scanning for relevant lessons."
-  # Read retrospectives from past features
-  # Look for: what went well, what could improve, surprises
-  # If current feature is similar to a past one, highlight specific lessons
-fi
-
-# 3. Architecture Profile Learned Patterns — compound-enriched project knowledge
-ARCH_PROFILE="openspec/specs/architecture-profile.yaml"
-if [ -f "$ARCH_PROFILE" ]; then
-  echo "Architecture profile found. Loading learned patterns and anti-patterns."
-  # Read: learned_patterns (proven approaches with confidence levels)
-  # Read: learned_antipatterns (known mistakes with prevention notes)
-  # Use high-confidence patterns as DEFAULTS for design decisions in Phase 3
-  # Flag anti-patterns as WARNINGS when the feature touches similar areas
-fi
-
-# 4. Compound Log — quick history of past features
-COMPOUND_LOG=".ai/project/compound_log.md"
-if [ -f "$COMPOUND_LOG" ]; then
-  echo "Compound log found. Checking for relevant past features."
-  # Scan for features with similar scope, domain, or technical area
-  # Extract: time investment breakdown, patterns reused, rules updated
-  # Use as calibration for planning_depth and time estimation
-fi
-
-# 5. Next Feature Briefing — actionable intelligence from last compound run
-BRIEFING=".ai/project/next-feature-briefing.md"
-if [ -f "$BRIEFING" ]; then
-  echo "Next feature briefing found. Loading actionable recommendations."
-  # Read: Reusable patterns with concrete file references
-  # Read: Known risks and mitigations for next feature
-  # Read: Recommended test strategy (what to test early, edge cases)
-  # Read: Time calibration (expected vs actual from previous feature)
-  # Read: 70% boundary warning (where complexity hides)
-  # Apply: risks → Phase 2 acceptance criteria, patterns → Phase 3 design defaults
-fi
-```
-
-**How compound learnings inform planning:**
-
-| Compound Data | Used In | How |
-|--------------|---------|-----|
-| Pain points (compound-memory.md) | Phase 2 (specs) | Add explicit acceptance criteria for known pain areas |
-| Learned patterns (architecture-profile.yaml) | Phase 3 (design) | Default to proven patterns instead of inventing new ones |
-| Learned anti-patterns (architecture-profile.yaml) | Phase 3 (design) | Add "## Avoid" section with specific anti-patterns to watch |
-| Previous retrospectives | Phase 1 (understand) | Calibrate complexity estimate with real data from similar features |
-| Compound log (time data) | Phase 4 (tasks) | Inform task complexity based on historical data |
-| Next feature briefing | Phase 2 + Phase 3 | Apply risk mitigations to specs, reuse patterns in design, follow test strategy |
-
-> **This is the compound feedback loop**: each completed feature makes the NEXT feature's planning smarter. Without reading compound learnings, every feature plans from scratch.
-
-#### Step 0.0e: Load Routing State
-
-```bash
-# Load routing decisions persisted by /workflows:route
-ROUTING="openspec/changes/${SLUG}/00_routing.md"
-if [ -f "$ROUTING" ]; then
-  echo "Routing state found. Loading classification, assumptions, and success criteria."
-  # Read: Classification (type, complexity, multi-agent)
-  # Read: Confirmed assumptions (avoid re-asking)
-  # Read: Success criteria (seed Phase 1 proposal + Phase 2 acceptance criteria)
-  # Read: Recommended workflow (confirms plan type: default vs task-breakdown)
-  # Apply: assumptions → Phase 1 context, success criteria → Phase 2 AC, workflow → planning depth
-fi
-```
-
-**How routing state informs planning:**
-
-| Routing Data | Used In | How |
-|-------------|---------|-----|
-| Classification (type, complexity) | Step 0.1 | Calibrates planning depth and focus areas |
-| Confirmed assumptions | Phase 1 (understand) | Pre-populates context, avoids re-asking user |
-| Success criteria | Phase 2 (specs) | Seeds acceptance criteria directly |
-| Recommended workflow | Phase 4 (tasks) | Determines task granularity and parallelization |
+> **Compound feedback loop**: Each completed feature makes the NEXT feature's planning smarter. Without reading compound learnings, every feature plans from scratch.
 
 ### Step 0.1: Read Existing Specifications
 
-```bash
-# Load all existing project specs (BASELINE — read-only, only compound writes here)
-SPECS_BASE="openspec/specs"
-
-# Entities - the domain model
-ls -la ${SPECS_BASE}/entities/*.yaml
-
-# API Contracts - existing endpoints
-ls -la ${SPECS_BASE}/api-contracts/*.yaml
-
-# Business Rules - domain logic constraints
-ls -la ${SPECS_BASE}/business-rules/*.yaml
-
-# Architectural Constraints - system boundaries
-ls -la ${SPECS_BASE}/architectural-constraints/*.yaml
-```
+Read baseline specs from `openspec/specs/` (entities, api-contracts, business-rules, architectural-constraints). These are read-only — only `/workflows:compound` writes here.
 
 ### Step 0.2: Generate and Display Specs Summary
 
@@ -457,111 +327,23 @@ Phase 2 defines **WHAT** the system must do - the functional requirements from t
 
 ### Integration Analysis (when --show-impact=true)
 
-After defining functional specs, analyze how they integrate with existing specs.
+After defining functional specs, analyze how they integrate with existing specs:
 
-#### Step 2.A: Identify Integration Points
+**Step 2.A: Identify Integration Points** — For each category (Entities, API Contracts, Business Rules), classify impacts as:
+- **EXTENDED**: Existing items with new properties/behavior (backward compatible)
+- **MODIFIED**: Existing items with changed behavior (may need migration)
+- **NEW**: Items created by this feature
+- **CONFLICTS**: Potential conflicts with existing specs (must resolve before Phase 3)
 
-```markdown
-## Integration Analysis: ${FEATURE_ID}
+Write results in specs.md under `## Integration Analysis`.
 
-### Entities Impact
+**Step 2.B: API Contract Design** — For new/modified endpoints, follow project conventions:
+- RESTful resource-based URLs matching existing patterns
+- Full contract: method, path, request/response schemas, auth, error codes
+- Read `openspec/specs/api-contracts/` for existing conventions
+- Match versioning, pagination, and error envelope formats
 
-#### EXTENDED (existing entities with new properties/methods)
-| Entity | New Property/Method | Reason |
-|--------|---------------------|--------|
-| User | `subscription_tier` | Support premium features |
-| Order | `discount_applied` | Apply subscription discounts |
-
-#### MODIFIED (existing entities with changed behavior)
-| Entity | Change | Impact |
-|--------|--------|--------|
-| User | Validation rules | Add tier validation |
-
-#### NEW (entities created by this feature)
-| Entity | Purpose | Relationships |
-|--------|---------|---------------|
-| Subscription | Track user subscription | belongs_to: User |
-| SubscriptionPlan | Define available plans | has_many: Subscriptions |
-
-### API Contracts Impact
-
-#### EXTENDED (existing endpoints with new parameters/responses)
-| Endpoint | Change | Backward Compatible |
-|----------|--------|---------------------|
-| GET /api/users/{id} | Add `subscription` to response | YES |
-| POST /api/orders | Accept `discount_code` param | YES |
-
-#### MODIFIED (existing endpoints with changed behavior)
-| Endpoint | Change | Migration Required |
-|----------|--------|-------------------|
-| None | - | - |
-
-#### NEW (endpoints created by this feature)
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| /api/subscriptions | GET, POST | Subscription CRUD |
-| /api/subscription-plans | GET | List available plans |
-
-### Business Rules Impact
-
-#### CONFLICTS (potential conflicts with existing rules)
-| New Rule | Existing Rule | Resolution |
-|----------|---------------|------------|
-| "Premium users get 20% discount" | BR-001 "Order total > 0" | Check after discount |
-
-#### NEW (business rules added by this feature)
-| Rule ID | Entity | Description |
-|---------|--------|-------------|
-| BR-010 | Subscription | Active subscription required for premium features |
-| BR-011 | Order | Discount cannot exceed 50% of order total |
-```
-
-#### Step 2.B: API Contract Design (for new/modified endpoints)
-
-When the feature introduces new API endpoints or modifies existing ones, apply these conventions:
-
-```
-API CONTRACT DESIGN PROTOCOL:
-
-1. NAMING: RESTful resource-based URLs
-   - Resources are nouns, plural: /api/users, /api/orders
-   - Nested resources for relationships: /api/users/{id}/orders
-   - Actions as sub-resources when CRUD doesn't fit: /api/orders/{id}/cancel
-
-2. CONTRACT DEFINITION: For each new/modified endpoint, specify:
-   - Method + Path
-   - Request: headers, path params, query params, body schema
-   - Response: status codes (success + error), body schema
-   - Authentication: required/optional, token type
-   - Rate limiting: if applicable
-
-3. CONSISTENCY: Match existing project conventions
-   - Read existing API contracts in openspec/specs/api-contracts/
-   - Follow the same response envelope format
-   - Use consistent error response structure
-   - Match pagination style (cursor vs offset)
-
-4. VERSIONING: Follow project's versioning strategy
-   - If existing endpoints use /api/v1/, new endpoints must too
-   - If no versioning exists, don't introduce it unnecessarily
-
-5. OUTPUT: Include contracts in specs.md Integration Analysis section
-```
-
-#### Step 2.C: Conflict Detection
-
-Before proceeding to Phase 3, verify no unresolved conflicts:
-
-```bash
-# Check for spec conflicts
-/workflow-skill:spec-analyzer --feature=${FEATURE_ID} --check-conflicts
-
-# Output:
-# ✅ No entity name conflicts
-# ✅ No endpoint path conflicts
-# ⚠️ 1 business rule conflict (BR-001 vs new discount rule)
-# Action: Resolve conflict before proceeding
-```
+**Step 2.C: Conflict Detection** — Run `/workflow-skill:spec-analyzer --feature=${FEATURE_ID} --check-conflicts`. Resolve all conflicts before proceeding.
 
 ### Phase 2 Quality Gate
 
@@ -745,46 +527,24 @@ Categorize all generated constraints by enforcement level and pass to Step 3.2:
 
 For EACH functional spec, propose a solution that complies with SOLID:
 
+For each SPEC, write in `design.md`:
+
 ```markdown
-## Solutions: ${FEATURE_ID}
+### Solution for SPEC-FNN: [Name]
 
----
+**Approach**: [1-2 sentence description]
 
-### Solution for SPEC-F01: User Registration
+**SOLID Compliance** (per principle: COMPLIANT | N/A + justification with file references):
+- SRP: [verdict] — [evidence]
+- OCP: [verdict] — [evidence]
+- LSP: [verdict] — [evidence]
+- ISP: [verdict] — [evidence]
+- DIP: [verdict] — [evidence]
 
-**Approach**: Create User entity with email validation
-
-**SOLID Compliance**:
-- **SRP**: COMPLIANT — User entity only holds data, validation logic isolated in Email ValueObject
-- **OCP**: COMPLIANT — New validators can be added without modifying User (Strategy pattern)
-- **LSP**: N/A — No inheritance hierarchy in this solution
-- **ISP**: COMPLIANT — Small, focused interfaces for repository and validation
-- **DIP**: COMPLIANT — Repository interface defined in Domain, implemented in Infrastructure
-
-**Files to Create**:
-- `Domain/Entity/User.php` (SRP: only user data)
-- `Domain/ValueObject/Email.php` (SRP: email rules)
-- `Domain/Repository/UserRepositoryInterface.php` (DIP: abstraction)
-- `Infrastructure/Repository/DoctrineUserRepository.php` (DIP: implementation)
-
----
-
-### Solution for SPEC-F02: User Login
-
-**Approach**: Authentication service with token generation
-
-**SOLID Compliance**:
-- **SRP**: COMPLIANT — Auth logic separate from token generation (Extract Class)
-- **OCP**: COMPLIANT — Token strategies can be added without modification (Strategy pattern)
-- **LSP**: N/A — No inheritance hierarchy in this solution
-- **ISP**: COMPLIANT — Token generator interface is minimal and focused
-- **DIP**: COMPLIANT — Token generator injected via interface (DI)
-
-**Files to Create**:
-- `Application/Service/AuthenticationService.php`
-- `Domain/Service/TokenGeneratorInterface.php`
-- `Infrastructure/Service/JwtTokenGenerator.php`
+**Files to Create/Modify**: [list with SOLID justification per file]
 ```
+
+Repeat for each SPEC. See `core/architecture-reference.md` for SOLID Verdict Matrix.
 
 ### Step 3.3: Pattern Selection Guide
 
