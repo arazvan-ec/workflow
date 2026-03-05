@@ -1,6 +1,6 @@
 # MCP Integration Guide
 
-**Version**: 1.0.0
+**Version**: 3.2.0
 **Last Updated**: 2026-02-01
 
 ---

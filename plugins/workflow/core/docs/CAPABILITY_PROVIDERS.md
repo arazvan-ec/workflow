@@ -1,6 +1,6 @@
 # Capability Providers — Model-Agnostic Abstraction Layer
 
-**Version**: 1.0.0
+**Version**: 3.2.0
 **Added in**: Plugin v2.6.0
 
 ---

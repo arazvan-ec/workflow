@@ -1,6 +1,6 @@
 # /workflows:route - Workflow Router (Mandatory Entry Point)
 
-**Version**: 1.2.0
+**Version**: 3.2.0
 **Category**: Core
 **Priority**: CRITICAL - Must be invoked for ALL new interactions
 

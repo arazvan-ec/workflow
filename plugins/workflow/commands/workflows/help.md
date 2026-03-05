@@ -6,7 +6,7 @@ argument_hint: [topic]
 
 # /workflows:help - Quick Help and Navigation
 
-**Version**: 2.1.0
+**Version**: 3.2.0
 **Category**: Reference
 
 ---

@@ -1,7 +1,7 @@
 # Karpathy-Inspired Coding Principles
 
 **Source**: Adapted from [andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
-**Version**: 1.0.0
+**Version**: 3.2.0
 **Integrated**: 2026-02-01
 
 ---

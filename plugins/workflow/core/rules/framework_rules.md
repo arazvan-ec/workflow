@@ -1,6 +1,6 @@
 # Framework Rules - Multi-Agent Workflow
 
-**Framework Version**: 3.0.0
+**Framework Version**: 3.2.0
 **Last Updated**: 2026-02-12
 
 ---

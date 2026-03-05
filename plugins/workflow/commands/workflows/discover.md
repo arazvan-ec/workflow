@@ -6,7 +6,7 @@ argument_hint: [--full | --refresh | --report | --setup]
 
 # /workflows:discover - Descubrimiento Profundo del Proyecto
 
-**Version**: 1.0.0
+**Version**: 3.2.0
 **Category**: Setup & Analysis
 **Priority**: Run once after installation, then periodically
 

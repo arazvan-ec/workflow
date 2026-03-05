@@ -1,5 +1,5 @@
 # Capability Providers Configuration
-# Version: 1.2.0
+# Version: 3.2.0
 # Purpose: Model-agnostic provider abstraction for workflow capabilities
 #
 # This file defines which implementation to use for each capability.
