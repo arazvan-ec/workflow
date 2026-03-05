@@ -24,45 +24,24 @@ This command is the **MANDATORY entry point** for all interactions with the Mult
 /workflows:route "I need to add user authentication"
 ```
 
-## Workflow Decision Matrix
-
-### Quick Classification Questions
-
-When the need is unclear, ask these questions in order:
+## Quick Decision Flow
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    WORKFLOW ROUTER                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  1. ¿Qué tipo de trabajo necesitas?                        │
-│     [ ] Nueva funcionalidad (feature)                      │
-│     [ ] Corrección de bug                                  │
-│     [ ] Refactoring/mejora                                 │
-│     [ ] Investigación/análisis                             │
-│     [ ] Documentación                                      │
-│     [ ] Revisión de código                                 │
-│     [ ] Configuración/setup                                │
-│     [ ] Otro (describir)                                   │
-│                                                             │
-│  2. ¿Cuál es la complejidad estimada?                      │
-│     [ ] Simple (< 1 hora, pocos archivos)                  │
-│     [ ] Media (1-4 horas, varios componentes)              │
-│     [ ] Compleja (> 4 horas, múltiples capas)              │
-│     [ ] No estoy seguro                                    │
-│                                                             │
-│  3. ¿Necesitas coordinación multi-agente?                  │
-│     [ ] Sí, backend + frontend                             │
-│     [ ] Sí, múltiples capas (domain, app, infra)           │
-│     [ ] No, un solo rol es suficiente                      │
-│     [ ] No estoy seguro                                    │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+Request arrives
+  │
+  ├── New project with requirements?  → /workflows:discover --seed
+  ├── Simple (≤3 files, <1h)?         → /workflows:quick
+  ├── Feature, unclear scope?         → /workflows:shape → /workflows:plan
+  ├── Feature, clear scope?           → /workflows:plan
+  ├── Bug fix?                        → /workflows:plan (implementation-only)
+  ├── Code review?                    → /workflows:review
+  ├── Investigation?                  → Research agents (no workflow)
+  └── Unclear?                        → Ask clarifying questions, then re-route
 ```
 
 ## Routing Logic
 
-### Decision Tree
+### Detailed Decision Tree
 
 ```
 USER REQUEST

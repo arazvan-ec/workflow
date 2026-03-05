@@ -1,7 +1,7 @@
 ---
 name: workflows:plan
 description: "Convert ideas into implementable strategies with detailed planning. The foundation of compound engineering (80% planning, 20% execution)."
-argument_hint: <feature-name> [--workflow=default|task-breakdown] [--show-impact=true|false]
+argument_hint: <feature-name> [--show-impact=true|false]
 ---
 
 # Multi-Agent Workflow: Plan
@@ -19,15 +19,15 @@ Read `openspec/changes/{slug}/` and verify:
 
 ```
 /workflows:plan user-authentication
-/workflows:plan payment-system --workflow=task-breakdown
 /workflows:plan order-management --show-impact=true
 ```
+
+> **Note**: The workflow type (`default` vs `task-breakdown`) is determined by `/workflows:route` and stored in `00_routing.md`. Do not invoke plan directly without routing first.
 
 ## Flags
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--workflow` | `default` | Workflow type: `default` or `task-breakdown` |
 | `--show-impact` | `true` | Show detailed integration impact analysis |
 
 ## Philosophy
@@ -632,6 +632,25 @@ Apply the Quality Gate Protocol (above) with these 4 checks before writing `desi
 4. **Architectural impact**: Lists specific layers and files to CREATE and MODIFY. FAIL if empty or "TBD".
 
 **CDP check**: If design decisions contradict `architecture-profile.yaml` patterns or `constitution.md` principles, apply the Contradiction Detection Protocol (`framework_rules.md` §12).
+
+### HITL Checkpoint: Phase 3 → Phase 4
+
+Before proceeding to task breakdown, present the design summary to the user:
+
+```
+"Design complete for ${FEATURE_ID}:
+ - ${N} solutions covering all specs
+ - SOLID compliance: ${verdict}
+ - Architecture impact: ${X} files to create, ${Y} to modify
+ - Patterns: ${list of patterns used}
+
+ Does this design approach look correct? [yes / adjust / restart]"
+```
+
+If "adjust": revise design based on feedback, re-run Phase 3 Quality Gate.
+If "restart": return to Phase 2 with new constraints.
+
+---
 
 ### Phase 3.5: Security Threat Analysis (conditional: planning_depth=full)
 

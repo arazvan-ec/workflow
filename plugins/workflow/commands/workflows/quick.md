@@ -174,8 +174,15 @@ THEN:
   1. Commit what you have so far (partial progress)
   2. Update state (tasks.md or _quick/log.md) with status: ESCALATED
   3. NOTIFY user: "This task is more complex than expected. Recommend full workflow."
-  4. Suggest: /workflows:route → /workflows:plan
+  4. Run /workflows:route to classify the expanded scope
+  5. Router creates 00_routing.md + tasks.md for the new feature
+  6. /workflows:plan Phase 1 starts with context from quick mode:
+     - Files already modified (partial progress)
+     - Issues discovered during quick execution
+     - Test results and failure context
 ```
+
+**Re-entry point**: Plan Phase 1 (Understand) receives the quick mode context as input. The partial progress commit serves as the starting point for implementation.
 
 ## Examples
 

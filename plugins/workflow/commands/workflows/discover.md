@@ -16,6 +16,8 @@ argument_hint: [--full | --refresh | --report | --setup]
 
 Analiza el proyecto en profundidad para construir un conocimiento completo que permita al plugin trabajar de manera más efectiva. Genera un perfil del proyecto con toda la información relevante.
 
+> **Important**: `/workflows:discover` is an **onboarding command**, not a workflow step. It does NOT require routing (`/workflows:route`). Run it ONCE during project setup (`--setup`), or when starting a greenfield project (`--seed`). After initial setup, use `--refresh` periodically to update the profile.
+
 ## When to Use
 
 | Situación | Recomendación |
