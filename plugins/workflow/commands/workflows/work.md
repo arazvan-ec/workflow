@@ -378,19 +378,12 @@ Regardless of mode, follow the TDD cycle for each task, ensuring SOLID complianc
 
 ### Step 6: Bounded Correction Protocol + Diagnostic Escalation
 
-Applies the BCP (see `core/rules/testing-rules.md` for full protocol) with these work-specific additions:
+Apply BCP (full protocol: `core/rules/testing-rules.md`). Work-specific additions:
 
 - **Scale-adaptive limits**: `MAX_ITERATIONS` from `providers.yaml` → `correction_limits` (simple:5, moderate:10, complex:15)
-- **Diagnostic escalation**: After 3 consecutive identical errors → invoke `diagnostic-agent` (forked context) for root cause analysis. If diagnosis confidence is LOW → mark BLOCKED.
-- **3 deviation types**: TYPE 1 (test failure → fix code, NEVER fix test), TYPE 2 (missing functionality → compare vs acceptance criteria), TYPE 3 (incomplete pattern → compare vs reference file)
+- **3 deviation types**: TYPE 1 (test failure → fix code), TYPE 2 (missing functionality → add implementation), TYPE 3 (incomplete pattern → complete pattern)
+- **Diagnostic escalation**: After 3 consecutive identical errors → invoke `diagnostic-agent` (forked) for root cause. If confidence LOW → mark BLOCKED.
 - **Exit**: All verified → checkpoint. Max iterations exhausted → document blocker, mark BLOCKED.
-
-**Deviation Types:**
-- **TYPE 1 — Test Failure**: Tests fail → fix implementation
-- **TYPE 2 — Missing Functionality**: Tests pass but acceptance criteria unmet → add implementation
-- **TYPE 3 — Incomplete Pattern**: Implementation doesn't follow reference file → complete pattern
-
-**Diagnostic escalation**: When the same error recurs 3 times, the `diagnostic-agent` (see `agents/workflow/diagnostic-agent.md`) runs in a forked context to analyze root cause and recommend a different approach. This prevents wasting iterations on the same failing fix.
 
 ### Step 7: Checkpoint (includes SOLID + Goal Verification)
 
