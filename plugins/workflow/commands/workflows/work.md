@@ -348,8 +348,8 @@ SOLUTION VALIDATION (for each task in tasks.md):
    - Verify interfaces match (DTO shapes, method signatures, API contracts)
    - If conflict detected → STOP. Consult planner before proceeding.
 
-3. DECISION CHECK: Is approach consistent with DECISIONS.md?
-   - Read DECISIONS.md for relevant architectural decisions
+3. DECISION CHECK: Is approach consistent with Decision Log in tasks.md?
+   - Read Decision Log in tasks.md for relevant architectural decisions
    - If approach contradicts a decision → STOP. Consult planner.
 
 4. COMPLEXITY ASSESSMENT: Resolve max_iterations for this task

@@ -81,7 +81,7 @@ If a prerequisite is not met, STOP and complete the missing step first.
 - For complex or unclear features, Shape before Planning (`/workflows:shape` → `/workflows:plan`)
 - Don't implement before Planning is `COMPLETED`
 - Don't Review before Implementation is `COMPLETED`
-- If you need to change workflow, document why in `DECISIONS.md`
+- If you need to change workflow, document why in Decision Log (tasks.md)
 
 **Full sequence**: Route → Shape (optional) → Plan → Work → Validate (auto) → Review → Compound
 
@@ -301,7 +301,7 @@ Avoid: implementing trends because they're fashionable, adding tools without con
 - Their section of `tasks.md`
 - Files assigned to their role
 
-Only the Planner role can modify project rules (with justification in `DECISIONS.md`).
+Only the Planner role can modify project rules (with justification in Decision Log in tasks.md).
 
 ---
 

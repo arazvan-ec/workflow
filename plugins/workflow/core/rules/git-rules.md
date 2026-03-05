@@ -38,7 +38,7 @@ Git is the synchronization mechanism between agent instances.
 ### Design Conflicts
 1. Report in `tasks.md` with `BLOCKED` status
 2. The Planner role makes the decision
-3. Document the decision in `DECISIONS.md`
+3. Document the decision in Decision Log (tasks.md)
 
 ## Multi-Agent Sync Protocol
 
