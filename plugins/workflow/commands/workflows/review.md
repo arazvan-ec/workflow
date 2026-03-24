@@ -117,6 +117,58 @@ Test 3: Responsive
 - Desktop (1024px): [document result]
 ```
 
+### Phase 2b: Live UI Verification (Playwright MCP)
+
+> **When available**: If Playwright MCP server is connected, use it for real browser interaction instead of manual description-based testing. Falls back to Phase 2 manual testing if Playwright MCP is unavailable.
+>
+> **Source**: [Anthropic Harness Design](https://www.anthropic.com/engineering/harness-design-long-running-apps) — "The evaluator used Playwright MCP to interact with live pages directly, taking screenshots and studying implementations before producing assessments."
+
+**Activation check**:
+```bash
+# Check if Playwright MCP is available
+# If mcp__playwright__* tools exist → use Phase 2b
+# If not → fall back to Phase 2 (manual testing)
+```
+
+**Live verification protocol**:
+
+```markdown
+Step 1: Navigate and Screenshot
+- Navigate to each route defined in specs.md
+- Take screenshot of each page state (default, loading, error, empty)
+- Document visual evidence in QA report
+
+Step 2: Interactive Flow Testing
+- Execute user flows from acceptance criteria
+- Fill forms, click buttons, follow navigation
+- Verify redirects, toasts, modals work correctly
+- Take screenshots at each step as evidence
+
+Step 3: Responsive Verification
+- Set viewport to 375px (mobile) → screenshot
+- Set viewport to 768px (tablet) → screenshot
+- Set viewport to 1024px+ (desktop) → screenshot
+- Compare layout behavior across breakpoints
+
+Step 4: Accessibility Spot-Check
+- Tab through interactive elements → verify focus indicators
+- Check color contrast on key text elements
+- Verify form labels are associated with inputs
+```
+
+**Evidence format in QA Report**:
+```markdown
+### Live UI Verification (Playwright MCP)
+
+| Flow | Steps | Result | Screenshot |
+|------|-------|--------|------------|
+| Registration | Navigate → Fill form → Submit | ✅ PASS | [screenshot taken] |
+| Login | Navigate → Enter creds → Submit | ✅ PASS | [screenshot taken] |
+| Mobile layout | Set 375px → Navigate all routes | ⚠️ ISSUE | Nav menu overlaps |
+
+**Playwright Session**: ${N} pages visited, ${M} interactions, ${K} screenshots taken
+```
+
 ### Phase 3: Automated Test Execution
 
 ```bash
@@ -270,6 +322,7 @@ Criterion 3: "User redirected after registration"
 - ✅ **SOLID design was implemented** (COMPLIANT per solid-analyzer, matches design.md)
 - ✅ Code meets quality standards
 - ✅ Documentation complete
+- ✅ Quality Score average ≥ 3.0 (no dimension = 1)
 
 ### REJECTED - Any of these:
 - ❌ Any acceptance criterion fails
@@ -278,6 +331,7 @@ Criterion 3: "User redirected after registration"
 - ❌ **Implementation doesn't match SOLID design** (NON_COMPLIANT per solid-analyzer)
 - ❌ Security vulnerability present
 - ❌ Code quality below standards
+- ❌ Quality Score average < 3.0 or any dimension = 1
 
 > **Note**: QA rejects if implementation doesn't match the SOLID design.
 > If the design itself was wrong, that's a Phase 3 issue, not QA's responsibility.
@@ -293,6 +347,25 @@ Criterion 3: "User redirected after registration"
 
 ## Summary
 [1-2 sentence summary]
+
+## Quality Scores (1-5 scale)
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| **Spec Fidelity** | /5 | How accurately implementation matches specs.md acceptance criteria |
+| **Code Craft** | /5 | Naming, structure, error handling, style consistency |
+| **Test Quality** | /5 | Coverage, edge cases, assertion quality, TDD compliance |
+| **Architecture Fit** | /5 | SOLID compliance, layer separation, pattern adherence |
+
+**Average Score**: X.X/5
+**Minimum Threshold**: Average ≥ 3.0 to APPROVE. Any dimension = 1 → automatic REJECT.
+
+### Scoring Rubric
+- **5 (Excellent)**: Exceeds expectations, could serve as reference implementation
+- **4 (Good)**: Meets all requirements with minor style/preference differences
+- **3 (Acceptable)**: Meets requirements but has notable improvement areas
+- **2 (Below Standard)**: Missing requirements or significant quality gaps
+- **1 (Unacceptable)**: Fundamental issues, blocks approval regardless of other scores
 
 ## Test Results
 - API Tests: X/Y passing

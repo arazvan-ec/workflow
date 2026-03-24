@@ -59,6 +59,7 @@
 - All automated tests passing
 - Code quality standards met
 - TDD compliance verified in git log
+- Quality Score average ≥ 3.0 (no dimension = 1)
 
 **REJECTED** if ANY:
 - Any acceptance criterion fails
@@ -66,6 +67,7 @@
 - Tests failing
 - Code quality below standards
 - Security vulnerability present
+- Quality Score average < 3.0 or any dimension scores 1
 
 ## Issue Reporting
 

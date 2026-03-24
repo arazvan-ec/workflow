@@ -584,14 +584,45 @@ Before proceeding to Phase 3, verify no unresolved conflicts:
 # Action: Resolve conflict before proceeding
 ```
 
+### Step 2.D: Quality Bar Definition
+
+After defining functional specs and integration analysis, define the quality bar for this feature. Include this section in `specs.md`:
+
+```markdown
+## Quality Bar
+
+> Intentionally directional language that steers implementation quality.
+> Source: [Anthropic Harness Design](https://www.anthropic.com/engineering/harness-design-long-running-apps) — "Criterion wording shapes output. Phrasing like 'museum quality' directly steered aesthetic convergence."
+
+Define the quality bar for each relevant dimension using steering language:
+
+| Dimension | Quality Bar |
+|-----------|-------------|
+| **Performance** | "${steering statement — e.g., Response times must be indistinguishable from static content (<100ms)}" |
+| **UX** | "${steering statement — e.g., A new user should complete the flow without reading any documentation}" |
+| **Security** | "${steering statement — e.g., Security must withstand automated scanning tools without findings}" |
+| **Code Quality** | "${steering statement — e.g., Code should read like well-written prose — intent obvious from names alone}" |
+
+> **Guidelines for writing quality bars**:
+> - Use concrete, measurable language when possible (times, percentages, counts)
+> - Use aspirational but achievable comparisons ("indistinguishable from", "as if hand-crafted")
+> - Avoid vague adjectives ("good", "fast", "clean") — specify what good/fast/clean means
+> - Quality bars flow to `/workflows:review` as evaluation anchors — reviewers score against these statements
+>
+> **Not all dimensions are required for every feature**. Include only dimensions relevant to the feature. A pure backend API doesn't need a UX quality bar. A data migration doesn't need a performance quality bar.
+```
+
+---
+
 ### Phase 2 Quality Gate
 
-Apply the Quality Gate Protocol (above) with these 4 checks before writing `specs.md`:
+Apply the Quality Gate Protocol (above) with these 5 checks before writing `specs.md`:
 
 1. **WHAT not HOW**: Each spec describes functional requirements. FAIL if contains implementation details.
 2. **Testable criteria**: ≥2 acceptance criteria per spec, each verifiable. FAIL if missing or vague.
 3. **Full scope**: Every user requirement maps to at least one spec. FAIL if gaps.
 4. **Substantive integration**: Integration analysis identifies extended/modified/new entities AND endpoints. FAIL if all say "None" for non-trivial feature.
+5. **Quality bar defined**: specs.md contains a Quality Bar section with at least one dimension. FAIL if missing. If specs.md contains a Quality Bar section, `/workflows:review` uses those statements as evaluation anchors for dimensional scoring.
 
 **CDP check**: If new specs conflict with existing specs in `openspec/specs/` (detected in Step 2.C), apply the Contradiction Detection Protocol (`framework_rules.md` §12) — do not silently override.
 
@@ -606,6 +637,7 @@ Before proceeding to design, present the spec summary to the user:
  - ${N} functional specs defined
  - Integration: ${E} entities extended, ${M} modified, ${C} new
  - ${X} API endpoints affected
+ - Quality bar: ${D} dimensions defined
 
  Do these specs cover your requirements? [yes / adjust / restart]"
 ```

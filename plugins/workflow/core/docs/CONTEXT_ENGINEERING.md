@@ -150,6 +150,103 @@ With larger context windows, fork only when isolation is truly needed:
 4. standard/lightweight tier → aggressive fork
 ```
 
+### Phase Transition Protocol (Context Resets)
+
+Inspired by [Anthropic's Harness Design](https://www.anthropic.com/engineering/harness-design-long-running-apps): context resets outperform compaction for long-running sessions because they eliminate "context anxiety" — the degradation in model performance as accumulated context creates noise.
+
+#### Reset vs Compaction
+
+| Strategy | Mechanism | Best For |
+|----------|-----------|----------|
+| **Compaction** | Summarize earlier context in-place | Within a phase (mid-work, mid-review) |
+| **Context Reset** | Clean handoff via artifacts, fresh context | Between phases (plan→work, work→review) |
+
+**Rule**: Use compaction within phases, resets between phases.
+
+#### Phase Handoff Templates
+
+Each phase transition produces a structured handoff that the next phase consumes:
+
+**PLAN → WORK handoff** (written by plan, consumed by work):
+```
+Artifacts on disk (source of truth):
+  - openspec/changes/{slug}/proposal.md    → Problem + success criteria
+  - openspec/changes/{slug}/specs.md       → Functional requirements
+  - openspec/changes/{slug}/design.md      → SOLID solutions + patterns
+  - openspec/changes/{slug}/tasks.md       → Task list + decision log
+
+Work phase loads ONLY:
+  1. tasks.md (current task list and status)
+  2. design.md (implementation patterns)
+  3. Relevant source files for current task
+  4. compound-memory.md + next-feature-briefing.md (compound learnings)
+
+Work phase does NOT need to load:
+  - Full conversation history from planning
+  - Routing analysis details
+  - Alternative solutions that were rejected
+```
+
+**WORK → REVIEW handoff** (written by work, consumed by review):
+```
+Artifacts on disk (source of truth):
+  - openspec/changes/{slug}/specs.md       → Acceptance criteria to verify
+  - openspec/changes/{slug}/design.md      → Design to verify against
+  - openspec/changes/{slug}/tasks.md       → What was implemented
+  - Git diff (main...feature branch)       → Actual changes
+
+Review phase loads ONLY:
+  1. specs.md (acceptance criteria)
+  2. design.md (expected patterns)
+  3. tasks.md (implementation status)
+  4. Git diff of changed files
+  5. compound-memory.md (calibration data, known issues)
+
+Review phase does NOT need to load:
+  - Implementation conversation history
+  - Debugging attempts and dead ends
+  - Intermediate test failures
+```
+
+**REVIEW → COMPOUND handoff** (written by review, consumed by compound):
+```
+Artifacts on disk (source of truth):
+  - QA Report (in tasks.md or separate report)
+  - openspec/changes/{slug}/* (all feature artifacts)
+  - Git log of feature branch
+
+Compound phase loads ONLY:
+  1. QA report (review results)
+  2. tasks.md (timeline, blockers)
+  3. Git log + diff stats
+  4. Existing compound-memory.md
+```
+
+#### When to Reset
+
+```
+Decision: Reset or Continue?
+
+IF transitioning between major phases (plan→work, work→review, review→compound):
+  → RESET: Start fresh context, load only handoff artifacts
+
+IF continuing within a phase (e.g., implementing task 3 after task 2):
+  → CONTINUE: Keep context, compact if needed at 70%/85% threshold
+
+IF session is long (>2h or >100 messages) within a single phase:
+  → COMPACT: Summarize and continue in same context
+
+IF model shows signs of context anxiety (repetitive, losing track, contradicting earlier work):
+  → RESET: Even within a phase, reset with checkpoint
+```
+
+#### Implementation
+
+Context resets are implemented via the existing mechanisms:
+- **Claude Code CLI**: Use `/compact` aggressively between phases, or start new sessions
+- **Agent SDK**: Spawn new agent per phase with only required artifacts
+- **Manual**: Save checkpoint → new session → load artifacts
+
 ### When to fork a skill (general guidelines)
 
 - It reads more than 10 files (aggressive) or 30 files (selective)

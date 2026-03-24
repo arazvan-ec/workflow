@@ -126,6 +126,18 @@ When one role completes and another begins:
 
 ---
 
+## Phase Resets (Context Resets Between Phases)
+
+When transitioning between major workflow phases (plan→work, work→review, review→compound), prefer a **context reset** over compaction. A fresh context loaded with only the handoff artifacts outperforms a compacted context carrying accumulated noise.
+
+**Key principle**: Use compaction *within* phases, resets *between* phases.
+
+Each phase transition has a defined set of artifacts that the next phase needs. The completing phase writes these to disk; the next phase loads only what it requires — not the full conversation history.
+
+For the full protocol including handoff templates, reset decision logic, and implementation details, see **`CONTEXT_ENGINEERING.md` → "Phase Transition Protocol (Context Resets)"**.
+
+---
+
 ## What to Do When Resuming Fails
 
 **tasks.md missing or corrupted:**

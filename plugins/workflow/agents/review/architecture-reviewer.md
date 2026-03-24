@@ -183,6 +183,13 @@ grep -r "javax.persistence\|org.springframework\|jakarta" domain/ 2>/dev/null
 **Architecture Style**: ${DDD | Clean Architecture | Hexagonal | Layered}
 **SOLID Compliance**: ${VERDICT}
 **Compliance Level**: COMPLIANT | NEEDS_WORK | NON_COMPLIANT
+**Quality Scores**:
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Architecture Fit | /5 | |
+| SOLID Compliance | /5 | |
+| Layer Separation | /5 | |
+**Average**: X.X/5
 
 ### Layer Analysis
 
