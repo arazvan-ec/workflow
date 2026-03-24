@@ -209,6 +209,20 @@ thresholds:
     complex: 15     # New architecture, multi-layer integration, novel patterns
     default: 10     # When complexity is not specified
 
+  # Harness audit thresholds
+  # Periodic evaluation of which framework components are still load-bearing.
+  # Source: Anthropic Harness Design — "every component encodes an assumption
+  # about what the model can't do on its own"
+  harness_audit:
+    # Number of features between audits
+    audit_every_n_features: 5
+    # Minimum issues found to keep an agent mandatory
+    min_issues_to_keep: 1
+    # Maximum false positives before recommending inline
+    max_false_positives_to_inline: 2
+    # Agents that are never demoted regardless of audit results
+    always_keep: ["security-reviewer"]
+
   # Fork decision thresholds
   fork:
     # Files read threshold to trigger fork (selective mode)

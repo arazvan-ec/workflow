@@ -122,6 +122,13 @@ Reference: `core/architecture-reference.md` → API Consumer Architecture Patter
 - [ ] Form inputs have labels
 - [ ] Tab order is logical
 
+#### Live Verification (when Playwright MCP available)
+- [ ] All routes navigable without errors
+- [ ] User flows complete successfully end-to-end
+- [ ] Screenshots captured as evidence for each breakpoint
+- [ ] No console errors during flow execution
+- [ ] Form submissions produce expected responses
+
 ### When Go detected
 
 - [ ] Error handling follows Go conventions (return errors, don't panic)
@@ -194,7 +201,13 @@ php vendor/bin/phpunit --coverage-text 2>/dev/null
 **Reviewer**: Code Reviewer Agent
 **Date**: ${DATE}
 **Stack**: ${DETECTED_STACK}
-**Quality Score**: A | B | C | D | F
+**Quality Scores**:
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Code Craft | /5 | |
+| Test Quality | /5 | |
+| Type Safety | /5 | |
+**Average**: X.X/5
 
 ### Type Safety
 - [ ] Strict mode / type checking enabled

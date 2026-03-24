@@ -280,6 +280,132 @@ After documenting patterns and anti-patterns, update the project's architecture 
 
 6. **Write** updated `openspec/specs/architecture-profile.yaml`
 
+### Step 3d: Evaluator Calibration
+
+Track evaluator accuracy to improve review quality over time. This addresses the known problem that AI evaluators tend to approve mediocre work without calibration.
+
+> **Source**: "Out-of-the-box evaluator agents approve mediocre work; effective QA demands multiple prompt refinement cycles" — Anthropic Harness Design
+
+#### Calibration Events
+
+Record calibration events when human judgment diverges from QA verdict:
+
+| Event Type | Trigger | Meaning |
+|-----------|---------|---------|
+| **FALSE_POSITIVE** | Human rejects what QA APPROVED | QA was too lenient — missed real issues |
+| **FALSE_NEGATIVE** | Human accepts what QA REJECTED | QA was too strict — flagged non-issues |
+| **SEVERITY_MISMATCH** | Human reclassifies issue severity | QA misjudged impact (e.g., called MINOR what was CRITICAL) |
+
+#### Calibration Capture Process
+
+1. **During/after review**: If the human overrides the QA verdict:
+   - Record the override event type
+   - Record which agent(s) were wrong
+   - Record the specific criteria that were misjudged
+   - Record what the correct assessment should have been
+
+2. **Update `.ai/project/compound-memory.md`** under `## Evaluator Calibration Log`:
+
+```markdown
+## Evaluator Calibration Log
+
+### Entry: ${FEATURE_ID} (${DATE})
+- **Event**: FALSE_POSITIVE | FALSE_NEGATIVE | SEVERITY_MISMATCH
+- **Agent(s)**: code-reviewer | architecture-reviewer | security-reviewer | performance-reviewer
+- **What QA said**: [QA's verdict and reasoning]
+- **What was correct**: [Human's assessment and why]
+- **Criteria affected**: [Which review criteria need tuning]
+- **Calibration action**: INCREASE_STRICTNESS | DECREASE_STRICTNESS | ADJUST_CRITERIA
+- **Specific adjustment**: [What the agent should do differently next time]
+
+### Calibration Summary (updated each compound run)
+| Agent | False Positives | False Negatives | Accuracy (last 5) | Trend |
+|-------|----------------|-----------------|-------------------|-------|
+| code-reviewer | 0 | 0 | N/A | — |
+| architecture-reviewer | 0 | 0 | N/A | — |
+| security-reviewer | 0 | 0 | N/A | — |
+| performance-reviewer | 0 | 0 | N/A | — |
+```
+
+3. **Feed back to agents**: Review agents already read `compound-memory.md` via their "Compound Memory Integration" section. The calibration log becomes additional input:
+   - If agent has ≥2 FALSE_POSITIVEs → increase scrutiny for affected criteria
+   - If agent has ≥2 FALSE_NEGATIVEs → relax affected criteria, add notes on acceptable patterns
+   - If accuracy drops below 60% on last 5 features → flag for human review of agent prompt
+
+### Step 3e: Harness Audit (every 5 features)
+
+Periodically evaluate which framework components are still load-bearing vs ceremonial overhead.
+
+> **Source**: "Every component in a harness encodes an assumption about what the model can't do on its own, and those assumptions are worth stress testing." — [Anthropic Harness Design](https://www.anthropic.com/engineering/harness-design-long-running-apps)
+
+> **Trigger**: Run this step when the compound log shows ≥5 features since last audit (or first audit if never run).
+
+#### Audit Process
+
+1. **Count feature completions** since last harness audit:
+   ```bash
+   # Check compound_log.md for feature count since last audit
+   # If < 5 features since last audit → SKIP this step
+   # If ≥ 5 features → RUN audit
+   ```
+
+2. **Analyze review agent effectiveness**:
+
+   For each review agent, check historical data from compound-memory.md:
+
+   | Agent | Issues Found (last 5) | False Positives | Load-Bearing? | Recommendation |
+   |-------|----------------------|-----------------|---------------|----------------|
+   | code-reviewer | ${count} | ${count} | YES/NO | KEEP / MAKE_OPTIONAL / INLINE |
+   | architecture-reviewer | ${count} | ${count} | YES/NO | KEEP / MAKE_OPTIONAL / INLINE |
+   | security-reviewer | ${count} | ${count} | YES/NO | KEEP (always) |
+   | performance-reviewer | ${count} | ${count} | YES/NO | KEEP / MAKE_OPTIONAL / INLINE |
+
+   **Decision criteria**:
+   - Agent found ≥1 real issue in last 5 features → **KEEP** (load-bearing)
+   - Agent found 0 real issues but 0 false positives → **MAKE_OPTIONAL** (not needed for this project type)
+   - Agent found 0 real issues AND ≥2 false positives → **INLINE** (overhead without value; convert from fork to inline)
+   - security-reviewer → **ALWAYS KEEP** (security is never optional regardless of history)
+
+3. **Analyze quality gates effectiveness**:
+
+   | Gate | Catches (last 5) | Recommendation |
+   |------|------------------|----------------|
+   | SOLID compliance | ${count} | KEEP / RELAX |
+   | TDD verification | ${count} | KEEP / RELAX |
+   | Coverage threshold | ${count} | KEEP / ADJUST |
+   | Dimensional constraints | ${count} | KEEP / REMOVE |
+
+4. **Update `providers.yaml`** thresholds if needed:
+   - If fork_strategy is `aggressive` but agents are consistently inline-safe → recommend `selective`
+   - If planning_depth is `full` but minimal features never fail → recommend `standard` as default
+
+5. **Write audit report** to `.ai/project/harness-audit-log.md`:
+
+   ```markdown
+   ## Harness Audit: ${DATE}
+
+   **Features since last audit**: ${N}
+   **Model**: ${MODEL_ID}
+
+   ### Agent Effectiveness
+   | Agent | Issues Found | False Positives | Verdict |
+   |-------|-------------|-----------------|---------|
+   | ... | ... | ... | ... |
+
+   ### Gate Effectiveness
+   | Gate | Catches | Verdict |
+   |------|---------|---------|
+   | ... | ... | ... |
+
+   ### Recommendations
+   - [List of specific adjustments]
+
+   ### Actions Taken
+   - [What was actually changed in this audit]
+   ```
+
+6. **Present to user for approval**: Harness audit recommendations are presented, NOT auto-applied. The user decides which optimizations to accept.
+
 ### Step 4: Update Project Rules
 
 If patterns are generalizable, update rules:
@@ -712,6 +838,9 @@ The spec-merger skill:
 - [ ] Estimated time savings for future work
 - [ ] **Captured dimensional learnings** (diagnostic accuracy, drift, constraint effectiveness)
 - [ ] **Recommended diagnostic refresh** if any dimension changed
+- [ ] **Recorded evaluator calibration events** (Step 3d: any human overrides of QA verdict)
+- [ ] **Updated calibration summary** in compound-memory.md
+- [ ] **Harness audit** (Step 3e: every 5 features — review agent effectiveness, gate effectiveness, recommendations)
 - [ ] **Generated spec diff report** (Step 7)
 - [ ] **Updated project specs** (Step 8, unless --update-specs=false)
   - [ ] Updated/created entity specs
@@ -729,6 +858,7 @@ Compound capture complete for: user-authentication
 Patterns captured: 3
 Anti-patterns documented: 2
 Rules updated: 2 files
+Evaluator calibration: ${N} events recorded (${FP} false positives, ${FN} false negatives)
 Templates created: 1
 
 ═══════════════════════════════════════════════════════════════
